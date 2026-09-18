@@ -1,0 +1,166 @@
+# Weekly Deals & Price History Tracker
+
+A standalone, lightweight Python engine for tracking grocery weekly circulars, recording historical sale prices, and identifying genuine bargains (All-Time Lows, cyclical promotion intervals, and price hikes) using Flipp's public flyer backend.
+
+---
+
+## Key Features
+
+1. **Direct Flipp Backend API Integration**:
+   - Fetches active weekly circulars via public JSON endpoints (`backflipp.wishabi.com`).
+   - Zero browser automation overhead (no Selenium / Playwright / headless Chrome).
+   - Fast, reliable execution (~100ms per sync).
+
+2. **Circular Page Geometry & Front-Page Isolation**:
+   - Parses multi-page flyer coordinates (`left`, `right`, `top`, `bottom`).
+   - Matches deals to their flyer page based on coordinate intersection.
+   - Easily filters top "Cover / Front Page" hero deals.
+
+3. **Product Entity Normalization & Disaggregation**:
+   - Disaggregates compound deal titles (e.g. *"Sugardale Bacon 12 oz., Jimmy Dean Roll Sausage 16 oz. or Hillshire Farm 12-14 oz."* under one price point).
+   - Extracts numeric package sizes and units (`oz`, `lb`, `ct`, `qt`, `ltr`, etc.).
+   - Computes unit prices (`$/oz` or `$/lb`).
+
+4. **Time-Series SQLite Storage**:
+   - Persists circular runs, product catalogs, and price observations.
+   - Embedded database (`data/deals.db`) requiring no external server setup.
+
+5. **Deal Intelligence & Historical Analytics**:
+   - **`[🌟 ALL-TIME LOW]`**: Identifies when current price is at or below the lowest recorded sale price in history.
+   - **`[🔥 BEAT AVERAGE]`**: Flags deals $\ge 15\%$ below rolling average promo prices.
+   - **`[🔄 CYCLE REFRESH]`**: Tracks recurring periodic sales (e.g., bacon cycling every 4 weeks).
+   - **`[⚠️ PRICE HIKE]`**: Warns if a deal is advertised as a sale but is more expensive than prior circulars.
+
+---
+
+## Directory Structure
+
+```
+Weekly Deals Tracker/
+├── src/
+│   ├── __init__.py
+│   ├── fetcher.py        # Flipp API client & flyer coordinate parser
+│   ├── normalizer.py     # Product entity parsing, multi-item disaggregator
+│   ├── database.py       # SQLite database manager & time-series storage
+│   ├── analyzer.py       # Deal intelligence & historical price trends
+│   ├── video_pipeline.py # Video download, keyframe extraction & batch ingestion
+│   └── cli.py            # Rich terminal CLI
+├── tests/
+│   ├── test_fetcher.py   # Unit tests for circular geometry & API parsing
+│   ├── test_normalizer.py# Unit tests for multi-item disaggregation & unit parsing
+│   ├── test_database.py  # Unit tests for SQLite storage & history queries
+│   └── test_analyzer.py  # Unit tests for All-Time Low & price scoring logic
+├── raw_ads/              # Historical images/PDFs/videos (gitignored)
+├── data/                 # SQLite storage (deals.db) & extracted video frames
+├── requirements.txt      # Dependencies
+└── README.md
+```
+
+---
+
+## Ad Ingestion & Backfill Workflows
+
+The engine supports multiple ingestion pipelines to maintain an accurate and complete price timeline:
+
+### 1. Live Circular Sync (Flipp API)
+Ingest the active weekly ad directly from Flipp's public JSON backend. Items ingested this way are automatically tagged as **Verified / Trusted** (`is_trusted=1, source_type='flipp_api'`):
+```bash
+# Sync active weekly ad
+python -m src.cli sync --zip 12345 --merchant "Tom Thumb"
+
+# Sync front-page hero deals only
+python -m src.cli sync --zip 12345 --front-page-only
+```
+
+### 2. Video Circular Pipeline (`src/video_pipeline.py`)
+For weekly ads distributed as animated videos (e.g. Facebook / Instagram / Web MP4s):
+```python
+from src.video_pipeline import VideoAdPipeline
+
+pipeline = VideoAdPipeline()
+
+# 1. Download video
+video_file = pipeline.download_video("https://example.com/ad_video.mp4")
+
+# 2. Extract high-resolution keyframes for each page
+page_frames = pipeline.extract_page_frames(video_file, flyer_id=20260401)
+
+# 3. Ingest structured items with trust tagging
+pipeline.ingest_video_deals(
+    flyer_id=20260401,
+    name="Easter Holiday Circular",
+    valid_from="2026-04-01T00:00:00",
+    valid_to="2026-04-07T23:59:59",
+    pages_items=pages_data,
+    is_trusted=False,
+    source_type="video_pipeline_untrusted"
+)
+```
+
+### 3. Historical Images & PDF Backfill (`raw_ads/`)
+Historical flyer scans, screenshots, and multi-page PDFs can be placed in `raw_ads/` (gitignored). Antigravity parses the images visually, disaggregates bundled deals, normalizes unit sizes, and records observations directly into SQLite.
+
+---
+
+## Trust & Verification Management
+
+Because historical backfills and OCR/video scans can occasionally have discrepancies, the database maintains granular trust flags:
+
+* **View Price History with Trust Badges:**
+  ```bash
+  python -m src.cli history "Ground Beef"
+  ```
+  ```text
+  --- Product: Fresh 80% Lean Ground Beef Value Pack ---
+     • [2026-03-04 - 2026-03-10] Price: $3.99 (Page 1) [Untrusted / Backfill]
+     • [2026-09-16 - 2026-09-22] Price: $3.99 (Page 1)
+  ```
+
+* **Strict Mode (Verified Live Data Only):**
+  ```bash
+  python -m src.cli history "Ground Beef" --trusted-only
+  ```
+
+* **Toggle Trust Flags:**
+  ```bash
+  # Mark all historical past circulars as untrusted
+  python -m src.cli mark-trust untrust --all-past
+
+  # Mark a specific flyer run as trusted
+  python -m src.cli mark-trust trust --flyer-id 8131286
+  ```
+
+---
+
+## Quick Start & CLI Usage
+
+### 1. View Analyzed Deals
+Display active deals evaluated against price history:
+```bash
+python -m src.cli deals
+```
+To filter only **All-Time Lows (ATL)** on the front page:
+```bash
+python -m src.cli deals --front-page-only --atl-only
+```
+
+### 2. Search Product History
+```bash
+python -m src.cli history "Bacon"
+python -m src.cli history "Salmon"
+```
+
+### 3. Export Deals to JSON or CSV
+```bash
+python -m src.cli export --format json --output top_deals.json
+python -m src.cli export --format csv --output top_deals.csv
+```
+
+---
+
+## Running Unit Tests
+
+Run the full offline test suite:
+```bash
+python -m unittest discover -s tests -p "test_*.py"
+```

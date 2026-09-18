@@ -1,0 +1,45 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+
+# Database files
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# Exports and test outputs
+*.json
+*.csv
+!package.json
+
+# Scratch files (preserve scratch/README.md)
+scratch/*
+!scratch/README.md
+
+# Raw Ad Assets, Video Frames & Media
+raw_ads/
+past/
+old-next/
+data/video_frames/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.mp4
+*.pdf
+
+# Environment and Secrets
+.env
+.env.*
+!.env.example
+*.log
+logs/
+
+# OS / Editor artifacts
+.DS_Store
+.idea/
+.vscode/

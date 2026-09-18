@@ -1,0 +1,6 @@
+# Weekly Deals & Price History Tracker Requirements
+# Minimal external dependencies (standard library handles urllib, json, sqlite3)
+# Optional enhancements:
+requests>=2.28.0
+tabulate>=0.9.0
+rapidfuzz>=3.0.0
