@@ -97,8 +97,54 @@ pipeline.ingest_video_deals(
 )
 ```
 
-### 3. Historical Images & PDF Backfill (`raw_ads/`)
-Historical flyer scans, screenshots, and multi-page PDFs can be placed in `raw_ads/` (gitignored). Antigravity parses the images visually, disaggregates bundled deals, normalizes unit sizes, and records observations directly into SQLite.
+### 3. Historical Scans, PDFs & Vision API Ingestion (`raw_ads/`)
+Historical flyer scans, screenshots, and multi-page PDFs can be placed in `raw_ads/` (gitignored). To parse and backfill historical deals from raw media, you can use an AI coding agent or a multimodal Vision API (e.g. Gemini, OpenAI, Claude):
+
+#### A. Interactive AI Agent Workflow
+When working with an AI coding agent (e.g., in your IDE or terminal), you can prompt the agent to inspect the flyer images in `raw_ads/` directly:
+1. Provide the agent with the image path (e.g., `raw_ads/4-15 pg1.png`).
+2. Instruct the agent to extract each promotion's deal attributes (**Item Name**, **Brand**, **Size/Unit**, **Promo Price**, **Original Price**, and **Page Number**).
+3. The agent disaggregates bundled deals (e.g. multi-flavor sodas or meat bundles), normalizes units, and records them via `DealsDatabase().record_deals(deals, is_trusted=False, source_type='vision_agent_backfill')`.
+
+#### B. Automated Scripting via Multimodal API Keys
+For automated batch backfills using a Vision API (e.g., Google Gemini 1.5 Flash/Pro or OpenAI GPT-4o):
+1. Add your API key to `.env` (e.g., `GEMINI_API_KEY=your_key` or `OPENAI_API_KEY=your_key`).
+2. Send image bytes with a structured JSON schema prompt:
+   ```python
+   # Example extraction prompt schema:
+   prompt = """
+   Extract all grocery promotions from this weekly ad page into JSON:
+   {
+     "items": [
+       {
+         "name": "Lucerne Large Eggs 12 ct",
+         "current_price": 1.99,
+         "original_price": 3.49,
+         "unit": "ct",
+         "unit_size": 12.0,
+         "page_num": 1,
+         "description": "Selected varieties, Member price"
+       }
+     ]
+   }
+   """
+   ```
+3. Ingest the resulting items into the tracker engine:
+   ```python
+   from src.normalizer import ProductNormalizer
+   from src.database import DealsDatabase
+
+   normalizer = ProductNormalizer()
+   db = DealsDatabase()
+
+   normalized_deals = []
+   for raw_item in extracted_items:
+       deals = normalizer.disaggregate_and_normalize(raw_item)
+       normalized_deals.extend(deals)
+
+   # Mark backfilled data as untrusted until verified
+   db.record_deals(normalized_deals, is_trusted=False, source_type="vision_api_backfill")
+   ```
 
 ---
 
