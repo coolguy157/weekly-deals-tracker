@@ -6,7 +6,7 @@ import sqlite3
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
-from .fetcher import FlyerMetadata
+from .fetcher import FlyerMetadata, FlyerItem
 from .normalizer import NormalizedDeal
 
 
@@ -295,8 +295,8 @@ class DealsDatabase:
         """Fetch time-series price history for a given product."""
         query = """
             SELECT 
-                d.advertised_price, d.unit_price, d.page_number, d.is_front_page,
-                d.is_trusted, d.source_type, d.recorded_at, f.valid_from, f.valid_to, f.flyer_id
+                d.id as deal_id, d.advertised_price, d.unit_price, d.page_number, d.is_front_page,
+                d.promo_type, d.is_trusted, d.source_type, d.recorded_at, f.valid_from, f.valid_to, f.flyer_id
             FROM deal_observations d
             JOIN flyer_runs f ON d.flyer_id = f.flyer_id
             WHERE d.product_id = ?
@@ -309,6 +309,26 @@ class DealsDatabase:
         with self._get_connection() as conn:
             rows = conn.execute(query, params).fetchall()
             return [dict(r) for r in rows]
+
+    def mark_deal_doorbuster(self, deal_id: int, is_doorbuster: bool = True) -> bool:
+        """Mark a specific deal observation as a doorbuster / outlier promo."""
+        promo = "doorbuster" if is_doorbuster else "standard"
+        with self._get_connection() as conn:
+            cur = conn.execute(
+                "UPDATE deal_observations SET promo_type = ? WHERE id = ?",
+                (promo, deal_id),
+            )
+            return cur.rowcount > 0
+
+    def mark_flyer_doorbuster(self, flyer_id: int, is_doorbuster: bool = True) -> int:
+        """Mark all deals in a circular flyer as doorbusters."""
+        promo = "doorbuster" if is_doorbuster else "standard"
+        with self._get_connection() as conn:
+            cur = conn.execute(
+                "UPDATE deal_observations SET promo_type = ? WHERE flyer_id = ?",
+                (promo, flyer_id),
+            )
+            return cur.rowcount
 
     def search_products(self, query: str) -> List[Dict[str, Any]]:
         """Search products by canonical name or brand."""
@@ -324,3 +344,90 @@ class DealsDatabase:
                 (f"%{query}%", f"%{query}%"),
             ).fetchall()
             return [dict(r) for r in rows]
+
+    def renormalize_all_deals(self, normalizer=None) -> Tuple[int, int, int]:
+        """
+        Disaggregate all compound deals across circular history, link to canonical product entities,
+        and remove obsolete/orphaned compound records.
+        Returns: (disaggregated_observations_count, new_observations_count, deleted_orphaned_products_count)
+        """
+        if normalizer is None:
+            from .normalizer import ProductNormalizer
+            normalizer = ProductNormalizer()
+
+        with self._get_connection() as conn:
+            rows = conn.execute("""
+                SELECT d.id as obs_id, d.flyer_id, d.raw_deal_id, d.page_number, d.is_front_page,
+                       d.advertised_price, d.promo_type, d.raw_title, d.image_url, d.is_trusted, d.source_type,
+                       d.recorded_at, p.product_id, p.canonical_name, p.brand
+                FROM deal_observations d
+                JOIN products p ON d.product_id = p.product_id
+            """).fetchall()
+
+            disaggregated_obs = 0
+            new_obs_total = 0
+
+            for r in rows:
+                item = FlyerItem(
+                    id=r["raw_deal_id"],
+                    flyer_id=r["flyer_id"],
+                    name=r["raw_title"],
+                    price=r["advertised_price"],
+                    original_price=None,
+                    pre_price_text=None,
+                    post_price_text=None,
+                    description=None,
+                    brand=r["brand"],
+                    page_number=r["page_number"],
+                    is_front_page=bool(r["is_front_page"]),
+                    cutout_image_url=r["image_url"],
+                    clean_image_url=None,
+                )
+                deals = normalizer.disaggregate_and_normalize(item)
+
+                if len(deals) > 1 or (len(deals) == 1 and deals[0].canonical_name != r["canonical_name"]):
+                    disaggregated_obs += 1
+                    new_obs_total += len(deals)
+
+                    # Remove old compound observation
+                    conn.execute("DELETE FROM deal_observations WHERE id = ?", (r["obs_id"],))
+
+                    # Insert disaggregated single-item deals
+                    for deal in deals:
+                        pid = self.get_or_create_product(
+                            canonical_name=deal.canonical_name,
+                            brand=deal.brand,
+                            unit_size=deal.unit_size,
+                            unit_type=deal.unit_type,
+                            conn=conn,
+                        )
+                        conn.execute("""
+                            INSERT OR REPLACE INTO deal_observations
+                            (flyer_id, product_id, raw_deal_id, page_number, is_front_page,
+                             advertised_price, unit_price, promo_type, raw_title, image_url,
+                             is_trusted, source_type, recorded_at)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))
+                        """, (
+                            deal.flyer_id,
+                            pid,
+                            deal.raw_deal_id,
+                            deal.page_number,
+                            1 if deal.is_front_page else 0,
+                            deal.advertised_price,
+                            deal.unit_price,
+                            r["promo_type"],
+                            deal.raw_title,
+                            deal.image_url,
+                            r["is_trusted"],
+                            r["source_type"],
+                            r["recorded_at"],
+                        ))
+
+            # Delete orphaned compound products
+            del_cur = conn.execute("""
+                DELETE FROM products
+                WHERE product_id NOT IN (SELECT DISTINCT product_id FROM deal_observations)
+            """)
+            deleted_orphans = del_cur.rowcount
+
+            return disaggregated_obs, new_obs_total, deleted_orphans

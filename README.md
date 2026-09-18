@@ -176,19 +176,31 @@ Because historical backfills and OCR/video scans can occasionally have discrepan
   python -m src.cli mark-trust trust --flyer-id 8131286
   ```
 
+* **Tag Outlier / Doorbuster Deals (Excludes from standard price hike baselines):**
+  ```bash
+  # Tag a specific deal observation as a one-time doorbuster
+  python -m src.cli mark-doorbuster tag --deal-id 2870
+
+  # Tag an entire promotional flyer as doorbuster
+  python -m src.cli mark-doorbuster tag --flyer-id 20260909
+  ```
+
 ---
 
 ## Quick Start & CLI Usage
 
 ### 1. View Analyzed Deals
-Display active deals evaluated against price history:
+Display active deals in a scannable weekly digest format (defaults to **Front Page / Cover Deals**, circular-wide **Price Hike Alerts**, and inside-page **All-Time Lows**, filtering out unpriced tiles):
 ```bash
 python -m src.cli deals
 ```
-To filter only **All-Time Lows (ATL)** on the front page:
-```bash
-python -m src.cli deals --front-page-only --atl-only
-```
+Available flags:
+- **Show all circular items**: `python -m src.cli deals --all`
+- **Filter All-Time Lows (ATL) only**: `python -m src.cli deals --atl-only`
+- **Filter Price Hike warnings only**: `python -m src.cli deals --hikes-only`
+- **Front page only**: `python -m src.cli deals --front-page-only`
+- **Search specific product/brand**: `python -m src.cli deals -q "bacon"`
+- **Include unpriced bundle tiles**: `python -m src.cli deals --include-see-ad`
 
 ### 2. Search Product History
 ```bash
@@ -196,7 +208,13 @@ python -m src.cli history "Bacon"
 python -m src.cli history "Salmon"
 ```
 
-### 3. Export Deals to JSON or CSV
+### 3. Database Re-normalization & Catalog Reconciliation
+Disaggregate compound deal records across historical circulars, link items to canonical products, and prune obsolete compound rows:
+```bash
+python -m src.cli renormalize
+```
+
+### 4. Export Deals to JSON or CSV
 ```bash
 python -m src.cli export --format json --output top_deals.json
 python -m src.cli export --format csv --output top_deals.csv

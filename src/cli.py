@@ -20,17 +20,35 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
         pass
 
 
-def format_badge(badge: str) -> str:
-    badge_colors = {
-        "ALL_TIME_LOW": "\033[92m[* ALL-TIME LOW]\033[0m",
-        "BEAT_AVERAGE": "\033[96m[^ BEAT AVERAGE]\033[0m",
-        "CYCLE_REFRESH": "\033[94m[~ CYCLE REFRESH]\033[0m",
-        "FIRST_SEEN": "\033[93m[+ FIRST SEEN]\033[0m",
-        "STANDARD_DEAL": "\033[90m[DEAL]\033[0m",
-        "PRICE_HIKE": "\033[91m[! PRICE HIKE]\033[0m",
-        "SEE_AD": "\033[90m[SEE AD]\033[0m",
+def format_badge_fixed(badge: str, width: int = 16) -> str:
+    raw_labels = {
+        "ALL_TIME_LOW": "[* ALL-TIME LOW]",
+        "BEAT_AVERAGE": "[^ BEAT AVERAGE]",
+        "CYCLE_REFRESH": "[~ CYCLE REFRESH]",
+        "FIRST_SEEN": "[+ FIRST SEEN]",
+        "STANDARD_DEAL": "[DEAL]",
+        "PRICE_HIKE": "[! PRICE HIKE]",
+        "SEE_AD": "[SEE AD]",
     }
-    return badge_colors.get(badge, f"[{badge}]")
+    raw = raw_labels.get(badge, f"[{badge}]")
+    padded = f"{raw:<{width}}"
+
+    color_map = {
+        "ALL_TIME_LOW": "\033[92m",
+        "BEAT_AVERAGE": "\033[96m",
+        "CYCLE_REFRESH": "\033[94m",
+        "FIRST_SEEN": "\033[93m",
+        "STANDARD_DEAL": "\033[90m",
+        "PRICE_HIKE": "\033[91m",
+        "SEE_AD": "\033[90m",
+    }
+    color = color_map.get(badge, "")
+    reset = "\033[0m" if color else ""
+    return f"{color}{padded}{reset}"
+
+
+def format_badge(badge: str) -> str:
+    return format_badge_fixed(badge, width=0)
 
 
 import os
@@ -94,8 +112,28 @@ def cmd_sync(args: argparse.Namespace) -> None:
     print(f"Successfully recorded {inserted} normalized deal observations into database.")
 
 
+def print_deal_card(ev, verbose: bool = False) -> None:
+    badge_str = format_badge_fixed(ev.badge, width=16)
+    price_str = f"${ev.current_price:.2f}" if ev.current_price is not None else "See ad"
+    page_str = f"p.{ev.page_number}" + (" (Cover)" if ev.is_front_page else "")
+    brand_str = f" [{ev.brand}]" if ev.brand else ""
+
+    # Actionable inline annotations for non-verbose mode
+    note = ""
+    if ev.badge == "PRICE_HIKE":
+        note = f"  \033[91m↳ {ev.summary_reason}\033[0m"
+    elif ev.badge in ("ALL_TIME_LOW", "BEAT_AVERAGE", "CYCLE_REFRESH"):
+        note = f"  \033[92m↳ {ev.summary_reason}\033[0m"
+
+    if verbose:
+        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str} ({page_str})")
+        print(f"   ↳ {ev.summary_reason}\n")
+    else:
+        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str} ({page_str}){note}")
+
+
 def cmd_deals(args: argparse.Namespace) -> None:
-    """Display analyzed deals for the latest circular."""
+    """Display analyzed deals for the latest circular with clean terminal digest formatting."""
     db = DealsDatabase(args.db)
     analyzer = DealAnalyzer(db)
 
@@ -104,6 +142,9 @@ def cmd_deals(args: argparse.Namespace) -> None:
         print(f"No circulars found in database for merchant '{args.merchant}'. Run 'sync' first.")
         return
 
+    verbose = getattr(args, "verbose", False)
+
+    # If user explicitly requested front_page_only via flag, respect it
     evaluations = analyzer.evaluate_flyer(flyer_id, front_page_only=args.front_page_only)
 
     if args.query:
@@ -116,20 +157,77 @@ def cmd_deals(args: argparse.Namespace) -> None:
     if args.atl_only:
         evaluations = [e for e in evaluations if e.badge == "ALL_TIME_LOW"]
 
-    print(f"\n{'='*75}")
-    print(f" WEEKLY DEALS REPORT (Flyer ID: {flyer_id}) - {len(evaluations)} items")
-    print(f"{'='*75}\n")
+    if getattr(args, "price_hikes_only", False):
+        evaluations = [e for e in evaluations if e.badge == "PRICE_HIKE"]
 
-    for ev in evaluations:
-        badge_str = format_badge(ev.badge)
-        price_str = f"${ev.current_price:.2f}" if ev.current_price is not None else "See ad"
-        page_str = f"Page {ev.page_number}" + (" (Cover)" if ev.is_front_page else "")
+    # Filter out unpriced [SEE AD] items by default unless explicitly requested or query searched
+    has_custom_filter = bool(args.query or args.atl_only or getattr(args, "price_hikes_only", False) or args.all_pages)
+    see_ad_count = sum(1 for e in evaluations if e.badge == "SEE_AD")
 
-        print(f"{badge_str} {ev.canonical_name} ({page_str})")
-        print(f"   Price: {price_str} | {ev.summary_reason}")
-        if ev.brand:
-            print(f"   Brand: {ev.brand}")
+    if not args.include_see_ad and not args.query:
+        evaluations_priced = [e for e in evaluations if e.badge != "SEE_AD"]
+    else:
+        evaluations_priced = evaluations
+
+    # If --all or a specific search/filter is specified, print direct matching list
+    if has_custom_filter or args.front_page_only:
+        title = "ALL CIRCULAR DEALS" if args.all_pages else "WEEKLY DEALS REPORT"
+        print(f"\n{'='*78}")
+        print(f" {title} (Flyer ID: {flyer_id}) - {len(evaluations_priced)} items")
+        print(f"{'='*78}\n")
+
+        for ev in evaluations_priced:
+            print_deal_card(ev, verbose=verbose)
+
+        if not args.include_see_ad and see_ad_count > 0 and not args.query:
+            print(f"\nℹ️  Omitted {see_ad_count} unpriced promotional tiles (use --include-see-ad to display).")
+
+        if args.query:
+            print(f"\n💡 Search full price history across all circulars: py -m src.cli history \"{args.query}\"")
         print()
+        return
+
+    # DEFAULT SMART DIGEST VIEW: Front Page (Cover) + Circular-Wide Price Hikes & All-Time Lows
+    front_page_deals = [e for e in evaluations_priced if e.is_front_page]
+    inside_hikes = [e for e in evaluations_priced if not e.is_front_page and e.badge == "PRICE_HIKE"]
+    inside_atls = [e for e in evaluations_priced if not e.is_front_page and e.badge == "ALL_TIME_LOW"]
+
+    total_circular_items = len(evaluations)
+    print(f"\n{'='*78}")
+    print(f" 🛒 WEEKLY DEALS DIGEST (Flyer ID: {flyer_id})")
+    print(f" Showing: Front Page Deals ({len(front_page_deals)}) + Inside Price Hikes ({len(inside_hikes)}) & ATLs ({len(inside_atls)})")
+    print(f"{'='*78}\n")
+
+    print(f"⭐ FRONT PAGE DEALS (Cover - {len(front_page_deals)} items)")
+    print(f"{'-'*78}")
+    if front_page_deals:
+        for ev in front_page_deals:
+            print_deal_card(ev, verbose=verbose)
+    else:
+        print("  No priced front page deals found.")
+    print()
+
+    if inside_hikes:
+        print(f"⚠️  PRICE HIKE ALERTS (Inside Pages - {len(inside_hikes)} items)")
+        print(f"{'-'*78}")
+        for ev in inside_hikes:
+            print_deal_card(ev, verbose=verbose)
+        print()
+
+    if inside_atls:
+        print(f"🌟 ALL-TIME LOWS ON INSIDE PAGES ({len(inside_atls)} items)")
+        print(f"{'-'*78}")
+        for ev in inside_atls:
+            print_deal_card(ev, verbose=verbose)
+        print()
+
+    print(f"{'-'*78}")
+    print(f"💡 Total circular items: {total_circular_items} (omitted unpriced tiles & standard inside deals)")
+    print(f"   • Search price history: py -m src.cli history \"<item>\" (e.g. py -m src.cli history \"beef\")")
+    print(f"   • Search current ad:    py -m src.cli deals -q <item>")
+    print(f"   • View all pages:       py -m src.cli deals --all")
+    print(f"   • Multi-line details:   py -m src.cli deals --verbose")
+    print(f"   • Show unpriced tiles:  py -m src.cli deals --include-see-ad\n")
 
 
 def cmd_history(args: argparse.Namespace) -> None:
@@ -141,9 +239,14 @@ def cmd_history(args: argparse.Namespace) -> None:
         print(f"No products found matching '{args.query}'.")
         return
 
-    print(f"\nFound {len(products)} matching product(s):\n")
-    for p in products[:5]:
-        print(f"--- Product: {p['canonical_name']} (Brand: {p.get('brand') or 'N/A'}) ---")
+    limit = getattr(args, "limit", None) or len(products)
+    shown = products[:limit]
+    limit_note = f" (showing first {len(shown)} - use --limit to view more)" if len(shown) < len(products) else ""
+    print(f"\nFound {len(products)} matching product(s){limit_note}:\n")
+
+    for p in shown:
+        brand_str = f"Brand: {p.get('brand')}" if p.get("brand") else "Brand: N/A"
+        print(f"--- Product: {p['canonical_name']} ({brand_str}) ---")
         history = db.get_product_price_history(p["product_id"], trusted_only=args.trusted_only)
         if not history:
             print("   No recorded price observations.")
@@ -155,7 +258,9 @@ def cmd_history(args: argparse.Namespace) -> None:
             price = f"${h['advertised_price']:.2f}" if h.get("advertised_price") is not None else "See ad"
             page_info = f"Page {h['page_number']}" + (" (Front Page)" if h['is_front_page'] else "")
             trust_info = "" if h.get("is_trusted", 1) else " \033[93m[Untrusted / Backfill]\033[0m"
-            print(f"   • [{valid_from} - {valid_to}] Price: {price} ({page_info}){trust_info}")
+            doorbuster_info = " \033[95m[Doorbuster / Outlier]\033[0m" if h.get("promo_type") in ("doorbuster", "outlier") else ""
+            deal_id_str = f" [Deal ID: {h['deal_id']}]" if "deal_id" in h else ""
+            print(f"   • [{valid_from} - {valid_to}] Price: {price} ({page_info}){doorbuster_info}{trust_info}{deal_id_str}")
         print()
 
 
@@ -172,6 +277,24 @@ def cmd_mark_trust(args: argparse.Namespace) -> None:
         except_ids = [latest_id] if (latest_id and not args.include_current) else []
         count = db.mark_all_past_deals_trust(is_trusted=is_trusted, except_flyer_ids=except_ids)
         print(f"Marked {count} past deal observations as {'TRUSTED' if is_trusted else 'UNTRUSTED'}.")
+
+
+def cmd_mark_doorbuster(args: argparse.Namespace) -> None:
+    """Mark a flyer or deal observation as a doorbuster / outlier promo."""
+    db = DealsDatabase(args.db)
+    is_doorbuster = (args.action == "tag")
+
+    if args.deal_id:
+        success = db.mark_deal_doorbuster(args.deal_id, is_doorbuster=is_doorbuster)
+        status = "DOORBUSTER / OUTLIER" if is_doorbuster else "STANDARD PROMO"
+        if success:
+            print(f"Successfully marked deal {args.deal_id} as {status}.")
+        else:
+            print(f"Deal ID {args.deal_id} not found.")
+    elif args.flyer_id:
+        count = db.mark_flyer_doorbuster(args.flyer_id, is_doorbuster=is_doorbuster)
+        status = "DOORBUSTER / OUTLIER" if is_doorbuster else "STANDARD PROMO"
+        print(f"Marked {count} deals in flyer {args.flyer_id} as {status}.")
 
 
 def cmd_export(args: argparse.Namespace) -> None:
@@ -216,6 +339,27 @@ def cmd_export(args: argparse.Namespace) -> None:
     print(f"Exported {len(records)} evaluated deals to {args.output}")
 
 
+def cmd_renormalize(args: argparse.Namespace) -> None:
+    """Disaggregate compound deals across circular history and reconcile product catalog."""
+    import shutil
+
+    db = DealsDatabase(args.db)
+    normalizer = ProductNormalizer()
+
+    # Backup local database if not in-memory
+    if not db.is_memory and Path(db.db_path).exists():
+        backup_path = f"{db.db_path}.bak"
+        shutil.copyfile(db.db_path, backup_path)
+        print(f"📦 Created safety database backup at: {backup_path}")
+
+    print("Re-evaluating circular history and disaggregating multi-product compound deals...")
+    disaggregated_obs, new_obs, deleted_orphans = db.renormalize_all_deals(normalizer)
+
+    print(f"✅ Re-normalization complete!")
+    print(f"   • Disaggregated {disaggregated_obs} compound observations into {new_obs} single-product observations.")
+    print(f"   • Pruned {deleted_orphans} obsolete compound product records from catalog.")
+
+
 def main() -> None:
     load_dotenv()
     parser = argparse.ArgumentParser(
@@ -239,11 +383,16 @@ def main() -> None:
     p_deals.add_argument("--flyer-id", type=int, default=None, help="Specific circular flyer ID")
     p_deals.add_argument("--front-page-only", action="store_true", help="Filter front page deals only")
     p_deals.add_argument("--atl-only", action="store_true", help="Filter All-Time Lows only")
+    p_deals.add_argument("--hikes-only", "--price-hikes-only", dest="price_hikes_only", action="store_true", help="Filter Price Hikes only")
+    p_deals.add_argument("--all", "--all-pages", dest="all_pages", action="store_true", help="Show all items across all circular pages")
+    p_deals.add_argument("--include-see-ad", action="store_true", help="Include unpriced promotional tiles and bundle headers")
+    p_deals.add_argument("-v", "--verbose", action="store_true", help="Show multi-line detailed cards for each item")
 
     # history
     p_hist = subparsers.add_parser("history", help="Show price history of a product")
     p_hist.add_argument("query", type=str, help="Product name or brand to search")
     p_hist.add_argument("--trusted-only", action="store_true", help="Show only verified/trusted deal observations")
+    p_hist.add_argument("-n", "--limit", type=int, default=None, help="Maximum number of matching products to display")
 
     # mark-trust
     p_trust = subparsers.add_parser("mark-trust", help="Set trust / verification flag on deals")
@@ -252,6 +401,12 @@ def main() -> None:
     p_trust.add_argument("--all-past", action="store_true", help="Flag all historical past circulars")
     p_trust.add_argument("--include-current", action="store_true", help="Include current live sync flyer")
 
+    # mark-doorbuster
+    p_door = subparsers.add_parser("mark-doorbuster", help="Tag or untag outlier / doorbuster promos")
+    p_door.add_argument("action", choices=["tag", "untag"], help="Action to set (tag as doorbuster or untag to standard)")
+    p_door.add_argument("--deal-id", type=int, default=None, help="Specific deal observation ID")
+    p_door.add_argument("--flyer-id", type=int, default=None, help="Entire flyer ID to tag")
+
     # export
     p_exp = subparsers.add_parser("export", help="Export evaluated deals to file")
     p_exp.add_argument("--format", choices=["json", "csv"], default="json", help="Export format")
@@ -259,6 +414,9 @@ def main() -> None:
     p_exp.add_argument("--merchant", type=str, default="Tom Thumb", help="Merchant banner")
     p_exp.add_argument("--flyer-id", type=int, default=None, help="Specific flyer ID")
     p_exp.add_argument("--front-page-only", action="store_true", help="Front page deals only")
+
+    # renormalize
+    p_renorm = subparsers.add_parser("renormalize", help="Reconcile and disaggregate all past compound deals")
 
     args = parser.parse_args()
     if not args.command:
@@ -273,8 +431,12 @@ def main() -> None:
         cmd_history(args)
     elif args.command == "mark-trust":
         cmd_mark_trust(args)
+    elif args.command == "mark-doorbuster":
+        cmd_mark_doorbuster(args)
     elif args.command == "export":
         cmd_export(args)
+    elif args.command == "renormalize":
+        cmd_renormalize(args)
 
 
 if __name__ == "__main__":

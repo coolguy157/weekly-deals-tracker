@@ -10,6 +10,8 @@ venv/
 data/*.db
 data/*.sqlite
 data/*.sqlite3
+data/*.bak
+*.bak
 
 # Exports and test outputs
 *.json

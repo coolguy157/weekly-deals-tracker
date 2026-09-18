@@ -105,6 +105,53 @@ class TestDealsDatabase(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["canonical_name"], "Sugardale Bacon 12 oz.")
 
+    def test_renormalize_all_deals(self):
+        flyer = FlyerMetadata(
+            id=9002,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad",
+            postal_code="00000",
+            valid_from="2026-09-16T00:00:00",
+            valid_to="2026-09-22T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer)
+
+        # Seed a compound deal that wasn't disaggregated
+        compound_deal = NormalizedDeal(
+            raw_deal_id=888,
+            flyer_id=9002,
+            page_number=1,
+            is_front_page=True,
+            canonical_name="Hormel Fully Cooked Bacon 2.52 oz or Eckrich Sausage 13-14 oz",
+            brand="Hormel",
+            advertised_price=3.99,
+            unit_size=None,
+            unit_type=None,
+            unit_price=None,
+            raw_title="Hormel Fully Cooked Bacon 2.52 oz or Eckrich Sausage 13-14 oz",
+            image_url=None,
+        )
+        self.db.record_deals([compound_deal])
+
+        # Verify initial state has 1 compound product
+        prods_before = self.db.search_products("Hormel")
+        self.assertEqual(len(prods_before), 1)
+
+        # Run renormalize
+        disaggregated_obs, new_obs, deleted_orphans = self.db.renormalize_all_deals()
+        self.assertEqual(disaggregated_obs, 1)
+        self.assertEqual(new_obs, 2)
+        self.assertEqual(deleted_orphans, 1)
+
+        # Verify separate clean products exist now
+        bacon_res = self.db.search_products("Bacon")
+        sausage_res = self.db.search_products("Sausage")
+        self.assertEqual(len(bacon_res), 1)
+        self.assertEqual(len(sausage_res), 1)
+        self.assertEqual(bacon_res[0]["canonical_name"], "Hormel Fully Cooked Bacon 2.52 oz")
+        self.assertEqual(sausage_res[0]["canonical_name"], "Eckrich Sausage 13-14 oz")
+
 
 if __name__ == "__main__":
     unittest.main()

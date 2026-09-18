@@ -92,6 +92,63 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[0].unit_size, 12.0)
         self.assertEqual(deals[0].unit_type, "ct")
 
+    def test_coordinated_poultry_cuts_expansion(self):
+        item = FlyerItem(
+            id=1003,
+            flyer_id=8000,
+            name="Signature SELECT Fresh Boneless Skinless Chicken Breasts or Thighs Value Pack",
+            price=2.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Signature SELECT",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 2)
+        self.assertEqual(deals[0].canonical_name, "Boneless Skinless Chicken Breasts")
+        self.assertEqual(deals[0].brand, "Signature SELECT")
+        self.assertEqual(deals[0].advertised_price, 2.99)
+
+        self.assertEqual(deals[1].canonical_name, "Boneless Skinless Chicken Thighs")
+        self.assertEqual(deals[1].brand, "Signature SELECT")
+        self.assertEqual(deals[1].advertised_price, 2.99)
+
+    def test_coordinated_and_comma_compound_expansion(self):
+        item = FlyerItem(
+            id=1004,
+            flyer_id=8000,
+            name="Boneless Skinless Chicken Breasts or Thighs, Pork Chops or Pork Spare Ribs",
+            price=1.77,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 4)
+        names = [d.canonical_name for d in deals]
+        self.assertEqual(
+            names,
+            [
+                "Boneless Skinless Chicken Breasts",
+                "Boneless Skinless Chicken Thighs",
+                "Pork Chops",
+                "Pork Spare Ribs",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

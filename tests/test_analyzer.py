@@ -145,6 +145,43 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertEqual(dragonfruit.badge, "FIRST_SEEN")
         self.assertEqual(dragonfruit.past_observations_count, 0)
 
+    def test_price_hike_and_doorbuster_baseline(self):
+        # In past, Bacon was $3.49 and $3.99 (avg $3.74).
+        # If in current flyer 104, Bacon is $4.99 (> 3.74 * 1.15), it should be a PRICE_HIKE.
+        flyer_4 = FlyerMetadata(
+            id=104,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad",
+            postal_code="00000",
+            valid_from="2026-09-08T00:00:00",
+            valid_to="2026-09-14T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer_4)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=5,
+                    flyer_id=104,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Sugardale Bacon 12 oz.",
+                    brand="Sugardale",
+                    advertised_price=4.99,
+                    unit_size=12.0,
+                    unit_type="oz",
+                    unit_price=0.41,
+                    raw_title="Sugardale Bacon",
+                    image_url=None,
+                )
+            ]
+        )
+
+        evaluations = self.analyzer.evaluate_flyer(104)
+        bacon = next(e for e in evaluations if "Bacon" in e.canonical_name)
+        self.assertEqual(bacon.badge, "PRICE_HIKE")
+        self.assertIn("Higher than typical promo average", bacon.summary_reason)
+
 
 if __name__ == "__main__":
     unittest.main()

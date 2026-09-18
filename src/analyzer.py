@@ -42,11 +42,19 @@ class DealAnalyzer:
 
         # Exclude the observation from the current flyer if comparing
         target_flyer_id = current_flyer_id or deal_record.get("flyer_id")
-        past_prices = [
-            h["advertised_price"]
-            for h in history
+        past_obs = [
+            h for h in history
             if h.get("flyer_id") != target_flyer_id and h.get("advertised_price") is not None
         ]
+        past_prices = [h["advertised_price"] for h in past_obs]
+
+        # Non-doorbuster baseline for averages & hike comparisons
+        baseline_prices = [
+            h["advertised_price"] for h in past_obs
+            if h.get("promo_type") not in ("doorbuster", "outlier")
+        ]
+        if not baseline_prices:
+            baseline_prices = past_prices
 
         if current_price is None:
             return DealEvaluation(
@@ -88,11 +96,14 @@ class DealAnalyzer:
 
         h_min = min(past_prices)
         h_max = max(past_prices)
-        h_avg = sum(past_prices) / len(past_prices)
-        diff_vs_avg = ((current_price - h_avg) / h_avg) * 100.0
+
+        b_min = min(baseline_prices)
+        b_max = max(baseline_prices)
+        b_avg = sum(baseline_prices) / len(baseline_prices)
+        diff_vs_avg = ((current_price - b_avg) / b_avg) * 100.0
 
         badge = "STANDARD_DEAL"
-        reason = f"Past sale range: ${h_min:.2f} - ${h_max:.2f} (avg ${h_avg:.2f})"
+        reason = f"Past sale range: ${b_min:.2f} - ${b_max:.2f} (avg ${b_avg:.2f})"
 
         if current_price <= h_min:
             badge = "ALL_TIME_LOW"
@@ -101,16 +112,15 @@ class DealAnalyzer:
                 reason = f"🌟 New All-Time Low! {abs(diff_min):.1f}% below past low of ${h_min:.2f}"
             else:
                 reason = f"🌟 Matches All-Time Low (${h_min:.2f})"
-        elif current_price < (h_avg * 0.85):
+        elif current_price <= (b_avg * 0.85):
             badge = "BEAT_AVERAGE"
-            reason = f"🔥 {abs(diff_vs_avg):.1f}% below historical average of ${h_avg:.2f}"
-        elif abs(current_price - h_min) < 0.05:
+            reason = f"🔥 {abs(diff_vs_avg):.1f}% below historical average of ${b_avg:.2f}"
+        elif current_price <= b_avg or abs(current_price - b_min) < 0.05:
             badge = "CYCLE_REFRESH"
-            reason = f"🔄 Standard promo cycle (matches regular sale price of ${h_min:.2f})"
-        elif current_price > (h_min * 1.15):
+            reason = f"🔄 Standard promo cycle (typical: ${b_min:.2f} - ${b_avg:.2f})"
+        elif current_price > (b_avg * 1.15) or current_price > b_max:
             badge = "PRICE_HIKE"
-            diff_hike = ((current_price - h_min) / h_min) * 100.0
-            reason = f"⚠️ Higher than past sales (+{diff_hike:.1f}% vs lowest ${h_min:.2f})"
+            reason = f"⚠️ Higher than typical promo average (+{diff_vs_avg:.1f}% vs avg ${b_avg:.2f})"
 
         return DealEvaluation(
             deal_id=deal_record.get("id", 0),
@@ -122,7 +132,7 @@ class DealAnalyzer:
             page_number=deal_record.get("page_number", 1),
             is_front_page=bool(deal_record.get("is_front_page", 1)),
             historical_min=round(h_min, 2),
-            historical_avg=round(h_avg, 2),
+            historical_avg=round(b_avg, 2),
             historical_max=round(h_max, 2),
             past_observations_count=len(past_prices),
             diff_pct_vs_avg=round(diff_vs_avg, 1),
