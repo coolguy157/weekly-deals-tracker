@@ -60,10 +60,31 @@ class ProductNormalizer:
         "Signature Cafe",
     ]
 
+    # Packaging, portioning, and promotional sales patterns to clean
+    PACKAGING_SALES_PATTERNS = [
+        re.compile(r",?\s*Sold in (?:a|the) \d+(?:\.\d+)?\s*(?:lb|oz|ct|bag)\.?\s*bag(?:\s+for\s+\$\d+(?:\.\d+)?)?(?:\s*each)?(?:\s*Limit\s*\d+)?", re.IGNORECASE),
+        re.compile(r",?\s*Sold in (?:a|the) bag", re.IGNORECASE),
+        re.compile(r",?\s*Sold by the (?:ea|lb|each|pound)", re.IGNORECASE),
+        re.compile(r"\bLimit\s+\d+\b", re.IGNORECASE),
+        re.compile(r",?\s*(?:or\s+)?Seasoned\s+\$?\d+(?:\.\d+)?\s*(?:lb|each)?\.?", re.IGNORECASE),
+    ]
+
+    DISCARD_CHUNK_PATTERN = re.compile(
+        r"^(Sold in|Sold by|Limit \d+|Seasoned \$|\$\d+|for \$|each Limit)",
+        re.IGNORECASE,
+    )
+
     def normalize_text(self, text: str) -> str:
         """Strip special symbols and extra whitespace."""
         cleaned = self.CLEAN_SYMBOLS.sub("", text)
         return " ".join(cleaned.split()).strip()
+
+    def clean_sales_notes(self, text: str) -> str:
+        """Strip packaging notes, quantity limits, and variant price clauses."""
+        cleaned = text
+        for pat in self.PACKAGING_SALES_PATTERNS:
+            cleaned = pat.sub("", cleaned)
+        return " ".join(cleaned.split()).strip(" ,.-")
 
     def extract_unit_info(self, text: str) -> Tuple[Optional[float], Optional[str]]:
         """Extract numeric size and unit of measure from product text."""
@@ -92,15 +113,6 @@ class ProductNormalizer:
         }
         std_unit = unit_map.get(unit, unit)
         return size, std_unit
-
-    def disaggregate_and_normalize(self, item: FlyerItem) -> List[NormalizedDeal]:
-        """Split bundled multi-item deal strings into discrete normalized deal entries."""
-        raw_name = self.normalize_text(item.name)
-        if not raw_name:
-            return []
-
-        # If brand field contains multiple brands joined by '|', split them
-        item_brands = [b.strip() for b in (item.brand or "").split("|") if b.strip()]
 
     def _expand_chunk(self, chunk: str) -> List[str]:
         """Expand a single chunk, handling coordinated patterns like 'Breasts or Thighs' or simple 'or' splits."""
@@ -137,20 +149,30 @@ class ProductNormalizer:
         if not raw_name:
             return []
 
-        # If brand field contains multiple brands joined by '|', split them
-        item_brands = [b.strip() for b in (item.brand or "").split("|") if b.strip()]
+        # Strip packaging and promotional notes before disaggregation
+        cleaned_name = self.clean_sales_notes(raw_name)
+        if not cleaned_name:
+            cleaned_name = raw_name
+
+        # If brand field contains multiple brands joined by '|', split and normalize them
+        item_brands = [self.normalize_text(b) for b in (item.brand or "").split("|") if self.normalize_text(b)]
 
         # First split into comma-separated chunks, then expand each chunk
-        chunks = [c.strip() for c in re.split(r",\s*", raw_name) if len(c.strip()) > 3]
+        chunks = [c.strip() for c in re.split(r",\s*", cleaned_name) if len(c.strip()) > 3]
         if not chunks:
-            chunks = [raw_name]
+            chunks = [cleaned_name]
 
         sub_items: List[str] = []
         for chunk in chunks:
-            sub_items.extend(self._expand_chunk(chunk))
+            expanded = self._expand_chunk(chunk)
+            for sub in expanded:
+                sub_clean = sub.strip(" ,.-")
+                if not sub_clean or self.DISCARD_CHUNK_PATTERN.search(sub_clean):
+                    continue
+                sub_items.append(sub_clean)
 
         if not sub_items:
-            sub_items = [raw_name]
+            sub_items = [cleaned_name]
 
         normalized_deals: List[NormalizedDeal] = []
 
@@ -178,10 +200,18 @@ class ProductNormalizer:
             # Clean sub_name for canonical representation
             canonical = sub_name
 
-            # Strip store brand prefix for commodity meat/produce cuts if present
+            # Strip store brand prefix for commodity meat/poultry cuts to match generic ads
+            meat_keywords = (
+                "chicken", "beef", "pork", "turkey", "roast", "steak", "steaks",
+                "chop", "chops", "rib", "ribs", "thigh", "thighs", "breast", "breasts",
+                "drumstick", "drumsticks", "wing", "wings", "tenderloin", "brisket",
+                "sausage", "bacon", "loin"
+            )
             for sb in ["Signature SELECT", "Signature Farms"]:
                 if canonical.lower().startswith(sb.lower()):
-                    canonical = canonical[len(sb):].strip(" ,.-")
+                    remainder = canonical[len(sb):].strip(" ,.-")
+                    if any(k in remainder.lower() for k in meat_keywords):
+                        canonical = remainder
                     break
 
             # Strip leading "Fresh " for meat/poultry cuts to match generic ads
@@ -192,6 +222,7 @@ class ProductNormalizer:
             if "chicken" in canonical.lower() and canonical.lower().endswith(" value pack"):
                 canonical = canonical[:-11].strip()
 
+            canonical = self.clean_sales_notes(canonical)
             canonical = " ".join(canonical.split()).strip(" ,.-")
 
             image = item.clean_image_url or item.cutout_image_url

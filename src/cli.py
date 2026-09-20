@@ -6,11 +6,20 @@ import argparse
 import sys
 import json
 import csv
+import os
+from pathlib import Path
 from typing import Optional
 from .fetcher import FlippAdFetcher
 from .normalizer import ProductNormalizer
 from .database import DealsDatabase
 from .analyzer import DealAnalyzer
+from .formatter import (
+    format_badge_fixed,
+    format_badge,
+    print_deal_card,
+    render_filtered_report,
+    render_smart_digest,
+)
 
 
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
@@ -18,41 +27,6 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     except Exception:
         pass
-
-
-def format_badge_fixed(badge: str, width: int = 16) -> str:
-    raw_labels = {
-        "ALL_TIME_LOW": "[* ALL-TIME LOW]",
-        "BEAT_AVERAGE": "[^ BEAT AVERAGE]",
-        "CYCLE_REFRESH": "[~ CYCLE REFRESH]",
-        "FIRST_SEEN": "[+ FIRST SEEN]",
-        "STANDARD_DEAL": "[DEAL]",
-        "PRICE_HIKE": "[! PRICE HIKE]",
-        "SEE_AD": "[SEE AD]",
-    }
-    raw = raw_labels.get(badge, f"[{badge}]")
-    padded = f"{raw:<{width}}"
-
-    color_map = {
-        "ALL_TIME_LOW": "\033[92m",
-        "BEAT_AVERAGE": "\033[96m",
-        "CYCLE_REFRESH": "\033[94m",
-        "FIRST_SEEN": "\033[93m",
-        "STANDARD_DEAL": "\033[90m",
-        "PRICE_HIKE": "\033[91m",
-        "SEE_AD": "\033[90m",
-    }
-    color = color_map.get(badge, "")
-    reset = "\033[0m" if color else ""
-    return f"{color}{padded}{reset}"
-
-
-def format_badge(badge: str) -> str:
-    return format_badge_fixed(badge, width=0)
-
-
-import os
-from pathlib import Path
 
 
 def load_dotenv(dotenv_path: str = ".env") -> None:
@@ -99,6 +73,14 @@ def cmd_sync(args: argparse.Namespace) -> None:
     print(f"Found Circular: {weekly_ad.name} (ID: {weekly_ad.id}) | Valid: {weekly_ad.valid_from[:10]} to {weekly_ad.valid_to[:10]}")
 
     db.upsert_flyer_run(weekly_ad)
+    purged = db.purge_overlapping_untrusted_flyers(
+        merchant=weekly_ad.merchant,
+        valid_from=weekly_ad.valid_from,
+        valid_to=weekly_ad.valid_to,
+        keep_flyer_id=weekly_ad.id,
+    )
+    if purged:
+        print(f"Superseded and purged {len(purged)} overlapping backfill circular(s): {purged}")
 
     pages, items = fetcher.get_flyer_pages_and_items(weekly_ad.id, front_page_only=args.front_page_only)
     print(f"Parsed {len(pages)} pages and {len(items)} items from circular.")
@@ -110,26 +92,6 @@ def cmd_sync(args: argparse.Namespace) -> None:
 
     inserted = db.record_deals(normalized_batch)
     print(f"Successfully recorded {inserted} normalized deal observations into database.")
-
-
-def print_deal_card(ev, verbose: bool = False) -> None:
-    badge_str = format_badge_fixed(ev.badge, width=16)
-    price_str = f"${ev.current_price:.2f}" if ev.current_price is not None else "See ad"
-    page_str = f"p.{ev.page_number}" + (" (Cover)" if ev.is_front_page else "")
-    brand_str = f" [{ev.brand}]" if ev.brand else ""
-
-    # Actionable inline annotations for non-verbose mode
-    note = ""
-    if ev.badge == "PRICE_HIKE":
-        note = f"  \033[91m↳ {ev.summary_reason}\033[0m"
-    elif ev.badge in ("ALL_TIME_LOW", "BEAT_AVERAGE", "CYCLE_REFRESH"):
-        note = f"  \033[92m↳ {ev.summary_reason}\033[0m"
-
-    if verbose:
-        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str} ({page_str})")
-        print(f"   ↳ {ev.summary_reason}\n")
-    else:
-        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str} ({page_str}){note}")
 
 
 def cmd_deals(args: argparse.Namespace) -> None:
@@ -172,62 +134,23 @@ def cmd_deals(args: argparse.Namespace) -> None:
     # If --all or a specific search/filter is specified, print direct matching list
     if has_custom_filter or args.front_page_only:
         title = "ALL CIRCULAR DEALS" if args.all_pages else "WEEKLY DEALS REPORT"
-        print(f"\n{'='*78}")
-        print(f" {title} (Flyer ID: {flyer_id}) - {len(evaluations_priced)} items")
-        print(f"{'='*78}\n")
-
-        for ev in evaluations_priced:
-            print_deal_card(ev, verbose=verbose)
-
-        if not args.include_see_ad and see_ad_count > 0 and not args.query:
-            print(f"\nℹ️  Omitted {see_ad_count} unpriced promotional tiles (use --include-see-ad to display).")
-
-        if args.query:
-            print(f"\n💡 Search full price history across all circulars: py -m src.cli history \"{args.query}\"")
-        print()
+        render_filtered_report(
+            evaluations=evaluations_priced,
+            flyer_id=flyer_id,
+            title=title,
+            verbose=verbose,
+            see_ad_omitted_count=(see_ad_count if not args.include_see_ad and not args.query else 0),
+            search_query=args.query,
+        )
         return
 
     # DEFAULT SMART DIGEST VIEW: Front Page (Cover) + Circular-Wide Price Hikes & All-Time Lows
-    front_page_deals = [e for e in evaluations_priced if e.is_front_page]
-    inside_hikes = [e for e in evaluations_priced if not e.is_front_page and e.badge == "PRICE_HIKE"]
-    inside_atls = [e for e in evaluations_priced if not e.is_front_page and e.badge == "ALL_TIME_LOW"]
-
-    total_circular_items = len(evaluations)
-    print(f"\n{'='*78}")
-    print(f" 🛒 WEEKLY DEALS DIGEST (Flyer ID: {flyer_id})")
-    print(f" Showing: Front Page Deals ({len(front_page_deals)}) + Inside Price Hikes ({len(inside_hikes)}) & ATLs ({len(inside_atls)})")
-    print(f"{'='*78}\n")
-
-    print(f"⭐ FRONT PAGE DEALS (Cover - {len(front_page_deals)} items)")
-    print(f"{'-'*78}")
-    if front_page_deals:
-        for ev in front_page_deals:
-            print_deal_card(ev, verbose=verbose)
-    else:
-        print("  No priced front page deals found.")
-    print()
-
-    if inside_hikes:
-        print(f"⚠️  PRICE HIKE ALERTS (Inside Pages - {len(inside_hikes)} items)")
-        print(f"{'-'*78}")
-        for ev in inside_hikes:
-            print_deal_card(ev, verbose=verbose)
-        print()
-
-    if inside_atls:
-        print(f"🌟 ALL-TIME LOWS ON INSIDE PAGES ({len(inside_atls)} items)")
-        print(f"{'-'*78}")
-        for ev in inside_atls:
-            print_deal_card(ev, verbose=verbose)
-        print()
-
-    print(f"{'-'*78}")
-    print(f"💡 Total circular items: {total_circular_items} (omitted unpriced tiles & standard inside deals)")
-    print(f"   • Search price history: py -m src.cli history \"<item>\" (e.g. py -m src.cli history \"beef\")")
-    print(f"   • Search current ad:    py -m src.cli deals -q <item>")
-    print(f"   • View all pages:       py -m src.cli deals --all")
-    print(f"   • Multi-line details:   py -m src.cli deals --verbose")
-    print(f"   • Show unpriced tiles:  py -m src.cli deals --include-see-ad\n")
+    render_smart_digest(
+        evaluations=evaluations_priced,
+        total_circular_items=len(evaluations),
+        flyer_id=flyer_id,
+        verbose=verbose,
+    )
 
 
 def cmd_history(args: argparse.Namespace) -> None:

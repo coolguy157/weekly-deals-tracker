@@ -182,6 +182,70 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertEqual(bacon.badge, "PRICE_HIKE")
         self.assertIn("Higher than typical promo average", bacon.summary_reason)
 
+    def test_concurrent_same_week_deal_ignored_in_history(self):
+        # Suppose a concurrent flyer exists for the same week (e.g. scanned flyer 105 and live flyer 106)
+        flyer_scanned = FlyerMetadata(
+            id=105,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Scanned Weekly Ad",
+            postal_code="00000",
+            valid_from="2026-09-16T00:00:00",
+            valid_to="2026-09-22T23:59:59",
+        )
+        flyer_live = FlyerMetadata(
+            id=106,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Live Weekly Ad",
+            postal_code="00000",
+            valid_from="2026-09-16T00:00:00-04:00",
+            valid_to="2026-09-22T23:59:59-04:00",
+        )
+        self.db.upsert_flyer_run(flyer_scanned, is_trusted=False)
+        self.db.upsert_flyer_run(flyer_live, is_trusted=True)
+
+        # Record Roma Tomatoes in scanned flyer
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=1,
+                    flyer_id=105,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Roma Tomatoes",
+                    brand=None,
+                    advertised_price=0.69,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title="Roma Tomatoes",
+                    image_url=None,
+                ),
+                # Record Roma Tomatoes in live flyer
+                NormalizedDeal(
+                    raw_deal_id=2,
+                    flyer_id=106,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Roma Tomatoes",
+                    brand=None,
+                    advertised_price=0.69,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title="Roma Tomatoes",
+                    image_url=None,
+                ),
+            ]
+        )
+
+        evaluations = self.analyzer.evaluate_flyer(106)
+        roma = next(e for e in evaluations if e.canonical_name == "Roma Tomatoes")
+        # Should be FIRST_SEEN because the concurrent flyer 105 is from the same week, not past history
+        self.assertEqual(roma.badge, "FIRST_SEEN")
+        self.assertEqual(roma.past_observations_count, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

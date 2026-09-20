@@ -152,6 +152,95 @@ class TestDealsDatabase(unittest.TestCase):
         self.assertEqual(bacon_res[0]["canonical_name"], "Hormel Fully Cooked Bacon 2.52 oz")
         self.assertEqual(sausage_res[0]["canonical_name"], "Eckrich Sausage 13-14 oz")
 
+    def test_delete_flyer(self):
+        flyer = FlyerMetadata(
+            id=9003,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad",
+            postal_code="00000",
+            valid_from="2026-09-16T00:00:00",
+            valid_to="2026-09-22T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=999,
+                    flyer_id=9003,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Temporary Product",
+                    brand=None,
+                    advertised_price=1.99,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title="Temporary Product",
+                    image_url=None,
+                )
+            ]
+        )
+        self.assertEqual(len(self.db.get_deals_for_flyer(9003)), 1)
+        deleted_flyers, deleted_obs = self.db.delete_flyer(9003)
+        self.assertEqual(deleted_flyers, 1)
+        self.assertEqual(deleted_obs, 1)
+        self.assertEqual(len(self.db.get_deals_for_flyer(9003)), 0)
+        # Orphaned product should also be cleaned up
+        self.assertEqual(len(self.db.search_products("Temporary Product")), 0)
+
+    def test_purge_overlapping_untrusted_flyers(self):
+        # Insert untrusted/scanned flyer
+        untrusted_flyer = FlyerMetadata(
+            id=20260916,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Scanned PDF Ad",
+            postal_code="00000",
+            valid_from="2026-09-16T00:00:00",
+            valid_to="2026-09-22T23:59:59",
+        )
+        self.db.upsert_flyer_run(untrusted_flyer, is_trusted=False, source_type="manual_backfill_untrusted")
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=10,
+                    flyer_id=20260916,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Roma Tomatoes",
+                    brand=None,
+                    advertised_price=0.69,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title="Roma Tomatoes",
+                    image_url=None,
+                )
+            ]
+        )
+
+        # Ingest new live flyer for same dates
+        live_flyer = FlyerMetadata(
+            id=8131286,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad",
+            postal_code="00000",
+            valid_from="2026-09-16T00:00:00-04:00",
+            valid_to="2026-09-22T23:59:59-04:00",
+        )
+        self.db.upsert_flyer_run(live_flyer, is_trusted=True, source_type="flipp_api")
+
+        purged = self.db.purge_overlapping_untrusted_flyers(
+            merchant=live_flyer.merchant,
+            valid_from=live_flyer.valid_from,
+            valid_to=live_flyer.valid_to,
+            keep_flyer_id=live_flyer.id,
+        )
+        self.assertEqual(purged, [20260916])
+        self.assertEqual(len(self.db.get_deals_for_flyer(20260916)), 0)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -40,11 +40,14 @@ class DealAnalyzer:
         current_price = deal_record.get("advertised_price")
         history = self.db.get_product_price_history(product_id)
 
-        # Exclude the observation from the current flyer if comparing
+        # Exclude observations from the current flyer and any concurrent/overlapping date window
         target_flyer_id = current_flyer_id or deal_record.get("flyer_id")
+        current_valid_from = (deal_record.get("valid_from") or "")[:10]
         past_obs = [
             h for h in history
-            if h.get("flyer_id") != target_flyer_id and h.get("advertised_price") is not None
+            if h.get("flyer_id") != target_flyer_id
+            and (not current_valid_from or (h.get("valid_from") or "")[:10] < current_valid_from)
+            and h.get("advertised_price") is not None
         ]
         past_prices = [h["advertised_price"] for h in past_obs]
 

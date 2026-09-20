@@ -149,6 +149,57 @@ class TestProductNormalizer(unittest.TestCase):
             ],
         )
 
+    def test_packaging_and_sales_notes_filtering(self):
+        item = FlyerItem(
+            id=1005,
+            flyer_id=8131286,
+            name="WATERFRONT BISTRO® Extra Jumbo Raw Shrimp 16-20 ct., Sold in a 2 lb. bag for $13.98 each Limit 2 or Fresh Whole Atlantic Salmon Fillets Half or Seasoned $7.99 lb.",
+            price=6.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="WATERFRONT BISTRO®",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 2)
+        names = [d.canonical_name for d in deals]
+        self.assertEqual(
+            names,
+            [
+                "WATERFRONT BISTRO Extra Jumbo Raw Shrimp 16-20 ct",
+                "Whole Atlantic Salmon Fillets Half",
+            ],
+        )
+
+    def test_store_brand_packaged_produce_retains_brand(self):
+        item = FlyerItem(
+            id=1006,
+            flyer_id=8131286,
+            name="Signature Select® Avocados",
+            price=4.49,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Signature SELECT®",
+            page_number=4,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 1)
+        self.assertEqual(deals[0].canonical_name, "Signature Select Avocados")
+        self.assertEqual(deals[0].brand, "Signature SELECT")
+        self.assertEqual(deals[0].advertised_price, 4.49)
+
 
 if __name__ == "__main__":
     unittest.main()

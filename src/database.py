@@ -177,6 +177,59 @@ class DealsDatabase:
             )
             return cur.rowcount
 
+    def delete_flyer(self, flyer_id: int) -> Tuple[int, int]:
+        """Delete a flyer run and all associated deal observations. Also cleans up orphaned products."""
+        with self._get_connection() as conn:
+            obs_cur = conn.execute("DELETE FROM deal_observations WHERE flyer_id = ?", (flyer_id,))
+            deleted_obs = obs_cur.rowcount
+            flyer_cur = conn.execute("DELETE FROM flyer_runs WHERE flyer_id = ?", (flyer_id,))
+            deleted_flyers = flyer_cur.rowcount
+            conn.execute("""
+                DELETE FROM products
+                WHERE product_id NOT IN (SELECT DISTINCT product_id FROM deal_observations)
+            """)
+            return deleted_flyers, deleted_obs
+
+    def purge_overlapping_untrusted_flyers(
+        self, merchant: str, valid_from: str, valid_to: str, keep_flyer_id: Optional[int] = None
+    ) -> List[int]:
+        """
+        Find and delete any untrusted/backfill flyers for the same merchant whose dates overlap
+        with the given date range, superseded by a live/trusted flyer.
+        """
+        v_from = (valid_from or "")[:10]
+        v_to = (valid_to or "")[:10]
+        with self._get_connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT flyer_id, valid_from, valid_to, is_trusted, source_type
+                FROM flyer_runs
+                WHERE merchant LIKE ? AND is_trusted = 0
+                """,
+                (f"%{merchant}%",),
+            ).fetchall()
+
+            to_delete = []
+            for r in rows:
+                if keep_flyer_id and r["flyer_id"] == keep_flyer_id:
+                    continue
+                r_from = (r["valid_from"] or "")[:10]
+                r_to = (r["valid_to"] or "")[:10]
+                if not (r_to < v_from or r_from > v_to):
+                    to_delete.append(r["flyer_id"])
+
+            for fid in to_delete:
+                conn.execute("DELETE FROM deal_observations WHERE flyer_id = ?", (fid,))
+                conn.execute("DELETE FROM flyer_runs WHERE flyer_id = ?", (fid,))
+
+            if to_delete:
+                conn.execute("""
+                    DELETE FROM products
+                    WHERE product_id NOT IN (SELECT DISTINCT product_id FROM deal_observations)
+                """)
+
+            return to_delete
+
     def get_or_create_product(
         self,
         canonical_name: str,
@@ -209,45 +262,62 @@ class DealsDatabase:
         with self._get_connection() as c:
             return _execute(c)
 
-    def record_deals(self, deals: List[NormalizedDeal]) -> int:
-        """Persist normalized deal observations in a single transaction."""
-        inserted_count = 0
-        with self._get_connection() as conn:
-            for deal in deals:
-                product_id = self.get_or_create_product(
-                    canonical_name=deal.canonical_name,
-                    brand=deal.brand,
-                    unit_size=deal.unit_size,
-                    unit_type=deal.unit_type,
-                    conn=conn,
-                )
+    def _upsert_deal_observation(
+        self,
+        conn: sqlite3.Connection,
+        deal: NormalizedDeal,
+        promo_type: Optional[str] = None,
+        is_trusted: Optional[bool] = None,
+        source_type: Optional[str] = None,
+        recorded_at: Optional[str] = None,
+    ) -> bool:
+        """Helper to get/create product entity and upsert a single deal observation."""
+        product_id = self.get_or_create_product(
+            canonical_name=deal.canonical_name,
+            brand=deal.brand,
+            unit_size=deal.unit_size,
+            unit_type=deal.unit_type,
+            conn=conn,
+        )
+        cur = conn.execute(
+            """
+            INSERT OR REPLACE INTO deal_observations
+            (flyer_id, product_id, raw_deal_id, page_number, is_front_page,
+             advertised_price, unit_price, promo_type, raw_title, image_url,
+             is_trusted, source_type, recorded_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))
+            """,
+            (
+                deal.flyer_id,
+                product_id,
+                deal.raw_deal_id,
+                deal.page_number,
+                1 if deal.is_front_page else 0,
+                deal.advertised_price,
+                deal.unit_price,
+                promo_type if promo_type is not None else deal.promo_type,
+                deal.raw_title,
+                deal.image_url,
+                (1 if is_trusted else 0) if is_trusted is not None else (1 if getattr(deal, "is_trusted", True) else 0),
+                source_type if source_type is not None else getattr(deal, "source_type", "flipp_api"),
+                recorded_at,
+            ),
+        )
+        return cur.rowcount > 0
 
-                cur = conn.execute(
-                    """
-                    INSERT OR REPLACE INTO deal_observations
-                    (flyer_id, product_id, raw_deal_id, page_number, is_front_page,
-                     advertised_price, unit_price, promo_type, raw_title, image_url,
-                     is_trusted, source_type)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        deal.flyer_id,
-                        product_id,
-                        deal.raw_deal_id,
-                        deal.page_number,
-                        1 if deal.is_front_page else 0,
-                        deal.advertised_price,
-                        deal.unit_price,
-                        deal.promo_type,
-                        deal.raw_title,
-                        deal.image_url,
-                        1 if getattr(deal, "is_trusted", True) else 0,
-                        getattr(deal, "source_type", "flipp_api"),
-                    ),
-                )
-                if cur.rowcount > 0:
+    def record_deals(self, deals: List[NormalizedDeal], conn: Optional[sqlite3.Connection] = None) -> int:
+        """Persist normalized deal observations in a single transaction."""
+        def _execute(c: sqlite3.Connection) -> int:
+            inserted_count = 0
+            for deal in deals:
+                if self._upsert_deal_observation(c, deal):
                     inserted_count += 1
-        return inserted_count
+            return inserted_count
+
+        if conn is not None:
+            return _execute(conn)
+        with self._get_connection() as c:
+            return _execute(c)
 
     def get_latest_flyer_id(self, merchant: str = "Tom Thumb") -> Optional[int]:
         """Return the flyer_id of the most recent circular recorded."""
@@ -394,34 +464,14 @@ class DealsDatabase:
 
                     # Insert disaggregated single-item deals
                     for deal in deals:
-                        pid = self.get_or_create_product(
-                            canonical_name=deal.canonical_name,
-                            brand=deal.brand,
-                            unit_size=deal.unit_size,
-                            unit_type=deal.unit_type,
+                        self._upsert_deal_observation(
                             conn=conn,
+                            deal=deal,
+                            promo_type=r["promo_type"],
+                            is_trusted=bool(r["is_trusted"]),
+                            source_type=r["source_type"],
+                            recorded_at=r["recorded_at"],
                         )
-                        conn.execute("""
-                            INSERT OR REPLACE INTO deal_observations
-                            (flyer_id, product_id, raw_deal_id, page_number, is_front_page,
-                             advertised_price, unit_price, promo_type, raw_title, image_url,
-                             is_trusted, source_type, recorded_at)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))
-                        """, (
-                            deal.flyer_id,
-                            pid,
-                            deal.raw_deal_id,
-                            deal.page_number,
-                            1 if deal.is_front_page else 0,
-                            deal.advertised_price,
-                            deal.unit_price,
-                            r["promo_type"],
-                            deal.raw_title,
-                            deal.image_url,
-                            r["is_trusted"],
-                            r["source_type"],
-                            r["recorded_at"],
-                        ))
 
             # Delete orphaned compound products
             del_cur = conn.execute("""
