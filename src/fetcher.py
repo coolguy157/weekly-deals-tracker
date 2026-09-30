@@ -68,25 +68,39 @@ class FlippAdFetcher:
 
     BASE_URL = "https://backflipp.wishabi.com/flipp"
 
-    def __init__(self, timeout: int = 15, user_agent: str = USER_AGENT):
+    def __init__(self, timeout: int = 30, user_agent: str = USER_AGENT):
         self.timeout = timeout
         self.user_agent = user_agent
 
-    def _get_json(self, endpoint_url: str) -> Dict[str, Any]:
-        req = urllib.request.Request(
-            endpoint_url,
-            headers={"User-Agent": self.user_agent, "Accept": "application/json"},
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-                raw_bytes = resp.read()
-                return json.loads(raw_bytes.decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            logger.error(f"HTTP error {e.code} querying {endpoint_url}: {e.reason}")
-            raise
-        except Exception as e:
-            logger.error(f"Error querying {endpoint_url}: {e}")
-            raise
+    def _get_json(self, endpoint_url: str, retries: int = 3, backoff_sec: float = 2.0) -> Dict[str, Any]:
+        last_err = None
+        for attempt in range(retries):
+            req = urllib.request.Request(
+                endpoint_url,
+                headers={"User-Agent": self.user_agent, "Accept": "application/json"},
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                    raw_bytes = resp.read()
+                    return json.loads(raw_bytes.decode("utf-8"))
+            except urllib.error.HTTPError as e:
+                last_err = e
+                logger.warning(f"HTTP error {e.code} querying {endpoint_url} (attempt {attempt + 1}/{retries}): {e.reason}")
+                if attempt < retries - 1 and e.code in (500, 502, 503, 504, 429):
+                    import time
+                    time.sleep(backoff_sec * (attempt + 1))
+                    continue
+                raise
+            except Exception as e:
+                last_err = e
+                logger.warning(f"Error querying {endpoint_url} (attempt {attempt + 1}/{retries}): {e}")
+                if attempt < retries - 1:
+                    import time
+                    time.sleep(backoff_sec * (attempt + 1))
+                    continue
+                raise
+        if last_err:
+            raise last_err
 
     def get_flyers_for_zip(
         self, postal_code: str, merchant_filter: Optional[str] = "Tom Thumb", locale: str = "en-us"

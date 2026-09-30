@@ -246,6 +246,142 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertEqual(roma.badge, "FIRST_SEEN")
         self.assertEqual(roma.past_observations_count, 0)
 
+    def test_flat_price_history_classifies_as_cycle_refresh(self):
+        # When an item was seen only at $3.99 previously, a recurring $3.99 deal should be CYCLE_REFRESH
+        flyer_past1 = FlyerMetadata(
+            id=201,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad 1",
+            postal_code="00000",
+            valid_from="2026-07-01T00:00:00",
+            valid_to="2026-07-07T23:59:59",
+        )
+        flyer_past2 = FlyerMetadata(
+            id=202,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad 2",
+            postal_code="00000",
+            valid_from="2026-08-01T00:00:00",
+            valid_to="2026-08-07T23:59:59",
+        )
+        flyer_curr = FlyerMetadata(
+            id=203,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad 3",
+            postal_code="00000",
+            valid_from="2026-09-01T00:00:00",
+            valid_to="2026-09-07T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer_past1)
+        self.db.upsert_flyer_run(flyer_past2)
+        self.db.upsert_flyer_run(flyer_curr)
+
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=10,
+                    flyer_id=201,
+                    page_number=5,
+                    is_front_page=False,
+                    canonical_name="Fresh Chicken Wings",
+                    brand="Signature SELECT",
+                    advertised_price=3.99,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title="Fresh Chicken Wings",
+                    image_url=None,
+                ),
+                NormalizedDeal(
+                    raw_deal_id=11,
+                    flyer_id=202,
+                    page_number=5,
+                    is_front_page=False,
+                    canonical_name="Fresh Chicken Wings",
+                    brand="Signature SELECT",
+                    advertised_price=3.99,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title="Fresh Chicken Wings",
+                    image_url=None,
+                ),
+                NormalizedDeal(
+                    raw_deal_id=12,
+                    flyer_id=203,
+                    page_number=5,
+                    is_front_page=False,
+                    canonical_name="Fresh Chicken Wings",
+                    brand="Signature SELECT",
+                    advertised_price=3.99,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title="Fresh Chicken Wings",
+                    image_url=None,
+                ),
+            ]
+        )
+
+        evals = self.analyzer.evaluate_flyer(203)
+        wings = next(e for e in evals if e.canonical_name == "Fresh Chicken Wings")
+        self.assertEqual(wings.badge, "CYCLE_REFRESH")
+        self.assertIn("Standard promo cycle", wings.summary_reason)
+
+    def test_multi_week_episode_clustering_and_return_to_regular_price(self):
+        # Seed 3 consecutive weeks of yogurt at $0.37, then 1 month later at $0.69 (baseline $0.69)
+        # Week 1: 2026-06-03 to 2026-06-09 ($0.37)
+        # Week 2: 2026-06-10 to 2026-06-16 ($0.37)
+        # Week 3: 2026-06-17 to 2026-06-23 ($0.37)
+        # Week 8: 2026-07-29 to 2026-08-04 ($0.69)
+        f1 = FlyerMetadata(id=301, merchant="Tom Thumb", merchant_id=2381, name="Ad 1", postal_code="00000", valid_from="2026-06-03T00:00:00", valid_to="2026-06-09T23:59:59")
+        f2 = FlyerMetadata(id=302, merchant="Tom Thumb", merchant_id=2381, name="Ad 2", postal_code="00000", valid_from="2026-06-10T00:00:00", valid_to="2026-06-16T23:59:59")
+        f3 = FlyerMetadata(id=303, merchant="Tom Thumb", merchant_id=2381, name="Ad 3", postal_code="00000", valid_from="2026-06-17T00:00:00", valid_to="2026-06-23T23:59:59")
+        f4 = FlyerMetadata(id=304, merchant="Tom Thumb", merchant_id=2381, name="Ad 4", postal_code="00000", valid_from="2026-07-29T00:00:00", valid_to="2026-08-04T23:59:59")
+        for f in (f1, f2, f3, f4):
+            self.db.upsert_flyer_run(f)
+
+        self.db.record_deals([
+            NormalizedDeal(raw_deal_id=31, flyer_id=301, page_number=1, is_front_page=True, canonical_name="Yoplait Yogurt 6 oz", brand="Yoplait", advertised_price=0.37, unit_size=6.0, unit_type="oz", unit_price=0.0617, raw_title="Yoplait Yogurt", image_url=None),
+            NormalizedDeal(raw_deal_id=32, flyer_id=302, page_number=1, is_front_page=True, canonical_name="Yoplait Yogurt 6 oz", brand="Yoplait", advertised_price=0.37, unit_size=6.0, unit_type="oz", unit_price=0.0617, raw_title="Yoplait Yogurt", image_url=None),
+            NormalizedDeal(raw_deal_id=33, flyer_id=303, page_number=1, is_front_page=True, canonical_name="Yoplait Yogurt 6 oz", brand="Yoplait", advertised_price=0.37, unit_size=6.0, unit_type="oz", unit_price=0.0617, raw_title="Yoplait Yogurt", image_url=None),
+        ])
+
+        # Evaluate Week 3 (continuation of multi-week promo)
+        evals_w3 = self.analyzer.evaluate_flyer(303)
+        yogurt_w3 = next(e for e in evals_w3 if "Yoplait" in e.canonical_name)
+        self.assertEqual(yogurt_w3.badge, "CYCLE_REFRESH")
+        self.assertIn("Ongoing multi-week promotion", yogurt_w3.summary_reason)
+
+        # Now evaluate Week 8 when regular promo is $0.69
+        self.db.record_deals([
+            NormalizedDeal(raw_deal_id=34, flyer_id=304, page_number=1, is_front_page=True, canonical_name="Yoplait Yogurt 6 oz", brand="Yoplait", advertised_price=0.69, unit_size=6.0, unit_type="oz", unit_price=0.115, raw_title="Yoplait Yogurt", image_url=None),
+        ])
+
+        # Verify cluster_episodes properly grouped weeks 1-3 into 1 single episode
+        history = self.db.get_product_price_history(yogurt_w3.product_id)
+        past_obs_for_f4 = [h for h in history if h["flyer_id"] in (301, 302, 303)]
+        episodes = self.analyzer.cluster_episodes(past_obs_for_f4)
+        self.assertEqual(len(episodes), 1)
+        self.assertEqual(episodes[0].price, 0.37)
+        self.assertEqual(episodes[0].observations_count, 3)
+
+        # Now in flyer 305 (months later), yogurt returns to $0.37 floor after being at $0.69
+        f5 = FlyerMetadata(id=305, merchant="Tom Thumb", merchant_id=2381, name="Ad 5", postal_code="00000", valid_from="2026-10-01T00:00:00", valid_to="2026-10-07T23:59:59")
+        self.db.upsert_flyer_run(f5)
+        self.db.record_deals([
+            NormalizedDeal(raw_deal_id=35, flyer_id=305, page_number=1, is_front_page=True, canonical_name="Yoplait Yogurt 6 oz", brand="Yoplait", advertised_price=0.37, unit_size=6.0, unit_type="oz", unit_price=0.0617, raw_title="Yoplait Yogurt", image_url=None),
+        ])
+
+        evals_w5 = self.analyzer.evaluate_flyer(305)
+        yogurt_w5 = next(e for e in evals_w5 if "Yoplait" in e.canonical_name)
+        # Because history has variation ($0.37 and $0.69), returning to $0.37 is a genuine Matches All-Time Low!
+        self.assertEqual(yogurt_w5.badge, "ALL_TIME_LOW")
+        self.assertIn("Matches All-Time Low", yogurt_w5.summary_reason)
+
 
 if __name__ == "__main__":
     unittest.main()
