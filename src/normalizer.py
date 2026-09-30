@@ -365,6 +365,7 @@ class ProductNormalizer:
                     "Shiner", "Corona", "Modelo", "Dos Equis", "Decoy", "Conundrum", "Rold Gold",
                     "Miss Vickie's", "Soleil", "Snapple", "Poppi", "Ozarka", "Sunny Delight",
                     "Premier Protein", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
+                    "Tina's", "Yoplait", "Chobani", "Dannon", "Oikos", "Tillamook",
                 ]:
                     if re.search(r"\b" + re.escape(nb) + r"\b", sub_name, re.IGNORECASE):
                         brand = nb
@@ -446,6 +447,32 @@ class ProductNormalizer:
                     unit = "oz"
                     if item.price and size > 0:
                         unit_price = round(item.price / size, 4)
+
+            # Standardize single-serve yogurt cups (e.g. Yoplait, Lucerne 4-6 oz / 6 oz / unsized)
+            if re.search(r"\b(Yoplait|Lucerne)\s+Yogurt\b", canonical, re.IGNORECASE) and not re.search(r"\b(?:32|24|4\s*pack|4\s*pk)\b", canonical, re.IGNORECASE):
+                brand_name = "Yoplait" if "yoplait" in canonical.lower() else "Lucerne"
+                brand = brand_name
+                canonical = f"{brand_name} Yogurt 4-6 oz"
+                size = 5.0
+                unit = "oz"
+                if item.price and size > 0:
+                    unit_price = round(item.price / size, 4)
+
+            # Multi-pack cream cheese weight resolution (e.g. Philadelphia Cream Cheese 2 Pack -> 16 oz)
+            if "cream cheese" in canonical.lower() and (unit in ("pk", "pack", "ct", "count") or "2 pack" in canonical.lower() or "2 pk" in canonical.lower()):
+                if size == 2.0 or (size is None and "2 pack" in canonical.lower()):
+                    size = 16.0  # 2 x 8 oz blocks
+                    unit = "oz"
+                    if item.price and size > 0:
+                        unit_price = round(item.price / size, 4)
+
+            # Deli counter cheese & meat sold by the pound fallback
+            deli_brands = ("Primo Taglio", "Dietz & Watson", "Dietz Watson", "Boar's Head")
+            if size is None and item.price:
+                if brand in deli_brands or re.search(r"\b(?:per\s+lb|sold\s+by\s+the\s+lb|/lb|\$?\d+(?:\.\d+)?\s*lb)\b", item.name, re.IGNORECASE):
+                    size = 1.0
+                    unit = "lb"
+                    unit_price = round(item.price / 1.0, 4)
 
             image = item.clean_image_url or item.cutout_image_url
 

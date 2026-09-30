@@ -5,11 +5,18 @@ Unit tests for terminal formatting and layout views.
 import unittest
 from io import StringIO
 import sys
-from src.formatter import format_badge_fixed, format_badge, print_deal_card, render_filtered_report, render_smart_digest
+from src.formatter import format_badge_fixed, format_badge, format_unit_price, print_deal_card, render_filtered_report, render_smart_digest
 from src.analyzer import DealEvaluation
 
 
 class TestFormatter(unittest.TestCase):
+
+    def test_format_unit_price(self):
+        self.assertEqual(format_unit_price(0.1559, "oz"), "$0.16/oz")
+        self.assertEqual(format_unit_price(0.069, "oz"), "$0.069/oz")
+        self.assertEqual(format_unit_price(7.99, "lb"), "$7.99/lb")
+        self.assertEqual(format_unit_price(None, "oz"), "")
+        self.assertEqual(format_unit_price(1.50, None), "")
 
     def test_format_badge_fixed(self):
         atl_badge = format_badge_fixed("ALL_TIME_LOW", width=16)

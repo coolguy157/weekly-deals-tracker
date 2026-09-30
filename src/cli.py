@@ -16,6 +16,7 @@ from .analyzer import DealAnalyzer
 from .formatter import (
     format_badge_fixed,
     format_badge,
+    format_unit_price,
     print_deal_card,
     render_filtered_report,
     render_smart_digest,
@@ -122,8 +123,11 @@ def cmd_deals(args: argparse.Namespace) -> None:
     if getattr(args, "price_hikes_only", False):
         evaluations = [e for e in evaluations if e.badge == "PRICE_HIKE"]
 
+    if getattr(args, "sort_unit_price", False):
+        evaluations.sort(key=lambda x: (x.unit_price is None, x.unit_price or 999999, x.current_price or 999999))
+
     # Filter out unpriced [SEE AD] items by default unless explicitly requested or query searched
-    has_custom_filter = bool(args.query or args.atl_only or getattr(args, "price_hikes_only", False) or args.all_pages)
+    has_custom_filter = bool(args.query or args.atl_only or getattr(args, "price_hikes_only", False) or args.all_pages or getattr(args, "sort_unit_price", False))
     see_ad_count = sum(1 for e in evaluations if e.badge == "SEE_AD")
 
     if not args.include_see_ad and not args.query:
@@ -179,11 +183,16 @@ def cmd_history(args: argparse.Namespace) -> None:
             valid_from = (h.get("valid_from") or "")[:10]
             valid_to = (h.get("valid_to") or "")[:10]
             price = f"${h['advertised_price']:.2f}" if h.get("advertised_price") is not None else "See ad"
+            unit_str = ""
+            if h.get("unit_price") is not None and h.get("unit_type"):
+                u_fmt = format_unit_price(h.get("unit_price"), h.get("unit_type"))
+                if u_fmt:
+                    unit_str = f" ({u_fmt})"
             page_info = f"Page {h['page_number']}" + (" (Front Page)" if h['is_front_page'] else "")
             trust_info = "" if h.get("is_trusted", 1) else " \033[93m[Untrusted / Backfill]\033[0m"
             doorbuster_info = " \033[95m[Doorbuster / Outlier]\033[0m" if h.get("promo_type") in ("doorbuster", "outlier") else ""
             deal_id_str = f" [Deal ID: {h['deal_id']}]" if "deal_id" in h else ""
-            print(f"   • [{valid_from} - {valid_to}] Price: {price} ({page_info}){doorbuster_info}{trust_info}{deal_id_str}")
+            print(f"   • [{valid_from} - {valid_to}] Price: {price}{unit_str} ({page_info}){doorbuster_info}{trust_info}{deal_id_str}")
         print()
 
 
@@ -309,6 +318,7 @@ def main() -> None:
     p_deals.add_argument("--hikes-only", "--price-hikes-only", dest="price_hikes_only", action="store_true", help="Filter Price Hikes only")
     p_deals.add_argument("--all", "--all-pages", dest="all_pages", action="store_true", help="Show all items across all circular pages")
     p_deals.add_argument("--include-see-ad", action="store_true", help="Include unpriced promotional tiles and bundle headers")
+    p_deals.add_argument("--sort-unit-price", "--sort-by-unit-price", dest="sort_unit_price", action="store_true", help="Sort deals by unit price ($/unit) ascending")
     p_deals.add_argument("-v", "--verbose", action="store_true", help="Show multi-line detailed cards for each item")
 
     # history

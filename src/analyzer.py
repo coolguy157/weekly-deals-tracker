@@ -35,6 +35,8 @@ class DealEvaluation:
     diff_pct_vs_avg: Optional[float]
     badge: str
     summary_reason: str
+    unit_size: Optional[float] = None
+    unit_type: Optional[str] = None
 
 
 class DealAnalyzer:
@@ -140,6 +142,8 @@ class DealAnalyzer:
                 diff_pct_vs_avg=None,
                 badge="SEE_AD",
                 summary_reason="Price not listed numerically in circular",
+                unit_size=deal_record.get("unit_size"),
+                unit_type=deal_record.get("unit_type"),
             )
 
         if not past_obs:
@@ -159,6 +163,8 @@ class DealAnalyzer:
                 diff_pct_vs_avg=0.0,
                 badge="FIRST_SEEN",
                 summary_reason="First time tracked in circular database",
+                unit_size=deal_record.get("unit_size"),
+                unit_type=deal_record.get("unit_type"),
             )
 
         episodes = self.cluster_episodes(past_obs)
@@ -243,6 +249,8 @@ class DealAnalyzer:
             diff_pct_vs_avg=round(diff_vs_avg, 1),
             badge=badge,
             summary_reason=reason,
+            unit_size=deal_record.get("unit_size"),
+            unit_type=deal_record.get("unit_type"),
         )
 
     def evaluate_flyer(

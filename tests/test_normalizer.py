@@ -575,6 +575,121 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals_range[0].canonical_name, "Lucerne Shredded Cheese 6-8 oz")
         self.assertEqual(deals_range[0].unit_size, 7.0)
 
+    def test_cream_cheese_multipack_unit_resolution(self):
+        item = FlyerItem(
+            id=1019,
+            flyer_id=20260506,
+            name="Philadelphia Cream Cheese 2 Pack",
+            price=4.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Philadelphia",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 1)
+        self.assertEqual(deals[0].canonical_name, "Philadelphia Cream Cheese 2 Pack")
+        self.assertEqual(deals[0].brand, "Philadelphia")
+        self.assertEqual(deals[0].unit_size, 16.0)
+        self.assertEqual(deals[0].unit_type, "oz")
+        self.assertAlmostEqual(deals[0].unit_price, round(4.99 / 16.0, 4))
+
+    def test_deli_cheese_per_lb_resolution(self):
+        item = FlyerItem(
+            id=1020,
+            flyer_id=8159624,
+            name="Primo Taglio American Cheese",
+            price=7.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Primo Taglio",
+            page_number=4,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 1)
+        self.assertEqual(deals[0].canonical_name, "Primo Taglio American Cheese")
+        self.assertEqual(deals[0].brand, "Primo Taglio")
+        self.assertEqual(deals[0].unit_size, 1.0)
+        self.assertEqual(deals[0].unit_type, "lb")
+        self.assertAlmostEqual(deals[0].unit_price, 7.99)
+
+    def test_single_serve_yogurt_canonicalization(self):
+        # 1. Unsized hero title
+        item_unsized = FlyerItem(
+            id=1021,
+            flyer_id=8131286,
+            name="Yoplait Yogurt or Kraft Original Macaroni & Cheese",
+            price=0.37,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Yoplait | Kraft",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals1 = self.normalizer.disaggregate_and_normalize(item_unsized)
+        yoplait1 = next(d for d in deals1 if d.brand == "Yoplait")
+        self.assertEqual(yoplait1.canonical_name, "Yoplait Yogurt 4-6 oz")
+        self.assertEqual(yoplait1.unit_size, 5.0)
+        self.assertEqual(yoplait1.unit_type, "oz")
+
+        # 2. Sized range title
+        item_ranged = FlyerItem(
+            id=1022,
+            flyer_id=8159624,
+            name="Tina's Burritos 4 oz., Yoplait Yogurt 4-6 oz.,",
+            price=0.37,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Tina's | Yoplait",
+            page_number=3,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals2 = self.normalizer.disaggregate_and_normalize(item_ranged)
+        yoplait2 = next(d for d in deals2 if d.brand == "Yoplait")
+        self.assertEqual(yoplait2.canonical_name, "Yoplait Yogurt 4-6 oz")
+        self.assertEqual(yoplait2.unit_size, 5.0)
+        self.assertEqual(yoplait2.unit_type, "oz")
+
+        # 3. 6 oz single size title
+        item_6oz = FlyerItem(
+            id=1023,
+            flyer_id=20260708,
+            name="Lucerne Yogurt 6 oz or Yoplait Yogurt 6 oz",
+            price=0.39,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Lucerne | Yoplait",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals3 = self.normalizer.disaggregate_and_normalize(item_6oz)
+        yoplait3 = next(d for d in deals3 if d.brand == "Yoplait")
+        lucerne3 = next(d for d in deals3 if d.brand == "Lucerne")
+        self.assertEqual(yoplait3.canonical_name, "Yoplait Yogurt 4-6 oz")
+        self.assertEqual(lucerne3.canonical_name, "Lucerne Yogurt 4-6 oz")
+
 
 if __name__ == "__main__":
     unittest.main()

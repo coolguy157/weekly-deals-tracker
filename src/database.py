@@ -246,6 +246,17 @@ class DealsDatabase:
             )
             row = cur.fetchone()
             if row:
+                if unit_size is not None or unit_type is not None or brand is not None:
+                    c.execute(
+                        """
+                        UPDATE products
+                        SET brand = COALESCE(?, brand),
+                            unit_size = COALESCE(?, unit_size),
+                            unit_type = COALESCE(?, unit_type)
+                        WHERE product_id = ?
+                        """,
+                        (brand, unit_size, unit_type, row["product_id"]),
+                    )
                 return row["product_id"]
 
             cur = c.execute(
@@ -366,8 +377,10 @@ class DealsDatabase:
         query = """
             SELECT 
                 d.id as deal_id, d.advertised_price, d.unit_price, d.page_number, d.is_front_page,
-                d.promo_type, d.is_trusted, d.source_type, d.recorded_at, f.valid_from, f.valid_to, f.flyer_id
+                d.promo_type, d.is_trusted, d.source_type, d.recorded_at, f.valid_from, f.valid_to, f.flyer_id,
+                p.unit_size, p.unit_type
             FROM deal_observations d
+            JOIN products p ON d.product_id = p.product_id
             JOIN flyer_runs f ON d.flyer_id = f.flyer_id
             WHERE d.product_id = ?
         """
@@ -428,7 +441,7 @@ class DealsDatabase:
         with self._get_connection() as conn:
             rows = conn.execute("""
                 SELECT d.id as obs_id, d.flyer_id, d.raw_deal_id, d.page_number, d.is_front_page,
-                       d.advertised_price, d.promo_type, d.raw_title, d.image_url, d.is_trusted, d.source_type,
+                       d.advertised_price, d.unit_price, d.promo_type, d.raw_title, d.image_url, d.is_trusted, d.source_type,
                        d.recorded_at, p.product_id, p.canonical_name, p.brand
                 FROM deal_observations d
                 JOIN products p ON d.product_id = p.product_id
@@ -455,7 +468,7 @@ class DealsDatabase:
                 )
                 deals = normalizer.disaggregate_and_normalize(item)
 
-                if len(deals) > 1 or (len(deals) == 1 and deals[0].canonical_name != r["canonical_name"]):
+                if len(deals) > 1 or (len(deals) == 1 and (deals[0].canonical_name != r["canonical_name"] or deals[0].unit_price != r["unit_price"])):
                     disaggregated_obs += 1
                     new_obs_total += len(deals)
 

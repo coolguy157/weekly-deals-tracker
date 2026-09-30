@@ -38,12 +38,24 @@ def format_badge(badge: str) -> str:
     return format_badge_fixed(badge, width=0)
 
 
+def format_unit_price(unit_price: Optional[float], unit_type: Optional[str]) -> str:
+    """Format unit price cleanly (e.g. '$0.16/oz', '$7.99/lb', '$0.25/ct')."""
+    if unit_price is None or not unit_type:
+        return ""
+    if unit_price < 0.10:
+        return f"${unit_price:.3f}/{unit_type}"
+    return f"${unit_price:.2f}/{unit_type}"
+
+
 def print_deal_card(ev: Any, verbose: bool = False) -> None:
     """Print a single deal observation with formatted badge and inline metadata."""
     badge_str = format_badge_fixed(ev.badge, width=16)
     price_str = f"${ev.current_price:.2f}" if ev.current_price is not None else "See ad"
     page_str = f"p.{ev.page_number}" + (" (Cover)" if ev.is_front_page else "")
     brand_str = f" [{ev.brand}]" if ev.brand else ""
+
+    u_str = format_unit_price(getattr(ev, "unit_price", None), getattr(ev, "unit_type", None))
+    unit_str = f" ({u_str})" if u_str else ""
 
     # Actionable inline annotations for non-verbose mode
     note = ""
@@ -53,10 +65,10 @@ def print_deal_card(ev: Any, verbose: bool = False) -> None:
         note = f"  \033[92m↳ {ev.summary_reason}\033[0m"
 
     if verbose:
-        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str} ({page_str})")
+        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str}{unit_str} ({page_str})")
         print(f"   ↳ {ev.summary_reason}\n")
     else:
-        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str} ({page_str}){note}")
+        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str}{unit_str} ({page_str}){note}")
 
 
 def render_filtered_report(
