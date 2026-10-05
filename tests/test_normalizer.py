@@ -690,6 +690,65 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(yoplait3.canonical_name, "Yoplait Yogurt 4-6 oz")
         self.assertEqual(lucerne3.canonical_name, "Lucerne Yogurt 4-6 oz")
 
+    def test_infer_category(self):
+        self.assertEqual(self.normalizer.infer_category("Lucerne Shredded Cheese 32 oz"), "Shredded Cheese")
+        self.assertEqual(self.normalizer.infer_category("Philadelphia Cream Cheese 8 oz"), "Cream Cheese")
+        self.assertEqual(self.normalizer.infer_category("Primo Taglio American Cheese"), "Cheese")
+        self.assertEqual(self.normalizer.infer_category("Sugardale Bacon 12 oz"), "Bacon")
+        self.assertEqual(self.normalizer.infer_category("Lucerne Large Eggs 12 ct"), "Eggs")
+        self.assertEqual(self.normalizer.infer_category("Boneless Skinless Chicken Breasts"), "Chicken Breasts")
+        self.assertEqual(self.normalizer.infer_category("Signature SELECT Ground Beef 80/20 1 lb"), "Ground Beef")
+
+    def test_promo_normalization(self):
+        # 1. Must Buy 4 @ $2.49 with unpriced item
+        mb_item = FlyerItem(
+            id=101,
+            flyer_id=1,
+            name="Dr Pepper 12 Pack MUST BUY 4 @ $2.49",
+            price=None,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Dr Pepper",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        mb_deals = self.normalizer.disaggregate_and_normalize(mb_item)
+        self.assertEqual(len(mb_deals), 1)
+        self.assertEqual(mb_deals[0].promo_type, "must_buy")
+        self.assertEqual(mb_deals[0].qualifying_qty, 4)
+        self.assertEqual(mb_deals[0].advertised_price, 2.49)
+        self.assertIn("MUST BUY 4 @ $2.49", mb_deals[0].promo_detail)
+        self.assertEqual(mb_deals[0].canonical_name, "Dr Pepper 12 Pack")
+
+        # 2. Doritos BUY 2 GET 2 FREE with unpriced item
+        bogo_item = FlyerItem(
+            id=102,
+            flyer_id=1,
+            name="Doritos Tortilla Chips 9.25 oz BUY 2 GET 2 FREE",
+            price=None,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Doritos",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        bogo_deals = self.normalizer.disaggregate_and_normalize(bogo_item)
+        self.assertEqual(len(bogo_deals), 1)
+        self.assertEqual(bogo_deals[0].promo_type, "bogo")
+        self.assertEqual(bogo_deals[0].qualifying_qty, 4)
+        self.assertIsNone(bogo_deals[0].advertised_price)  # Awaits base shelf price
+        self.assertEqual(bogo_deals[0].promo_detail, "BUY 2 GET 2 FREE")
+        self.assertEqual(bogo_deals[0].canonical_name, "Doritos Tortilla Chips 9.25 oz")
+
 
 if __name__ == "__main__":
     unittest.main()
+

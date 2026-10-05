@@ -37,6 +37,20 @@ class DealEvaluation:
     summary_reason: str
     unit_size: Optional[float] = None
     unit_type: Optional[str] = None
+    category: Optional[str] = None
+    category_min_unit_price: Optional[float] = None
+    category_avg_unit_price: Optional[float] = None
+    promo_type: str = "standard"
+    promo_detail: Optional[str] = None
+    qualifying_qty: int = 1
+    base_price: Optional[float] = None
+
+    @property
+    def is_category_best(self) -> bool:
+        """Returns True if this deal is the lowest unit price across all brands in its commodity category."""
+        if self.category and self.unit_price is not None and self.category_min_unit_price is not None:
+            return self.unit_price <= (self.category_min_unit_price + 0.005)
+        return False
 
 
 class DealAnalyzer:
@@ -125,14 +139,64 @@ class DealAnalyzer:
             and h.get("advertised_price") is not None
         ]
 
+        # Tier 3: Category Unit Benchmark across all brands
+        category = deal_record.get("category")
+        unit_price = deal_record.get("unit_price")
+        unit_type = deal_record.get("unit_type")
+        cat_min_unit = None
+        cat_avg_unit = None
+        if category and unit_price is not None and unit_type:
+            cat_history = self.db.get_commodity_unit_price_history(category, unit_type=unit_type)
+            cat_past_obs = [
+                h for h in cat_history
+                if h.get("flyer_id") != target_flyer_id
+                and (not current_valid_from or (h.get("valid_from") or "")[:10] < current_valid_from)
+                and h.get("unit_price") is not None
+            ]
+            if cat_past_obs:
+                cat_unit_prices = [h["unit_price"] for h in cat_past_obs]
+                if cat_unit_prices:
+                    cat_min_unit = min(cat_unit_prices)
+                    cat_avg_unit = sum(cat_unit_prices) / len(cat_unit_prices)
+
+        promo_type = deal_record.get("promo_type") or "standard"
+        promo_detail = deal_record.get("promo_detail")
+        qualifying_qty = deal_record.get("qualifying_qty") or 1
+        base_price = deal_record.get("base_price") or deal_record.get("last_shelf_price")
+
+        promo_note = ""
+        if promo_type == "bogo":
+            if base_price:
+                promo_note = f" • [{promo_detail or 'BOGO Free'} (Base ${base_price:.2f})]"
+            else:
+                promo_note = f" • [{promo_detail or 'BOGO Free'}]"
+        elif promo_type == "must_buy":
+            promo_note = f" • [{promo_detail or f'Must Buy {qualifying_qty}'}]"
+        elif promo_type == "digital_coupon":
+            promo_note = f" • [{promo_detail or 'Digital Coupon'}]"
+
+        cat_note = ""
+        if cat_min_unit is not None and cat_avg_unit is not None and unit_price is not None:
+            if unit_price <= (cat_min_unit + 0.005):
+                cat_note = f" • 🏆 Best {category} price/{unit_type} across all brands"
+            elif unit_price <= (cat_avg_unit * 0.85):
+                diff_cat = abs(int(((unit_price - cat_avg_unit) / cat_avg_unit) * 100.0))
+                cat_note = f" • 🔥 {diff_cat}% below {category} category avg"
+            elif unit_price > (cat_avg_unit * 1.15):
+                diff_cat = int(((unit_price - cat_avg_unit) / cat_avg_unit) * 100.0)
+                cat_note = f" • ⚠️ Above {category} category avg (+{diff_cat}%)"
+
         if current_price is None:
+            unpriced_reason = "Price not listed numerically in circular"
+            if promo_detail:
+                unpriced_reason = f"Promo: {promo_detail} (needs shelf price to compute unit cost)"
             return DealEvaluation(
                 deal_id=deal_record.get("id", 0),
                 product_id=product_id,
                 canonical_name=deal_record.get("canonical_name", ""),
                 brand=deal_record.get("brand"),
                 current_price=None,
-                unit_price=deal_record.get("unit_price"),
+                unit_price=unit_price,
                 page_number=deal_record.get("page_number", 1),
                 is_front_page=bool(deal_record.get("is_front_page", 1)),
                 historical_min=None,
@@ -141,19 +205,37 @@ class DealAnalyzer:
                 past_observations_count=len(past_obs),
                 diff_pct_vs_avg=None,
                 badge="SEE_AD",
-                summary_reason="Price not listed numerically in circular",
+                summary_reason=unpriced_reason,
                 unit_size=deal_record.get("unit_size"),
-                unit_type=deal_record.get("unit_type"),
+                unit_type=unit_type,
+                category=category,
+                category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
+                category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
+                promo_type=promo_type,
+                promo_detail=promo_detail,
+                qualifying_qty=qualifying_qty,
+                base_price=base_price,
             )
 
         if not past_obs:
+            first_badge = "FIRST_SEEN"
+            first_reason = f"First time tracked in circular database{promo_note}{cat_note}"
+            if cat_min_unit is not None and cat_avg_unit is not None and unit_price is not None:
+                if unit_price <= (cat_min_unit + 0.005):
+                    first_badge = "ALL_TIME_LOW"
+                    first_reason = f"🌟 First seen & Best {category} price! ${unit_price:.2f}/{unit_type} (lowest across all brands){promo_note}"
+                elif unit_price <= (cat_avg_unit * 0.85):
+                    first_badge = "BEAT_AVERAGE"
+                    diff_cat = abs(int(((unit_price - cat_avg_unit) / cat_avg_unit) * 100.0))
+                    first_reason = f"🔥 First seen ({diff_cat}% below {category} category avg of ${cat_avg_unit:.2f}/{unit_type}){promo_note}"
+
             return DealEvaluation(
                 deal_id=deal_record.get("id", 0),
                 product_id=product_id,
                 canonical_name=deal_record.get("canonical_name", ""),
                 brand=deal_record.get("brand"),
                 current_price=current_price,
-                unit_price=deal_record.get("unit_price"),
+                unit_price=unit_price,
                 page_number=deal_record.get("page_number", 1),
                 is_front_page=bool(deal_record.get("is_front_page", 1)),
                 historical_min=current_price,
@@ -161,10 +243,17 @@ class DealAnalyzer:
                 historical_max=current_price,
                 past_observations_count=0,
                 diff_pct_vs_avg=0.0,
-                badge="FIRST_SEEN",
-                summary_reason="First time tracked in circular database",
+                badge=first_badge,
+                summary_reason=first_reason,
                 unit_size=deal_record.get("unit_size"),
-                unit_type=deal_record.get("unit_type"),
+                unit_type=unit_type,
+                category=category,
+                category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
+                category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
+                promo_type=promo_type,
+                promo_detail=promo_detail,
+                qualifying_qty=qualifying_qty,
+                base_price=base_price,
             )
 
         episodes = self.cluster_episodes(past_obs)
@@ -196,7 +285,7 @@ class DealAnalyzer:
         )
 
         badge = "STANDARD_DEAL"
-        reason = f"Past sale range: ${b_min:.2f} - ${b_max:.2f} (avg ${b_avg:.2f})"
+        reason = f"Past sale range: ${b_min:.2f} - ${b_max:.2f} (avg ${b_avg:.2f}){promo_note}{cat_note}"
 
         # Has historical variation beyond a single flat price?
         has_price_variation = (h_max - h_min) >= 0.05
@@ -205,33 +294,33 @@ class DealAnalyzer:
             # Multi-week promotion continuation
             if current_price <= h_min and has_price_variation:
                 badge = "ALL_TIME_LOW"
-                reason = f"🌟 Multi-week sale at All-Time Low (${h_min:.2f})"
+                reason = f"🌟 Multi-week sale at All-Time Low (${h_min:.2f}){promo_note}{cat_note}"
             else:
                 badge = "CYCLE_REFRESH"
-                reason = f"🔄 Ongoing multi-week promotion (${current_price:.2f})"
+                reason = f"🔄 Ongoing multi-week promotion (${current_price:.2f}){promo_note}{cat_note}"
         elif current_price < (h_min - 0.005):
             badge = "ALL_TIME_LOW"
             diff_min = ((current_price - h_min) / h_min) * 100.0
-            reason = f"🌟 New All-Time Low! {abs(diff_min):.1f}% below past low of ${h_min:.2f}"
+            reason = f"🌟 New All-Time Low! {abs(diff_min):.1f}% below past low of ${h_min:.2f}{promo_note}{cat_note}"
         elif abs(current_price - h_min) <= 0.005:
             if has_price_variation:
                 badge = "ALL_TIME_LOW"
-                reason = f"🌟 Matches All-Time Low (${h_min:.2f})"
+                reason = f"🌟 Matches All-Time Low (${h_min:.2f}){promo_note}{cat_note}"
             else:
                 badge = "CYCLE_REFRESH"
-                reason = f"🔄 Standard promo cycle (typical: ${h_min:.2f})"
+                reason = f"🔄 Standard promo cycle (typical: ${h_min:.2f}){promo_note}{cat_note}"
         elif current_price <= (b_avg * 0.85):
             badge = "BEAT_AVERAGE"
-            reason = f"🔥 {abs(diff_vs_avg):.1f}% below historical average of ${b_avg:.2f}"
+            reason = f"🔥 {abs(diff_vs_avg):.1f}% below historical average of ${b_avg:.2f}{promo_note}{cat_note}"
         elif current_price <= b_avg or abs(current_price - b_min) < 0.05:
             badge = "CYCLE_REFRESH"
             if abs(b_min - b_max) < 0.01:
-                reason = f"🔄 Standard promo cycle (typical: ${b_min:.2f})"
+                reason = f"🔄 Standard promo cycle (typical: ${b_min:.2f}){promo_note}{cat_note}"
             else:
-                reason = f"🔄 Standard promo cycle (typical: ${b_min:.2f} - ${b_avg:.2f})"
+                reason = f"🔄 Standard promo cycle (typical: ${b_min:.2f} - ${b_avg:.2f}){promo_note}{cat_note}"
         elif current_price > (b_avg * 1.15) or current_price > b_max:
             badge = "PRICE_HIKE"
-            reason = f"⚠️ Higher than typical promo average (+{diff_vs_avg:.1f}% vs avg ${b_avg:.2f})"
+            reason = f"⚠️ Higher than typical promo average (+{diff_vs_avg:.1f}% vs avg ${b_avg:.2f}){promo_note}{cat_note}"
 
         return DealEvaluation(
             deal_id=deal_record.get("id", 0),
@@ -239,7 +328,7 @@ class DealAnalyzer:
             canonical_name=deal_record.get("canonical_name", ""),
             brand=deal_record.get("brand"),
             current_price=current_price,
-            unit_price=deal_record.get("unit_price"),
+            unit_price=unit_price,
             page_number=deal_record.get("page_number", 1),
             is_front_page=bool(deal_record.get("is_front_page", 1)),
             historical_min=round(h_min, 2),
@@ -250,7 +339,14 @@ class DealAnalyzer:
             badge=badge,
             summary_reason=reason,
             unit_size=deal_record.get("unit_size"),
-            unit_type=deal_record.get("unit_type"),
+            unit_type=unit_type,
+            category=category,
+            category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
+            category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
+            promo_type=promo_type,
+            promo_detail=promo_detail,
+            qualifying_qty=qualifying_qty,
+            base_price=base_price,
         )
 
     def evaluate_flyer(

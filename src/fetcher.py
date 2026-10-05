@@ -103,7 +103,7 @@ class FlippAdFetcher:
             raise last_err
 
     def get_flyers_for_zip(
-        self, postal_code: str, merchant_filter: Optional[str] = "Tom Thumb", locale: str = "en-us"
+        self, postal_code: str, merchant_filter: Optional[str] = None, locale: str = "en-us"
     ) -> List[FlyerMetadata]:
         """Fetch all active circulars for a postal code, optionally filtering by merchant."""
         url = f"{self.BASE_URL}/flyers?postal_code={postal_code}&locale={locale}"

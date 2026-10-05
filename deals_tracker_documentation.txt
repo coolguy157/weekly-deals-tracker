@@ -1,0 +1,73 @@
+Weekly Deals & Price History Tracker Documentation
+===================================================
+
+1. Overview & Architecture
+--------------------------
+The Weekly Deals Tracker is a high-performance Python data ingestion and analytics system that tracks weekly circular deals, flyer promotions, and historical shelf pricing across Tom Thumb / Safeway grocery stores.
+
+Core End-to-End Pipeline:
+1. Ingestion: Fetches current and historical circular runs and item bounding boxes via the Flipp API (`fetcher.py`).
+2. Disaggregation & Normalization: Strips promotional junk, unit-normalizes item weights/counts (oz, lb, ct, fl oz), extracts brands, categorizes items, and disaggregates multi-item circular deals (`normalizer/`).
+3. SQLite Persistence: Records flyer metadata (`flyer_runs`), unique product entities (`products`), and time-series observations (`deal_observations`) in `deals.db` with indexed foreign keys (`database.py`).
+4. Price History & Drops: Analyzes historical price observations to compute all-time lows (ATL), current price drops, and historical discounts (`analyzer.py`).
+5. Coupon & Free Item Stacking: Shares `deals.db` with `stack_engine` and `app_automation` to calculate 100% free and stacked coupon deals (`database.py`).
+
+
+2. Codebase Map
+---------------
+
+Root Entrypoints:
+- `cli.py`: Unified CLI interface for synchronizing circulars, querying deals, and analyzing price history (`python -m src.cli ...`).
+- `scratch/`: Dedicated experimental sandbox for exploratory scripts and verification.
+
+src/
+- `fetcher.py`: Flipp API client (`FlippFetcher`), flyer metadata models (`FlyerMetadata`), item extraction (`FlyerItem`), and flyer page geometric assignment.
+- `database.py`: SQLite engine (`DealsDatabase`) managing `flyer_runs`, `products`, `deal_observations`, `app_digital_coupons`, and `matched_stacks`.
+- `analyzer.py`: Price history intelligence (`PriceAnalyzer`), calculating all-time low (ATL) benchmarks, price drop deltas, and average discounts.
+- `formatter.py`: Rich terminal formatting (`TerminalFormatter`) for structured tables, colored savings metrics, and front-page badges.
+- `promo_extractor.py`: Regex-driven promotional mechanics parser (BOGO, Buy X Get Y Free, Must Buy N, Card Required, Digital Coupon required).
+- `video_pipeline.py`: Ingestion pipeline for processing video screen recordings and visual flyer capture.
+
+src/normalizer/
+- `models.py`: Dataclass models (`NormalizedDeal`, `NormalizedProduct`).
+- `cleaner.py`: Product title sanitization, brand stripping, and noise filtering.
+- `units.py`: Unit standardizer converting pounds, ounces, fluid ounces, counts, and packs into standard unit prices ($/oz, $/lb, $/ct).
+- `categories.py`: Taxonomy mapping keywords to grocery departments (Produce, Bakery, Meat, Dairy, Pantry, etc.).
+- `expander.py`: Compound deal disaggregation (e.g. "Coke, Sprite, or Dr Pepper 12pk").
+- `normalizer.py`: Core `ProductNormalizer` facade orchestrating the normalization pipeline.
+
+tests/
+- `test_fetcher.py`: Ingestion client and payload parsing tests with mocked HTTP responses.
+- `test_normalizer.py`: Title sanitization, unit conversion, and multi-product disaggregation tests.
+- `test_database.py`: SQLite schema, migration, coupon upsert, and stack query tests using isolated in-memory databases.
+- `test_analyzer.py`: Price history analytics, all-time-low calculations, and deal ranking tests.
+- `test_promo_extractor.py`: Promotional mechanics regex extraction tests.
+- `test_cli.py`: CLI command parser tests.
+- `test_formatter.py`: ASCII table and markdown report formatting tests.
+
+
+3. Database Schema (`deals.db`)
+-------------------------------
+- `flyer_runs`: Ingested circular runs with start/end validity dates and trust flags.
+- `products`: Canonical product catalog entities with brand, category, unit size, and shelf price.
+- `deal_observations`: Individual deal snapshots mapped to flyer runs and products.
+- `app_digital_coupons`: Digital coupons scraped from the mobile app (Store, MFG, Dept $1 off, Explicit Free).
+- `matched_stacks`: Calculated coupon stacks, out-of-pocket prices, and free-deal classifications.
+
+
+4. CLI Commands & Usage
+-----------------------
+- Sync current weekly ad:
+  `python -m src.cli sync --zip 75001`
+- Display all active flyer deals:
+  `python -m src.cli deals`
+- Filter for all-time lows (ATL):
+  `python -m src.cli deals --atl-only`
+- Filter front-page circular deals:
+  `python -m src.cli deals --front-page-only`
+- Search deals by keyword:
+  `python -m src.cli deals -q "bacon"`
+- Product price history:
+  `python -m src.cli history "Lucerne Milk"`
+- Export deals to JSON:
+  `python -m src.cli export --format json --output weekly_deals.json`

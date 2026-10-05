@@ -63,13 +63,21 @@ Weekly Deals Tracker/
 The engine supports multiple ingestion pipelines to maintain an accurate and complete price timeline:
 
 ### 1. Live Circular Sync (Flipp API)
-Ingest the active weekly ad directly from Flipp's public JSON backend. Items ingested this way are automatically tagged as **Verified / Trusted** (`is_trusted=1, source_type='flipp_api'`):
+Ingest active weekly ads directly from Flipp's public JSON backend. Items ingested this way are automatically tagged as **Verified / Trusted** (`is_trusted=1, source_type='flipp_api'`):
 ```bash
-# Sync active weekly ad
-python -m src.cli sync --zip 12345 --merchant "Tom Thumb"
+# Sync Giant (Lewisburg, PA 17837)
+python -m src.cli sync --store giant
+# Or by ZIP & merchant
+python -m src.cli sync --zip 17837 --merchant "Giant"
+
+# Sync Tom Thumb
+python -m src.cli sync --store tomthumb
+
+# Sync all configured stores in .env (or presets)
+python -m src.cli sync --all-stores
 
 # Sync front-page hero deals only
-python -m src.cli sync --zip 12345 --front-page-only
+python -m src.cli sync --store giant --front-page-only
 ```
 
 ### 2. Video Circular Pipeline (`src/video_pipeline.py`)
@@ -192,7 +200,16 @@ Because historical backfills and OCR/video scans can occasionally have discrepan
 ### 1. View Analyzed Deals
 Display active deals in a scannable weekly digest format (defaults to **Front Page / Cover Deals**, circular-wide **Price Hike Alerts**, and inside-page **All-Time Lows**, filtering out unpriced tiles):
 ```bash
+# View deals for latest circular (or default store from .env)
 python -m src.cli deals
+
+# View deals for Giant (Lewisburg, PA)
+python -m src.cli deals --store giant
+# or
+python -m src.cli deals -m giant
+
+# View deals for Tom Thumb
+python -m src.cli deals --store tomthumb
 ```
 Available flags:
 - **Show all circular items**: `python -m src.cli deals --all`
@@ -203,9 +220,15 @@ Available flags:
 - **Include unpriced bundle tiles**: `python -m src.cli deals --include-see-ad`
 
 ### 2. Search Product History
+View price history timelines tagged with store banner names:
 ```bash
+# Search across all stores
 python -m src.cli history "Bacon"
-python -m src.cli history "Salmon"
+python -m src.cli history "Eggs"
+
+# Filter history for a specific merchant or store
+python -m src.cli history "Bacon" --store giant
+python -m src.cli history "Eggs" -m "Tom Thumb"
 ```
 
 ### 3. Database Re-normalization & Catalog Reconciliation

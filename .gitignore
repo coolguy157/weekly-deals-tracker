@@ -8,6 +8,7 @@ venv/
 
 # Database files
 data/*.db
+!data/giant_deals.db
 data/*.sqlite
 data/*.sqlite3
 data/*.bak
@@ -15,8 +16,9 @@ data/*.bak
 
 # Exports and test outputs
 *.json
-*.csv
 !package.json
+!web/*.json
+*.csv
 
 # Scratch files (preserve scratch/README.md)
 scratch/*

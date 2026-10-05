@@ -1,0 +1,121 @@
+"""
+test_promo_extractor.py
+Unit tests for PromoExtractor regex parsing and effective unit price calculations.
+"""
+
+import unittest
+from src.promo_extractor import PromoExtractor, PromoInfo
+
+
+class TestPromoExtractor(unittest.TestCase):
+    def test_bogo_patterns(self):
+        # BUY 2 GET 2 FREE
+        p1 = PromoExtractor.extract_promo("Doritos Tortilla Chips BUY 2 GET 2 FREE")
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "bogo")
+        self.assertEqual(p1.buy_qty, 2)
+        self.assertEqual(p1.free_qty, 2)
+        self.assertEqual(p1.qualifying_qty, 4)
+        self.assertEqual(p1.promo_detail, "BUY 2 GET 2 FREE")
+
+        # BUY 1 GET 1 FREE OF EQUAL OR LESSER VALUE
+        p2 = PromoExtractor.extract_promo("Bakery Cookies BUY 1 GET 1 OF EQUAL OR LESSER VALUE FREE")
+        self.assertIsNotNone(p2)
+        self.assertEqual(p2.promo_type, "bogo")
+        self.assertEqual(p2.buy_qty, 1)
+        self.assertEqual(p2.free_qty, 1)
+        self.assertEqual(p2.qualifying_qty, 2)
+
+        # Word numbers: BUY ONE GET ONE FREE
+        p3 = PromoExtractor.extract_promo("Fresh Strawberries BUY ONE GET ONE FREE")
+        self.assertIsNotNone(p3)
+        self.assertEqual(p3.promo_type, "bogo")
+        self.assertEqual(p3.buy_qty, 1)
+        self.assertEqual(p3.free_qty, 1)
+
+        # Buy 1 Get 1 50% Off
+        p4 = PromoExtractor.extract_promo("Nature Valley Bars BUY 1 GET 1 50% OFF")
+        self.assertIsNotNone(p4)
+        self.assertEqual(p4.promo_type, "bogo")
+        self.assertEqual(p4.buy_qty, 1)
+        self.assertEqual(p4.free_qty, 1)
+        self.assertEqual(p4.discount_pct, 50.0)
+
+    def test_must_buy_patterns(self):
+        # MUST BUY 4 @ $2.49
+        p1 = PromoExtractor.extract_promo("Dr Pepper 12 Pack MUST BUY 4 @ $2.49")
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "must_buy")
+        self.assertEqual(p1.qualifying_qty, 4)
+        self.assertEqual(p1.stated_unit_price, 2.49)
+        self.assertEqual(p1.promo_detail, "MUST BUY 4 @ $2.49")
+
+        # WHEN YOU BUY 3 $1.99 EA
+        p2 = PromoExtractor.extract_promo("Pepsi 2 Liter WHEN YOU BUY 3 $1.99 EA")
+        self.assertIsNotNone(p2)
+        self.assertEqual(p2.promo_type, "must_buy")
+        self.assertEqual(p2.qualifying_qty, 3)
+        self.assertEqual(p2.stated_unit_price, 1.99)
+
+        # 2 FOR $5
+        p3 = PromoExtractor.extract_promo("Lay's Potato Chips 2 FOR $5")
+        self.assertIsNotNone(p3)
+        self.assertEqual(p3.promo_type, "must_buy")
+        self.assertEqual(p3.qualifying_qty, 2)
+        self.assertEqual(p3.stated_unit_price, 2.50)
+        self.assertEqual(p3.stated_total_price, 5.00)
+
+        # 3 FOR $10.00
+        p4 = PromoExtractor.extract_promo("Coke 12 Pack 3 FOR $10.00")
+        self.assertIsNotNone(p4)
+        self.assertEqual(p4.promo_type, "must_buy")
+        self.assertEqual(p4.qualifying_qty, 3)
+        self.assertAlmostEqual(p4.stated_unit_price, 3.33, places=2)
+
+    def test_digital_coupon_patterns(self):
+        # WITH DIGITAL COUPON $1.99
+        p1 = PromoExtractor.extract_promo("Lucerne Butter 16 oz WITH DIGITAL COUPON $1.99")
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "digital_coupon")
+        self.assertEqual(p1.coupon_price, 1.99)
+
+        # SAVE $1.00 WITH DIGITAL COUPON
+        p2 = PromoExtractor.extract_promo("Cheerios Cereal SAVE $1.00 WITH DIGITAL COUPON")
+        self.assertIsNotNone(p2)
+        self.assertEqual(p2.promo_type, "digital_coupon")
+        self.assertEqual(p2.coupon_discount, 1.00)
+
+    def test_calculate_effective_price(self):
+        # Doritos B2G2 Free @ Base $5.89 -> ($5.89 * 2) / 4 = $2.945 -> $2.95
+        p_b2g2 = PromoInfo(promo_type="bogo", promo_detail="BUY 2 GET 2 FREE", buy_qty=2, free_qty=2, qualifying_qty=4)
+        eff_b2g2 = PromoExtractor.calculate_effective_price(p_b2g2, base_price=5.89)
+        self.assertEqual(eff_b2g2, 2.95)
+
+        # B1G1 Free @ Base $4.99 -> ($4.99 * 1) / 2 = $2.495 -> $2.50
+        p_b1g1 = PromoInfo(promo_type="bogo", promo_detail="BUY 1 GET 1 FREE", buy_qty=1, free_qty=1, qualifying_qty=2)
+        eff_b1g1 = PromoExtractor.calculate_effective_price(p_b1g1, base_price=4.99)
+        self.assertEqual(eff_b1g1, 2.50)
+
+        # B1G1 50% Off @ Base $6.00 -> ($6.00 + $3.00) / 2 = $4.50
+        p_bogo_50 = PromoInfo(promo_type="bogo", promo_detail="BUY 1 GET 1 50% OFF", buy_qty=1, free_qty=1, discount_pct=50.0, qualifying_qty=2)
+        eff_50 = PromoExtractor.calculate_effective_price(p_bogo_50, base_price=6.00)
+        self.assertEqual(eff_50, 4.50)
+
+        # Must buy unit price
+        p_mb = PromoInfo(promo_type="must_buy", promo_detail="MUST BUY 4 @ $2.49", qualifying_qty=4, stated_unit_price=2.49)
+        eff_mb = PromoExtractor.calculate_effective_price(p_mb)
+        self.assertEqual(eff_mb, 2.49)
+
+        # 2 FOR $5
+        p_2for5 = PromoInfo(promo_type="must_buy", promo_detail="2 FOR $5.00", qualifying_qty=2, stated_unit_price=2.50, stated_total_price=5.00)
+        eff_2for5 = PromoExtractor.calculate_effective_price(p_2for5)
+        self.assertEqual(eff_2for5, 2.50)
+
+        # Digital Coupon discount: Base $3.99 - $1.00 = $2.99
+        p_coup = PromoInfo(promo_type="digital_coupon", promo_detail="SAVE $1.00", coupon_discount=1.00)
+        eff_coup = PromoExtractor.calculate_effective_price(p_coup, base_price=3.99)
+        self.assertEqual(eff_coup, 2.99)
+
+
+if __name__ == "__main__":
+    unittest.main()

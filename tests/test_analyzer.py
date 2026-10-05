@@ -382,6 +382,92 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertEqual(yogurt_w5.badge, "ALL_TIME_LOW")
         self.assertIn("Matches All-Time Low", yogurt_w5.summary_reason)
 
+    def test_tier3_cross_brand_commodity_benchmark(self):
+        f_past = FlyerMetadata(
+            id=401,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad 401",
+            postal_code="00000",
+            valid_from="2026-08-01T00:00:00",
+            valid_to="2026-08-07T23:59:59",
+        )
+        f_curr = FlyerMetadata(
+            id=402,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad 402",
+            postal_code="00000",
+            valid_from="2026-08-15T00:00:00",
+            valid_to="2026-08-21T23:59:59",
+        )
+        self.db.upsert_flyer_run(f_past)
+        self.db.upsert_flyer_run(f_curr)
+
+        # Record past deals for Kraft ($0.31/oz) and Lucerne ($0.25/oz)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=4011,
+                    flyer_id=401,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Lucerne Shredded Cheese 8 oz",
+                    brand="Lucerne",
+                    advertised_price=1.99,
+                    unit_size=8.0,
+                    unit_type="oz",
+                    unit_price=0.2488,
+                    raw_title="Lucerne Shredded Cheese 8 oz",
+                    image_url=None,
+                    category="Shredded Cheese",
+                ),
+                NormalizedDeal(
+                    raw_deal_id=4012,
+                    flyer_id=401,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Kraft Shredded Cheese 8 oz",
+                    brand="Kraft",
+                    advertised_price=2.49,
+                    unit_size=8.0,
+                    unit_type="oz",
+                    unit_price=0.3113,
+                    raw_title="Kraft Shredded Cheese 8 oz",
+                    image_url=None,
+                    category="Shredded Cheese",
+                ),
+            ]
+        )
+
+        # In flyer 402, new bulk brand appears @ $4.99 for 32 oz ($0.1559/oz)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=4021,
+                    flyer_id=402,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Tillamook Shredded Cheese 32 oz",
+                    brand="Tillamook",
+                    advertised_price=4.99,
+                    unit_size=32.0,
+                    unit_type="oz",
+                    unit_price=0.1559,
+                    raw_title="Tillamook Shredded Cheese 32 oz",
+                    image_url=None,
+                    category="Shredded Cheese",
+                )
+            ]
+        )
+
+        evals = self.analyzer.evaluate_flyer(402)
+        tillamook = next(e for e in evals if "Tillamook" in e.canonical_name)
+        self.assertEqual(tillamook.category, "Shredded Cheese")
+        self.assertAlmostEqual(tillamook.unit_price, 0.1559, places=3)
+        self.assertIn("Best Shredded Cheese price", tillamook.summary_reason)
+        self.assertIn("lowest across all brands", tillamook.summary_reason)
+
 
 if __name__ == "__main__":
     unittest.main()

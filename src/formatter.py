@@ -47,27 +47,82 @@ def format_unit_price(unit_price: Optional[float], unit_type: Optional[str]) -> 
     return f"${unit_price:.2f}/{unit_type}"
 
 
+def format_compact_note(ev: Any) -> str:
+    """Format a concise, high-signal annotation tag for clean single-line display."""
+    tags = []
+
+    # Promo Tag (BOGO, Must Buy, Digital Coupon)
+    promo_type = getattr(ev, "promo_type", "standard")
+    promo_detail = getattr(ev, "promo_detail", None)
+    base_price = getattr(ev, "base_price", None)
+    if promo_type == "bogo" and promo_detail:
+        base_str = f" (Base ${base_price:.2f})" if base_price else ""
+        tags.append(f"🎁 {promo_detail}{base_str}")
+    elif promo_type == "must_buy" and promo_detail:
+        tags.append(f"📦 {promo_detail}")
+    elif promo_type == "digital_coupon" and promo_detail:
+        tags.append(f"🎟️ {promo_detail}")
+
+    # Category Best / Category context
+    if getattr(ev, "is_category_best", False):
+        tags.append("🏆 Cat Best")
+    elif getattr(ev, "category_avg_unit_price", None) and getattr(ev, "unit_price", None):
+        cat_avg = ev.category_avg_unit_price
+        if ev.unit_price <= cat_avg * 0.85:
+            pct = round(((cat_avg - ev.unit_price) / cat_avg) * 100)
+            tags.append(f"🔥 -{pct}% cat avg")
+        elif ev.unit_price > cat_avg * 1.15:
+            pct = round(((ev.unit_price - cat_avg) / cat_avg) * 100)
+            tags.append(f"⚠️ +{pct}% cat avg")
+
+    # Historical price note
+    if ev.badge == "ALL_TIME_LOW":
+        if ev.historical_min and ev.current_price and ev.current_price < (ev.historical_min - 0.005):
+            pct = round(((ev.historical_min - ev.current_price) / ev.historical_min) * 100)
+            tags.append(f"🌟 -{pct}% ATL (was ${ev.historical_min:.2f})")
+        elif "Matches" in ev.summary_reason or (ev.historical_min and abs((ev.current_price or 0) - ev.historical_min) <= 0.005):
+            tags.append("🌟 Matches ATL")
+        else:
+            tags.append("🌟 ATL")
+    elif ev.badge == "PRICE_HIKE":
+        if ev.diff_pct_vs_avg:
+            tags.append(f"⚠️ +{round(ev.diff_pct_vs_avg)}% vs avg")
+        else:
+            tags.append("⚠️ Price Hike")
+    elif ev.badge == "BEAT_AVERAGE":
+        if ev.diff_pct_vs_avg:
+            tags.append(f"🔥 {round(ev.diff_pct_vs_avg)}% vs avg")
+    elif ev.badge == "CYCLE_REFRESH":
+        if "multi-week" in ev.summary_reason.lower():
+            tags.append("🔄 Multi-week")
+
+    if not tags:
+        return ""
+
+    color = "\033[91m" if ev.badge == "PRICE_HIKE" else "\033[92m"
+    reset = "\033[0m"
+    return f"  {color}↳ " + " • ".join(tags) + reset
+
+
 def print_deal_card(ev: Any, verbose: bool = False) -> None:
     """Print a single deal observation with formatted badge and inline metadata."""
     badge_str = format_badge_fixed(ev.badge, width=16)
     price_str = f"${ev.current_price:.2f}" if ev.current_price is not None else "See ad"
     page_str = f"p.{ev.page_number}" + (" (Cover)" if ev.is_front_page else "")
-    brand_str = f" [{ev.brand}]" if ev.brand else ""
+
+    # Deduplicate brand tag if brand is already part of canonical product name
+    brand_str = ""
+    if ev.brand and ev.brand.lower() not in ev.canonical_name.lower():
+        brand_str = f" [{ev.brand}]"
 
     u_str = format_unit_price(getattr(ev, "unit_price", None), getattr(ev, "unit_type", None))
     unit_str = f" ({u_str})" if u_str else ""
-
-    # Actionable inline annotations for non-verbose mode
-    note = ""
-    if ev.badge == "PRICE_HIKE":
-        note = f"  \033[91m↳ {ev.summary_reason}\033[0m"
-    elif ev.badge in ("ALL_TIME_LOW", "BEAT_AVERAGE", "CYCLE_REFRESH"):
-        note = f"  \033[92m↳ {ev.summary_reason}\033[0m"
 
     if verbose:
         print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str}{unit_str} ({page_str})")
         print(f"   ↳ {ev.summary_reason}\n")
     else:
+        note = format_compact_note(ev)
         print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str}{unit_str} ({page_str}){note}")
 
 
@@ -101,14 +156,14 @@ def render_smart_digest(
     flyer_id: int,
     verbose: bool = False,
 ) -> None:
-    """Render default 3-tier digest: Front Page + Inside Price Hikes & All-Time Lows."""
+    """Render default 3-tier digest: Front Page + Inside Price Hikes & All-Time Lows / Category Bests."""
     front_page_deals = [e for e in evaluations if e.is_front_page]
     inside_hikes = [e for e in evaluations if not e.is_front_page and e.badge == "PRICE_HIKE"]
-    inside_atls = [e for e in evaluations if not e.is_front_page and e.badge == "ALL_TIME_LOW"]
+    inside_atls = [e for e in evaluations if not e.is_front_page and (e.badge == "ALL_TIME_LOW" or getattr(e, "is_category_best", False))]
 
     print(f"\n{'='*78}")
     print(f" 🛒 WEEKLY DEALS DIGEST (Flyer ID: {flyer_id})")
-    print(f" Showing: Front Page Deals ({len(front_page_deals)}) + Inside Price Hikes ({len(inside_hikes)}) & ATLs ({len(inside_atls)})")
+    print(f" Showing: Front Page Deals ({len(front_page_deals)}) + Inside Price Hikes ({len(inside_hikes)}) & ATLs/Category Bests ({len(inside_atls)})")
     print(f"{'='*78}\n")
 
     print(f"⭐ FRONT PAGE DEALS (Cover - {len(front_page_deals)} items)")
@@ -128,7 +183,7 @@ def render_smart_digest(
         print()
 
     if inside_atls:
-        print(f"🌟 ALL-TIME LOWS ON INSIDE PAGES ({len(inside_atls)} items)")
+        print(f"🌟 ALL-TIME LOWS & CATEGORY BESTS ON INSIDE PAGES ({len(inside_atls)} items)")
         print(f"{'-'*78}")
         for ev in inside_atls:
             print_deal_card(ev, verbose=verbose)

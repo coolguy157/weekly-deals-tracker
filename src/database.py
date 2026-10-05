@@ -15,12 +15,19 @@ class DealsDatabase:
 
     def __init__(self, db_path: Optional[str] = None):
         if db_path is None:
-            data_dir = Path(__file__).resolve().parent.parent / "data"
-            data_dir.mkdir(parents=True, exist_ok=True)
-            self.db_path = str(data_dir / "deals.db")
+            top_data_dir = Path(__file__).resolve().parent.parent.parent / "data"
+            local_data_dir = Path(__file__).resolve().parent.parent / "data"
+            if (top_data_dir / "deals.db").exists():
+                self.db_path = str(top_data_dir / "deals.db")
+            elif (local_data_dir / "deals.db").exists():
+                self.db_path = str(local_data_dir / "deals.db")
+            else:
+                top_data_dir.mkdir(parents=True, exist_ok=True)
+                self.db_path = str(top_data_dir / "deals.db")
         else:
             self.db_path = db_path
-            Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
+            if self.db_path != ":memory:":
+                Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
 
         self.is_memory = (self.db_path == ":memory:")
         self._memory_conn = None
@@ -62,7 +69,9 @@ class DealsDatabase:
                     brand TEXT,
                     category TEXT,
                     unit_size REAL,
-                    unit_type TEXT
+                    unit_type TEXT,
+                    last_shelf_price REAL,
+                    upc TEXT
                 );
 
                 CREATE TABLE IF NOT EXISTS deal_observations (
@@ -75,6 +84,10 @@ class DealsDatabase:
                     advertised_price REAL,
                     unit_price REAL,
                     promo_type TEXT DEFAULT 'standard',
+                    promo_detail TEXT,
+                    qualifying_qty INTEGER DEFAULT 1,
+                    base_price REAL,
+                    coupon_discount REAL,
                     raw_title TEXT NOT NULL,
                     image_url TEXT,
                     is_trusted BOOLEAN DEFAULT 1,
@@ -83,10 +96,47 @@ class DealsDatabase:
                     UNIQUE(flyer_id, product_id, raw_deal_id)
                 );
 
+                CREATE TABLE IF NOT EXISTS app_digital_coupons (
+                    coupon_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    coupon_key TEXT UNIQUE,
+                    title TEXT NOT NULL,
+                    description TEXT,
+                    coupon_type TEXT NOT NULL,
+                    discount_amount REAL NOT NULL,
+                    min_spend REAL DEFAULT 0.0,
+                    category TEXT,
+                    eligible_brand TEXT,
+                    is_clipped BOOLEAN DEFAULT 0,
+                    valid_to TIMESTAMP,
+                    raw_node_text TEXT,
+                    scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+
+                CREATE TABLE IF NOT EXISTS matched_stacks (
+                    stack_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    product_name TEXT NOT NULL,
+                    category TEXT,
+                    retail_price REAL NOT NULL,
+                    source_type TEXT NOT NULL,
+                    store_coupon_discount REAL DEFAULT 0.0,
+                    mfg_coupon_discount REAL DEFAULT 0.0,
+                    final_out_of_pocket REAL NOT NULL,
+                    is_free BOOLEAN GENERATED ALWAYS AS (final_out_of_pocket <= 0.00),
+                    is_clipped BOOLEAN DEFAULT 0,
+                    coupon_references TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+
                 CREATE INDEX IF NOT EXISTS idx_obs_product_rec 
                     ON deal_observations(product_id, recorded_at);
                 CREATE INDEX IF NOT EXISTS idx_obs_flyer 
                     ON deal_observations(flyer_id);
+                CREATE INDEX IF NOT EXISTS idx_coupon_type 
+                    ON app_digital_coupons(coupon_type);
+                CREATE INDEX IF NOT EXISTS idx_coupon_cat 
+                    ON app_digital_coupons(category);
+                CREATE INDEX IF NOT EXISTS idx_stacks_is_free 
+                    ON matched_stacks(is_free);
                 """
             )
             # Safe schema migrations for existing database files
@@ -102,6 +152,14 @@ class DealsDatabase:
         if "source_type" not in flyer_cols:
             conn.execute("ALTER TABLE flyer_runs ADD COLUMN source_type TEXT DEFAULT 'flipp_api'")
 
+        # Check products columns
+        cur = conn.execute("PRAGMA table_info(products)")
+        prod_cols = {row["name"] for row in cur.fetchall()}
+        if "last_shelf_price" not in prod_cols:
+            conn.execute("ALTER TABLE products ADD COLUMN last_shelf_price REAL")
+        if "upc" not in prod_cols:
+            conn.execute("ALTER TABLE products ADD COLUMN upc TEXT")
+
         # Check deal_observations columns
         cur = conn.execute("PRAGMA table_info(deal_observations)")
         obs_cols = {row["name"] for row in cur.fetchall()}
@@ -109,6 +167,14 @@ class DealsDatabase:
             conn.execute("ALTER TABLE deal_observations ADD COLUMN is_trusted BOOLEAN DEFAULT 1")
         if "source_type" not in obs_cols:
             conn.execute("ALTER TABLE deal_observations ADD COLUMN source_type TEXT DEFAULT 'flipp_api'")
+        if "promo_detail" not in obs_cols:
+            conn.execute("ALTER TABLE deal_observations ADD COLUMN promo_detail TEXT")
+        if "qualifying_qty" not in obs_cols:
+            conn.execute("ALTER TABLE deal_observations ADD COLUMN qualifying_qty INTEGER DEFAULT 1")
+        if "base_price" not in obs_cols:
+            conn.execute("ALTER TABLE deal_observations ADD COLUMN base_price REAL")
+        if "coupon_discount" not in obs_cols:
+            conn.execute("ALTER TABLE deal_observations ADD COLUMN coupon_discount REAL")
 
     def upsert_flyer_run(
         self, metadata: FlyerMetadata, is_trusted: bool = True, source_type: str = "flipp_api"
@@ -236,6 +302,7 @@ class DealsDatabase:
         brand: Optional[str] = None,
         unit_size: Optional[float] = None,
         unit_type: Optional[str] = None,
+        category: Optional[str] = None,
         conn: Optional[sqlite3.Connection] = None,
     ) -> int:
         """Fetch existing product_id or insert new canonical product record."""
@@ -246,25 +313,26 @@ class DealsDatabase:
             )
             row = cur.fetchone()
             if row:
-                if unit_size is not None or unit_type is not None or brand is not None:
+                if unit_size is not None or unit_type is not None or brand is not None or category is not None:
                     c.execute(
                         """
                         UPDATE products
                         SET brand = COALESCE(?, brand),
                             unit_size = COALESCE(?, unit_size),
-                            unit_type = COALESCE(?, unit_type)
+                            unit_type = COALESCE(?, unit_type),
+                            category = COALESCE(?, category)
                         WHERE product_id = ?
                         """,
-                        (brand, unit_size, unit_type, row["product_id"]),
+                        (brand, unit_size, unit_type, category, row["product_id"]),
                     )
                 return row["product_id"]
 
             cur = c.execute(
                 """
-                INSERT INTO products (canonical_name, brand, unit_size, unit_type)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO products (canonical_name, brand, unit_size, unit_type, category)
+                VALUES (?, ?, ?, ?, ?)
                 """,
-                (canonical_name, brand, unit_size, unit_type),
+                (canonical_name, brand, unit_size, unit_type, category),
             )
             return cur.lastrowid
 
@@ -288,15 +356,17 @@ class DealsDatabase:
             brand=deal.brand,
             unit_size=deal.unit_size,
             unit_type=deal.unit_type,
+            category=getattr(deal, "category", None),
             conn=conn,
         )
         cur = conn.execute(
             """
             INSERT OR REPLACE INTO deal_observations
             (flyer_id, product_id, raw_deal_id, page_number, is_front_page,
-             advertised_price, unit_price, promo_type, raw_title, image_url,
+             advertised_price, unit_price, promo_type, promo_detail, qualifying_qty,
+             base_price, coupon_discount, raw_title, image_url,
              is_trusted, source_type, recorded_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))
             """,
             (
                 deal.flyer_id,
@@ -306,7 +376,11 @@ class DealsDatabase:
                 1 if deal.is_front_page else 0,
                 deal.advertised_price,
                 deal.unit_price,
-                promo_type if promo_type is not None else deal.promo_type,
+                promo_type if promo_type is not None else getattr(deal, "promo_type", "standard"),
+                getattr(deal, "promo_detail", None),
+                getattr(deal, "qualifying_qty", 1),
+                getattr(deal, "base_price", None),
+                getattr(deal, "coupon_discount", None),
                 deal.raw_title,
                 deal.image_url,
                 (1 if is_trusted else 0) if is_trusted is not None else (1 if getattr(deal, "is_trusted", True) else 0),
@@ -330,18 +404,27 @@ class DealsDatabase:
         with self._get_connection() as c:
             return _execute(c)
 
-    def get_latest_flyer_id(self, merchant: str = "Tom Thumb") -> Optional[int]:
+    def get_latest_flyer_id(self, merchant: Optional[str] = None) -> Optional[int]:
         """Return the flyer_id of the most recent circular recorded."""
         with self._get_connection() as conn:
-            row = conn.execute(
-                """
-                SELECT flyer_id FROM flyer_runs
-                WHERE merchant LIKE ?
-                ORDER BY valid_from DESC, scraped_at DESC
-                LIMIT 1
-                """,
-                (f"%{merchant}%",),
-            ).fetchone()
+            if merchant:
+                row = conn.execute(
+                    """
+                    SELECT flyer_id FROM flyer_runs
+                    WHERE merchant LIKE ?
+                    ORDER BY valid_from DESC, scraped_at DESC
+                    LIMIT 1
+                    """,
+                    (f"%{merchant}%",),
+                ).fetchone()
+            else:
+                row = conn.execute(
+                    """
+                    SELECT flyer_id FROM flyer_runs
+                    ORDER BY valid_from DESC, scraped_at DESC
+                    LIMIT 1
+                    """,
+                ).fetchone()
             return row["flyer_id"] if row else None
 
     def get_deals_for_flyer(
@@ -351,9 +434,10 @@ class DealsDatabase:
         query = """
             SELECT 
                 d.id, d.flyer_id, d.product_id, d.raw_deal_id, d.page_number, d.is_front_page,
-                d.advertised_price, d.unit_price, d.raw_title, d.image_url, d.is_trusted, d.source_type, d.recorded_at,
-                p.canonical_name, p.brand, p.unit_size, p.unit_type,
-                f.valid_from, f.valid_to, f.merchant
+                d.advertised_price, d.unit_price, d.promo_type, d.promo_detail, d.qualifying_qty,
+                d.base_price, d.coupon_discount, d.raw_title, d.image_url, d.is_trusted, d.source_type, d.recorded_at,
+                p.canonical_name, p.brand, p.category, p.unit_size, p.unit_type, p.last_shelf_price, p.upc,
+                f.valid_from, f.valid_to, f.merchant, f.postal_code
             FROM deal_observations d
             JOIN products p ON d.product_id = p.product_id
             JOIN flyer_runs f ON d.flyer_id = f.flyer_id
@@ -371,14 +455,15 @@ class DealsDatabase:
             return [dict(r) for r in rows]
 
     def get_product_price_history(
-        self, product_id: int, trusted_only: bool = False
+        self, product_id: int, trusted_only: bool = False, merchant: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """Fetch time-series price history for a given product."""
         query = """
             SELECT 
                 d.id as deal_id, d.advertised_price, d.unit_price, d.page_number, d.is_front_page,
-                d.promo_type, d.is_trusted, d.source_type, d.recorded_at, f.valid_from, f.valid_to, f.flyer_id,
-                p.unit_size, p.unit_type
+                d.promo_type, d.promo_detail, d.qualifying_qty, d.base_price, d.coupon_discount,
+                d.is_trusted, d.source_type, d.recorded_at, f.valid_from, f.valid_to, f.flyer_id, f.merchant, f.postal_code,
+                p.unit_size, p.unit_type, p.category, p.last_shelf_price, p.upc
             FROM deal_observations d
             JOIN products p ON d.product_id = p.product_id
             JOIN flyer_runs f ON d.flyer_id = f.flyer_id
@@ -387,7 +472,71 @@ class DealsDatabase:
         params: List[Any] = [product_id]
         if trusted_only:
             query += " AND d.is_trusted = 1"
+        if merchant:
+            query += " AND f.merchant LIKE ?"
+            params.append(f"%{merchant}%")
         query += " ORDER BY f.valid_from ASC"
+
+        with self._get_connection() as conn:
+            rows = conn.execute(query, params).fetchall()
+            return [dict(r) for r in rows]
+
+    def get_product_shelf_price(self, product_id: int) -> Optional[float]:
+        """Fetch the cached regular shelf price for a product."""
+        with self._get_connection() as conn:
+            row = conn.execute("SELECT last_shelf_price FROM products WHERE product_id = ?", (product_id,)).fetchone()
+            return row["last_shelf_price"] if row else None
+
+    def update_product_shelf_price(self, product_id: int, price: float) -> bool:
+        """Update the cached regular shelf price for a product."""
+        with self._get_connection() as conn:
+            cur = conn.execute("UPDATE products SET last_shelf_price = ? WHERE product_id = ?", (price, product_id))
+            return cur.rowcount > 0
+
+    def update_deal_price(
+        self,
+        deal_id: int,
+        advertised_price: float,
+        unit_price: Optional[float] = None,
+        base_price: Optional[float] = None,
+    ) -> bool:
+        """Update calculated effective advertised price and unit price for an observation."""
+        with self._get_connection() as conn:
+            cur = conn.execute(
+                """
+                UPDATE deal_observations
+                SET advertised_price = ?,
+                    unit_price = COALESCE(?, unit_price),
+                    base_price = COALESCE(?, base_price)
+                WHERE id = ?
+                """,
+                (advertised_price, unit_price, base_price, deal_id),
+            )
+            return cur.rowcount > 0
+
+    def get_commodity_unit_price_history(
+        self, category: str, unit_type: Optional[str] = None, trusted_only: bool = False
+    ) -> List[Dict[str, Any]]:
+        """Fetch historical unit price observations across all brands for a commodity category."""
+        query = """
+            SELECT 
+                d.id as deal_id, d.advertised_price, d.unit_price, d.page_number, d.is_front_page,
+                d.promo_type, d.is_trusted, d.source_type, d.recorded_at, f.valid_from, f.valid_to, f.flyer_id,
+                p.product_id, p.canonical_name, p.brand, p.category, p.unit_size, p.unit_type
+            FROM deal_observations d
+            JOIN products p ON d.product_id = p.product_id
+            JOIN flyer_runs f ON d.flyer_id = f.flyer_id
+            WHERE (p.category LIKE ? OR p.canonical_name LIKE ?)
+              AND d.unit_price IS NOT NULL
+              AND d.advertised_price IS NOT NULL
+        """
+        params: List[Any] = [f"%{category}%", f"%{category}%"]
+        if unit_type:
+            query += " AND p.unit_type = ?"
+            params.append(unit_type)
+        if trusted_only:
+            query += " AND d.is_trusted = 1"
+        query += " ORDER BY d.unit_price ASC, f.valid_from DESC"
 
         with self._get_connection() as conn:
             rows = conn.execute(query, params).fetchall()
@@ -442,7 +591,7 @@ class DealsDatabase:
             rows = conn.execute("""
                 SELECT d.id as obs_id, d.flyer_id, d.raw_deal_id, d.page_number, d.is_front_page,
                        d.advertised_price, d.unit_price, d.promo_type, d.raw_title, d.image_url, d.is_trusted, d.source_type,
-                       d.recorded_at, p.product_id, p.canonical_name, p.brand
+                       d.recorded_at, p.product_id, p.canonical_name, p.brand, p.category
                 FROM deal_observations d
                 JOIN products p ON d.product_id = p.product_id
             """).fetchall()
@@ -468,7 +617,7 @@ class DealsDatabase:
                 )
                 deals = normalizer.disaggregate_and_normalize(item)
 
-                if len(deals) > 1 or (len(deals) == 1 and (deals[0].canonical_name != r["canonical_name"] or deals[0].unit_price != r["unit_price"])):
+                if len(deals) > 1 or (len(deals) == 1 and (deals[0].canonical_name != r["canonical_name"] or deals[0].unit_price != r["unit_price"] or deals[0].category != r["category"])):
                     disaggregated_obs += 1
                     new_obs_total += len(deals)
 
@@ -494,3 +643,126 @@ class DealsDatabase:
             deleted_orphans = del_cur.rowcount
 
             return disaggregated_obs, new_obs_total, deleted_orphans
+
+    def upsert_digital_coupon(self, coupon_data: Dict[str, Any]) -> int:
+        """Insert or update a scraped mobile app digital coupon."""
+        with self._get_connection() as conn:
+            cur = conn.execute(
+                """
+                INSERT INTO app_digital_coupons (
+                    coupon_key, title, description, coupon_type,
+                    discount_amount, min_spend, category, eligible_brand,
+                    is_clipped, valid_to, raw_node_text
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(coupon_key) DO UPDATE SET
+                    title = excluded.title,
+                    description = excluded.description,
+                    coupon_type = excluded.coupon_type,
+                    discount_amount = excluded.discount_amount,
+                    min_spend = excluded.min_spend,
+                    category = excluded.category,
+                    eligible_brand = excluded.eligible_brand,
+                    is_clipped = excluded.is_clipped,
+                    valid_to = excluded.valid_to,
+                    raw_node_text = excluded.raw_node_text,
+                    scraped_at = CURRENT_TIMESTAMP
+                """,
+                (
+                    coupon_data.get("coupon_key"),
+                    coupon_data.get("title", ""),
+                    coupon_data.get("description"),
+                    coupon_data.get("coupon_type", "STORE_COUPON"),
+                    coupon_data.get("discount_amount", 0.0),
+                    coupon_data.get("min_spend", 0.0),
+                    coupon_data.get("category"),
+                    coupon_data.get("eligible_brand"),
+                    1 if coupon_data.get("is_clipped") else 0,
+                    coupon_data.get("valid_to"),
+                    coupon_data.get("raw_node_text"),
+                ),
+            )
+            return cur.lastrowid
+
+    def get_digital_coupons(
+        self,
+        coupon_type: Optional[str] = None,
+        unclipped_only: bool = False,
+        min_discount: Optional[float] = None,
+    ) -> List[sqlite3.Row]:
+        """Fetch digital coupons with optional filters."""
+        query = "SELECT * FROM app_digital_coupons WHERE 1=1"
+        params: List[Any] = []
+
+        if coupon_type:
+            query += " AND coupon_type = ?"
+            params.append(coupon_type)
+        if unclipped_only:
+            query += " AND is_clipped = 0"
+        if min_discount is not None:
+            query += " AND discount_amount >= ?"
+            params.append(min_discount)
+
+        query += " ORDER BY discount_amount DESC"
+
+        with self._get_connection() as conn:
+            return conn.execute(query, params).fetchall()
+
+    def mark_coupon_clipped(self, coupon_key: str) -> None:
+        """Mark a coupon as clipped by coupon_key."""
+        with self._get_connection() as conn:
+            conn.execute(
+                "UPDATE app_digital_coupons SET is_clipped = 1 WHERE coupon_key = ?",
+                (coupon_key,),
+            )
+
+    def upsert_matched_stack(self, stack_data: Dict[str, Any]) -> int:
+        """Record a calculated stack or free item."""
+        with self._get_connection() as conn:
+            cur = conn.execute(
+                """
+                INSERT INTO matched_stacks (
+                    product_name, category, retail_price, source_type,
+                    store_coupon_discount, mfg_coupon_discount,
+                    final_out_of_pocket, is_clipped, coupon_references
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    stack_data.get("product_name", ""),
+                    stack_data.get("category"),
+                    stack_data.get("retail_price", 0.0),
+                    stack_data.get("source_type", "FLYER_SALE"),
+                    stack_data.get("store_coupon_discount", 0.0),
+                    stack_data.get("mfg_coupon_discount", 0.0),
+                    stack_data.get("final_out_of_pocket", 0.0),
+                    1 if stack_data.get("is_clipped") else 0,
+                    stack_data.get("coupon_references", "[]"),
+                ),
+            )
+            return cur.lastrowid
+
+    def get_free_deals(self, max_price: float = 0.00) -> List[sqlite3.Row]:
+        """Retrieve all calculated free items or penny deals (<= max_price)."""
+        with self._get_connection() as conn:
+            return conn.execute(
+                """
+                SELECT * FROM matched_stacks
+                WHERE final_out_of_pocket <= ?
+                ORDER BY final_out_of_pocket ASC, retail_price DESC
+                """,
+                (max_price,),
+            ).fetchall()
+
+    def get_all_matched_stacks(self) -> List[sqlite3.Row]:
+        """Retrieve all matched stacks."""
+        with self._get_connection() as conn:
+            return conn.execute(
+                "SELECT * FROM matched_stacks ORDER BY final_out_of_pocket ASC"
+            ).fetchall()
+
+    def clear_matched_stacks(self) -> None:
+        """Clear previous stack calculations."""
+        with self._get_connection() as conn:
+            conn.execute("DELETE FROM matched_stacks")
+
