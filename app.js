@@ -133,6 +133,31 @@
     return /great|beat/i.test(badge || '');
   }
 
+  function getBadgeHtml(d) {
+    const rawBadge = (d.badge || '').toUpperCase();
+    const badges = [];
+
+    if (/ATL|ALL[-_]TIME/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge atl">🔥 ALL-TIME LOW</span>');
+    } else if (/BEAT/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge beat">🔥 BEAT AVG</span>');
+    } else if (/CYCLE|REFRESH/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge cycle">🔄 CYCLE MATCH</span>');
+    } else if (/HIKE/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge hike">⚠️ PRICE HIKE</span>');
+    } else if (/FIRST_SEEN|FIRST/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge firstseen">🌱 FIRST SEEN</span>');
+    } else if (/GREAT|SOLID/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge great">✨ GREAT DEAL</span>');
+    }
+
+    if (d.is_category_best) {
+      badges.push('<span class="deal-badge catbest">⭐ CAT BEST</span>');
+    }
+
+    return badges.join(' ');
+  }
+
   // Initialize UI with fetched data
   function initData() {
     loadingState.style.display = 'none';
@@ -222,8 +247,14 @@
     // Chip Filter
     if (activeFilter === 'atl') {
       filtered = filtered.filter(d => isAtlBadge(d.badge));
-    } else if (activeFilter === 'great') {
-      filtered = filtered.filter(d => isGreatBadge(d.badge) || isAtlBadge(d.badge) || d.is_category_best);
+    } else if (activeFilter === 'beat' || activeFilter === 'great') {
+      filtered = filtered.filter(d => isGreatBadge(d.badge) || isAtlBadge(d.badge) || /beat/i.test(d.badge || ''));
+    } else if (activeFilter === 'cycle') {
+      filtered = filtered.filter(d => /cycle|refresh/i.test(d.badge || ''));
+    } else if (activeFilter === 'firstseen') {
+      filtered = filtered.filter(d => /first/i.test(d.badge || ''));
+    } else if (activeFilter === 'hike') {
+      filtered = filtered.filter(d => /hike/i.test(d.badge || ''));
     } else if (activeFilter === 'front') {
       filtered = filtered.filter(d => d.is_front_page);
     } else if (activeFilter === 'catbest') {
@@ -322,18 +353,8 @@
     dealsGrid.innerHTML = deals.map(d => {
       const isInList = shoppingList.some(item => item.id === d.deal_id);
       const isAtl = isAtlBadge(d.badge);
-      const isGreat = isGreatBadge(d.badge);
       const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
-
-      let badgeHtml = '';
-      if (isAtl) {
-        badgeHtml += `<span class="deal-badge atl">🔥 ALL-TIME LOW</span>`;
-      } else if (isGreat) {
-        badgeHtml += `<span class="deal-badge great">✨ GREAT DEAL</span>`;
-      }
-      if (d.is_category_best) {
-        badgeHtml += `<span class="deal-badge catbest">⭐ CAT BEST</span>`;
-      }
+      const badgeHtml = getBadgeHtml(d);
 
       let promoDetailHtml = '';
       if (d.promo_detail) {
@@ -382,8 +403,8 @@
   function renderTableView(deals) {
     dealsTableBody.innerHTML = deals.map(d => {
       const isInList = shoppingList.some(item => item.id === d.deal_id);
-      const isAtl = isAtlBadge(d.badge);
       const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
+      const badgeHtml = getBadgeHtml(d);
 
       return `
         <tr>
@@ -396,11 +417,8 @@
           <td><strong style="font-size:1.1rem; color:var(--slate-900);">${formatMoney(d.price)}</strong></td>
           <td>${unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : '—'}</td>
           <td>
-            ${isAtl ? `<span class="deal-badge atl" style="display:inline-block;">🔥 ALL-TIME LOW</span>` : ''}
-            ${isGreatBadge(d.badge) ? `<span class="deal-badge great" style="display:inline-block;">✨ GREAT DEAL</span>` : ''}
-            ${d.is_category_best ? `<span class="deal-badge catbest" style="display:inline-block;">⭐ CAT BEST</span>` : ''}
+            ${badgeHtml}
             <div style="font-size:0.75rem; color:var(--slate-500); margin-top:2px;">${escapeHtml(d.analysis || '')}</div>
-          </td>
           <td>
             <button class="btn-add-list ${isInList ? 'in-list' : ''}" style="padding:6px 10px; font-size:0.75rem;" onclick="window.__toggleShoppingItem(${d.deal_id})">
               ${isInList ? '✓ In List' : '+ Add'}
