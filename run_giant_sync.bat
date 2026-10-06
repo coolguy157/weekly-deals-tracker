@@ -50,10 +50,14 @@ if %SYNC_CODE% neq 0 (
 git add web/deals.json src/giant_grid_fetcher.py src/cli.py >> "%LOGFILE%" 2>&1
 git diff --staged --quiet
 if errorlevel 1 (
-    echo Staged changes detected in web/deals.json. Committing and pushing... >> "%LOGFILE%"
+    echo Staged changes detected in web/deals.json. Committing and pushing to main and gh-pages... >> "%LOGFILE%"
     git commit -m "chore(web): auto-update Giant Lewisburg deals with solved BxGy prices [skip ci]" >> "%LOGFILE%" 2>&1
     git push origin main >> "%LOGFILE%" 2>&1
-    echo Successfully pushed updated deals to GitHub Pages. >> "%LOGFILE%"
+    
+    :: Push web folder directly to gh-pages branch for instant live web app update
+    for /f "tokens=*" %%T in ('git subtree split --prefix web main') do set SUBTREE_HASH=%%T
+    git push origin %SUBTREE_HASH%:gh-pages --force >> "%LOGFILE%" 2>&1
+    echo Successfully pushed updated deals to main and gh-pages. >> "%LOGFILE%"
 ) else (
     echo web/deals.json is already up to date. No push needed. >> "%LOGFILE%"
 )

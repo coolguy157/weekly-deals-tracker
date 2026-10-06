@@ -20,10 +20,13 @@ git add "web/deals.json" "src/giant_grid_fetcher.py" "src/cli.py"
 
 $staged = git diff --staged --name-only
 if ($staged) {
-    Write-Host "Changes detected in web/deals.json. Pushing to GitHub..."
+    Write-Host "Changes detected in web/deals.json. Pushing to GitHub (main & gh-pages)..."
     git commit -m "chore(web): update weekly Giant deals with solved BxGy prices"
-    git push
-    Write-Host "Successfully pushed latest deals to GitHub!"
+    git push origin main
+    
+    $tree = git subtree split --prefix web main
+    git push origin "${tree}:gh-pages" --force
+    Write-Host "Successfully pushed latest deals to main and gh-pages!"
 } else {
     Write-Host "No changes to web/deals.json. Already up to date."
 }
