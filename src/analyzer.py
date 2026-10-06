@@ -3,7 +3,7 @@ Deal intelligence and historical price trend analyzer.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
 from .database import DealsDatabase
 
@@ -122,7 +122,10 @@ class DealAnalyzer:
         return episodes
 
     def evaluate_deal(
-        self, deal_record: Dict[str, Any], current_flyer_id: Optional[int] = None
+        self,
+        deal_record: Dict[str, Any],
+        current_flyer_id: Optional[int] = None,
+        flyer_cat_mins: Optional[Dict[Tuple[str, str], float]] = None,
     ) -> DealEvaluation:
         """Evaluate a deal against its recorded history using episode clustering."""
         product_id = deal_record["product_id"]
@@ -153,11 +156,14 @@ class DealAnalyzer:
                 and (not current_valid_from or (h.get("valid_from") or "")[:10] < current_valid_from)
                 and h.get("unit_price") is not None
             ]
-            if cat_past_obs:
-                cat_unit_prices = [h["unit_price"] for h in cat_past_obs]
-                if cat_unit_prices:
-                    cat_min_unit = min(cat_unit_prices)
-                    cat_avg_unit = sum(cat_unit_prices) / len(cat_unit_prices)
+            cat_unit_prices = [h["unit_price"] for h in cat_past_obs] if cat_past_obs else []
+            if flyer_cat_mins:
+                f_min = flyer_cat_mins.get((category.lower(), unit_type.lower()))
+                if f_min is not None:
+                    cat_unit_prices.append(f_min)
+            if cat_unit_prices:
+                cat_min_unit = min(cat_unit_prices)
+                cat_avg_unit = sum(cat_unit_prices) / len(cat_unit_prices)
 
         promo_type = deal_record.get("promo_type") or "standard"
         promo_detail = deal_record.get("promo_detail")
@@ -354,7 +360,19 @@ class DealAnalyzer:
     ) -> List[DealEvaluation]:
         """Evaluate all deals in a circular against historical data."""
         deals = self.db.get_deals_for_flyer(flyer_id, front_page_only=front_page_only)
-        evaluations = [self.evaluate_deal(d, current_flyer_id=flyer_id) for d in deals]
+
+        # Precompute current flyer category min unit prices
+        flyer_cat_mins: Dict[Tuple[str, str], float] = {}
+        for d in deals:
+            c = d.get("category")
+            ut = d.get("unit_type")
+            up = d.get("unit_price")
+            if c and ut and up is not None and up > 0:
+                key = (c.lower(), ut.lower())
+                if key not in flyer_cat_mins or up < flyer_cat_mins[key]:
+                    flyer_cat_mins[key] = up
+
+        evaluations = [self.evaluate_deal(d, current_flyer_id=flyer_id, flyer_cat_mins=flyer_cat_mins) for d in deals]
 
         # Prioritize All-Time Lows and Beat Average deals first
         priority_order = {
