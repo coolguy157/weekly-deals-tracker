@@ -6,13 +6,13 @@
     "name": "Giant Weekly Ad (Grid View)",
     "valid_from": "2026-10-02T04:00:00ZT00:00:00-04:00",
     "valid_to": "2026-10-09T03:59:59ZT23:59:59-04:00",
-    "scraped_at": "2026-10-06 02:39:34"
+    "scraped_at": "2026-10-06 02:40:25"
   },
-  "updated_at": "2026-10-05T21:39:35.995077",
+  "updated_at": "2026-10-05T21:40:26.778284",
   "total_deals": 540,
   "deals": [
     {
-      "deal_id": 89406,
+      "deal_id": 89946,
       "product_id": 219,
       "name": "Navel Oranges",
       "brand": null,
@@ -33,7 +33,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89535,
+      "deal_id": 90075,
       "product_id": 1030,
       "name": "Kellogg's Eggo Waffles",
       "brand": "Kellogg's",
@@ -54,7 +54,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89408,
+      "deal_id": 89948,
       "product_id": 3322,
       "name": "Sweet Corn",
       "brand": null,
@@ -75,7 +75,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89314,
+      "deal_id": 89854,
       "product_id": 3005,
       "name": "Our Brand Beans",
       "brand": null,
@@ -96,7 +96,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89419,
+      "deal_id": 89959,
       "product_id": 2856,
       "name": "Fresh Lemons",
       "brand": null,
@@ -117,7 +117,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89472,
+      "deal_id": 90012,
       "product_id": 2869,
       "name": "Our Brand Clear Splash 1 Liter",
       "brand": "Our Brand",
@@ -138,7 +138,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89421,
+      "deal_id": 89961,
       "product_id": 2948,
       "name": "Fresh Garlic",
       "brand": null,
@@ -159,7 +159,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89095,
+      "deal_id": 89635,
       "product_id": 3160,
       "name": "Kraft Mac & Cheese",
       "brand": "Kraft",
@@ -180,7 +180,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89407,
+      "deal_id": 89947,
       "product_id": 4077,
       "name": "Hothouse Peppers or Green Peppers",
       "brand": null,
@@ -201,7 +201,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89266,
+      "deal_id": 89806,
       "product_id": 3147,
       "name": "Our Brand Tomato Paste",
       "brand": null,
@@ -222,7 +222,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89273,
+      "deal_id": 89813,
       "product_id": 3142,
       "name": "Our Brand Baking Soda",
       "brand": "Our Brand",
@@ -243,7 +243,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89423,
+      "deal_id": 89963,
       "product_id": 2860,
       "name": "Hass Avocados",
       "brand": null,
@@ -264,7 +264,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89114,
+      "deal_id": 89654,
       "product_id": 3910,
       "name": "Chobani Greek, Creations, Less Sugar or Zero Sugar Yogurt",
       "brand": null,
@@ -285,7 +285,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89183,
+      "deal_id": 89723,
       "product_id": 3277,
       "name": "CareOne Hand Soap",
       "brand": "CareOne",
@@ -306,7 +306,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89328,
+      "deal_id": 89868,
       "product_id": 4039,
       "name": "Sea Cuisine Encrusted or Marinated Fillets",
       "brand": null,
@@ -327,7 +327,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89331,
+      "deal_id": 89871,
       "product_id": 4040,
       "name": "Our Brand Pasta, Maruchan Ramen Bowl, Yakisoba Japanese Noodles or Kraft Mac & Cheese",
       "brand": null,
@@ -348,7 +348,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89332,
+      "deal_id": 89872,
       "product_id": 4041,
       "name": "McCormick Chili or Mexican-Inspired or Taco Seasoning, Kinder's Gravy or Seasoning Mix or Campbell's Gravy",
       "brand": null,
@@ -369,7 +369,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89333,
+      "deal_id": 89873,
       "product_id": 4042,
       "name": "Banquet Pot Pie or El Monterey Signature Burrito",
       "brand": null,
@@ -390,7 +390,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89335,
+      "deal_id": 89875,
       "product_id": 3168,
       "name": "Caramel Apple Mini",
       "brand": null,
@@ -411,7 +411,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89336,
+      "deal_id": 89876,
       "product_id": 3268,
       "name": "Fresh Baked Jumbo Cookie",
       "brand": null,
@@ -432,7 +432,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89337,
+      "deal_id": 89877,
       "product_id": 4044,
       "name": "Bakery Pie",
       "brand": null,
@@ -453,7 +453,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89338,
+      "deal_id": 89878,
       "product_id": 3167,
       "name": "Cracker Barrel Bites",
       "brand": "Cracker Barrel",
@@ -474,7 +474,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89339,
+      "deal_id": 89879,
       "product_id": 4045,
       "name": "Jell-O Gelatin or Pudding Mix",
       "brand": null,
@@ -495,7 +495,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89342,
+      "deal_id": 89882,
       "product_id": 4047,
       "name": "Cesar Canine Cuisine Dog Food or Sheba Perfect Portions or Nature's Promise Cat Food",
       "brand": null,
@@ -516,7 +516,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89344,
+      "deal_id": 89884,
       "product_id": 4048,
       "name": "Bumble Bee Chunk Light Tuna or Snacker",
       "brand": null,
@@ -537,7 +537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89601,
+      "deal_id": 90141,
       "product_id": 3910,
       "name": "Chobani Greek, Creations, Less Sugar or Zero Sugar Yogurt",
       "brand": null,
@@ -558,7 +558,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89428,
+      "deal_id": 89968,
       "product_id": 4084,
       "name": "Campbell's Condensed Cream of Chicken Soup",
       "brand": "Campbell's",
@@ -579,7 +579,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89429,
+      "deal_id": 89969,
       "product_id": 4085,
       "name": "Campbell's Condensed Cream of Mushroom Soup",
       "brand": "Campbell's",
@@ -600,7 +600,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89162,
+      "deal_id": 89702,
       "product_id": 3947,
       "name": "Smart Living Bamboo Skewers 3.75 in",
       "brand": "Smart Living",
@@ -621,7 +621,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89424,
+      "deal_id": 89964,
       "product_id": 3035,
       "name": "Mini Decor Pumpkins",
       "brand": null,
@@ -642,7 +642,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89469,
+      "deal_id": 90009,
       "product_id": 3034,
       "name": "Chef Boyardee Pasta",
       "brand": "Chef Boyardee",
@@ -663,7 +663,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89602,
+      "deal_id": 90142,
       "product_id": 4200,
       "name": "Chobani Flip Or Protein Yogurt",
       "brand": null,
@@ -684,7 +684,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89154,
+      "deal_id": 89694,
       "product_id": 3939,
       "name": "Smart Living Baster",
       "brand": "Smart Living",
@@ -705,7 +705,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89457,
+      "deal_id": 89997,
       "product_id": 4110,
       "name": "DeLallo Fusilli Pasta",
       "brand": "DeLallo",
@@ -726,7 +726,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89458,
+      "deal_id": 89998,
       "product_id": 4111,
       "name": "DeLallo Orzo Pasta",
       "brand": "DeLallo",
@@ -747,7 +747,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89459,
+      "deal_id": 89999,
       "product_id": 4112,
       "name": "DeLallo Shellbows Pasta",
       "brand": "DeLallo",
@@ -768,7 +768,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89460,
+      "deal_id": 90000,
       "product_id": 4113,
       "name": "DeLallo Penne Rigate Pasta",
       "brand": "DeLallo",
@@ -789,7 +789,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89461,
+      "deal_id": 90001,
       "product_id": 4114,
       "name": "DeLallo Spaghetti Pasta",
       "brand": "DeLallo",
@@ -810,7 +810,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89462,
+      "deal_id": 90002,
       "product_id": 4115,
       "name": "DeLallo Capellini Angel Hair Pasta",
       "brand": "DeLallo",
@@ -831,7 +831,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89463,
+      "deal_id": 90003,
       "product_id": 4116,
       "name": "DeLallo Bucatini Pasta",
       "brand": "DeLallo",
@@ -852,7 +852,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89464,
+      "deal_id": 90004,
       "product_id": 4117,
       "name": "DeLallo Cavatappi Pasta",
       "brand": "DeLallo",
@@ -873,7 +873,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89465,
+      "deal_id": 90005,
       "product_id": 4118,
       "name": "DeLallo Tortiglioni Pasta",
       "brand": "DeLallo",
@@ -894,7 +894,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89466,
+      "deal_id": 90006,
       "product_id": 4119,
       "name": "DeLallo Acini di Pepe Pasta",
       "brand": "DeLallo",
@@ -915,7 +915,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89467,
+      "deal_id": 90007,
       "product_id": 4120,
       "name": "DeLallo Ditalini Rigati Pasta",
       "brand": "DeLallo",
@@ -936,7 +936,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89261,
+      "deal_id": 89801,
       "product_id": 4021,
       "name": "Our Brand Hamburger or Hot Dog Rolls",
       "brand": null,
@@ -957,7 +957,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89184,
+      "deal_id": 89724,
       "product_id": 3963,
       "name": "Our Brand Seasoned Croutons",
       "brand": null,
@@ -978,7 +978,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89300,
+      "deal_id": 89840,
       "product_id": 3261,
       "name": "Goya Yellow Rice Mix",
       "brand": "Goya",
@@ -999,7 +999,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89304,
+      "deal_id": 89844,
       "product_id": 3004,
       "name": "Saz\u00f3n Goya Seasoning",
       "brand": "Saz\u00f3n Goya",
@@ -1020,7 +1020,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89543,
+      "deal_id": 90083,
       "product_id": 2909,
       "name": "Our Brand Vegetables",
       "brand": null,
@@ -1041,7 +1041,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89549,
+      "deal_id": 90089,
       "product_id": 3071,
       "name": "Siggi's Yogurt",
       "brand": "Siggi's",
@@ -1062,7 +1062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89399,
+      "deal_id": 89939,
       "product_id": 4073,
       "name": "Our Brand Whole Pork Shoulder or Picnic Roast",
       "brand": null,
@@ -1083,7 +1083,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89528,
+      "deal_id": 90068,
       "product_id": 3372,
       "name": "Oh Snap! Pickle Snacking Chips",
       "brand": "Oh Snap!",
@@ -1104,7 +1104,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89492,
+      "deal_id": 90032,
       "product_id": 3042,
       "name": "Caliwater Cactus Water",
       "brand": "Caliwater",
@@ -1125,7 +1125,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89431,
+      "deal_id": 89971,
       "product_id": 4087,
       "name": "Snack Pack Pudding or Juicy Gels",
       "brand": null,
@@ -1146,7 +1146,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89251,
+      "deal_id": 89791,
       "product_id": 3245,
       "name": "Pringles Crisps",
       "brand": "Pringles",
@@ -1167,7 +1167,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89165,
+      "deal_id": 89705,
       "product_id": 3950,
       "name": "Our Brand Whole or Sliced White Mushrooms",
       "brand": null,
@@ -1188,7 +1188,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89525,
+      "deal_id": 90065,
       "product_id": 4151,
       "name": "Taste of Inspirations Gluten Free Pumpkin Pie Hummus",
       "brand": "Taste of Inspirations",
@@ -1209,7 +1209,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89456,
+      "deal_id": 89996,
       "product_id": 4109,
       "name": "DeLallo Pizzeria Style Pizza Sauce",
       "brand": "DeLallo",
@@ -1230,7 +1230,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89187,
+      "deal_id": 89727,
       "product_id": 3365,
       "name": "General Mills Mid-Size Cereal",
       "brand": "General Mills",
@@ -1251,7 +1251,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89180,
+      "deal_id": 89720,
       "product_id": 2950,
       "name": "Our Brand Applesauce",
       "brand": "Our Brand",
@@ -1272,7 +1272,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89166,
+      "deal_id": 89706,
       "product_id": 2916,
       "name": "Our Brand Italian Bread",
       "brand": null,
@@ -1293,7 +1293,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89252,
+      "deal_id": 89792,
       "product_id": 4020,
       "name": "Utz Pretzels or Tortiyahs! Tortilla Chips",
       "brand": null,
@@ -1314,7 +1314,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89270,
+      "deal_id": 89810,
       "product_id": 2984,
       "name": "Our Brand Baked Beans",
       "brand": "Our Brand",
@@ -1335,7 +1335,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89303,
+      "deal_id": 89843,
       "product_id": 2929,
       "name": "Pepsi-Cola Made With Real Sugar",
       "brand": "PEPSI",
@@ -1356,7 +1356,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89305,
+      "deal_id": 89845,
       "product_id": 2921,
       "name": "Goya Diced Green Chiles",
       "brand": "Goya",
@@ -1377,7 +1377,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89320,
+      "deal_id": 89860,
       "product_id": 3366,
       "name": "Halloween Pumpkin Bucket",
       "brand": null,
@@ -1398,7 +1398,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89393,
+      "deal_id": 89933,
       "product_id": 2929,
       "name": "Pepsi-Cola Made With Real Sugar",
       "brand": "PEPSI",
@@ -1419,7 +1419,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89398,
+      "deal_id": 89938,
       "product_id": 3296,
       "name": "Our Brand Half Boneless Pork Loin",
       "brand": "Our Brand",
@@ -1440,7 +1440,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89405,
+      "deal_id": 89945,
       "product_id": 3317,
       "name": "Cosmic Crisp Apples",
       "brand": null,
@@ -1461,7 +1461,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89409,
+      "deal_id": 89949,
       "product_id": 4078,
       "name": "Fresh Bartlett, Bosc or Red Pears",
       "brand": null,
@@ -1482,7 +1482,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89148,
+      "deal_id": 89688,
       "product_id": 2953,
       "name": "Our Brand Chocolate Bar",
       "brand": "Our Brand",
@@ -1503,7 +1503,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89152,
+      "deal_id": 89692,
       "product_id": 3937,
       "name": "Smart Living Skewers Bamboo 9.75 Inch",
       "brand": "Smart Living",
@@ -1524,7 +1524,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89153,
+      "deal_id": 89693,
       "product_id": 3938,
       "name": "GoodCook Skewers",
       "brand": "GoodCook",
@@ -1545,7 +1545,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89160,
+      "deal_id": 89700,
       "product_id": 3945,
       "name": "Smart Living Peeler",
       "brand": "Smart Living",
@@ -1566,7 +1566,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89168,
+      "deal_id": 89708,
       "product_id": 3348,
       "name": "Our Brand Potato Chips",
       "brand": null,
@@ -1587,7 +1587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89302,
+      "deal_id": 89842,
       "product_id": 3260,
       "name": "Coca-Cola de Mexico",
       "brand": "Coca-Cola",
@@ -1608,7 +1608,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89334,
+      "deal_id": 89874,
       "product_id": 4043,
       "name": "Barilla Gluten Free or Protein Pasta, Light'n Fluffy Egg Noodles or Carolina Rice",
       "brand": null,
@@ -1629,7 +1629,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89340,
+      "deal_id": 89880,
       "product_id": 3175,
       "name": "Our Brand Matchstick Carrots",
       "brand": null,
@@ -1650,7 +1650,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89341,
+      "deal_id": 89881,
       "product_id": 4046,
       "name": "Our Brand 100% Pumpkin or Betty Crocker Frosting",
       "brand": null,
@@ -1671,7 +1671,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89343,
+      "deal_id": 89883,
       "product_id": 2850,
       "name": "McCormick Seasoning Mix",
       "brand": "McCormick",
@@ -1692,7 +1692,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89345,
+      "deal_id": 89885,
       "product_id": 4049,
       "name": "Gold Peak Tea or Noosa Yoghurt",
       "brand": null,
@@ -1713,7 +1713,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89346,
+      "deal_id": 89886,
       "product_id": 4050,
       "name": "Colgate Toothpaste or Toothbrush",
       "brand": null,
@@ -1734,7 +1734,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89396,
+      "deal_id": 89936,
       "product_id": 2852,
       "name": "Gatorlyte Rapid Hydration",
       "brand": "Gatorlyte",
@@ -1755,7 +1755,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89433,
+      "deal_id": 89973,
       "product_id": 4089,
       "name": "Sweet Baby Ray's Barbecue or Hot Sauce or Our Brand Dressing",
       "brand": null,
@@ -1776,7 +1776,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89452,
+      "deal_id": 89992,
       "product_id": 4105,
       "name": "Campbell's Chunky Soup or Hormel Compleats",
       "brand": null,
@@ -1797,7 +1797,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89470,
+      "deal_id": 90010,
       "product_id": 3189,
       "name": "Maruchan Ramen Noodle Soup",
       "brand": "Maruchan",
@@ -1818,7 +1818,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89516,
+      "deal_id": 90056,
       "product_id": 4142,
       "name": "Taste of Inspirations Gluten Free Roasted Red Pepper Hummus",
       "brand": "Taste of Inspirations",
@@ -1839,7 +1839,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89517,
+      "deal_id": 90057,
       "product_id": 4143,
       "name": "Taste of Inspirations Gluten Free Roasted Pine Nut Hummus",
       "brand": "Taste of Inspirations",
@@ -1860,7 +1860,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89518,
+      "deal_id": 90058,
       "product_id": 4144,
       "name": "Taste of Inspirations Gluten Free Roasted Garlic Hummus",
       "brand": "Taste of Inspirations",
@@ -1881,7 +1881,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89519,
+      "deal_id": 90059,
       "product_id": 4145,
       "name": "Taste of Inspirations Gluten Free Olive Mediterranean Hummus",
       "brand": "Taste of Inspirations",
@@ -1902,7 +1902,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89520,
+      "deal_id": 90060,
       "product_id": 4146,
       "name": "Taste of Inspirations Gluten Free Original Hummus",
       "brand": "Taste of Inspirations",
@@ -1923,7 +1923,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89521,
+      "deal_id": 90061,
       "product_id": 4147,
       "name": "Taste of Inspirations Gluten Free Everything Hummus",
       "brand": "Taste of Inspirations",
@@ -1944,7 +1944,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89522,
+      "deal_id": 90062,
       "product_id": 4148,
       "name": "Taste of Inspirations Gluten Free Balsamic Caramelized Onion Hummus",
       "brand": "Taste of Inspirations",
@@ -1965,7 +1965,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89523,
+      "deal_id": 90063,
       "product_id": 4149,
       "name": "Taste of Inspirations Gluten Free Spinach Artichoke Hummus",
       "brand": "Taste of Inspirations",
@@ -1986,7 +1986,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89524,
+      "deal_id": 90064,
       "product_id": 4150,
       "name": "Taste of Inspirations Gluten Free Dark Chocolate Dessert Hummus",
       "brand": "Taste of Inspirations",
@@ -2007,7 +2007,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89479,
+      "deal_id": 90019,
       "product_id": 3205,
       "name": "Our Brand Kettle Cooked Potato Chips",
       "brand": "Our Brand",
@@ -2028,7 +2028,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89169,
+      "deal_id": 89709,
       "product_id": 3952,
       "name": "CareOne Antiseptic Blue Mint Mouth Rinse",
       "brand": "CareOne",
@@ -2049,7 +2049,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89170,
+      "deal_id": 89710,
       "product_id": 3953,
       "name": "CareOne Mint Flavor Mouthwash",
       "brand": "CareOne",
@@ -2070,7 +2070,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89171,
+      "deal_id": 89711,
       "product_id": 3954,
       "name": "CareOne Antiseptic Original Flavor Mouth Rinse",
       "brand": "CareOne",
@@ -2091,7 +2091,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89172,
+      "deal_id": 89712,
       "product_id": 3955,
       "name": "CareOne Antiseptic Spring Mint Mouth Rinse",
       "brand": "CareOne",
@@ -2112,7 +2112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89173,
+      "deal_id": 89713,
       "product_id": 3956,
       "name": "CareOne Anticavity Eucalyptus Mint Mouthwash",
       "brand": "CareOne",
@@ -2133,7 +2133,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89174,
+      "deal_id": 89714,
       "product_id": 3957,
       "name": "CareOne Alcohol Free Antispetic Mint Oral Rinse",
       "brand": "CareOne",
@@ -2154,7 +2154,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89175,
+      "deal_id": 89715,
       "product_id": 3958,
       "name": "CareOne Glowing White Anticavity Fresh Mint Mouthrinse",
       "brand": "CareOne",
@@ -2175,7 +2175,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89176,
+      "deal_id": 89716,
       "product_id": 3959,
       "name": "CareOne Alcohol Free Whitening Clean Mint Mouth Rinse",
       "brand": "CareOne",
@@ -2196,7 +2196,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89177,
+      "deal_id": 89717,
       "product_id": 3960,
       "name": "CareOne Fluoride Violet Mint Flavor Mouthwash",
       "brand": "CareOne",
@@ -2217,7 +2217,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89178,
+      "deal_id": 89718,
       "product_id": 3961,
       "name": "CareOne Antiseptic Blue Mint Flavor Mouth Rinse Plus",
       "brand": "CareOne",
@@ -2238,7 +2238,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89440,
+      "deal_id": 89980,
       "product_id": 4096,
       "name": "French's Classic Yellow Mustard",
       "brand": "French's",
@@ -2259,7 +2259,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89313,
+      "deal_id": 89853,
       "product_id": 3395,
       "name": "Mission Yellow Corn Tortillas",
       "brand": "Mission",
@@ -2280,7 +2280,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89473,
+      "deal_id": 90013,
       "product_id": 4121,
       "name": "Nature's Own Whole Grain 100% Whole Wheat Bread Sliced",
       "brand": "Nature's Own",
@@ -2301,7 +2301,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89474,
+      "deal_id": 90014,
       "product_id": 4122,
       "name": "Nature's Own Honey Wheat Bread Sliced",
       "brand": "Nature's Own",
@@ -2322,7 +2322,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89475,
+      "deal_id": 90015,
       "product_id": 4123,
       "name": "Nature's Own Soft Sliced Butter Bread",
       "brand": "Nature's Own",
@@ -2343,7 +2343,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89476,
+      "deal_id": 90016,
       "product_id": 4124,
       "name": "Nature's Own Soft Hawaiian Bread Sliced",
       "brand": "Nature's Own",
@@ -2364,7 +2364,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89477,
+      "deal_id": 90017,
       "product_id": 4125,
       "name": "Nature's Own Sourdough Bread Sliced Loaf",
       "brand": "Nature's Own",
@@ -2385,7 +2385,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89185,
+      "deal_id": 89725,
       "product_id": 3251,
       "name": "Our Brand Texas Toast",
       "brand": "Our Brand",
@@ -2406,7 +2406,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89263,
+      "deal_id": 89803,
       "product_id": 2985,
       "name": "Our Brand Peeled Baby-Cut Carrots",
       "brand": null,
@@ -2427,7 +2427,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89275,
+      "deal_id": 89815,
       "product_id": 2986,
       "name": "Our Brand Popcorn",
       "brand": "Our Brand",
@@ -2448,7 +2448,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89309,
+      "deal_id": 89849,
       "product_id": 3301,
       "name": "Goya Adobo Seasoning",
       "brand": "Goya",
@@ -2469,7 +2469,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89397,
+      "deal_id": 89937,
       "product_id": 3299,
       "name": "Our Brand Pork Tenderloin Roast Whole",
       "brand": "Our Brand",
@@ -2490,7 +2490,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89410,
+      "deal_id": 89950,
       "product_id": 2855,
       "name": "Our Brand Diced Vegetables",
       "brand": null,
@@ -2511,7 +2511,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89603,
+      "deal_id": 90143,
       "product_id": 3118,
       "name": "Chobani Protein Flip Yogurt",
       "brand": "Chobani",
@@ -2532,7 +2532,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89133,
+      "deal_id": 89673,
       "product_id": 3927,
       "name": "Schmidt Old Tyme Potato Bread, Artisan's Choice Bread, Breadsticks, Bagels or English Muffins or Potato or Game Day Rolls",
       "brand": null,
@@ -2553,7 +2553,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89157,
+      "deal_id": 89697,
       "product_id": 3942,
       "name": "Smart Living Reusable Icing Bag with Decorating Tips",
       "brand": "Smart Living",
@@ -2574,7 +2574,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89203,
+      "deal_id": 89743,
       "product_id": 3978,
       "name": "Martin's Popcorn Butter Flavor",
       "brand": "Martin's Snacks",
@@ -2595,7 +2595,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89204,
+      "deal_id": 89744,
       "product_id": 3979,
       "name": "Martin's Bar-B-Q Waffle Potato Chips",
       "brand": "Martin's Snacks",
@@ -2616,7 +2616,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89205,
+      "deal_id": 89745,
       "product_id": 3980,
       "name": "Martin's Gluten Free Dippin' Sea Salted Potato Chips",
       "brand": "Martin's Snacks",
@@ -2637,7 +2637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89206,
+      "deal_id": 89746,
       "product_id": 3981,
       "name": "Martin's Sour Cream & Onion Potato Chips",
       "brand": "Martin's Snacks",
@@ -2658,7 +2658,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89207,
+      "deal_id": 89747,
       "product_id": 3982,
       "name": "Martin's Gluten Free Sea Salted Potato Chips",
       "brand": "Martin's Snacks",
@@ -2679,7 +2679,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89208,
+      "deal_id": 89748,
       "product_id": 3983,
       "name": "Martin's Gluten Free Kettle Cook'd Hand Cooked Potato Chips",
       "brand": "Martin's Snacks",
@@ -2700,7 +2700,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89209,
+      "deal_id": 89749,
       "product_id": 3984,
       "name": "Martin's Kettle Cook'd Kettle Gold Potato Chips",
       "brand": "Martin's Snacks",
@@ -2721,7 +2721,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89210,
+      "deal_id": 89750,
       "product_id": 3985,
       "name": "Martin's Restaurant Style Tortilla Chips",
       "brand": "Martin's Snacks",
@@ -2742,7 +2742,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89211,
+      "deal_id": 89751,
       "product_id": 3986,
       "name": "Martin's Cheddar Cheese Curls",
       "brand": "Martin's Snacks",
@@ -2763,7 +2763,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89212,
+      "deal_id": 89752,
       "product_id": 3987,
       "name": "Martin's Crunchy Ridged Cheddar & Sour Cream Potato Chips",
       "brand": "Martin's Snacks",
@@ -2784,7 +2784,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89213,
+      "deal_id": 89753,
       "product_id": 3988,
       "name": "Martin's Trim Pop Popcorn Sea Salted Gluten Free",
       "brand": "Martin's Snacks",
@@ -2805,7 +2805,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89214,
+      "deal_id": 89754,
       "product_id": 3989,
       "name": "Martin's Kettle Gold Honey BBQ Kettle Cook'd Potato Chips",
       "brand": "Martin's Snacks",
@@ -2826,7 +2826,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89215,
+      "deal_id": 89755,
       "product_id": 3990,
       "name": "Martin's Gluten Free Sea Salt & Vinegar Potato Chips",
       "brand": "Martin's Snacks",
@@ -2847,7 +2847,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89216,
+      "deal_id": 89756,
       "product_id": 3991,
       "name": "Martin's Gluten Free Red Hot Potato Chips",
       "brand": "Martin's Snacks",
@@ -2868,7 +2868,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89217,
+      "deal_id": 89757,
       "product_id": 3992,
       "name": "Martin's Kettle-Cook'd Hand Cooked Potato Chips",
       "brand": "Martin's Snacks",
@@ -2889,7 +2889,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89271,
+      "deal_id": 89811,
       "product_id": 2983,
       "name": "Our Brand All-Purpose Flour",
       "brand": null,
@@ -2910,7 +2910,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89282,
+      "deal_id": 89822,
       "product_id": 4025,
       "name": "Monster Energy, La Colombe Iced Coffee, Bloom Energy or Electrolit Electrolyte Beverage",
       "brand": null,
@@ -2931,7 +2931,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89284,
+      "deal_id": 89824,
       "product_id": 4026,
       "name": "Our Brand Brown or Confectioners' Sugar",
       "brand": null,
@@ -2952,7 +2952,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89288,
+      "deal_id": 89828,
       "product_id": 4028,
       "name": "Martin's Butter or Potato Bread",
       "brand": null,
@@ -2973,7 +2973,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89289,
+      "deal_id": 89829,
       "product_id": 3258,
       "name": "Idahoan Mashed Potatoes",
       "brand": "Idahoan",
@@ -2994,7 +2994,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89290,
+      "deal_id": 89830,
       "product_id": 3259,
       "name": "Wish-Bone Dressing",
       "brand": "Wish-Bone",
@@ -3015,7 +3015,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89291,
+      "deal_id": 89831,
       "product_id": 4029,
       "name": "Voortman Cookies or Wafers",
       "brand": null,
@@ -3036,7 +3036,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89293,
+      "deal_id": 89833,
       "product_id": 3151,
       "name": "Daisy Sour Cream or Dip",
       "brand": "Daisy",
@@ -3057,7 +3057,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89297,
+      "deal_id": 89837,
       "product_id": 3002,
       "name": "Vlasic Pickles",
       "brand": "Vlasic",
@@ -3078,7 +3078,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89414,
+      "deal_id": 89954,
       "product_id": 4081,
       "name": "So Good So You, Sol-Ti or Vive Shot",
       "brand": null,
@@ -3099,7 +3099,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89449,
+      "deal_id": 89989,
       "product_id": 2903,
       "name": "Silver Floss Sauerkraut",
       "brand": "Silver Floss",
@@ -3120,7 +3120,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89490,
+      "deal_id": 90030,
       "product_id": 3044,
       "name": "Nature's Promise Plant-Based Organic Soymilk",
       "brand": "Nature's Promise",
@@ -3141,7 +3141,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89495,
+      "deal_id": 90035,
       "product_id": 4134,
       "name": "Ball Park Meat Franks or Sargento Mighty Bites",
       "brand": null,
@@ -3162,7 +3162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89498,
+      "deal_id": 90038,
       "product_id": 4136,
       "name": "Hatfield Ham Steak or Recipe Essentials Diced or Cubed Ham",
       "brand": null,
@@ -3183,7 +3183,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89551,
+      "deal_id": 90091,
       "product_id": 4160,
       "name": "Yoplait Go-Gurt Yogurt or Kozy Shack Pudding",
       "brand": null,
@@ -3204,7 +3204,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89572,
+      "deal_id": 90112,
       "product_id": 2933,
       "name": "Built Protein Bar",
       "brand": "BUILT",
@@ -3225,7 +3225,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89298,
+      "deal_id": 89838,
       "product_id": 2992,
       "name": "Hartz Delectables Squeeze Up Lickable Cat Treats",
       "brand": "Hartz",
@@ -3246,7 +3246,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89093,
+      "deal_id": 89633,
       "product_id": 3892,
       "name": "Driscoll's Red Raspberries",
       "brand": "Driscoll's",
@@ -3267,7 +3267,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89434,
+      "deal_id": 89974,
       "product_id": 4090,
       "name": "Lawry's Herb & Garlic 15 Minute Marinade",
       "brand": "Lawry's",
@@ -3288,7 +3288,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89435,
+      "deal_id": 89975,
       "product_id": 4091,
       "name": "Lawry's Teriyaki 15 Minute Marinade with Pineapple Juice",
       "brand": "Lawry's",
@@ -3309,7 +3309,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89436,
+      "deal_id": 89976,
       "product_id": 4092,
       "name": "Lawry's Lemon Pepper 15 Minute Marinade",
       "brand": "Lawry's",
@@ -3330,7 +3330,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89437,
+      "deal_id": 89977,
       "product_id": 4093,
       "name": "Lawry's Hawaiian 15 Minute Marinade",
       "brand": "Lawry's",
@@ -3351,7 +3351,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89438,
+      "deal_id": 89978,
       "product_id": 4094,
       "name": "Lawry's Caribbean Jerk 15 Minute Marinade with Papaya Juice",
       "brand": "Lawry's",
@@ -3372,7 +3372,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89439,
+      "deal_id": 89979,
       "product_id": 4095,
       "name": "Lawry's Sesame Ginger 15 Minute Marinade",
       "brand": "Lawry's",
@@ -3393,7 +3393,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89443,
+      "deal_id": 89983,
       "product_id": 4099,
       "name": "Lawry's Signature Steakhouse 15 Minute Marinade",
       "brand": "Lawry's",
@@ -3414,7 +3414,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89444,
+      "deal_id": 89984,
       "product_id": 4100,
       "name": "Lawry's Steak & Chop 15 Minute Marinade",
       "brand": "Lawry's",
@@ -3435,7 +3435,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89283,
+      "deal_id": 89823,
       "product_id": 2993,
       "name": "Green Skin Avocado",
       "brand": null,
@@ -3456,7 +3456,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89276,
+      "deal_id": 89816,
       "product_id": 4022,
       "name": "Our Brand Quick or Old Fashioned Oats",
       "brand": null,
@@ -3477,7 +3477,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89097,
+      "deal_id": 89637,
       "product_id": 3894,
       "name": "Entenmann's Little Bites Mini Crumb Cakes - 5 ct",
       "brand": "Entenmann's",
@@ -3498,7 +3498,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89098,
+      "deal_id": 89638,
       "product_id": 3895,
       "name": "Entenmann's Little Bites Blueberry Mini Muffins - 5 ct",
       "brand": "Entenmann's",
@@ -3519,7 +3519,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89099,
+      "deal_id": 89639,
       "product_id": 3896,
       "name": "Entenmann's Little Bites Chocolate Chip Mini Muffins - 5 ct",
       "brand": "Entenmann's",
@@ -3540,7 +3540,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89100,
+      "deal_id": 89640,
       "product_id": 3897,
       "name": "Entenmann's Little Bites Fudge Mini Brownies - 5 ct",
       "brand": "Entenmann's",
@@ -3561,7 +3561,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89101,
+      "deal_id": 89641,
       "product_id": 3898,
       "name": "Entenmann's Little Bites Vanilla Mini Muffins - 5 ct",
       "brand": "Entenmann's",
@@ -3582,7 +3582,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89102,
+      "deal_id": 89642,
       "product_id": 3899,
       "name": "Entenmann's Pop'ems Devil's Food Glazed Chocolate Donut Holes",
       "brand": "Entenmann's",
@@ -3603,7 +3603,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89103,
+      "deal_id": 89643,
       "product_id": 3900,
       "name": "Entenmann's Pop'ems Frosted Chocolate Donut Holes",
       "brand": "Entenmann's",
@@ -3624,7 +3624,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89104,
+      "deal_id": 89644,
       "product_id": 3901,
       "name": "Entenmann's Pop'ems Glazed Donut Holes",
       "brand": "Entenmann's",
@@ -3645,7 +3645,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89105,
+      "deal_id": 89645,
       "product_id": 3902,
       "name": "Entenmann's Pop'ettes Powdered Mini Donuts",
       "brand": "Entenmann's",
@@ -3666,7 +3666,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89106,
+      "deal_id": 89646,
       "product_id": 3903,
       "name": "Entenmann's Pop'ettes Cinnamon Mini Donuts",
       "brand": "Entenmann's",
@@ -3687,7 +3687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89107,
+      "deal_id": 89647,
       "product_id": 3904,
       "name": "Entenmann's Pop'ettes Frosted Mini Donuts",
       "brand": "Entenmann's",
@@ -3708,7 +3708,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89189,
+      "deal_id": 89729,
       "product_id": 3964,
       "name": "Thomas' Original English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3729,7 +3729,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89190,
+      "deal_id": 89730,
       "product_id": 3965,
       "name": "Thomas' Cinnamon Raisin English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3750,7 +3750,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89191,
+      "deal_id": 89731,
       "product_id": 3966,
       "name": "Thomas' King Size Original English Muffins - 4 ct",
       "brand": "Thomas'",
@@ -3771,7 +3771,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89192,
+      "deal_id": 89732,
       "product_id": 3967,
       "name": "Thomas' Whole Grain 100% Whole Wheat English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3792,7 +3792,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89193,
+      "deal_id": 89733,
       "product_id": 3968,
       "name": "Thomas' Light Multigrain English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3813,7 +3813,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89194,
+      "deal_id": 89734,
       "product_id": 3969,
       "name": "Thomas' Original with Whole Grain English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3834,7 +3834,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89195,
+      "deal_id": 89735,
       "product_id": 3970,
       "name": "Thomas' Honey Wheat English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3855,7 +3855,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89196,
+      "deal_id": 89736,
       "product_id": 3971,
       "name": "Thomas' Blueberry English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3876,7 +3876,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89197,
+      "deal_id": 89737,
       "product_id": 3972,
       "name": "Thomas' Limited Edition Pumpkin Spice English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3897,7 +3897,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89200,
+      "deal_id": 89740,
       "product_id": 3975,
       "name": "Thomas' Limited Edition Buttermilk English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3918,7 +3918,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89201,
+      "deal_id": 89741,
       "product_id": 3976,
       "name": "Thomas' Sourdough English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3939,7 +3939,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89202,
+      "deal_id": 89742,
       "product_id": 3977,
       "name": "Thomas' Apple Cinnamon English Muffins - 6 ct",
       "brand": "Thomas'",
@@ -3960,7 +3960,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89417,
+      "deal_id": 89957,
       "product_id": 3185,
       "name": "Green Seedless Grapes",
       "brand": null,
@@ -3981,7 +3981,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89096,
+      "deal_id": 89636,
       "product_id": 3893,
       "name": "Entenmann's Juniors Rich Chocolate Frosted Donuts - 12 ct",
       "brand": "Entenmann's",
@@ -4002,7 +4002,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89111,
+      "deal_id": 89651,
       "product_id": 3908,
       "name": "Nature's Promise Fresh Boneless Skinless Chicken Breasts, Thin Sliced or Tenders",
       "brand": null,
@@ -4023,7 +4023,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89143,
+      "deal_id": 89683,
       "product_id": 3131,
       "name": "TruMoo Milk Half Gallon",
       "brand": "TruMoo",
@@ -4044,7 +4044,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89146,
+      "deal_id": 89686,
       "product_id": 3934,
       "name": "Carolina Basmati or Jasmine Rice",
       "brand": null,
@@ -4065,7 +4065,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89225,
+      "deal_id": 89765,
       "product_id": 3290,
       "name": "Kraft Shredded Cheese",
       "brand": "Kraft",
@@ -4086,7 +4086,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89262,
+      "deal_id": 89802,
       "product_id": 3249,
       "name": "Our Brand Celery Sticks",
       "brand": null,
@@ -4107,7 +4107,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89272,
+      "deal_id": 89812,
       "product_id": 2988,
       "name": "Our Brand Granulated Sugar",
       "brand": null,
@@ -4128,7 +4128,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89274,
+      "deal_id": 89814,
       "product_id": 3143,
       "name": "Our Brand Cream Cheese Spread",
       "brand": null,
@@ -4149,7 +4149,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89279,
+      "deal_id": 89819,
       "product_id": 2907,
       "name": "Our Brand Steam Easy Potatoes",
       "brand": "Our Brand",
@@ -4170,7 +4170,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89307,
+      "deal_id": 89847,
       "product_id": 3333,
       "name": "Goya Tostones Fried Plantains",
       "brand": "Goya",
@@ -4191,7 +4191,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89311,
+      "deal_id": 89851,
       "product_id": 3297,
       "name": "Taj\u00edn Cl\u00e1sico Seasoning",
       "brand": "Taj\u00edn",
@@ -4212,7 +4212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89412,
+      "deal_id": 89952,
       "product_id": 4079,
       "name": "Our Brand Kale or Collard Greens",
       "brand": null,
@@ -4233,7 +4233,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89493,
+      "deal_id": 90033,
       "product_id": 3043,
       "name": "Gutsi Mineral Hydration 1 Liter",
       "brand": null,
@@ -4254,7 +4254,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89552,
+      "deal_id": 90092,
       "product_id": 4161,
       "name": "Softsoap or Irish Spring Body Wash",
       "brand": null,
@@ -4275,7 +4275,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89115,
+      "deal_id": 89655,
       "product_id": 3911,
       "name": "Breyers Ice Cream or Klondike Bars",
       "brand": null,
@@ -4296,7 +4296,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89138,
+      "deal_id": 89678,
       "product_id": 3931,
       "name": "Herr's Kettle Cooked Potato Chips, Popcorn or Pretzels",
       "brand": null,
@@ -4317,7 +4317,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89145,
+      "deal_id": 89685,
       "product_id": 2965,
       "name": "Planters Peanuts",
       "brand": "Planters",
@@ -4338,7 +4338,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89163,
+      "deal_id": 89703,
       "product_id": 3948,
       "name": "Smart Living Bamboo Skewers 11.75 in Single Point",
       "brand": "Smart Living",
@@ -4359,7 +4359,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89198,
+      "deal_id": 89738,
       "product_id": 3973,
       "name": "Thomas' Blueberry & Oats Muffin Tops - 6 ct",
       "brand": "Thomas'",
@@ -4380,7 +4380,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89199,
+      "deal_id": 89739,
       "product_id": 3974,
       "name": "Thomas' Chocolate Chip Muffin Tops - 6 ct",
       "brand": "Thomas'",
@@ -4401,7 +4401,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89281,
+      "deal_id": 89821,
       "product_id": 4024,
       "name": "Pepperidge Farm Texas Toast or Our Brand Tortellini or Ravioli",
       "brand": null,
@@ -4422,7 +4422,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89286,
+      "deal_id": 89826,
       "product_id": 4027,
       "name": "Pure Leaf Real Brewed Tea, Dunkin' Iced Coffee or Smartwater",
       "brand": null,
@@ -4443,7 +4443,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89292,
+      "deal_id": 89832,
       "product_id": 4030,
       "name": "Mary Kitchen Hash or Skillet",
       "brand": null,
@@ -4464,7 +4464,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89294,
+      "deal_id": 89834,
       "product_id": 3152,
       "name": "Nature's Promise Tortilla Chips",
       "brand": "Nature's Promise",
@@ -4485,7 +4485,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89296,
+      "deal_id": 89836,
       "product_id": 3150,
       "name": "Dinty Moore Beef Stew",
       "brand": "Dinty Moore",
@@ -4506,7 +4506,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89315,
+      "deal_id": 89855,
       "product_id": 3262,
       "name": "Peelerz Gummy Candy",
       "brand": "Peelerz",
@@ -4527,7 +4527,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89318,
+      "deal_id": 89858,
       "product_id": 4033,
       "name": "Brach's Candy Corn or Mellowcreme Pumpkins Candy",
       "brand": null,
@@ -4548,7 +4548,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89347,
+      "deal_id": 89887,
       "product_id": 3269,
       "name": "SkinnyPop Popcorn",
       "brand": "SkinnyPop",
@@ -4569,7 +4569,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89348,
+      "deal_id": 89888,
       "product_id": 3013,
       "name": "Blue Diamond Almond Breeze Almondmilk",
       "brand": "Blue Diamond",
@@ -4590,7 +4590,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89349,
+      "deal_id": 89889,
       "product_id": 4051,
       "name": "Betty Crocker Cake or Brownie Mix",
       "brand": null,
@@ -4611,7 +4611,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89350,
+      "deal_id": 89890,
       "product_id": 3180,
       "name": "Our Brand Side Dish",
       "brand": null,
@@ -4632,7 +4632,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89352,
+      "deal_id": 89892,
       "product_id": 4053,
       "name": "Cholula Topping & Cooking Sauce, Cremosa Sauce or Salsa or Carbe Diem! Pasta",
       "brand": null,
@@ -4653,7 +4653,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89354,
+      "deal_id": 89894,
       "product_id": 3350,
       "name": "Our Brand Food Storage Containers & Lids",
       "brand": null,
@@ -4674,7 +4674,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89356,
+      "deal_id": 89896,
       "product_id": 4054,
       "name": "GT's Kombucha or Alive",
       "brand": null,
@@ -4695,7 +4695,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89357,
+      "deal_id": 89897,
       "product_id": 3176,
       "name": "Juicy Juice",
       "brand": "Juicy Juice",
@@ -4716,7 +4716,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89358,
+      "deal_id": 89898,
       "product_id": 4055,
       "name": "Our Brand Mini Cucumbers or Grape Tomatoes",
       "brand": null,
@@ -4737,7 +4737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89359,
+      "deal_id": 89899,
       "product_id": 3177,
       "name": "Philadelphia Cream Cheese",
       "brand": "PHILADELPHIA",
@@ -4758,7 +4758,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89391,
+      "deal_id": 89931,
       "product_id": 4071,
       "name": "Pepsi or Mountain Dew 2 Liter",
       "brand": null,
@@ -4779,7 +4779,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89450,
+      "deal_id": 89990,
       "product_id": 2861,
       "name": "Bush's Baked Beans",
       "brand": "Bush's",
@@ -4800,7 +4800,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89489,
+      "deal_id": 90029,
       "product_id": 2870,
       "name": "MetL Focus & Performance Beverage",
       "brand": null,
@@ -4821,7 +4821,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89539,
+      "deal_id": 90079,
       "product_id": 3069,
       "name": "Nature's Promise Fruit",
       "brand": "Nature's Promise",
@@ -4842,7 +4842,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89579,
+      "deal_id": 90119,
       "product_id": 4182,
       "name": "Dixie Paper Plates, Bowls or Cups",
       "brand": null,
@@ -4863,7 +4863,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89588,
+      "deal_id": 90128,
       "product_id": 4191,
       "name": "Marie Callender's Bowl or Healthy Choice Caf\u00e9 Steamers",
       "brand": null,
@@ -4884,7 +4884,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89589,
+      "deal_id": 90129,
       "product_id": 4192,
       "name": "Birds Eye Vegetables or Marie Callender's Pot Pie",
       "brand": null,
@@ -4905,7 +4905,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89592,
+      "deal_id": 90132,
       "product_id": 4194,
       "name": "Crest Toothpaste or Mouthwash or Oral-B Toothbrush or Glide Floss",
       "brand": null,
@@ -4926,7 +4926,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89606,
+      "deal_id": 90146,
       "product_id": 3238,
       "name": "Milk-Bone Dog Biscuits",
       "brand": "Milk-Bone",
@@ -4947,7 +4947,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89607,
+      "deal_id": 90147,
       "product_id": 2947,
       "name": "Pup-Peroni Dog Treats",
       "brand": "Pup-Peroni",
@@ -4968,7 +4968,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89608,
+      "deal_id": 90148,
       "product_id": 3235,
       "name": "Milk-Bone Comfort Chews Dog Treats",
       "brand": "Milk-Bone",
@@ -4989,7 +4989,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89441,
+      "deal_id": 89981,
       "product_id": 4097,
       "name": "Stubb's Original Barbecue Sauce",
       "brand": "Stubb's",
@@ -5010,7 +5010,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89442,
+      "deal_id": 89982,
       "product_id": 4098,
       "name": "Stubb's Spicy Barbecue Sauce",
       "brand": "Stubb's",
@@ -5031,7 +5031,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89445,
+      "deal_id": 89985,
       "product_id": 4101,
       "name": "Stubb's Sweet Heat Barbecue Sauce",
       "brand": "Stubb's",
@@ -5052,7 +5052,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89446,
+      "deal_id": 89986,
       "product_id": 4102,
       "name": "Stubb's Sticky Sweet Barbecue Sauce",
       "brand": "Stubb's",
@@ -5073,7 +5073,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89447,
+      "deal_id": 89987,
       "product_id": 4103,
       "name": "Stubb's Smokey Mesquite Barbecue Sauce",
       "brand": "Stubb's",
@@ -5094,7 +5094,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89448,
+      "deal_id": 89988,
       "product_id": 4104,
       "name": "Stubb's Hickory Bourbon Barbecue Sauce",
       "brand": "Stubb's",
@@ -5115,7 +5115,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89150,
+      "deal_id": 89690,
       "product_id": 3935,
       "name": "Smart Living Collection Basting Brush Silicone",
       "brand": "Smart Living",
@@ -5136,7 +5136,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89306,
+      "deal_id": 89846,
       "product_id": 2915,
       "name": "Goya Crackers",
       "brand": "Goya",
@@ -5157,7 +5157,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89310,
+      "deal_id": 89850,
       "product_id": 3405,
       "name": "Valentina Mexican Hot Sauce",
       "brand": "Valentina",
@@ -5178,7 +5178,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89540,
+      "deal_id": 90080,
       "product_id": 3070,
       "name": "Cracker Barrel Chunk Cheese",
       "brand": "Cracker Barrel",
@@ -5199,7 +5199,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89420,
+      "deal_id": 89960,
       "product_id": 3186,
       "name": "Our Brand Salad Bowls",
       "brand": "Our Brand",
@@ -5220,7 +5220,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89248,
+      "deal_id": 89788,
       "product_id": 2978,
       "name": "Our Brand Sweet Mandarins",
       "brand": null,
@@ -5241,7 +5241,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89117,
+      "deal_id": 89657,
       "product_id": 3913,
       "name": "7UP Caffeine Free Lime Lemon Soda - 6 pk",
       "brand": "7UP",
@@ -5262,7 +5262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89128,
+      "deal_id": 89668,
       "product_id": 3924,
       "name": "Canada Dry Ginger Ale Soda Caffeine Free - 6 pk",
       "brand": "Canada Dry",
@@ -5283,7 +5283,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89144,
+      "deal_id": 89684,
       "product_id": 2966,
       "name": "Ferrero Rocher Chocolate Bar",
       "brand": "Ferrero Rocher",
@@ -5304,7 +5304,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89147,
+      "deal_id": 89687,
       "product_id": 3132,
       "name": "Bounty Paper Napkins",
       "brand": "Bounty",
@@ -5325,7 +5325,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89259,
+      "deal_id": 89799,
       "product_id": 2906,
       "name": "Taste of Inspirations Chopped Salad Kit",
       "brand": "Taste of Inspirations",
@@ -5346,7 +5346,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89413,
+      "deal_id": 89953,
       "product_id": 4080,
       "name": "Dole Premium Salad Blend or Chopped Salad Kit",
       "brand": null,
@@ -5367,7 +5367,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89142,
+      "deal_id": 89682,
       "product_id": 3933,
       "name": "Cheez-It Crackers or Snap'd or Crunch Snacks",
       "brand": null,
@@ -5388,7 +5388,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89151,
+      "deal_id": 89691,
       "product_id": 3936,
       "name": "Smart Living Collection Mini Tongs",
       "brand": "Smart Living",
@@ -5409,7 +5409,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89167,
+      "deal_id": 89707,
       "product_id": 3951,
       "name": "Our Brand Vegetable Chips or Sticks",
       "brand": null,
@@ -5430,7 +5430,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89280,
+      "deal_id": 89820,
       "product_id": 4023,
       "name": "General Mills Nature Valley or Fiber One Protein Bars",
       "brand": null,
@@ -5451,7 +5451,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89285,
+      "deal_id": 89825,
       "product_id": 2991,
       "name": "McCain Fries",
       "brand": "McCain",
@@ -5472,7 +5472,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89287,
+      "deal_id": 89827,
       "product_id": 3295,
       "name": "Half Fruit Pie",
       "brand": null,
@@ -5493,7 +5493,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89295,
+      "deal_id": 89835,
       "product_id": 3003,
       "name": "Kemps Frozen Yogurt",
       "brand": "Kemps",
@@ -5514,7 +5514,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89416,
+      "deal_id": 89956,
       "product_id": 4082,
       "name": "Taste of Inspirations Campari, Wild Wonders or Angel Sweet Tomatoes",
       "brand": null,
@@ -5535,7 +5535,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89432,
+      "deal_id": 89972,
       "product_id": 4088,
       "name": "Quaker Life, Cap'n Crunch or Oatmeal Squares Cereal",
       "brand": null,
@@ -5556,7 +5556,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89481,
+      "deal_id": 90021,
       "product_id": 4128,
       "name": "Nabisco Oreo Cookies, Cakerests, Graham Crackers or Newtons Cookies",
       "brand": null,
@@ -5577,7 +5577,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89482,
+      "deal_id": 90022,
       "product_id": 4129,
       "name": "Town House, Toasteds or Club Crackers, Kettle Brand Potato Chips or Late July Tortilla Chips",
       "brand": null,
@@ -5598,7 +5598,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89506,
+      "deal_id": 90046,
       "product_id": 4139,
       "name": "Hillshire Farm Sausage or Hatfield Recipe Essentials Ground Sausage",
       "brand": null,
@@ -5619,7 +5619,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89536,
+      "deal_id": 90076,
       "product_id": 4153,
       "name": "Halo Top Ice Cream, Blue Bunny Mini Cones, Trolli Gummy Pop or Butterfinger or 100 Grand Ice Cream Bars",
       "brand": null,
@@ -5640,7 +5640,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89584,
+      "deal_id": 90124,
       "product_id": 4187,
       "name": "Marie Callender's Entr\u00e9e or Pot Pie or Healthy Choice Simply Caf\u00e9 Steamers",
       "brand": null,
@@ -5661,7 +5661,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89585,
+      "deal_id": 90125,
       "product_id": 4188,
       "name": "P.F. Chang's Bowl or Healthy Choice Protein Bowls",
       "brand": null,
@@ -5682,7 +5682,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89156,
+      "deal_id": 89696,
       "product_id": 3941,
       "name": "Smart Living Ice Scream Scoop",
       "brand": "Smart Living",
@@ -5703,7 +5703,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89122,
+      "deal_id": 89662,
       "product_id": 3918,
       "name": "Diet Pepsi Cola Soda - 6 pk",
       "brand": "Diet Pepsi",
@@ -5724,7 +5724,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89123,
+      "deal_id": 89663,
       "product_id": 3919,
       "name": "Diet Pepsi Cola Soda Caffeine Free - 6 pk",
       "brand": "Diet Pepsi",
@@ -5745,7 +5745,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89124,
+      "deal_id": 89664,
       "product_id": 3920,
       "name": "Diet Mtn Dew Soda - 6 pk",
       "brand": "Diet Mtn Dew",
@@ -5766,7 +5766,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89126,
+      "deal_id": 89666,
       "product_id": 3922,
       "name": "Pepsi Cola Soda - 6 pk",
       "brand": "Pepsi",
@@ -5787,7 +5787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89127,
+      "deal_id": 89667,
       "product_id": 3923,
       "name": "Mountain Dew Original Soda - 6 pk",
       "brand": "Mtn Dew",
@@ -5808,7 +5808,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89129,
+      "deal_id": 89669,
       "product_id": 3925,
       "name": "Schweppes Ginger Ale Soda Caffeine Free - 6 pk",
       "brand": "Schweppes",
@@ -5829,7 +5829,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89376,
+      "deal_id": 89916,
       "product_id": 3918,
       "name": "Diet Pepsi Cola Soda - 6 pk",
       "brand": "Diet Pepsi",
@@ -5850,7 +5850,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89377,
+      "deal_id": 89917,
       "product_id": 3919,
       "name": "Diet Pepsi Cola Soda Caffeine Free - 6 pk",
       "brand": "Diet Pepsi",
@@ -5871,7 +5871,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89378,
+      "deal_id": 89918,
       "product_id": 3920,
       "name": "Diet Mtn Dew Soda - 6 pk",
       "brand": "Diet Mtn Dew",
@@ -5892,7 +5892,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89379,
+      "deal_id": 89919,
       "product_id": 3922,
       "name": "Pepsi Cola Soda - 6 pk",
       "brand": "Pepsi",
@@ -5913,7 +5913,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89380,
+      "deal_id": 89920,
       "product_id": 3923,
       "name": "Mountain Dew Original Soda - 6 pk",
       "brand": "Mtn Dew",
@@ -5934,7 +5934,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89381,
+      "deal_id": 89921,
       "product_id": 3925,
       "name": "Schweppes Ginger Ale Soda Caffeine Free - 6 pk",
       "brand": "Schweppes",
@@ -5955,7 +5955,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89382,
+      "deal_id": 89922,
       "product_id": 4062,
       "name": "Pepsi Zero Sugar Cola Soda - 6 pk",
       "brand": "Pepsi Zero",
@@ -5976,7 +5976,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89383,
+      "deal_id": 89923,
       "product_id": 4063,
       "name": "Crush Orange Soda - 6 pk",
       "brand": "Crush",
@@ -5997,7 +5997,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89384,
+      "deal_id": 89924,
       "product_id": 4064,
       "name": "Brisk Lemon Flavor Iced Tea - 6 pk",
       "brand": "Brisk",
@@ -6018,7 +6018,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89385,
+      "deal_id": 89925,
       "product_id": 4065,
       "name": "Pepsi Wild Cherry Cola Soda - 6 pk",
       "brand": "Pepsi",
@@ -6039,7 +6039,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89386,
+      "deal_id": 89926,
       "product_id": 4066,
       "name": "Schweppes Zero Sugar Ginger Ale Soda Caffeine Free - 6 pk",
       "brand": "Schweppes",
@@ -6060,7 +6060,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89387,
+      "deal_id": 89927,
       "product_id": 4067,
       "name": "Mountain Dew Code Red Soda - 6 pk",
       "brand": "Mtn Dew",
@@ -6081,7 +6081,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89388,
+      "deal_id": 89928,
       "product_id": 4068,
       "name": "Mug Root Beer Soda Caffeine Free - 6 pk",
       "brand": "Mug",
@@ -6102,7 +6102,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89389,
+      "deal_id": 89929,
       "product_id": 4069,
       "name": "Mountain Dew Baja Blast Soda - 6 pk",
       "brand": "Mtn Dew",
@@ -6123,7 +6123,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89390,
+      "deal_id": 89930,
       "product_id": 4070,
       "name": "Mountain Dew Zero Sugar Soda - 6 pk",
       "brand": "Mtn Dew",
@@ -6144,7 +6144,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89108,
+      "deal_id": 89648,
       "product_id": 3905,
       "name": "Entenmann's Soft'ees Assorted Donuts - 12 ct",
       "brand": "Entenmann's",
@@ -6165,7 +6165,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89109,
+      "deal_id": 89649,
       "product_id": 3906,
       "name": "Entenmann's Soft'ees Plain Donuts - 12 ct",
       "brand": "Entenmann's",
@@ -6186,7 +6186,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89110,
+      "deal_id": 89650,
       "product_id": 3907,
       "name": "Entenmann's Soft'ees Variety Pack Donuts - 12 ct",
       "brand": "Entenmann's",
@@ -6207,7 +6207,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89116,
+      "deal_id": 89656,
       "product_id": 3912,
       "name": "Sprite Lemon Lime Soda - 6 pk",
       "brand": "Sprite",
@@ -6228,7 +6228,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89118,
+      "deal_id": 89658,
       "product_id": 3914,
       "name": "Diet Coke Cola Soda - 6 pk",
       "brand": "Diet Coke",
@@ -6249,7 +6249,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89119,
+      "deal_id": 89659,
       "product_id": 3915,
       "name": "Coca-Cola Original Soda - 6 pk",
       "brand": "Coca-Cola",
@@ -6270,7 +6270,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89120,
+      "deal_id": 89660,
       "product_id": 3916,
       "name": "Diet Coke Cola Soda Caffeine Free - 6 pk",
       "brand": "Diet Coke",
@@ -6291,7 +6291,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89121,
+      "deal_id": 89661,
       "product_id": 3917,
       "name": "Seagram's Caffeine Free Ginger Ale Soda - 6 pk",
       "brand": "Seagram's",
@@ -6312,7 +6312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89125,
+      "deal_id": 89665,
       "product_id": 3921,
       "name": "Coca-Cola Zero Sugar Cola Soda - 6 pk",
       "brand": "Coca-Cola Zero",
@@ -6333,7 +6333,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89130,
+      "deal_id": 89670,
       "product_id": 3926,
       "name": "Dr Pepper Soda - 6 pk",
       "brand": "Dr Pepper",
@@ -6354,7 +6354,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89113,
+      "deal_id": 89653,
       "product_id": 3321,
       "name": "Panera Soup",
       "brand": "Panera",
@@ -6375,7 +6375,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89132,
+      "deal_id": 89672,
       "product_id": 3323,
       "name": "Eckrich Smoked Sausage",
       "brand": "Eckrich",
@@ -6396,7 +6396,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89135,
+      "deal_id": 89675,
       "product_id": 3929,
       "name": "Wesson Canola or Vegetable Oil",
       "brand": null,
@@ -6417,7 +6417,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89242,
+      "deal_id": 89782,
       "product_id": 3252,
       "name": "Nature's Promise 93% Lean Ground Turkey",
       "brand": "Nature's Promise",
@@ -6438,7 +6438,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89268,
+      "deal_id": 89808,
       "product_id": 2987,
       "name": "Our Brand Honey",
       "brand": null,
@@ -6459,7 +6459,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89411,
+      "deal_id": 89951,
       "product_id": 3024,
       "name": "Our Brand Romaine Hearts",
       "brand": null,
@@ -6480,7 +6480,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89483,
+      "deal_id": 90023,
       "product_id": 4130,
       "name": "Arnold Bread, Buns or Rolls",
       "brand": null,
@@ -6501,7 +6501,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89501,
+      "deal_id": 90041,
       "product_id": 3206,
       "name": "Next Wave Mussels",
       "brand": "Next Wave",
@@ -6522,7 +6522,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89541,
+      "deal_id": 90081,
       "product_id": 4155,
       "name": "Pepperidge Farm Turnovers, Layer Cake or Pastry Sheets or Shells",
       "brand": null,
@@ -6543,7 +6543,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89544,
+      "deal_id": 90084,
       "product_id": 4157,
       "name": "Coffee mate or Natural Bliss Coffee Creamer or Cold Foam or Starbucks Coffee Creamer or Sweet Cream",
       "brand": null,
@@ -6564,7 +6564,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89545,
+      "deal_id": 90085,
       "product_id": 2881,
       "name": "Eggland's Best Cage Free Large White Eggs",
       "brand": "Eggland's Best",
@@ -6585,7 +6585,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89547,
+      "deal_id": 90087,
       "product_id": 4159,
       "name": "Simply Orange or Fruit Juice",
       "brand": null,
@@ -6606,7 +6606,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89548,
+      "deal_id": 90088,
       "product_id": 3077,
       "name": "Country Crock Red Barn Creamery Butter",
       "brand": "Country Crock",
@@ -6627,7 +6627,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89567,
+      "deal_id": 90107,
       "product_id": 4175,
       "name": "Crest Pro-Health Advanced Multi-Protection Mouthwash",
       "brand": "Crest",
@@ -6648,7 +6648,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89574,
+      "deal_id": 90114,
       "product_id": 3224,
       "name": "Febreze Trash Odor Fighter Starter Kit",
       "brand": "Febreze",
@@ -6669,7 +6669,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89575,
+      "deal_id": 90115,
       "product_id": 4179,
       "name": "Tide, Downy or Gain Liquid Detergent, Pods, Rinse, Fabric Softener, Scent Booster or Dryer Sheets",
       "brand": null,
@@ -6690,7 +6690,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89595,
+      "deal_id": 90135,
       "product_id": 4196,
       "name": "Gillette or Venus Disposable Razors",
       "brand": null,
@@ -6711,7 +6711,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89136,
+      "deal_id": 89676,
       "product_id": 3930,
       "name": "Outshine Ice Pops or Fruit Bars",
       "brand": null,
@@ -6732,7 +6732,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89161,
+      "deal_id": 89701,
       "product_id": 3946,
       "name": "Smart Living Apple Wedger",
       "brand": "Smart Living",
@@ -6753,7 +6753,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89246,
+      "deal_id": 89786,
       "product_id": 3349,
       "name": "Deer Park Water 24 Pack",
       "brand": "Deer Park",
@@ -6774,7 +6774,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89351,
+      "deal_id": 89891,
       "product_id": 4052,
       "name": "Banza Pasta or Filippo Berio Pasta Sauce",
       "brand": null,
@@ -6795,7 +6795,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89353,
+      "deal_id": 89893,
       "product_id": 2849,
       "name": "Orville Redenbacher's Popping Corn",
       "brand": "Orville Redenbachers",
@@ -6816,7 +6816,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89355,
+      "deal_id": 89895,
       "product_id": 2851,
       "name": "Rao's Soup",
       "brand": "Rao's",
@@ -6837,7 +6837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89360,
+      "deal_id": 89900,
       "product_id": 2908,
       "name": "Old Bay Seasoning",
       "brand": "Old Bay",
@@ -6858,7 +6858,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89480,
+      "deal_id": 90020,
       "product_id": 4127,
       "name": "Welch's, V8 Vegetable or North Coast Organic Apple Juice",
       "brand": null,
@@ -6879,7 +6879,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89494,
+      "deal_id": 90034,
       "product_id": 3052,
       "name": "Gutsi Prebiotic Soda",
       "brand": null,
@@ -6900,7 +6900,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89530,
+      "deal_id": 90070,
       "product_id": 4152,
       "name": "DePalo Foods Calzone",
       "brand": null,
@@ -6921,7 +6921,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89542,
+      "deal_id": 90082,
       "product_id": 4156,
       "name": "Our Brand Classic, Thin & Crispy or Rising Crust Pizza",
       "brand": null,
@@ -6942,7 +6942,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89571,
+      "deal_id": 90111,
       "product_id": 3217,
       "name": "Core Power High Protein Milk Shake",
       "brand": "Core Power",
@@ -6963,7 +6963,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89586,
+      "deal_id": 90126,
       "product_id": 4189,
       "name": "Banquet Mega Breakfast Bowls or Birds Eye or Alexia Vegetables",
       "brand": null,
@@ -6984,7 +6984,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89587,
+      "deal_id": 90127,
       "product_id": 4190,
       "name": "Dolly Parton's Entr\u00e9e or Birds Eye Voila!",
       "brand": null,
@@ -7005,7 +7005,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89596,
+      "deal_id": 90136,
       "product_id": 3234,
       "name": "Olay Moisturizer",
       "brand": "Olay",
@@ -7026,7 +7026,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89610,
+      "deal_id": 90150,
       "product_id": 3239,
       "name": "GoGo Squeez Slymez Fruit Gel On The Go",
       "brand": "GoGo",
@@ -7047,7 +7047,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89269,
+      "deal_id": 89809,
       "product_id": 3148,
       "name": "Our Brand Center Cut Pork Chops",
       "brand": null,
@@ -7068,7 +7068,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89565,
+      "deal_id": 90105,
       "product_id": 4173,
       "name": "Oral-B Indicator Max Toothbrushes Soft",
       "brand": "Oral-B",
@@ -7089,7 +7089,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89556,
+      "deal_id": 90096,
       "product_id": 4164,
       "name": "Oral-B Glide Pro-Health Comfort Plus Mint Dental Floss",
       "brand": "Oral-B",
@@ -7110,7 +7110,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89558,
+      "deal_id": 90098,
       "product_id": 4166,
       "name": "Oral-B Glide Pro-Health Deep Clean Cool Mint Dental Floss",
       "brand": "Oral-B",
@@ -7131,7 +7131,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89478,
+      "deal_id": 90018,
       "product_id": 4126,
       "name": "BelVita Breakfast Biscuits or Fruit Bakes Breakfast Bars",
       "brand": null,
@@ -7152,7 +7152,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89164,
+      "deal_id": 89704,
       "product_id": 3949,
       "name": "Smart Living Bag Clips",
       "brand": "Smart Living",
@@ -7173,7 +7173,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89562,
+      "deal_id": 90102,
       "product_id": 4170,
       "name": "Crest 3D White Whitening Glamorous White Toothpaste",
       "brand": "Crest",
@@ -7194,7 +7194,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89563,
+      "deal_id": 90103,
       "product_id": 4171,
       "name": "Crest 3D White Fluoride Anticavity Whitening Arctic Fresh Toothpaste",
       "brand": "Crest",
@@ -7215,7 +7215,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89600,
+      "deal_id": 90140,
       "product_id": 4199,
       "name": "Chobani Coffee Creamer or La Colombe Cold Brew Coffee",
       "brand": null,
@@ -7236,7 +7236,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89555,
+      "deal_id": 90095,
       "product_id": 4163,
       "name": "Crest Scope Classic Original Mint Mouthwash",
       "brand": "Crest Scope",
@@ -7257,7 +7257,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89560,
+      "deal_id": 90100,
       "product_id": 4168,
       "name": "Crest Scope Outlast Fresh Mint Mouthwash",
       "brand": "Crest Scope",
@@ -7278,7 +7278,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89561,
+      "deal_id": 90101,
       "product_id": 4169,
       "name": "Crest Pro-Health Advanced Deep Clean Mint Toothpaste",
       "brand": "Crest",
@@ -7299,7 +7299,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89568,
+      "deal_id": 90108,
       "product_id": 4176,
       "name": "Crest Scope Outlast Cool Peppermint Mouthwash",
       "brand": "Crest Scope",
@@ -7320,7 +7320,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89569,
+      "deal_id": 90109,
       "product_id": 4177,
       "name": "Crest Pro-Health Advanced Extra Whitening Fluoride Toothpaste",
       "brand": "Crest",
@@ -7341,7 +7341,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89453,
+      "deal_id": 89993,
       "product_id": 4106,
       "name": "DeLallo Pomodoro Fresco Creamy Vodka Pasta Sauce",
       "brand": "DeLallo",
@@ -7362,7 +7362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89454,
+      "deal_id": 89994,
       "product_id": 4107,
       "name": "DeLallo Pomodoro Fresco Plum Tomato Basil Pasta Sauce",
       "brand": "DeLallo",
@@ -7383,7 +7383,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89455,
+      "deal_id": 89995,
       "product_id": 4108,
       "name": "DeLallo Pomodoro Fresco Marinara Pasta Sauce",
       "brand": "DeLallo",
@@ -7404,7 +7404,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89557,
+      "deal_id": 90097,
       "product_id": 4165,
       "name": "Crest Pro-Health Multi-Protection Clean Mint Oral Rinse",
       "brand": "Crest",
@@ -7425,7 +7425,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89566,
+      "deal_id": 90106,
       "product_id": 4174,
       "name": "Oral-B Complete Satin Mint Floss",
       "brand": "Oral-B",
@@ -7446,7 +7446,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89559,
+      "deal_id": 90099,
       "product_id": 4167,
       "name": "Oral-B Dual Action Vivid Whitening Soft Toothbrushes",
       "brand": "Oral-B",
@@ -7467,7 +7467,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89564,
+      "deal_id": 90104,
       "product_id": 4172,
       "name": "Oral-B 3D Vivid Dual Action Whitening Medium Manual Toothbrush",
       "brand": "Oral-B",
@@ -7488,7 +7488,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89317,
+      "deal_id": 89857,
       "product_id": 4032,
       "name": "Hershey's, Ferrero or Mars Fun or Snack Size Candy",
       "brand": null,
@@ -7509,7 +7509,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89139,
+      "deal_id": 89679,
       "product_id": 3250,
       "name": "Bizzy Cold Brew Coffee",
       "brand": "Bizzy",
@@ -7530,7 +7530,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89244,
+      "deal_id": 89784,
       "product_id": 4016,
       "name": "Smithfield Bacon or Marinated Pork Tenderloin or Carando Meatballs",
       "brand": null,
@@ -7551,7 +7551,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89308,
+      "deal_id": 89848,
       "product_id": 3404,
       "name": "Grace Jamaican Jerk Seasoning",
       "brand": "Grace",
@@ -7572,7 +7572,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89329,
+      "deal_id": 89869,
       "product_id": 3155,
       "name": "Mowi Salmon Portion",
       "brand": "MOWI",
@@ -7593,7 +7593,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89451,
+      "deal_id": 89991,
       "product_id": 3188,
       "name": "Post Giant Size Honey Bunches of Oats Cereal",
       "brand": "Post",
@@ -7614,7 +7614,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89491,
+      "deal_id": 90031,
       "product_id": 4133,
       "name": "Mooala Almond or Banana Milk or Plant-Based Keto Mylk",
       "brand": null,
@@ -7635,7 +7635,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89499,
+      "deal_id": 90039,
       "product_id": 3408,
       "name": "Premio Italian Sausage",
       "brand": "Premio",
@@ -7656,7 +7656,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89507,
+      "deal_id": 90047,
       "product_id": 3053,
       "name": "Perdue Breaded Chicken",
       "brand": "Perdue",
@@ -7677,7 +7677,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89511,
+      "deal_id": 90051,
       "product_id": 4140,
       "name": "Rana Pasta or Sauce",
       "brand": null,
@@ -7698,7 +7698,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89515,
+      "deal_id": 90055,
       "product_id": 4141,
       "name": "King's Hawaiian Rolls",
       "brand": null,
@@ -7719,7 +7719,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89527,
+      "deal_id": 90067,
       "product_id": 3063,
       "name": "Creme Cake",
       "brand": null,
@@ -7740,7 +7740,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89532,
+      "deal_id": 90072,
       "product_id": 3062,
       "name": "Our Brand Bite-Size Brownies",
       "brand": "Our Brand",
@@ -7761,7 +7761,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89534,
+      "deal_id": 90074,
       "product_id": 2932,
       "name": "Kinder's Restaurant-Style Crispy Fries",
       "brand": "Kinder's",
@@ -7782,7 +7782,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89550,
+      "deal_id": 90090,
       "product_id": 3410,
       "name": "Sweet Loren's Cookie Dough",
       "brand": "Sweet Loren's",
@@ -7803,7 +7803,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89326,
+      "deal_id": 89866,
       "product_id": 3156,
       "name": "Margaritaville Shrimp Entr\u00e9e",
       "brand": "Margaritaville",
@@ -7824,7 +7824,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89468,
+      "deal_id": 90008,
       "product_id": 3194,
       "name": "Tuttorosso Tomatoes",
       "brand": "Tuttorosso",
@@ -7845,7 +7845,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89486,
+      "deal_id": 90026,
       "product_id": 3204,
       "name": "Ghirardelli Chocolate Bar",
       "brand": "Ghirardelli",
@@ -7866,7 +7866,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89505,
+      "deal_id": 90045,
       "product_id": 2935,
       "name": "Phillips Crab Soup",
       "brand": "Phillips",
@@ -7887,7 +7887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89529,
+      "deal_id": 90069,
       "product_id": 3210,
       "name": "Berks Ring Bologna",
       "brand": "Berks",
@@ -7908,7 +7908,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89533,
+      "deal_id": 90073,
       "product_id": 2931,
       "name": "Claussen Pickles",
       "brand": "Claussen",
@@ -7929,7 +7929,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89538,
+      "deal_id": 90078,
       "product_id": 4154,
       "name": "Newman's Own or Cape Cod Cafe Pizza",
       "brand": null,
@@ -7950,7 +7950,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89301,
+      "deal_id": 89841,
       "product_id": 2922,
       "name": "Caf\u00e9 Bustelo Coffee",
       "brand": "Caf\u00e9 Bustelo",
@@ -7971,7 +7971,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89609,
+      "deal_id": 90149,
       "product_id": 3109,
       "name": "Meow Mix Dry Cat Food",
       "brand": "Meow Mix",
@@ -7992,7 +7992,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89321,
+      "deal_id": 89861,
       "product_id": 4034,
       "name": "Blount Clam Shack Lobster Bisque Soup Refrigerated",
       "brand": "Blount Clam Shack",
@@ -8013,7 +8013,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89322,
+      "deal_id": 89862,
       "product_id": 4035,
       "name": "Blount Clam Shack New England Clam Chowder Soup Refrigerated",
       "brand": "Blount Clam Shack",
@@ -8034,7 +8034,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89323,
+      "deal_id": 89863,
       "product_id": 4036,
       "name": "Blount Clam Shack Shrimp & Corn Chowder Soup Refrigerated",
       "brand": "Blount Clam Shack",
@@ -8055,7 +8055,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89324,
+      "deal_id": 89864,
       "product_id": 4037,
       "name": "Blount Clam Shack Gumbo Soup w/Uncured Sausage Chicken & Shrimp Fresh",
       "brand": "Blount Clam Shack",
@@ -8076,7 +8076,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89158,
+      "deal_id": 89698,
       "product_id": 3943,
       "name": "Smart Living Rolling Pin 10 in",
       "brand": "Smart Living",
@@ -8097,7 +8097,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89094,
+      "deal_id": 89634,
       "product_id": 3364,
       "name": "Our Brand Beef Top Round London Broil",
       "brand": null,
@@ -8118,7 +8118,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89112,
+      "deal_id": 89652,
       "product_id": 3909,
       "name": "Our Signature Jumbo Lump Crab Cake, Lobster Tail or Salmon Portion",
       "brand": null,
@@ -8139,7 +8139,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89137,
+      "deal_id": 89677,
       "product_id": 2923,
       "name": "Nathan's Beef Franks",
       "brand": "Nathan's",
@@ -8160,7 +8160,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89149,
+      "deal_id": 89689,
       "product_id": 3136,
       "name": "Our Brand Snacks",
       "brand": "Our Brand",
@@ -8181,7 +8181,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89260,
+      "deal_id": 89800,
       "product_id": 3307,
       "name": "Taste of Inspirations Deli Salad",
       "brand": "Taste of Inspirations",
@@ -8202,7 +8202,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89422,
+      "deal_id": 89962,
       "product_id": 2854,
       "name": "Sweet Onions",
       "brand": null,
@@ -8223,7 +8223,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89531,
+      "deal_id": 90071,
       "product_id": 3409,
       "name": "Avocado Bread",
       "brand": "Avocado",
@@ -8244,7 +8244,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89583,
+      "deal_id": 90123,
       "product_id": 4186,
       "name": "Marie Callender's Pie or Meat to Share, Dolly Parton's Pie or Cobbler, Sandwich Bros. Pita Snack Sandwiches or Odom's Tennessee Pride Breakfast Biscuits",
       "brand": null,
@@ -8265,7 +8265,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89418,
+      "deal_id": 89958,
       "product_id": 4083,
       "name": "Large or Varietal Pumpkins",
       "brand": null,
@@ -8286,7 +8286,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89576,
+      "deal_id": 90116,
       "product_id": 3083,
       "name": "Ziploc Freezer Storage Bags",
       "brand": "Ziploc",
@@ -8307,7 +8307,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89186,
+      "deal_id": 89726,
       "product_id": 3247,
       "name": "Nature's Promise Dog Treats",
       "brand": "Nature's Promise",
@@ -8328,7 +8328,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89267,
+      "deal_id": 89807,
       "product_id": 2982,
       "name": "Our Brand Olive Oil",
       "brand": null,
@@ -8349,7 +8349,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89316,
+      "deal_id": 89856,
       "product_id": 3253,
       "name": "Lindt Lindor Chocolate Truffles",
       "brand": "Lindor",
@@ -8370,7 +8370,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89392,
+      "deal_id": 89932,
       "product_id": 4072,
       "name": "Pepsi or Mountain Dew 10 Pack",
       "brand": null,
@@ -8391,7 +8391,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89277,
+      "deal_id": 89817,
       "product_id": 2944,
       "name": "Our Brand Facial Tissues",
       "brand": "Our Brand",
@@ -8412,7 +8412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89234,
+      "deal_id": 89774,
       "product_id": 4007,
       "name": "Canada Dry Ginger Ale Soda Caffeine Free - 12 pk",
       "brand": "Canada Dry",
@@ -8433,7 +8433,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89235,
+      "deal_id": 89775,
       "product_id": 4008,
       "name": "Canada Dry Zero Sugar Ginger Ale Soda Caffeine Free - 12 pk",
       "brand": "Canada Dry",
@@ -8454,7 +8454,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89236,
+      "deal_id": 89776,
       "product_id": 4009,
       "name": "RC Cola Soda - 12 pk",
       "brand": "RC (Royal Crown)",
@@ -8475,7 +8475,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89239,
+      "deal_id": 89779,
       "product_id": 4012,
       "name": "Sunkist Orange Soda - 12 pk",
       "brand": "Sunkist",
@@ -8496,7 +8496,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89240,
+      "deal_id": 89780,
       "product_id": 4013,
       "name": "7UP Caffeine Free Lime Lemon Soda - 12 pk",
       "brand": "7UP",
@@ -8517,7 +8517,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89241,
+      "deal_id": 89781,
       "product_id": 4014,
       "name": "7UP Caffeine Free Zero Sugar Lime Lemon Soda - 12 pk",
       "brand": "7UP",
@@ -8538,7 +8538,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89155,
+      "deal_id": 89695,
       "product_id": 3940,
       "name": "Smart Living Garlic Press",
       "brand": "Smart Living",
@@ -8559,7 +8559,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89134,
+      "deal_id": 89674,
       "product_id": 3928,
       "name": "Coca-Cola 10 Pack or Topo Chico or smartwater 8 Pack",
       "brand": null,
@@ -8580,7 +8580,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89188,
+      "deal_id": 89728,
       "product_id": 3139,
       "name": "Taste of Inspirations Turkey Breast",
       "brand": "Taste of Inspirations",
@@ -8601,7 +8601,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89243,
+      "deal_id": 89783,
       "product_id": 4015,
       "name": "Cooper or Clearfield American Cheese",
       "brand": null,
@@ -8622,7 +8622,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89253,
+      "deal_id": 89793,
       "product_id": 2981,
       "name": "Our Brand 85% Lean Ground Beef",
       "brand": null,
@@ -8643,7 +8643,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89264,
+      "deal_id": 89804,
       "product_id": 3276,
       "name": "Oscar Mayer Deli Fresh Lunch Meat",
       "brand": "Oscar Mayer",
@@ -8664,7 +8664,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89394,
+      "deal_id": 89934,
       "product_id": 3031,
       "name": "Poppi Prebiotic Soda 4 Pack",
       "brand": "Poppi",
@@ -8685,7 +8685,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89471,
+      "deal_id": 90011,
       "product_id": 3362,
       "name": "Bertolli Olive Oil",
       "brand": "Bertolli",
@@ -8706,7 +8706,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89487,
+      "deal_id": 90027,
       "product_id": 4131,
       "name": "Swedish Fish or Sour Patch Kids Family Size Candy",
       "brand": null,
@@ -8727,7 +8727,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89578,
+      "deal_id": 90118,
       "product_id": 4181,
       "name": "Brawny or Sparkle Paper Towels or Quilted Northern or Angel Soft Bathroom Tissue",
       "brand": null,
@@ -8748,7 +8748,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89580,
+      "deal_id": 90120,
       "product_id": 4183,
       "name": "Viva Signature Cloth, Cottonelle Bath Tissue or Kleenex Facial Tissue",
       "brand": null,
@@ -8769,7 +8769,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89582,
+      "deal_id": 90122,
       "product_id": 4185,
       "name": "Birds Eye Voila! or Gardein Ultimate Meatless Entr\u00e9e",
       "brand": null,
@@ -8790,7 +8790,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89546,
+      "deal_id": 90086,
       "product_id": 4158,
       "name": "Cracker Barrel Cheese Cubes, Sticks or Cracker Cuts",
       "brand": null,
@@ -8811,7 +8811,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89131,
+      "deal_id": 89671,
       "product_id": 2964,
       "name": "Pringles Snack Cups",
       "brand": "Pringles",
@@ -8832,7 +8832,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89227,
+      "deal_id": 89767,
       "product_id": 4000,
       "name": "Diet Mtn Dew Original Soda - 12 pk",
       "brand": "Diet Mtn Dew",
@@ -8853,7 +8853,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89228,
+      "deal_id": 89768,
       "product_id": 4001,
       "name": "Pepsi Cola Soda - 12 pk",
       "brand": "Pepsi",
@@ -8874,7 +8874,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89229,
+      "deal_id": 89769,
       "product_id": 4002,
       "name": "Diet Pepsi Cola Soda - 12 pk",
       "brand": "Diet Pepsi",
@@ -8895,7 +8895,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89230,
+      "deal_id": 89770,
       "product_id": 4003,
       "name": "Mountain Dew Original Soda - 12 pk",
       "brand": "Mtn Dew",
@@ -8916,7 +8916,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89231,
+      "deal_id": 89771,
       "product_id": 4004,
       "name": "Pepsi Cola Soda Caffeine Free - 12 pk",
       "brand": "Pepsi",
@@ -8937,7 +8937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89232,
+      "deal_id": 89772,
       "product_id": 4005,
       "name": "Diet Pepsi Cola Soda Caffeine Free - 12 pk",
       "brand": "Diet Pepsi",
@@ -8958,7 +8958,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89233,
+      "deal_id": 89773,
       "product_id": 4006,
       "name": "Schweppes Ginger Ale Soda Caffeine Free - 12 pk",
       "brand": "Schweppes",
@@ -8979,7 +8979,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89237,
+      "deal_id": 89777,
       "product_id": 4010,
       "name": "Crush Orange Soda Caffeine Free - 12 pk",
       "brand": "Crush",
@@ -9000,7 +9000,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89238,
+      "deal_id": 89778,
       "product_id": 4011,
       "name": "Crush Diet Orange Soda Caffeine Free - 12 pk",
       "brand": "Crush",
@@ -9021,7 +9021,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89361,
+      "deal_id": 89901,
       "product_id": 4000,
       "name": "Diet Mtn Dew Original Soda - 12 pk",
       "brand": "Diet Mtn Dew",
@@ -9042,7 +9042,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89362,
+      "deal_id": 89902,
       "product_id": 4001,
       "name": "Pepsi Cola Soda - 12 pk",
       "brand": "Pepsi",
@@ -9063,7 +9063,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89363,
+      "deal_id": 89903,
       "product_id": 4002,
       "name": "Diet Pepsi Cola Soda - 12 pk",
       "brand": "Diet Pepsi",
@@ -9084,7 +9084,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89364,
+      "deal_id": 89904,
       "product_id": 4003,
       "name": "Mountain Dew Original Soda - 12 pk",
       "brand": "Mtn Dew",
@@ -9105,7 +9105,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89365,
+      "deal_id": 89905,
       "product_id": 4004,
       "name": "Pepsi Cola Soda Caffeine Free - 12 pk",
       "brand": "Pepsi",
@@ -9126,7 +9126,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89366,
+      "deal_id": 89906,
       "product_id": 4005,
       "name": "Diet Pepsi Cola Soda Caffeine Free - 12 pk",
       "brand": "Diet Pepsi",
@@ -9147,7 +9147,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89367,
+      "deal_id": 89907,
       "product_id": 4006,
       "name": "Schweppes Ginger Ale Soda Caffeine Free - 12 pk",
       "brand": "Schweppes",
@@ -9168,7 +9168,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89368,
+      "deal_id": 89908,
       "product_id": 4010,
       "name": "Crush Orange Soda Caffeine Free - 12 pk",
       "brand": "Crush",
@@ -9189,7 +9189,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89369,
+      "deal_id": 89909,
       "product_id": 4011,
       "name": "Crush Diet Orange Soda Caffeine Free - 12 pk",
       "brand": "Crush",
@@ -9210,7 +9210,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89370,
+      "deal_id": 89910,
       "product_id": 4056,
       "name": "Dr Pepper Soda - 12 pk",
       "brand": "Dr Pepper",
@@ -9231,7 +9231,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89371,
+      "deal_id": 89911,
       "product_id": 4057,
       "name": "Diet Dr Pepper Soda - 12 pk",
       "brand": "Dr Pepper",
@@ -9252,7 +9252,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89372,
+      "deal_id": 89912,
       "product_id": 4058,
       "name": "Brisk Lemon Flavor Iced Tea - 12 pk",
       "brand": "Brisk",
@@ -9273,7 +9273,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89373,
+      "deal_id": 89913,
       "product_id": 4059,
       "name": "Mug Root Beer Soda Caffeine Free - 12 pk",
       "brand": "Mug",
@@ -9294,7 +9294,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89374,
+      "deal_id": 89914,
       "product_id": 4060,
       "name": "Pepsi Wild Cherry Cola Soda - 12 pk",
       "brand": "Pepsi",
@@ -9315,7 +9315,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89375,
+      "deal_id": 89915,
       "product_id": 4061,
       "name": "Diet Pepsi Wild Cherry Cola Soda - 12 pk",
       "brand": "Diet Pepsi",
@@ -9336,7 +9336,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89312,
+      "deal_id": 89852,
       "product_id": 3308,
       "name": "Carolina Jasmine Rice",
       "brand": "Carolina",
@@ -9357,7 +9357,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89218,
+      "deal_id": 89758,
       "product_id": 3993,
       "name": "Snapple All Natural Lemon Flavored Iced Tea - 12 pk Plastic",
       "brand": "Snapple",
@@ -9378,7 +9378,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89219,
+      "deal_id": 89759,
       "product_id": 3994,
       "name": "Snapple All Natural Peach Flavored Iced Tea - 12 pk Plastic",
       "brand": "Snapple",
@@ -9399,7 +9399,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89220,
+      "deal_id": 89760,
       "product_id": 3995,
       "name": "Snapple Zero Sugar Peach Flavored Iced Tea - 12 pk Plastic",
       "brand": "Snapple",
@@ -9420,7 +9420,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89221,
+      "deal_id": 89761,
       "product_id": 3996,
       "name": "Snapple Apple Juice Drink - 12 pk Plastic",
       "brand": "Snapple",
@@ -9441,7 +9441,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89222,
+      "deal_id": 89762,
       "product_id": 3997,
       "name": "Snapple Zero Sugar Raspberry Flavored Iced Tea - 12 pk Plastic",
       "brand": "Snapple",
@@ -9462,7 +9462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89223,
+      "deal_id": 89763,
       "product_id": 3998,
       "name": "Snapple Zero Sugar Lemon Flavored Iced Tea - 12 pk Plastic",
       "brand": "Snapple",
@@ -9483,7 +9483,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89224,
+      "deal_id": 89764,
       "product_id": 3999,
       "name": "Snapple All Natural Raspberry Flavored Iced Tea - 12 pk Plastic",
       "brand": "Snapple",
@@ -9504,7 +9504,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89181,
+      "deal_id": 89721,
       "product_id": 2949,
       "name": "Our Brand Fresh Pistachios",
       "brand": "Our Brand",
@@ -9525,7 +9525,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89226,
+      "deal_id": 89766,
       "product_id": 2954,
       "name": "Dunkin' Coffee",
       "brand": "Dunkin'",
@@ -9546,7 +9546,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89250,
+      "deal_id": 89790,
       "product_id": 4019,
       "name": "8 Piece Fried or Baked Chicken",
       "brand": null,
@@ -9567,7 +9567,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89254,
+      "deal_id": 89794,
       "product_id": 2980,
       "name": "Our Brand Extra Large Raw Shrimp",
       "brand": null,
@@ -9588,7 +9588,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89485,
+      "deal_id": 90025,
       "product_id": 3300,
       "name": "Utz Snacks",
       "brand": "UTZ",
@@ -9609,7 +9609,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89504,
+      "deal_id": 90044,
       "product_id": 2930,
       "name": "Shady Brook Farms Turkey Tenderloins",
       "brand": "Shady Brook Farms",
@@ -9630,7 +9630,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89508,
+      "deal_id": 90048,
       "product_id": 3061,
       "name": "Handy Crab Cakes",
       "brand": null,
@@ -9651,7 +9651,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89512,
+      "deal_id": 90052,
       "product_id": 3064,
       "name": "Our Brand Hard Salami",
       "brand": null,
@@ -9672,7 +9672,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89514,
+      "deal_id": 90054,
       "product_id": 3059,
       "name": "Pulled Rotisserie Chicken",
       "brand": null,
@@ -9693,7 +9693,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89581,
+      "deal_id": 90121,
       "product_id": 4184,
       "name": "Kingsford or Match Light Charcoal",
       "brand": null,
@@ -9714,7 +9714,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89140,
+      "deal_id": 89680,
       "product_id": 3932,
       "name": "Mike's Hot or Extra Hot Honey",
       "brand": null,
@@ -9735,7 +9735,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89488,
+      "deal_id": 90028,
       "product_id": 4132,
       "name": "Coca\u2011Cola 12 Pack or 8 Pack",
       "brand": null,
@@ -9756,7 +9756,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89179,
+      "deal_id": 89719,
       "product_id": 3246,
       "name": "Taste of Inspirations Ham",
       "brand": "Taste of Inspirations",
@@ -9777,7 +9777,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89182,
+      "deal_id": 89722,
       "product_id": 3962,
       "name": "Our Brand Paper Towels or Bath Tissue",
       "brand": null,
@@ -9798,7 +9798,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89330,
+      "deal_id": 89870,
       "product_id": 3267,
       "name": "Handy Shrimp Appetizers",
       "brand": "HANDy",
@@ -9819,7 +9819,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89141,
+      "deal_id": 89681,
       "product_id": 3347,
       "name": "Redefine Foods Oatmeal Protein Pie",
       "brand": "Redefine",
@@ -9840,7 +9840,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89249,
+      "deal_id": 89789,
       "product_id": 3289,
       "name": "Snow Crab Clusters",
       "brand": null,
@@ -9861,7 +9861,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89395,
+      "deal_id": 89935,
       "product_id": 2853,
       "name": "Propel Fitness Water 12 Pack",
       "brand": "Propel",
@@ -9882,7 +9882,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89497,
+      "deal_id": 90037,
       "product_id": 4135,
       "name": "Rastelli's Beef NY Strip, Ribeye or Filet Mignon Steak",
       "brand": null,
@@ -9903,7 +9903,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89503,
+      "deal_id": 90043,
       "product_id": 4138,
       "name": "Just Bare Chicken Breast Strips, Fillets or Bites",
       "brand": null,
@@ -9924,7 +9924,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89624,
+      "deal_id": 90164,
       "product_id": 3117,
       "name": "Cutwater Lemon Drop Martini",
       "brand": "CUTWATER",
@@ -9945,7 +9945,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89245,
+      "deal_id": 89785,
       "product_id": 4017,
       "name": "Coca-Cola 24 Pack, vitaminwater or Gold Peak Tea 12 Pack or smartwater 6 Pack",
       "brand": null,
@@ -9966,7 +9966,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89611,
+      "deal_id": 90151,
       "product_id": 4201,
       "name": "Aravail Select Varieties",
       "brand": null,
@@ -9987,7 +9987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89623,
+      "deal_id": 90163,
       "product_id": 3243,
       "name": "Not Your Father's Root Beer",
       "brand": "Not Your Father's",
@@ -10008,7 +10008,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89159,
+      "deal_id": 89699,
       "product_id": 3944,
       "name": "Smart Living Digital Instant Read Thermometer",
       "brand": "Smart Living",
@@ -10029,7 +10029,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89327,
+      "deal_id": 89867,
       "product_id": 3263,
       "name": "Nature's Promise Medium Cooked Shrimp",
       "brand": "Nature's Promise",
@@ -10050,7 +10050,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89427,
+      "deal_id": 89967,
       "product_id": 3187,
       "name": "Autumn Walks Bouquet",
       "brand": null,
@@ -10071,7 +10071,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89621,
+      "deal_id": 90161,
       "product_id": 3411,
       "name": "Mark West Cabernet Sauvignon",
       "brand": "Mark West",
@@ -10092,7 +10092,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89622,
+      "deal_id": 90162,
       "product_id": 3324,
       "name": "Sutter Home",
       "brand": "Sutter Home",
@@ -10113,7 +10113,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89629,
+      "deal_id": 90169,
       "product_id": 3125,
       "name": "Pampers Baby Wipes",
       "brand": "Pampers",
@@ -10134,7 +10134,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89619,
+      "deal_id": 90159,
       "product_id": 3240,
       "name": "Nobilo Marlborough Sauvignon Blanc",
       "brand": "Nobilo",
@@ -10155,7 +10155,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89526,
+      "deal_id": 90066,
       "product_id": 3065,
       "name": "Taco Dip",
       "brand": null,
@@ -10176,7 +10176,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89612,
+      "deal_id": 90152,
       "product_id": 3120,
       "name": "Bud Light",
       "brand": "Bud Light",
@@ -10197,7 +10197,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89425,
+      "deal_id": 89965,
       "product_id": 2928,
       "name": "Premium Orchid Plant",
       "brand": null,
@@ -10218,7 +10218,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89618,
+      "deal_id": 90158,
       "product_id": 3119,
       "name": "Tr\u00f6egs Master of Pumpkins",
       "brand": "Tr\u00f6egs",
@@ -10239,7 +10239,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89509,
+      "deal_id": 90049,
       "product_id": 2871,
       "name": "Our Brand Fresh 80% Lean Ground Beef Patties",
       "brand": null,
@@ -10260,7 +10260,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89265,
+      "deal_id": 89805,
       "product_id": 3149,
       "name": "Our Brand 73% Lean Ground Beef",
       "brand": "Our Brand",
@@ -10281,7 +10281,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89426,
+      "deal_id": 89966,
       "product_id": 3407,
       "name": "Rose Lily Bouquet",
       "brand": null,
@@ -10302,7 +10302,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89614,
+      "deal_id": 90154,
       "product_id": 4202,
       "name": "La Marca Prosecco or Ros\u00e9",
       "brand": null,
@@ -10323,7 +10323,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89620,
+      "deal_id": 90160,
       "product_id": 3124,
       "name": "Villa Sparina Gavi di Gavi",
       "brand": "Villa Sparina",
@@ -10344,7 +10344,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89613,
+      "deal_id": 90153,
       "product_id": 3396,
       "name": "Black Stallion North Coast Cabernet Sauvignon",
       "brand": "Black Stallion",
@@ -10365,7 +10365,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89553,
+      "deal_id": 90093,
       "product_id": 3225,
       "name": "Huggies Snug & Dry Diapers",
       "brand": "Huggies",
@@ -10386,7 +10386,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89627,
+      "deal_id": 90167,
       "product_id": 3225,
       "name": "Huggies Snug & Dry Diapers",
       "brand": "Huggies",
@@ -10407,7 +10407,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89616,
+      "deal_id": 90156,
       "product_id": 3121,
       "name": "Founders All Day IPA",
       "brand": "Founders",
@@ -10428,7 +10428,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89615,
+      "deal_id": 90155,
       "product_id": 3115,
       "name": "Angry Orchard Hard Cider Scream Thriller Pack",
       "brand": "ANGRY ORCHARD",
@@ -10449,7 +10449,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89630,
+      "deal_id": 90170,
       "product_id": 3244,
       "name": "Pampers Sensitive Wipes",
       "brand": "Pampers",
@@ -10470,7 +10470,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89484,
+      "deal_id": 90024,
       "product_id": 2920,
       "name": "Green Mountain Coffee Value Pack",
       "brand": "Green Mountain",
@@ -10491,7 +10491,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89628,
+      "deal_id": 90168,
       "product_id": 2941,
       "name": "Pampers Amore Diapers",
       "brand": "Pampers",
@@ -10512,7 +10512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89573,
+      "deal_id": 90113,
       "product_id": 3304,
       "name": "Pampers Diapers",
       "brand": "Pampers",
@@ -10533,7 +10533,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89626,
+      "deal_id": 90166,
       "product_id": 2901,
       "name": "Pampers Swaddlers Diapers",
       "brand": "Pampers",
@@ -10554,7 +10554,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89625,
+      "deal_id": 90165,
       "product_id": 2901,
       "name": "Pampers Swaddlers Diapers",
       "brand": "Pampers",
@@ -10575,7 +10575,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89092,
+      "deal_id": 89632,
       "product_id": 91,
       "name": "Strawberries",
       "brand": "USDA Produce",
@@ -10596,7 +10596,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89510,
+      "deal_id": 90050,
       "product_id": 2703,
       "name": "Cinnamon Rolls",
       "brand": "Lucerne",
@@ -10617,7 +10617,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89537,
+      "deal_id": 90077,
       "product_id": 83,
       "name": "Red Baron Pizza",
       "brand": "Red Baron",
@@ -10638,7 +10638,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89415,
+      "deal_id": 89955,
       "product_id": 219,
       "name": "Navel Oranges",
       "brand": null,
@@ -10659,7 +10659,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89593,
+      "deal_id": 90133,
       "product_id": 2558,
       "name": "Crest Toothpaste",
       "brand": "Crest",
@@ -10680,7 +10680,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89617,
+      "deal_id": 90157,
       "product_id": 1105,
       "name": "Stella Artois",
       "brand": "Stella Artois",
@@ -10701,7 +10701,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89247,
+      "deal_id": 89787,
       "product_id": 4018,
       "name": "Bounty Paper Towels, Charmin Bathroom Tissue, Tide Detergent, Pods or Tiles, Gain Detergent, Flings or Scent Booster, Downy Fabric Conditioner, Bounce Dryer Sheets, Dawn Dish Soap, Cascade ActionPacs, Febreze Plug Refills or Swiffer Hair Magnet Deluxe",
       "brand": null,
@@ -10722,7 +10722,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89255,
+      "deal_id": 89795,
       "product_id": 3306,
       "name": "Our Brand Shredded Lettuce",
       "brand": null,
@@ -10743,7 +10743,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89256,
+      "deal_id": 89796,
       "product_id": 2979,
       "name": "Our Brand Shredded Cheese",
       "brand": null,
@@ -10764,7 +10764,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89257,
+      "deal_id": 89797,
       "product_id": 3305,
       "name": "Ortega Taco Shells",
       "brand": "Ortega",
@@ -10785,7 +10785,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89258,
+      "deal_id": 89798,
       "product_id": 3326,
       "name": "Ortega Taco Seasoning Mix",
       "brand": "Ortega",
@@ -10806,7 +10806,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89278,
+      "deal_id": 89818,
       "product_id": 3146,
       "name": "Bahlsen Pick Up! Minis Cookies",
       "brand": "Bahlsen",
@@ -10827,7 +10827,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89299,
+      "deal_id": 89839,
       "product_id": 4031,
       "name": "DoorDash\u00ae, Domino's\u00ae, Google Play, TopGolf\u00ae or Chipotle\u00ae gift cards, Roblox gift cards",
       "brand": null,
@@ -10848,7 +10848,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89319,
+      "deal_id": 89859,
       "product_id": 3406,
       "name": "Pumpkin Carving Kit",
       "brand": null,
@@ -10869,7 +10869,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89325,
+      "deal_id": 89865,
       "product_id": 4038,
       "name": "Our Brand Fish Portions or Fillets",
       "brand": null,
@@ -10890,7 +10890,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89400,
+      "deal_id": 89940,
       "product_id": 3298,
       "name": "Our Brand St. Louis Style Pork Ribs",
       "brand": "Our Brand",
@@ -10911,7 +10911,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89401,
+      "deal_id": 89941,
       "product_id": 3325,
       "name": "Brooklyn Bred Pizza Crust",
       "brand": "Brooklyn Bred",
@@ -10932,7 +10932,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89402,
+      "deal_id": 89942,
       "product_id": 4074,
       "name": "Negroni Prosciutto or Pancetta",
       "brand": null,
@@ -10953,7 +10953,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89403,
+      "deal_id": 89943,
       "product_id": 4075,
       "name": "DeLallo Glaze or Hot Honey for Cheese",
       "brand": null,
@@ -10974,7 +10974,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89404,
+      "deal_id": 89944,
       "product_id": 4076,
       "name": "BelGioioso Fresh Baking Mozzarella or Burrata Cheese",
       "brand": null,
@@ -10995,7 +10995,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89430,
+      "deal_id": 89970,
       "product_id": 4086,
       "name": "Kellogg's Original or Super Stuffed Pop-Tarts, Rice Krispies Treats or Nutri Grain Bars",
       "brand": null,
@@ -11016,7 +11016,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89496,
+      "deal_id": 90036,
       "product_id": 2877,
       "name": "Gorton's Seafood",
       "brand": "Gorton's",
@@ -11037,7 +11037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89500,
+      "deal_id": 90040,
       "product_id": 3371,
       "name": "The Organic Meat Co. Ground Beef",
       "brand": "The Organic Meat Co.",
@@ -11058,7 +11058,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89502,
+      "deal_id": 90042,
       "product_id": 4137,
       "name": "Rastelli's Butcher Burger or Godshall's Bacon",
       "brand": null,
@@ -11079,7 +11079,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89513,
+      "deal_id": 90053,
       "product_id": 3066,
       "name": "Deli Tortilla Chips",
       "brand": null,
@@ -11100,7 +11100,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89554,
+      "deal_id": 90094,
       "product_id": 4162,
       "name": "Nature's Truth, Nature's Bounty, Nature Made, Vicks, VitaFusion or Li'l Critters Vitamins or Supplements",
       "brand": null,
@@ -11121,7 +11121,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89570,
+      "deal_id": 90110,
       "product_id": 4178,
       "name": "Method Body Wash, Hair Care, Skin Care or Hand Soap",
       "brand": null,
@@ -11142,7 +11142,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89577,
+      "deal_id": 90117,
       "product_id": 4180,
       "name": "Purina Tidy Cats Clumping Litter or Friskies Cat Food",
       "brand": null,
@@ -11163,7 +11163,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89590,
+      "deal_id": 90130,
       "product_id": 3107,
       "name": "Vicks Severe Cold & Flu Relief",
       "brand": "Vicks",
@@ -11184,7 +11184,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89591,
+      "deal_id": 90131,
       "product_id": 4193,
       "name": "Head & Shoulders or Native Shampoo or Conditioner",
       "brand": null,
@@ -11205,7 +11205,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89594,
+      "deal_id": 90134,
       "product_id": 4195,
       "name": "Secret or Old Spice Deodorant or Olay or Old Spice Body Wash",
       "brand": null,
@@ -11226,7 +11226,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89597,
+      "deal_id": 90137,
       "product_id": 4197,
       "name": "Always Pads or Liners or Tampax Tampons",
       "brand": null,
@@ -11247,7 +11247,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89598,
+      "deal_id": 90138,
       "product_id": 3363,
       "name": "Our Brand Long Grain Rice",
       "brand": null,
@@ -11268,7 +11268,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89599,
+      "deal_id": 90139,
       "product_id": 4198,
       "name": "Our Brand Salsa, Guacamole or Queso",
       "brand": null,
@@ -11289,7 +11289,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89604,
+      "deal_id": 90144,
       "product_id": 3108,
       "name": "Our Brand Tortilla Chips",
       "brand": null,
@@ -11310,7 +11310,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89605,
+      "deal_id": 90145,
       "product_id": 2944,
       "name": "Our Brand Facial Tissues",
       "brand": "Our Brand",
@@ -11331,7 +11331,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 89631,
+      "deal_id": 90171,
       "product_id": 2902,
       "name": "Pampers Easy Ups Training Underwear",
       "brand": "Pampers",
