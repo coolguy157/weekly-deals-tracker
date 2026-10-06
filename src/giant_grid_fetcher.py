@@ -112,14 +112,18 @@ class GiantGridFetcher:
             if not store_id:
                 store_id = "50000262"  # Lewisburg default store ID
 
+            # Extract clean date YYYY-MM-DD
+            start_date_str = str(valid_from).split("T")[0] if valid_from else "2026-10-02"
+            end_date_str = str(valid_to).split("T")[0] if valid_to else "2026-10-08"
+
             flyer_meta = FlyerMetadata(
                 id=flyer_id,
                 merchant="Giant Food Stores",
                 merchant_id=2,
                 name="Giant Weekly Ad (Grid View)",
                 postal_code=zip_code,
-                valid_from=f"{valid_from}T00:00:00-04:00",
-                valid_to=f"{valid_to}T23:59:59-04:00",
+                valid_from=f"{start_date_str}T00:00:00-04:00",
+                valid_to=f"{end_date_str}T23:59:59-04:00",
                 thumbnail_url=thumbnail_url,
             )
 
