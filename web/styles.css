@@ -35,6 +35,18 @@
   --badge-catbest-text: #b45309;
   --badge-catbest-border: #fde68a;
 
+  --badge-cycle-bg: #eff6ff;
+  --badge-cycle-text: #1d4ed8;
+  --badge-cycle-border: #bfdbfe;
+
+  --badge-firstseen-bg: #f5f3ff;
+  --badge-firstseen-text: #6d28d9;
+  --badge-firstseen-border: #ddd6fe;
+
+  --badge-hike-bg: #fff1f2;
+  --badge-hike-text: #be123c;
+  --badge-hike-border: #fecdd3;
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
@@ -501,7 +513,7 @@ body {
   border: 1px solid var(--badge-atl-border);
 }
 
-.deal-badge.great {
+.deal-badge.great, .deal-badge.beat {
   background: var(--badge-great-bg);
   color: var(--badge-great-text);
   border: 1px solid var(--badge-great-border);
@@ -511,6 +523,24 @@ body {
   background: var(--badge-catbest-bg);
   color: var(--badge-catbest-text);
   border: 1px solid var(--badge-catbest-border);
+}
+
+.deal-badge.cycle {
+  background: var(--badge-cycle-bg);
+  color: var(--badge-cycle-text);
+  border: 1px solid var(--badge-cycle-border);
+}
+
+.deal-badge.firstseen {
+  background: var(--badge-firstseen-bg);
+  color: var(--badge-firstseen-text);
+  border: 1px solid var(--badge-firstseen-border);
+}
+
+.deal-badge.hike {
+  background: var(--badge-hike-bg);
+  color: var(--badge-hike-text);
+  border: 1px solid var(--badge-hike-border);
 }
 
 .page-indicator {

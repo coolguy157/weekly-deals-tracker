@@ -129,6 +129,22 @@ class GiantGridFetcher:
 
             logger.info(f"Found {len(ads_list)} circular items from Giant (Flyer ID: {flyer_id}, Store: {store_id})")
 
+            # Build page map from Flipp circular if available
+            flipp_page_map: Dict[str, Tuple[int, bool]] = {}
+            try:
+                from .fetcher import FlippAdFetcher
+                flipp_fetcher = FlippAdFetcher()
+                flipp_flyers = flipp_fetcher.get_flyers_for_zip(postal_code=zip_code, merchant_filter="Giant")
+                if flipp_flyers:
+                    for ff in flipp_flyers:
+                        f_items = flipp_fetcher.get_flyer_items(ff.id)
+                        for fi in f_items:
+                            if fi.name:
+                                flipp_page_map[fi.name.lower().strip()] = (fi.page_number, fi.is_front_page)
+                logger.info(f"Loaded {len(flipp_page_map)} page mappings from Flipp circular.")
+            except Exception as e:
+                logger.warning(f"Could not load Flipp page map: {e}")
+
             normalized_deals: List[NormalizedDeal] = []
 
             for idx, item in enumerate(ads_list):
@@ -141,6 +157,16 @@ class GiantGridFetcher:
                 category_name = item.get("categories", [{}])[0].get("name") if item.get("categories") else None
                 images = item.get("images", {})
                 image_url = images.get("medium") or images.get("small")
+
+                # Resolve true flyer page number
+                pg_info = flipp_page_map.get(name.lower())
+                if not pg_info:
+                    for fk, fv in flipp_page_map.items():
+                        if fk in name.lower() or name.lower() in fk:
+                            pg_info = fv
+                            break
+                page_num = pg_info[0] if pg_info else (item.get("pageNumber") or 1)
+                is_front = pg_info[1] if pg_info else (page_num == 1)
 
                 # Check if this item is a Buy X Get Y / BOGO deal
                 m_bogo = BOGO_REGEX.search(sales_text)
@@ -203,8 +229,8 @@ class GiantGridFetcher:
                                 NormalizedDeal(
                                     raw_deal_id=deal_id,
                                     flyer_id=flyer_id,
-                                    page_number=1,
-                                    is_front_page=True,
+                                    page_number=page_num,
+                                    is_front_page=is_front,
                                     canonical_name=prod_name,
                                     brand=prod_brand,
                                     advertised_price=effective_price,
@@ -247,8 +273,8 @@ class GiantGridFetcher:
                     NormalizedDeal(
                         raw_deal_id=ad_id,
                         flyer_id=flyer_id,
-                        page_number=1,
-                        is_front_page=True,
+                        page_number=page_num,
+                        is_front_page=is_front,
                         canonical_name=name,
                         brand=None,
                         advertised_price=adv_price,
