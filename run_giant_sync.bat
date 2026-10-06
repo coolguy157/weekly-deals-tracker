@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
 :: Navigate to deals_tracker directory
 cd /d "%~dp0"
@@ -56,7 +56,7 @@ if errorlevel 1 (
     
     :: Push web folder directly to gh-pages branch for instant live web app update
     for /f "tokens=*" %%T in ('git subtree split --prefix web main') do set SUBTREE_HASH=%%T
-    git push origin %SUBTREE_HASH%:gh-pages --force >> "%LOGFILE%" 2>&1
+    git push origin !SUBTREE_HASH!:refs/heads/gh-pages --force >> "%LOGFILE%" 2>&1
     echo Successfully pushed updated deals to main and gh-pages. >> "%LOGFILE%"
 ) else (
     echo web/deals.json is already up to date. No push needed. >> "%LOGFILE%"

@@ -25,7 +25,7 @@ if ($staged) {
     git push origin main
     
     $tree = git subtree split --prefix web main
-    git push origin "${tree}:gh-pages" --force
+    git push origin "${tree}:refs/heads/gh-pages" --force
     Write-Host "Successfully pushed latest deals to main and gh-pages!"
 } else {
     Write-Host "No changes to web/deals.json. Already up to date."
