@@ -52,6 +52,8 @@ class GiantGridFetcher:
                 headless=self.headless,
                 args=[
                     "--disable-blink-features=AutomationControlled",
+                    "--start-maximized",
+                    "--window-position=0,0",
                 ],
                 viewport={"width": 1400, "height": 900},
                 user_agent=USER_AGENT,
@@ -137,7 +139,7 @@ class GiantGridFetcher:
                 flipp_flyers = flipp_fetcher.get_flyers_for_zip(postal_code=zip_code, merchant_filter="Giant")
                 if flipp_flyers:
                     for ff in flipp_flyers:
-                        f_items = flipp_fetcher.get_flyer_items(ff.id)
+                        _, f_items = flipp_fetcher.get_flyer_pages_and_items(ff.id)
                         for fi in f_items:
                             if fi.name:
                                 flipp_page_map[fi.name.lower().strip()] = (fi.page_number, fi.is_front_page)
@@ -165,8 +167,36 @@ class GiantGridFetcher:
                         if fk in name.lower() or name.lower() in fk:
                             pg_info = fv
                             break
-                page_num = pg_info[0] if pg_info else (item.get("pageNumber") or 1)
-                is_front = pg_info[1] if pg_info else (page_num == 1)
+
+                if pg_info:
+                    page_num = pg_info[0]
+                    is_front = pg_info[1]
+                else:
+                    # Extended online grid item not in print circular: resolve by category / keyword
+                    dept_map = {
+                        "produce": 12, "fruit": 12, "vegetable": 12,
+                        "meat": 4, "beef": 4, "pork": 5, "poultry": 4, "chicken": 4,
+                        "seafood": 9, "fish": 9,
+                        "deli": 17, "prepared": 17, "soup": 17,
+                        "bakery": 2, "bread": 2,
+                        "dairy": 13, "cheese": 13,
+                        "frozen": 14,
+                        "pantry": 15, "canned": 15,
+                        "beverage": 11, "drink": 11, "soda": 11,
+                        "snack": 15, "chip": 15, "candy": 15,
+                        "health": 19, "beauty": 19, "personal care": 19,
+                        "household": 20, "clean": 20,
+                        "pet": 19, "baby": 23,
+                        "general": 22, "kitchen": 22, "outdoor": 22, "skewer": 22,
+                    }
+                    combined_tag = f"{name} {desc} {category_name or ''}".lower()
+                    resolved_page = 15
+                    for kw, pg in dept_map.items():
+                        if kw in combined_tag:
+                            resolved_page = pg
+                            break
+                    page_num = resolved_page
+                    is_front = False
 
                 # Check if this item is a Buy X Get Y / BOGO deal
                 m_bogo = BOGO_REGEX.search(sales_text)

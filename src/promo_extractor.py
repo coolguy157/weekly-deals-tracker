@@ -11,20 +11,30 @@ import re
 
 @dataclass
 class PromoInfo:
-    promo_type: str  # 'bogo', 'must_buy', 'digital_coupon', 'standard'
+    promo_type: str  # 'bogo', 'must_buy', 'digital_coupon', 'points_redemption', 'points_bonus', 'spend_save', 'percent_off', 'standard'
     promo_detail: str  # e.g., 'BUY 2 GET 2 FREE', 'MUST BUY 4 @ $2.49', '2 FOR $5.00'
     buy_qty: Optional[int] = None
     free_qty: Optional[int] = None
-    discount_pct: Optional[float] = None  # e.g., 50.0 for Buy 1 Get 1 50% off
+    discount_pct: Optional[float] = None  # e.g., 50.0 for Buy 1 Get 1 50% off or 25% Off
     qualifying_qty: int = 1
     stated_unit_price: Optional[float] = None
     stated_total_price: Optional[float] = None
     coupon_price: Optional[float] = None
     coupon_discount: Optional[float] = None
+    points_cost: Optional[int] = None  # e.g., 75, 100, 175
+    points_saved_val: Optional[float] = None  # e.g., 1.89, 2.79, 5.00
+    points_bonus: Optional[int] = None  # e.g., 300
+    points_multiplier: Optional[float] = None  # e.g., 10.0 for 10x
+    spend_threshold: Optional[float] = None  # e.g., 20.00
+    est_reward_val: Optional[float] = None  # e.g., estimated dollar value of bonus points
+    est_net_price: Optional[float] = None  # e.g., spend_threshold - est_reward_val
 
 
 class PromoExtractor:
     """Extracts structured promotional information from ad text, descriptions, and pre/post price notes."""
+
+    # Default estimated point value (derived from circular grocery freebie redemption: ~2.74¢/pt)
+    DEFAULT_POINT_VALUE = 0.0274
 
     # 1. BOGO Patterns
     # "BUY 2 GET 2 FREE", "BUY 1 GET 1 FREE", "BUY 2 GET 3 FREE"
@@ -72,6 +82,50 @@ class PromoExtractor:
         re.IGNORECASE,
     )
 
+    # 4. Points Redemption Patterns (Buy with points / Free with points)
+    # "FREE ... when you redeem 75 CHOICE points", "5-POINT FREEBIE", "when you redeem 100 CHOICE points"
+    REDEEM_POINTS_PATTERN = re.compile(
+        r"(?:REDEEM\s+(\d+)\s+(?:CHOICE\s+)?POINTS|(\d+)-POINT\s+FREEBIE)",
+        re.IGNORECASE,
+    )
+    POINTS_SAVE_AMT_PATTERN = re.compile(
+        r"SAVE\s+(?:UP\s+TO\s+|AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?)",
+        re.IGNORECASE,
+    )
+
+    # 5. Extra Points / Points Bonus Patterns
+    # "300 CHOICE POINTS When you spend $20", "EARN 10X CHOICE POINTS", "EARN 200 CHOICE POINTS"
+    BONUS_POINTS_SPEND_PATTERN = re.compile(
+        r"(\d+)\s+(?:CHOICE\s+)?POINTS\s+WHEN\s+YOU\s+SPEND\s+\$(\d+(?:\.\d{2})?)",
+        re.IGNORECASE,
+    )
+    BONUS_POINTS_BUY_PATTERN = re.compile(
+        r"(\d+)\s+(?:CHOICE\s+)?POINTS\s+WHEN\s+YOU\s+BUY\s+(\d+)",
+        re.IGNORECASE,
+    )
+    EARN_POINTS_MULT_PATTERN = re.compile(
+        r"EARN\s+(\d+)X\s+(?:CHOICE\s+)?POINTS",
+        re.IGNORECASE,
+    )
+
+    # 6. Spend & Save / Multi-Buy Threshold Patterns
+    # "SAVE $5 When you spend $20 on participating products", "SAVE $15 When you buy 3"
+    SPEND_SAVE_PATTERN = re.compile(
+        r"SAVE\s+\$(\d+(?:\.\d{2})?)\s+WHEN\s+YOU\s+SPEND\s+\$(\d+(?:\.\d{2})?)",
+        re.IGNORECASE,
+    )
+    BUY_SAVE_PATTERN = re.compile(
+        r"SAVE\s+\$(\d+(?:\.\d{2})?)\s+WHEN\s+YOU\s+BUY\s+(\d+)",
+        re.IGNORECASE,
+    )
+
+    # 7. Percentage Off Patterns
+    # "25% Off", "33% Off"
+    PCT_OFF_PATTERN = re.compile(
+        r"\b(\d+)%\s*OFF\b",
+        re.IGNORECASE,
+    )
+
     WORD_TO_NUM = {
         "one": 1,
         "two": 2,
@@ -94,6 +148,7 @@ class PromoExtractor:
         cls,
         text: Optional[str],
         additional_texts: Optional[List[Optional[str]]] = None,
+        point_value: float = DEFAULT_POINT_VALUE,
     ) -> Optional[PromoInfo]:
         """
         Examine text and auxiliary fields (pre-price, post-price, description) for promo patterns.
@@ -151,7 +206,95 @@ class PromoExtractor:
                 qualifying_qty=2,
             )
 
-        # 2. Must Buy Check
+        # 2. Points Redemption (Buy with points)
+        m_red = cls.REDEEM_POINTS_PATTERN.search(combined_text)
+        if m_red:
+            pts_val = int(m_red.group(1) or m_red.group(2))
+            m_sv = cls.POINTS_SAVE_AMT_PATTERN.search(combined_text)
+            saved = float(m_sv.group(1)) if m_sv else None
+            detail = f"FREE with {pts_val} CHOICE points" + (f" (Save ${saved:.2f})" if saved else "")
+            return PromoInfo(
+                promo_type="points_redemption",
+                promo_detail=detail,
+                points_cost=pts_val,
+                points_saved_val=saved,
+                stated_unit_price=0.0,
+                qualifying_qty=1,
+            )
+
+        # 3. Extra Points / Points Bonus
+        m_bsp = cls.BONUS_POINTS_SPEND_PATTERN.search(combined_text)
+        if m_bsp:
+            pts = int(m_bsp.group(1))
+            spend = float(m_bsp.group(2))
+            reward_val = round(pts * point_value, 2)
+            net_spend = round(max(0.0, spend - reward_val), 2)
+            detail = f"{pts} CHOICE POINTS When you spend ${spend:.2f} (~${reward_val:.2f} reward value, Est. Net ${net_spend:.2f})"
+            return PromoInfo(
+                promo_type="points_bonus",
+                promo_detail=detail,
+                points_bonus=pts,
+                spend_threshold=spend,
+                est_reward_val=reward_val,
+                est_net_price=net_spend,
+                qualifying_qty=1,
+            )
+
+        m_em = cls.EARN_POINTS_MULT_PATTERN.search(combined_text)
+        if m_em:
+            mult = float(m_em.group(1))
+            pct_back = round(mult * point_value * 100, 1)
+            detail = f"EARN {int(mult)}X CHOICE POINTS (~{pct_back}% back in grocery rewards)"
+            return PromoInfo(
+                promo_type="points_bonus",
+                promo_detail=detail,
+                points_multiplier=mult,
+                qualifying_qty=1,
+            )
+
+        m_bq = cls.BONUS_POINTS_BUY_PATTERN.search(combined_text)
+        if m_bq:
+            pts = int(m_bq.group(1))
+            buy_q = int(m_bq.group(2))
+            reward_val = round(pts * point_value, 2)
+            detail = f"EARN {pts} CHOICE POINTS When you buy {buy_q} (~${reward_val:.2f} reward value)"
+            return PromoInfo(
+                promo_type="points_bonus",
+                promo_detail=detail,
+                points_bonus=pts,
+                qualifying_qty=buy_q,
+                est_reward_val=reward_val,
+            )
+
+        # 4. Spend & Save Threshold
+        m_ss = cls.SPEND_SAVE_PATTERN.search(combined_text)
+        if m_ss:
+            save_amt = float(m_ss.group(1))
+            spend_amt = float(m_ss.group(2))
+            net_spend = round(max(0.0, spend_amt - save_amt), 2)
+            detail = f"SAVE ${save_amt:.2f} When you spend ${spend_amt:.2f} (Net Spend: ${net_spend:.2f})"
+            return PromoInfo(
+                promo_type="spend_save",
+                promo_detail=detail,
+                spend_threshold=spend_amt,
+                coupon_discount=save_amt,
+                est_net_price=net_spend,
+                qualifying_qty=1,
+            )
+
+        m_bs = cls.BUY_SAVE_PATTERN.search(combined_text)
+        if m_bs:
+            save_amt = float(m_bs.group(1))
+            buy_qty = int(m_bs.group(2))
+            detail = f"SAVE ${save_amt:.2f} When you buy {buy_qty}"
+            return PromoInfo(
+                promo_type="must_buy",
+                promo_detail=detail,
+                coupon_discount=save_amt,
+                qualifying_qty=buy_qty,
+            )
+
+        # 5. Must Buy Check
         m_mb_price = cls.MUST_BUY_PRICE_PATTERN.search(combined_text)
         if m_mb_price:
             qty = int(m_mb_price.group(1))
@@ -187,7 +330,7 @@ class PromoExtractor:
                 qualifying_qty=qty,
             )
 
-        # 3. Digital Coupon Check
+        # 6. Digital Coupon Check
         m_coup_price = cls.COUPON_FINAL_PRICE_PATTERN.search(combined_text)
         if m_coup_price:
             price = float(m_coup_price.group(1))
@@ -208,6 +351,17 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
+        # 7. Percentage Off Check (e.g. 25% Off)
+        m_pct = cls.PCT_OFF_PATTERN.search(combined_text)
+        if m_pct and not m_bogo_disc:
+            pct_val = float(m_pct.group(1))
+            return PromoInfo(
+                promo_type="percent_off",
+                promo_detail=f"{int(pct_val)}% OFF",
+                discount_pct=pct_val,
+                qualifying_qty=1,
+            )
+
         return None
 
     @classmethod
@@ -215,6 +369,7 @@ class PromoExtractor:
         cls,
         promo: PromoInfo,
         base_price: Optional[float] = None,
+        point_value: float = DEFAULT_POINT_VALUE,
     ) -> Optional[float]:
         """
         Compute net effective price per single unit based on promotional mechanics.
@@ -223,6 +378,10 @@ class PromoExtractor:
         - X for $Y: $Y / X
         - Digital Coupon Price: coupon_price
         - Digital Coupon Discount: base_price - discount
+        - Points Redemption: 0.0 (Free with points)
+        - Points Bonus: spend_threshold - (points_bonus * point_value) or base_price - (points_bonus * point_value)
+        - Percent Off: base_price * (1 - discount_pct/100)
+        - Spend & Save: spend_threshold - discount
         """
         if promo.promo_type == "bogo":
             if base_price is not None and base_price > 0:
@@ -230,12 +389,10 @@ class PromoExtractor:
                 free = promo.free_qty or 1
                 total = buy + free
                 if promo.discount_pct is not None:
-                    # e.g., Buy 1 Get 1 50% off -> total cost = base_price * (1 + (1 - discount_pct/100))
                     discount_multiplier = 1.0 - (promo.discount_pct / 100.0)
                     total_cost = (base_price * buy) + (base_price * free * discount_multiplier)
                     return round((total_cost / total) + 1e-9, 2)
                 else:
-                    # Pure free items
                     total_cost = base_price * buy
                     return round((total_cost / total) + 1e-9, 2)
             return None
@@ -252,6 +409,30 @@ class PromoExtractor:
                 return promo.coupon_price
             if promo.coupon_discount is not None and base_price is not None:
                 return max(0.0, round(base_price - promo.coupon_discount + 1e-9, 2))
+            return None
+
+        if promo.promo_type == "points_redemption":
+            return 0.0
+
+        if promo.promo_type == "points_bonus":
+            if promo.est_net_price is not None:
+                return promo.est_net_price
+            if promo.points_bonus and base_price is not None:
+                reward = promo.points_bonus * point_value
+                return max(0.0, round(base_price - reward + 1e-9, 2))
+            return None
+
+        if promo.promo_type == "percent_off":
+            if base_price is not None and promo.discount_pct is not None:
+                multiplier = 1.0 - (promo.discount_pct / 100.0)
+                return max(0.0, round(base_price * multiplier + 1e-9, 2))
+            return None
+
+        if promo.promo_type == "spend_save":
+            if promo.est_net_price is not None:
+                return promo.est_net_price
+            if promo.spend_threshold is not None and promo.coupon_discount is not None:
+                return max(0.0, round(promo.spend_threshold - promo.coupon_discount + 1e-9, 2))
             return None
 
         return None

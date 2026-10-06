@@ -9,6 +9,10 @@ def format_badge_fixed(badge: str, width: int = 16) -> str:
     """Format deal badge with ANSI terminal color and fixed-width padding."""
     raw_labels = {
         "ALL_TIME_LOW": "[* ALL-TIME LOW]",
+        "POINTS_FREEBIE": "[🪙 FREEBIE]",
+        "POINTS_REWARD": "[🪙 REWARD]",
+        "SPEND_SAVE": "[🏷️ SPEND & SAVE]",
+        "PERCENT_OFF": "[% DISCOUNT]",
         "BEAT_AVERAGE": "[^ BEAT AVERAGE]",
         "CYCLE_REFRESH": "[~ CYCLE REFRESH]",
         "FIRST_SEEN": "[+ FIRST SEEN]",
@@ -21,6 +25,10 @@ def format_badge_fixed(badge: str, width: int = 16) -> str:
 
     color_map = {
         "ALL_TIME_LOW": "\033[92m",
+        "POINTS_FREEBIE": "\033[95m",
+        "POINTS_REWARD": "\033[95m",
+        "SPEND_SAVE": "\033[93m",
+        "PERCENT_OFF": "\033[96m",
         "BEAT_AVERAGE": "\033[96m",
         "CYCLE_REFRESH": "\033[94m",
         "FIRST_SEEN": "\033[93m",
@@ -51,7 +59,7 @@ def format_compact_note(ev: Any) -> str:
     """Format a concise, high-signal annotation tag for clean single-line display."""
     tags = []
 
-    # Promo Tag (BOGO, Must Buy, Digital Coupon)
+    # Promo Tag (BOGO, Must Buy, Digital Coupon, Points, Spend & Save, Percent Off)
     promo_type = getattr(ev, "promo_type", "standard")
     promo_detail = getattr(ev, "promo_detail", None)
     base_price = getattr(ev, "base_price", None)
@@ -62,6 +70,14 @@ def format_compact_note(ev: Any) -> str:
         tags.append(f"📦 {promo_detail}")
     elif promo_type == "digital_coupon" and promo_detail:
         tags.append(f"🎟️ {promo_detail}")
+    elif promo_type == "points_redemption" and promo_detail:
+        tags.append(f"🪙 {promo_detail}")
+    elif promo_type == "points_bonus" and promo_detail:
+        tags.append(f"🪙 {promo_detail}")
+    elif promo_type == "spend_save" and promo_detail:
+        tags.append(f"🏷️ {promo_detail}")
+    elif promo_type == "percent_off" and promo_detail:
+        tags.append(f"🏷️ {promo_detail}")
 
     # Category Best / Category context
     if getattr(ev, "is_category_best", False):

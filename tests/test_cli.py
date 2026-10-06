@@ -58,18 +58,35 @@ class TestCLIStoreConfiguration(unittest.TestCase):
         self.assertEqual(mock_sync_single.call_count, 2)
 
     @patch("src.cli._sync_single_store")
-    def test_cmd_sync_enrich_app_flag(self, mock_sync_single):
+    def test_cmd_sync_default_tomthumb(self, mock_sync_single):
+        """Verify that cmd_sync defaults to Tom Thumb when no flags are provided."""
         args = argparse.Namespace(
-            store="tomthumb",
+            store=None,
             zip=None,
             merchant=None,
             all_stores=False,
             front_page_only=False,
-            enrich_app=True,
+            enrich_app=False,
             db=":memory:",
         )
-        cmd_sync(args)
-        mock_sync_single.assert_called_once_with("75080", "Tom Thumb", front_page_only=False, enrich_app=True, db_path=":memory:")
+        with patch.dict("os.environ", {}, clear=True):
+            cmd_sync(args)
+        mock_sync_single.assert_called_once_with("75080", "Tom Thumb", front_page_only=False, enrich_app=False, db_path=":memory:")
+
+    def test_resolve_merchant_filter(self):
+        from src.cli import _resolve_merchant_filter
+        # Default
+        args_empty = argparse.Namespace(store=None, merchant=None)
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertEqual(_resolve_merchant_filter(args_empty), "Tom Thumb")
+
+        # Preset store override
+        args_giant = argparse.Namespace(store="giant", merchant=None)
+        self.assertEqual(_resolve_merchant_filter(args_giant), "Giant Food Stores")
+
+        # Explicit merchant override
+        args_merchant = argparse.Namespace(store=None, merchant="Safeway")
+        self.assertEqual(_resolve_merchant_filter(args_merchant), "Safeway")
 
 
 if __name__ == "__main__":

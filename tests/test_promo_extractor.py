@@ -117,5 +117,49 @@ class TestPromoExtractor(unittest.TestCase):
         self.assertEqual(eff_coup, 2.99)
 
 
+    def test_points_patterns(self):
+        # Free with 75 CHOICE points
+        p1 = PromoExtractor.extract_promo("Our Brand Long Grain Rice FREE when you redeem 75 CHOICE points SAVE UP TO $1.89")
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "points_redemption")
+        self.assertEqual(p1.points_cost, 75)
+        self.assertEqual(p1.points_saved_val, 1.89)
+        self.assertEqual(PromoExtractor.calculate_effective_price(p1), 0.0)
+
+        # 300 CHOICE Points when you spend $20
+        p2 = PromoExtractor.extract_promo("Purina Tidy Cats 300 CHOICE POINTS When you spend $20 on participating products", point_value=0.0274)
+        self.assertIsNotNone(p2)
+        self.assertEqual(p2.promo_type, "points_bonus")
+        self.assertEqual(p2.points_bonus, 300)
+        self.assertEqual(p2.spend_threshold, 20.00)
+        self.assertAlmostEqual(p2.est_reward_val, 8.22, places=2)
+        self.assertAlmostEqual(p2.est_net_price, 11.78, places=2)
+
+        # 10X Points Multiplier
+        p3 = PromoExtractor.extract_promo("Gift Cards EARN 10X CHOICE POINTS", point_value=0.0274)
+        self.assertIsNotNone(p3)
+        self.assertEqual(p3.promo_type, "points_bonus")
+        self.assertEqual(p3.points_multiplier, 10.0)
+
+    def test_spend_save_patterns(self):
+        # Save $5 when you spend $20
+        p1 = PromoExtractor.extract_promo("Vitamins SAVE $5 When you spend $20 on participating products")
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "spend_save")
+        self.assertEqual(p1.coupon_discount, 5.0)
+        self.assertEqual(p1.spend_threshold, 20.0)
+        self.assertEqual(p1.est_net_price, 15.0)
+
+    def test_percent_off_patterns(self):
+        # 25% Off
+        p1 = PromoExtractor.extract_promo("Our Brand Fish Portions or Fillets 25% Off")
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "percent_off")
+        self.assertEqual(p1.discount_pct, 25.0)
+        # 25% off regular $7.99 -> $5.99
+        eff = PromoExtractor.calculate_effective_price(p1, base_price=7.99)
+        self.assertEqual(eff, 5.99)
+
+
 if __name__ == "__main__":
     unittest.main()

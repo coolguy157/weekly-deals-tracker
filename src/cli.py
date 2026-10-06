@@ -59,6 +59,8 @@ STORE_PRESETS = {
     "tom_thumb": {"zip": "75080", "merchant": "Tom Thumb", "name": "Tom Thumb (Richardson, TX 75080)"},
 }
 
+DEFAULT_STORE = "tomthumb"
+
 
 def resolve_store(store_key: Optional[str]) -> Optional[dict]:
     """Resolve a store preset alias to its zip and merchant configuration."""
@@ -66,6 +68,21 @@ def resolve_store(store_key: Optional[str]) -> Optional[dict]:
         return None
     normalized = store_key.lower().strip().replace("-", "_").replace(" ", "_")
     return STORE_PRESETS.get(normalized)
+
+
+def _resolve_merchant_filter(args: argparse.Namespace) -> Optional[str]:
+    """Resolve merchant banner filter from args, env, or default store preset."""
+    if getattr(args, "store", None):
+        preset = resolve_store(args.store)
+        if preset:
+            return preset["merchant"]
+    if getattr(args, "merchant", None):
+        preset = resolve_store(args.merchant)
+        return preset["merchant"] if preset else args.merchant
+    if os.environ.get("TRACKER_MERCHANT"):
+        return os.environ.get("TRACKER_MERCHANT")
+    preset = resolve_store(DEFAULT_STORE)
+    return preset["merchant"] if preset else "Tom Thumb"
 
 
 def parse_store_configs(stores_str: str) -> list[tuple[str, str]]:
@@ -203,6 +220,8 @@ def _sync_single_store(
         if purged:
             print(f"Superseded and purged {len(purged)} overlapping backfill circular(s): {purged}")
             
+        db.delete_flyer(weekly_ad.id)
+        db.upsert_flyer_run(weekly_ad)
         inserted = db.record_deals(normalized_deals)
         print(f"Successfully recorded {inserted} normalized Giant deals (including solved BOGOs & shelf prices) into database.\n")
         return
@@ -291,6 +310,12 @@ def cmd_sync(args: argparse.Namespace) -> None:
         _sync_single_store(zip_code, merchant, front_page_only=args.front_page_only, enrich_app=enrich_app, db_path=args.db)
         return
 
+    # 5. Default fallback to Tom Thumb
+    preset = resolve_store(DEFAULT_STORE)
+    if preset:
+        _sync_single_store(preset["zip"], preset["merchant"], front_page_only=args.front_page_only, enrich_app=enrich_app, db_path=args.db)
+        return
+
     print("Error: Missing ZIP code or store. Provide --store <giant|tomthumb>, --zip <ZIP>, or set TRACKER_ZIP / TRACKER_STORES in .env.")
     sys.exit(1)
 
@@ -300,17 +325,7 @@ def cmd_deals(args: argparse.Namespace) -> None:
     db = DealsDatabase(args.db)
     analyzer = DealAnalyzer(db)
 
-    merchant = None
-    if getattr(args, "store", None):
-        preset = resolve_store(args.store)
-        if preset:
-            merchant = preset["merchant"]
-    if not merchant and getattr(args, "merchant", None):
-        preset = resolve_store(args.merchant)
-        merchant = preset["merchant"] if preset else args.merchant
-    if not merchant:
-        merchant = os.environ.get("TRACKER_MERCHANT")
-
+    merchant = _resolve_merchant_filter(args)
     flyer_id = args.flyer_id or db.get_latest_flyer_id(merchant)
     if not flyer_id:
         target_str = f"merchant '{merchant}'" if merchant else "any circular"
@@ -326,7 +341,11 @@ def cmd_deals(args: argparse.Namespace) -> None:
         q = args.query.lower()
         evaluations = [
             e for e in evaluations
-            if q in e.canonical_name.lower() or (e.brand and q in e.brand.lower()) or (e.category and q in e.category.lower())
+            if q in e.canonical_name.lower()
+            or (e.brand and q in e.brand.lower())
+            or (e.category and q in e.category.lower())
+            or (e.promo_detail and q in e.promo_detail.lower())
+            or (e.summary_reason and q in e.summary_reason.lower())
         ]
 
     if getattr(args, "category", None):
@@ -388,15 +407,7 @@ def cmd_history(args: argparse.Namespace) -> None:
         print(f"No products found matching '{args.query}'.")
         return
 
-    merchant = None
-    if getattr(args, "store", None):
-        preset = resolve_store(args.store)
-        if preset:
-            merchant = preset["merchant"]
-    if not merchant and getattr(args, "merchant", None):
-        preset = resolve_store(args.merchant)
-        merchant = preset["merchant"] if preset else args.merchant
-
+    merchant = _resolve_merchant_filter(args)
     limit = getattr(args, "limit", None) or len(products)
     shown = products[:limit]
     limit_note = f" (showing first {len(shown)} - use --limit to view more)" if len(shown) < len(products) else ""
@@ -467,17 +478,7 @@ def cmd_export(args: argparse.Namespace) -> None:
     db = DealsDatabase(args.db)
     analyzer = DealAnalyzer(db)
 
-    merchant = None
-    if getattr(args, "store", None):
-        preset = resolve_store(args.store)
-        if preset:
-            merchant = preset["merchant"]
-    if not merchant and getattr(args, "merchant", None):
-        preset = resolve_store(args.merchant)
-        merchant = preset["merchant"] if preset else args.merchant
-    if not merchant:
-        merchant = os.environ.get("TRACKER_MERCHANT")
-
+    merchant = _resolve_merchant_filter(args)
     flyer_id = args.flyer_id or db.get_latest_flyer_id(merchant)
     if not flyer_id:
         print("No circular found to export.")
@@ -567,7 +568,7 @@ def main() -> None:
 
     # sync
     p_sync = subparsers.add_parser("sync", help="Fetch & ingest active circular")
-    p_sync.add_argument("--store", type=str, default=None, help="Preset store alias (e.g. 'giant', 'lewisburg', 'tomthumb')")
+    p_sync.add_argument("--store", type=str, default=None, help="Preset store alias (e.g. 'giant', 'lewisburg', 'tomthumb'; default: 'tomthumb')")
     p_sync.add_argument("--zip", type=str, default=None, help="5-digit Postal / ZIP code (or set TRACKER_ZIP in .env)")
     p_sync.add_argument("-m", "--merchant", type=str, default=None, help="Merchant banner filter (e.g. 'Giant', 'Tom Thumb')")
     p_sync.add_argument("--all-stores", action="store_true", help="Sync all configured stores (from TRACKER_STORES in .env or presets)")
@@ -578,7 +579,7 @@ def main() -> None:
     p_deals = subparsers.add_parser("deals", help="List evaluated deals for latest circular")
     p_deals.add_argument("-q", "--query", type=str, default=None, help="Filter deals by keyword or generic item (e.g. 'bacon', 'milk')")
     p_deals.add_argument("-c", "--category", type=str, default=None, help="Filter deals by commodity category (e.g. 'Cheese', 'Bacon')")
-    p_deals.add_argument("--store", type=str, default=None, help="Preset store alias (e.g. 'giant', 'tomthumb')")
+    p_deals.add_argument("--store", type=str, default=None, help="Preset store alias (e.g. 'giant', 'tomthumb'; default: 'tomthumb')")
     p_deals.add_argument("-m", "--merchant", type=str, default=None, help="Merchant banner (e.g. 'Giant', 'Tom Thumb')")
     p_deals.add_argument("--flyer-id", type=int, default=None, help="Specific circular flyer ID")
     p_deals.add_argument("--front-page-only", action="store_true", help="Filter front page deals only")
@@ -593,7 +594,7 @@ def main() -> None:
     # history
     p_hist = subparsers.add_parser("history", help="Show price history of a product")
     p_hist.add_argument("query", type=str, help="Product name or brand to search")
-    p_hist.add_argument("--store", type=str, default=None, help="Filter history by preset store alias (e.g. 'giant', 'tomthumb')")
+    p_hist.add_argument("--store", type=str, default=None, help="Filter history by preset store alias (default: 'tomthumb')")
     p_hist.add_argument("-m", "--merchant", type=str, default=None, help="Filter history by merchant banner (e.g. 'Giant', 'Tom Thumb')")
     p_hist.add_argument("--trusted-only", action="store_true", help="Show only verified/trusted deal observations")
     p_hist.add_argument("-n", "--limit", type=int, default=None, help="Maximum number of matching products to display")
@@ -615,7 +616,7 @@ def main() -> None:
     p_exp = subparsers.add_parser("export", help="Export evaluated deals to file")
     p_exp.add_argument("--format", choices=["json", "csv"], default="json", help="Export format")
     p_exp.add_argument("--output", type=str, default="deals_export.json", help="Output file path")
-    p_exp.add_argument("--store", type=str, default=None, help="Preset store alias")
+    p_exp.add_argument("--store", type=str, default=None, help="Preset store alias (default: 'tomthumb')")
     p_exp.add_argument("-m", "--merchant", type=str, default=None, help="Merchant banner")
     p_exp.add_argument("--flyer-id", type=int, default=None, help="Specific flyer ID")
     p_exp.add_argument("--front-page-only", action="store_true", help="Front page deals only")

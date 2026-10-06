@@ -525,6 +525,30 @@ body {
   border: 1px solid var(--badge-catbest-border);
 }
 
+.deal-badge.points-freebie {
+  background: #fdf4ff;
+  color: #9333ea;
+  border: 1px solid #f0abfc;
+}
+
+.deal-badge.points-reward {
+  background: #faf5ff;
+  color: #7e22ce;
+  border: 1px solid #d8b4fe;
+}
+
+.deal-badge.spend-save {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.deal-badge.percent-off {
+  background: #ecfeff;
+  color: #0e7490;
+  border: 1px solid #a5f3fc;
+}
+
 .deal-badge.cycle {
   background: var(--badge-cycle-bg);
   color: var(--badge-cycle-text);
