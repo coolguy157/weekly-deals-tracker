@@ -91,8 +91,8 @@
   // Data Fetching
   async function fetchDeals() {
     try {
-      // First try local deals.json
-      const response = await fetch('deals.json');
+      // First try local deals.json with cache-busting
+      const response = await fetch('deals.json?t=' + Date.now(), { cache: 'no-store' });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
