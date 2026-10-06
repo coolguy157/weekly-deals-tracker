@@ -139,6 +139,14 @@
 
     if (/ATL|ALL[-_]TIME/i.test(rawBadge)) {
       badges.push('<span class="deal-badge atl">🔥 ALL-TIME LOW</span>');
+    } else if (/POINTS_FREEBIE|FREEBIE/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge points-freebie">🪙 FREE W/ POINTS</span>');
+    } else if (/POINTS_REWARD|REWARD/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge points-reward">🪙 POINTS REWARD</span>');
+    } else if (/SPEND_SAVE|SPEND/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge spend-save">🏷️ SPEND & SAVE</span>');
+    } else if (/PERCENT_OFF|DISCOUNT/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge percent-off">🏷️ % OFF</span>');
     } else if (/BEAT/i.test(rawBadge)) {
       badges.push('<span class="deal-badge beat">🔥 BEAT AVG</span>');
     } else if (/CYCLE|REFRESH/i.test(rawBadge)) {
@@ -261,6 +269,8 @@
       filtered = filtered.filter(d => d.is_category_best);
     } else if (activeFilter === 'bogo') {
       filtered = filtered.filter(d => (d.promo_type && d.promo_type !== 'standard') || (d.promo_detail && /bogo|buy/i.test(d.promo_detail)));
+    } else if (activeFilter === 'points') {
+      filtered = filtered.filter(d => /points|freebie|reward/i.test(d.badge || '') || (d.promo_type && d.promo_type.startsWith('points')) || (d.promo_detail && /choice|points/i.test(d.promo_detail)));
     }
 
     // Search Filter
