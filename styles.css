@@ -480,6 +480,9 @@ body {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
 }
 
 .deal-badge {
@@ -489,6 +492,7 @@ body {
   border-radius: var(--radius-sm);
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .deal-badge.atl {
@@ -517,6 +521,9 @@ body {
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--slate-200);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .product-brand {
