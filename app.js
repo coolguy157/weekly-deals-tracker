@@ -126,6 +126,13 @@
     return isNaN(d.getTime()) ? null : d;
   }
 
+  function isAtlBadge(badge) {
+    return /atl|all[-_]time/i.test(badge || '');
+  }
+  function isGreatBadge(badge) {
+    return /great|beat/i.test(badge || '');
+  }
+
   // Initialize UI with fetched data
   function initData() {
     loadingState.style.display = 'none';
@@ -147,7 +154,7 @@
 
     // Populate Stats Banner
     statTotalCount.textContent = allDeals.length;
-    const atlCount = allDeals.filter(d => d.badge === 'ALL-TIME LOW').length;
+    const atlCount = allDeals.filter(d => isAtlBadge(d.badge)).length;
     statAtlCount.textContent = atlCount;
     const frontCount = allDeals.filter(d => d.is_front_page).length;
     statFrontpageCount.textContent = frontCount;
@@ -214,9 +221,9 @@
 
     // Chip Filter
     if (activeFilter === 'atl') {
-      filtered = filtered.filter(d => d.badge === 'ALL-TIME LOW');
+      filtered = filtered.filter(d => isAtlBadge(d.badge));
     } else if (activeFilter === 'great') {
-      filtered = filtered.filter(d => d.badge === 'GREAT DEAL' || d.badge === 'ALL-TIME LOW');
+      filtered = filtered.filter(d => isGreatBadge(d.badge) || isAtlBadge(d.badge) || d.is_category_best);
     } else if (activeFilter === 'front') {
       filtered = filtered.filter(d => d.is_front_page);
     } else if (activeFilter === 'catbest') {
@@ -314,8 +321,8 @@
   function renderGridView(deals) {
     dealsGrid.innerHTML = deals.map(d => {
       const isInList = shoppingList.some(item => item.id === d.deal_id);
-      const isAtl = d.badge === 'ALL-TIME LOW';
-      const isGreat = d.badge === 'GREAT DEAL';
+      const isAtl = isAtlBadge(d.badge);
+      const isGreat = isGreatBadge(d.badge);
       const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
 
       let badgeHtml = '';
@@ -375,7 +382,7 @@
   function renderTableView(deals) {
     dealsTableBody.innerHTML = deals.map(d => {
       const isInList = shoppingList.some(item => item.id === d.deal_id);
-      const isAtl = d.badge === 'ALL-TIME LOW';
+      const isAtl = isAtlBadge(d.badge);
       const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
 
       return `
@@ -390,7 +397,8 @@
           <td>${unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : '—'}</td>
           <td>
             ${isAtl ? `<span class="deal-badge atl" style="display:inline-block;">🔥 ALL-TIME LOW</span>` : ''}
-            ${d.badge === 'GREAT DEAL' ? `<span class="deal-badge great" style="display:inline-block;">✨ GREAT DEAL</span>` : ''}
+            ${isGreatBadge(d.badge) ? `<span class="deal-badge great" style="display:inline-block;">✨ GREAT DEAL</span>` : ''}
+            ${d.is_category_best ? `<span class="deal-badge catbest" style="display:inline-block;">⭐ CAT BEST</span>` : ''}
             <div style="font-size:0.75rem; color:var(--slate-500); margin-top:2px;">${escapeHtml(d.analysis || '')}</div>
           </td>
           <td>
