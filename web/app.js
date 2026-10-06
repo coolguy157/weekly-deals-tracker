@@ -116,15 +116,31 @@
     }
   }
 
+  function parseDateSafely(str) {
+    if (!str) return null;
+    let clean = String(str).replace(/ZT.*$/, 'Z').split('T')[0];
+    let d = new Date(clean + 'T12:00:00');
+    if (isNaN(d.getTime())) {
+      d = new Date(str);
+    }
+    return isNaN(d.getTime()) ? null : d;
+  }
+
   // Initialize UI with fetched data
   function initData() {
     loadingState.style.display = 'none';
 
     // Validity Date Display
     if (flyerMeta && flyerMeta.valid_from && flyerMeta.valid_to) {
-      const fromDate = new Date(flyerMeta.valid_from).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      const toDate = new Date(flyerMeta.valid_to).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      circularValidity.textContent = `${fromDate} – ${toDate}`;
+      const fromObj = parseDateSafely(flyerMeta.valid_from);
+      const toObj = parseDateSafely(flyerMeta.valid_to);
+      if (fromObj && toObj) {
+        const fromDate = fromObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const toDate = toObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        circularValidity.textContent = `${fromDate} – ${toDate}`;
+      } else {
+        circularValidity.textContent = 'Active Weekly Circular';
+      }
     } else {
       circularValidity.textContent = 'Active Weekly Circular';
     }
