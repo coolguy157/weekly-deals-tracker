@@ -52,8 +52,6 @@ class GiantGridFetcher:
                 headless=self.headless,
                 args=[
                     "--disable-blink-features=AutomationControlled",
-                    "--no-sandbox",
-                    "--disable-infobars",
                 ],
                 viewport={"width": 1400, "height": 900},
                 user_agent=USER_AGENT,
