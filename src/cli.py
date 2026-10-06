@@ -180,13 +180,36 @@ def _sync_single_store(
     front_page_only: bool = False,
     enrich_app: bool = False,
     db_path: Optional[str] = None,
+    use_grid: bool = False,
 ) -> None:
     """Ingest active circular for a specific zip code and merchant."""
+    db = DealsDatabase(db_path)
+    merchant_label = merchant or "Any"
+
+    # If Giant Food Stores or use_grid requested, use GiantGridFetcher
+    if (merchant and "giant" in merchant.lower()) or use_grid:
+        from .giant_grid_fetcher import GiantGridFetcher
+        print(f"Fetching Giant weekly ad grid & resolving Buy X Get Y prices for ZIP {zip_code}...")
+        grid_fetcher = GiantGridFetcher()
+        weekly_ad, normalized_deals = grid_fetcher.fetch_circular_deals(zip_code=zip_code)
+        
+        db.upsert_flyer_run(weekly_ad)
+        purged = db.purge_overlapping_untrusted_flyers(
+            merchant=weekly_ad.merchant,
+            valid_from=weekly_ad.valid_from,
+            valid_to=weekly_ad.valid_to,
+            keep_flyer_id=weekly_ad.id,
+        )
+        if purged:
+            print(f"Superseded and purged {len(purged)} overlapping backfill circular(s): {purged}")
+            
+        inserted = db.record_deals(normalized_deals)
+        print(f"Successfully recorded {inserted} normalized Giant deals (including solved BOGOs & shelf prices) into database.\n")
+        return
+
     fetcher = FlippAdFetcher()
     normalizer = ProductNormalizer()
-    db = DealsDatabase(db_path)
 
-    merchant_label = merchant or "Any"
     print(f"Fetching weekly circulars for ZIP {zip_code} (Merchant: '{merchant_label}')...")
     flyers = fetcher.get_flyers_for_zip(postal_code=zip_code, merchant_filter=merchant)
 
