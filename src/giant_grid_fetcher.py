@@ -13,14 +13,13 @@ from playwright.sync_api import sync_playwright
 
 from .fetcher import FlyerMetadata
 from .normalizer.models import NormalizedDeal
+from .normalizer.units import extract_unit_info
+from .normalizer.categories import infer_department
 from .promo_extractor import PromoExtractor, PromoInfo
 
 logger = logging.getLogger(__name__)
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-
-WORD_TO_NUM = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
-BOGO_REGEX = re.compile(r"BUY\s+(\d+|ONE|TWO|THREE|FOUR)[\s\W_]+GET\s+(\d+|ONE|TWO|THREE|FOUR)[\s\W_]+FREE", re.IGNORECASE)
 
 
 class GiantGridFetcher:
@@ -173,39 +172,26 @@ class GiantGridFetcher:
                     is_front = pg_info[1]
                 else:
                     # Extended online grid item not in print circular: resolve by category / keyword
-                    dept_map = {
-                        "produce": 12, "fruit": 12, "vegetable": 12,
-                        "meat": 4, "beef": 4, "pork": 5, "poultry": 4, "chicken": 4,
-                        "seafood": 9, "fish": 9,
-                        "deli": 17, "prepared": 17, "soup": 17,
-                        "bakery": 2, "bread": 2,
-                        "dairy": 13, "cheese": 13,
-                        "frozen": 14,
-                        "pantry": 15, "canned": 15,
-                        "beverage": 11, "drink": 11, "soda": 11,
-                        "snack": 15, "chip": 15, "candy": 15,
-                        "health": 19, "beauty": 19, "personal care": 19,
-                        "household": 20, "clean": 20,
-                        "pet": 19, "baby": 23,
-                        "general": 22, "kitchen": 22, "outdoor": 22, "skewer": 22,
+                    dept_page_map = {
+                        "Produce": 12, "Meat & Seafood": 4, "Deli": 17, "Bakery": 2,
+                        "Dairy": 13, "Frozen": 14, "Pantry": 15, "Beverages": 11,
+                        "Snacks & Candy": 15, "Canned Goods": 15, "Personal Care": 19,
+                        "Health": 19, "Household": 20, "Pet Care": 19, "Baby": 23,
+                        "General Merchandise": 22,
                     }
                     combined_tag = f"{name} {desc} {category_name or ''}".lower()
-                    resolved_page = 15
-                    for kw, pg in dept_map.items():
-                        if kw in combined_tag:
-                            resolved_page = pg
-                            break
-                    page_num = resolved_page
+                    inferred_dept = infer_department(combined_tag)
+                    page_num = dept_page_map.get(inferred_dept, 15) if inferred_dept else 15
                     is_front = False
 
-                # Check if this item is a Buy X Get Y / BOGO deal
-                m_bogo = BOGO_REGEX.search(sales_text)
-                if m_bogo and circular_id:
-                    b_str = m_bogo.group(1).lower()
-                    g_str = m_bogo.group(2).lower()
-                    buy_qty = WORD_TO_NUM.get(b_str, int(b_str) if b_str.isdigit() else 1)
-                    free_qty = WORD_TO_NUM.get(g_str, int(g_str) if g_str.isdigit() else 1)
-                    total_qty = buy_qty + free_qty
+                # Extract promotional information via centralized PromoExtractor
+                promo_info = PromoExtractor.extract_promo(sales_text, [name, desc])
+
+                # Check if this item is a Buy X Get Y / BOGO deal requiring details API disambiguation
+                if promo_info and promo_info.promo_type == "bogo" and circular_id:
+                    buy_qty = promo_info.buy_qty or 1
+                    free_qty = promo_info.free_qty or 1
+                    total_qty = promo_info.qualifying_qty or (buy_qty + free_qty)
 
                     # Query in-page details API for specific product list & regular prices
                     details_url = f"https://giantfoodstores.com/api/v1.0/weekly/circular/users/2/{store_id}/ad/{circular_id}/details"
@@ -239,18 +225,14 @@ class GiantGridFetcher:
                             reg_price = prod.get("regularPrice") or prod.get("price") or 0.0
                             size_str = prod.get("size", "")
                             
-                            # Parse unit size if available
-                            unit_size = None
-                            unit_type = None
-                            if size_str:
-                                m_sz = re.search(r"(\d+(?:\.\d+)?)\s*(OZ|LB|CT|FL\s*OZ|PKG|BAG)", size_str, re.IGNORECASE)
-                                if m_sz:
-                                    unit_size = float(m_sz.group(1))
-                                    unit_type = m_sz.group(2).lower()
+                            # Parse unit size via centralized UnitNormalizer
+                            unit_size, unit_type = extract_unit_info(size_str) if size_str else (None, None)
 
-                            total_cost = round(buy_qty * reg_price, 2)
-                            effective_price = round(total_cost / total_qty, 2)
-                            unit_price = round(effective_price / unit_size, 4) if (unit_size and unit_size > 0) else None
+                            # Calculate effective price via centralized PromoExtractor
+                            effective_price = PromoExtractor.calculate_effective_price(promo_info, base_price=reg_price)
+                            if effective_price is None and total_qty > 0:
+                                effective_price = round((buy_qty * reg_price) / total_qty, 2)
+                            unit_price = round(effective_price / unit_size, 4) if (effective_price and unit_size and unit_size > 0) else None
 
                             prod_img = prod.get("image", {}).get("large") or image_url
                             deal_id = int(f"{ad_id}{p_idx}")
@@ -273,7 +255,7 @@ class GiantGridFetcher:
                                     is_trusted=True,
                                     source_type="giant_grid_api",
                                     category=category_name or prod.get("rootCatName"),
-                                    promo_detail=f"BUY {buy_qty} GET {free_qty} FREE",
+                                    promo_detail=promo_info.promo_detail or f"BUY {buy_qty} GET {free_qty} FREE",
                                     qualifying_qty=total_qty,
                                     base_price=reg_price,
                                 )
@@ -281,23 +263,19 @@ class GiantGridFetcher:
                         continue
 
                 # Standard or priced bundle deals
-                promo_info = PromoExtractor.extract_promo(sales_text, [name, desc])
                 adv_price = float(direct_price) if (direct_price is not None and direct_price != "") else None
                 
-                # Check for X for $Y
-                m_xfory = re.search(r"(\d+)\s*/\s*\$?(\d+(?:\.\d{2})?)", sales_text)
-                if m_xfory:
-                    qty = int(m_xfory.group(1))
-                    total_p = float(m_xfory.group(2))
-                    adv_price = round(total_p / qty, 2)
-                    promo_type = "must_buy"
-                    qualifying_qty = qty
-                elif m_bogo:
-                    promo_type = "bogo"
-                    qualifying_qty = 2
+                # Check for X for $Y or other mechanics
+                if promo_info:
+                    if adv_price is None:
+                        adv_price = PromoExtractor.calculate_effective_price(promo_info)
+                    promo_type = promo_info.promo_type
+                    qualifying_qty = promo_info.qualifying_qty
+                    promo_detail = promo_info.promo_detail
                 else:
-                    promo_type = promo_info.promo_type if promo_info else "standard"
-                    qualifying_qty = promo_info.qualifying_qty if promo_info else 1
+                    promo_type = "standard"
+                    qualifying_qty = 1
+                    promo_detail = sales_text
 
                 normalized_deals.append(
                     NormalizedDeal(
@@ -317,7 +295,7 @@ class GiantGridFetcher:
                         is_trusted=True,
                         source_type="giant_grid_api",
                         category=category_name,
-                        promo_detail=sales_text,
+                        promo_detail=promo_detail,
                         qualifying_qty=qualifying_qty,
                         base_price=None,
                     )
