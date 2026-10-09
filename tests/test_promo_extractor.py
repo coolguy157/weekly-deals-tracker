@@ -160,6 +160,47 @@ class TestPromoExtractor(unittest.TestCase):
         eff = PromoExtractor.calculate_effective_price(p1, base_price=7.99)
         self.assertEqual(eff, 5.99)
 
+    def test_bullet_and_special_bogo_patterns(self):
+        # Bullet separators: BUY 2 • GET 1 FREE! of equal or lesser value
+        p1 = PromoExtractor.extract_promo("Sweet Strawberries BUY 2 • GET 1 FREE! of equal or lesser value")
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "bogo")
+        self.assertEqual(p1.buy_qty, 2)
+        self.assertEqual(p1.free_qty, 1)
+
+        # Katakana middle dot: BUY 1・GET 1 FREE! must buy like brand
+        p2 = PromoExtractor.extract_promo("General Mills Cereal BUY 1・GET 1 FREE! of equal or lesser value must buy like brand")
+        self.assertIsNotNone(p2)
+        self.assertEqual(p2.promo_type, "bogo")
+        self.assertEqual(p2.buy_qty, 1)
+        self.assertEqual(p2.free_qty, 1)
+
+        # BUY 5 GET 1 FREE
+        p3 = PromoExtractor.extract_promo("Hass Avocados BUY 5 • GET 1 FREE! of equal or lesser value")
+        self.assertIsNotNone(p3)
+        self.assertEqual(p3.promo_type, "bogo")
+        self.assertEqual(p3.buy_qty, 5)
+        self.assertEqual(p3.free_qty, 1)
+        self.assertEqual(p3.qualifying_qty, 6)
+
+    def test_dollar_off_patterns(self):
+        # $1.00 Off
+        p1 = PromoExtractor.extract_promo("Garnier Fructis Hair Care $1.00 Off")
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "dollar_off")
+        self.assertEqual(p1.coupon_discount, 1.00)
+        eff = PromoExtractor.calculate_effective_price(p1, base_price=4.99)
+        self.assertEqual(eff, 3.99)
+
+        # 50¢ Off
+        p2 = PromoExtractor.extract_promo("Rastelli's Ground Beef 50¢ Off")
+        self.assertIsNotNone(p2)
+        self.assertEqual(p2.promo_type, "dollar_off")
+        self.assertEqual(p2.coupon_discount, 0.50)
+        eff2 = PromoExtractor.calculate_effective_price(p2, base_price=5.99)
+        self.assertEqual(eff2, 5.49)
+
 
 if __name__ == "__main__":
     unittest.main()
+

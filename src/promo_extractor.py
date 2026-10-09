@@ -37,14 +37,14 @@ class PromoExtractor:
     DEFAULT_POINT_VALUE = 0.0274
 
     # 1. BOGO Patterns
-    # "BUY 2 GET 2 FREE", "BUY 1 GET 1 FREE", "BUY 2 GET 3 FREE"
+    # "BUY 2 GET 2 FREE", "BUY 1 GET 1 FREE", "BUY 2 GET 3 FREE", "BUY 5 GET 1 FREE"
     BOGO_PATTERN = re.compile(
-        r"\bBUY\s+(\d+|ONE|TWO|THREE)\s+GET\s+(\d+|ONE|TWO|THREE)\s+(?:OF\s+EQUAL\s+OR\s+LESSER\s+VALUE\s+)?FREE\b",
+        r"\bBUY\s+(\d+|ONE|TWO|THREE|FOUR|FIVE|SIX)\s+GET\s+(\d+|ONE|TWO|THREE|FOUR|FIVE|SIX)\s+(?:OF\s+EQUAL\s+OR\s+LESSER\s+VALUE\s+)?(?:MUST\s+BUY\s+LIKE\s+BRAND\s+)?FREE\b",
         re.IGNORECASE,
     )
     # "BUY 1 GET 1 50% OFF", "BUY 1 GET 1 HALF OFF"
     BOGO_DISCOUNT_PATTERN = re.compile(
-        r"\bBUY\s+(\d+|ONE|TWO)\s+GET\s+(\d+|ONE|TWO)\s+(?:AT\s+)?(?:(\d+)%\s*OFF|HALF\s+OFF|50%\s*OFF)\b",
+        r"\bBUY\s+(\d+|ONE|TWO|THREE|FOUR)\s+GET\s+(\d+|ONE|TWO|THREE|FOUR)\s+(?:AT\s+)?(?:(\d+)%\s*OFF|HALF\s+OFF|50%\s*OFF)\b",
         re.IGNORECASE,
     )
     # Generic "BOGO FREE" or "BUY ONE GET ONE FREE"
@@ -126,11 +126,24 @@ class PromoExtractor:
         re.IGNORECASE,
     )
 
+    # 8. Dollar Off / Off-Shelf Discount Patterns
+    # "$1.00 Off", "$2.00 Off", "50¢ Off", "2 Off/lb.", "SAVE up to $3.79"
+    DOLLAR_OFF_PATTERN = re.compile(
+        r"\b(?:SAVE\s+(?:UP\s+TO\s+)?|.*?\$|\b)(\d+(?:\.\d{2})?)\s*(?:OFF(?:\/LB\.?)?)\b",
+        re.IGNORECASE,
+    )
+    CENTS_OFF_PATTERN = re.compile(
+        r"\b(\d+)\s*¢\s*OFF\b",
+        re.IGNORECASE,
+    )
+
     WORD_TO_NUM = {
         "one": 1,
         "two": 2,
         "three": 3,
         "four": 4,
+        "five": 5,
+        "six": 6,
     }
 
     @classmethod
@@ -166,8 +179,12 @@ class PromoExtractor:
         if not combined_text:
             return None
 
+        # Normalize bullets, middle dots, special dashes, etc. to spaces
+        cleaned_text = re.sub(r"[•・·\-\*]+", " ", combined_text)
+        cleaned_text = re.sub(r"\s+", " ", cleaned_text).strip()
+
         # 1. BOGO Check
-        m_bogo = cls.BOGO_PATTERN.search(combined_text)
+        m_bogo = cls.BOGO_PATTERN.search(cleaned_text)
         if m_bogo:
             buy_qty = cls._word_or_digit_to_int(m_bogo.group(1))
             free_qty = cls._word_or_digit_to_int(m_bogo.group(2))
@@ -181,7 +198,7 @@ class PromoExtractor:
                 qualifying_qty=total_qty,
             )
 
-        m_bogo_disc = cls.BOGO_DISCOUNT_PATTERN.search(combined_text)
+        m_bogo_disc = cls.BOGO_DISCOUNT_PATTERN.search(cleaned_text)
         if m_bogo_disc:
             buy_qty = cls._word_or_digit_to_int(m_bogo_disc.group(1))
             free_qty = cls._word_or_digit_to_int(m_bogo_disc.group(2))
@@ -197,7 +214,7 @@ class PromoExtractor:
                 qualifying_qty=total_qty,
             )
 
-        if cls.GENERIC_BOGO_PATTERN.search(combined_text):
+        if cls.GENERIC_BOGO_PATTERN.search(cleaned_text):
             return PromoInfo(
                 promo_type="bogo",
                 promo_detail="BUY 1 GET 1 FREE",
@@ -207,10 +224,10 @@ class PromoExtractor:
             )
 
         # 2. Points Redemption (Buy with points)
-        m_red = cls.REDEEM_POINTS_PATTERN.search(combined_text)
+        m_red = cls.REDEEM_POINTS_PATTERN.search(cleaned_text)
         if m_red:
             pts_val = int(m_red.group(1) or m_red.group(2))
-            m_sv = cls.POINTS_SAVE_AMT_PATTERN.search(combined_text)
+            m_sv = cls.POINTS_SAVE_AMT_PATTERN.search(cleaned_text)
             saved = float(m_sv.group(1)) if m_sv else None
             detail = f"FREE with {pts_val} CHOICE points" + (f" (Save ${saved:.2f})" if saved else "")
             return PromoInfo(
@@ -223,7 +240,7 @@ class PromoExtractor:
             )
 
         # 3. Extra Points / Points Bonus
-        m_bsp = cls.BONUS_POINTS_SPEND_PATTERN.search(combined_text)
+        m_bsp = cls.BONUS_POINTS_SPEND_PATTERN.search(cleaned_text)
         if m_bsp:
             pts = int(m_bsp.group(1))
             spend = float(m_bsp.group(2))
@@ -240,7 +257,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        m_em = cls.EARN_POINTS_MULT_PATTERN.search(combined_text)
+        m_em = cls.EARN_POINTS_MULT_PATTERN.search(cleaned_text)
         if m_em:
             mult = float(m_em.group(1))
             pct_back = round(mult * point_value * 100, 1)
@@ -252,7 +269,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        m_bq = cls.BONUS_POINTS_BUY_PATTERN.search(combined_text)
+        m_bq = cls.BONUS_POINTS_BUY_PATTERN.search(cleaned_text)
         if m_bq:
             pts = int(m_bq.group(1))
             buy_q = int(m_bq.group(2))
@@ -267,7 +284,7 @@ class PromoExtractor:
             )
 
         # 4. Spend & Save Threshold
-        m_ss = cls.SPEND_SAVE_PATTERN.search(combined_text)
+        m_ss = cls.SPEND_SAVE_PATTERN.search(cleaned_text)
         if m_ss:
             save_amt = float(m_ss.group(1))
             spend_amt = float(m_ss.group(2))
@@ -282,7 +299,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        m_bs = cls.BUY_SAVE_PATTERN.search(combined_text)
+        m_bs = cls.BUY_SAVE_PATTERN.search(cleaned_text)
         if m_bs:
             save_amt = float(m_bs.group(1))
             buy_qty = int(m_bs.group(2))
@@ -295,7 +312,7 @@ class PromoExtractor:
             )
 
         # 5. Must Buy Check
-        m_mb_price = cls.MUST_BUY_PRICE_PATTERN.search(combined_text)
+        m_mb_price = cls.MUST_BUY_PRICE_PATTERN.search(cleaned_text)
         if m_mb_price:
             qty = int(m_mb_price.group(1))
             unit_price = float(m_mb_price.group(2))
@@ -307,7 +324,7 @@ class PromoExtractor:
                 stated_unit_price=unit_price,
             )
 
-        m_x_for_y = cls.X_FOR_Y_PATTERN.search(combined_text)
+        m_x_for_y = cls.X_FOR_Y_PATTERN.search(cleaned_text)
         if m_x_for_y:
             qty = int(m_x_for_y.group(1))
             total_price = float(m_x_for_y.group(2))
@@ -321,7 +338,7 @@ class PromoExtractor:
                 stated_total_price=total_price,
             )
 
-        m_mb_qty = cls.MUST_BUY_QTY_ONLY_PATTERN.search(combined_text)
+        m_mb_qty = cls.MUST_BUY_QTY_ONLY_PATTERN.search(cleaned_text)
         if m_mb_qty:
             qty = int(m_mb_qty.group(1))
             return PromoInfo(
@@ -331,7 +348,7 @@ class PromoExtractor:
             )
 
         # 6. Digital Coupon Check
-        m_coup_price = cls.COUPON_FINAL_PRICE_PATTERN.search(combined_text)
+        m_coup_price = cls.COUPON_FINAL_PRICE_PATTERN.search(cleaned_text)
         if m_coup_price:
             price = float(m_coup_price.group(1))
             return PromoInfo(
@@ -341,7 +358,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        m_coup_disc = cls.COUPON_DISCOUNT_PATTERN.search(combined_text)
+        m_coup_disc = cls.COUPON_DISCOUNT_PATTERN.search(cleaned_text)
         if m_coup_disc:
             disc = float(m_coup_disc.group(1))
             return PromoInfo(
@@ -352,13 +369,34 @@ class PromoExtractor:
             )
 
         # 7. Percentage Off Check (e.g. 25% Off)
-        m_pct = cls.PCT_OFF_PATTERN.search(combined_text)
+        m_pct = cls.PCT_OFF_PATTERN.search(cleaned_text)
         if m_pct and not m_bogo_disc:
             pct_val = float(m_pct.group(1))
             return PromoInfo(
                 promo_type="percent_off",
                 promo_detail=f"{int(pct_val)}% OFF",
                 discount_pct=pct_val,
+                qualifying_qty=1,
+            )
+
+        # 8. Dollar Off / Off-Shelf Discount Check
+        m_do = cls.DOLLAR_OFF_PATTERN.search(cleaned_text)
+        if m_do:
+            off_val = float(m_do.group(1))
+            return PromoInfo(
+                promo_type="dollar_off",
+                promo_detail=f"${off_val:.2f} OFF",
+                coupon_discount=off_val,
+                qualifying_qty=1,
+            )
+
+        m_co = cls.CENTS_OFF_PATTERN.search(cleaned_text)
+        if m_co:
+            cents_val = float(m_co.group(1)) / 100.0
+            return PromoInfo(
+                promo_type="dollar_off",
+                promo_detail=f"{int(m_co.group(1))}¢ OFF",
+                coupon_discount=cents_val,
                 qualifying_qty=1,
             )
 
@@ -381,6 +419,7 @@ class PromoExtractor:
         - Points Redemption: 0.0 (Free with points)
         - Points Bonus: spend_threshold - (points_bonus * point_value) or base_price - (points_bonus * point_value)
         - Percent Off: base_price * (1 - discount_pct/100)
+        - Dollar Off: base_price - coupon_discount
         - Spend & Save: spend_threshold - discount
         """
         if promo.promo_type == "bogo":
@@ -426,6 +465,11 @@ class PromoExtractor:
             if base_price is not None and promo.discount_pct is not None:
                 multiplier = 1.0 - (promo.discount_pct / 100.0)
                 return max(0.0, round(base_price * multiplier + 1e-9, 2))
+            return None
+
+        if promo.promo_type == "dollar_off":
+            if base_price is not None and promo.coupon_discount is not None:
+                return max(0.0, round(base_price - promo.coupon_discount + 1e-9, 2))
             return None
 
         if promo.promo_type == "spend_save":

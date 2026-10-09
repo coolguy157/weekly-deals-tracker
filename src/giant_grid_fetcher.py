@@ -187,12 +187,15 @@ class GiantGridFetcher:
                 # Extract promotional information via centralized PromoExtractor
                 promo_info = PromoExtractor.extract_promo(sales_text, [name, desc])
 
-                # Check if this item is a Buy X Get Y / BOGO deal requiring details API disambiguation
-                if promo_info and promo_info.promo_type == "bogo" and circular_id:
-                    buy_qty = promo_info.buy_qty or 1
-                    free_qty = promo_info.free_qty or 1
-                    total_qty = promo_info.qualifying_qty or (buy_qty + free_qty)
+                # Check if this item requires in-page details API disambiguation (BOGOs, percent off, dollar off, or unpriced)
+                should_disambiguate = bool(
+                    circular_id and (
+                        (direct_price is None or direct_price == "") or
+                        (promo_info and promo_info.promo_type in ("bogo", "percent_off", "dollar_off"))
+                    )
+                )
 
+                if should_disambiguate:
                     # Query in-page details API for specific product list & regular prices
                     details_url = f"https://giantfoodstores.com/api/v1.0/weekly/circular/users/2/{store_id}/ad/{circular_id}/details"
                     payload = {
@@ -229,13 +232,30 @@ class GiantGridFetcher:
                             unit_size, unit_type = extract_unit_info(size_str) if size_str else (None, None)
 
                             # Calculate effective price via centralized PromoExtractor
-                            effective_price = PromoExtractor.calculate_effective_price(promo_info, base_price=reg_price)
-                            if effective_price is None and total_qty > 0:
-                                effective_price = round((buy_qty * reg_price) / total_qty, 2)
+                            effective_price = None
+                            if promo_info:
+                                effective_price = PromoExtractor.calculate_effective_price(promo_info, base_price=reg_price)
+                            
+                            if effective_price is None:
+                                if direct_price is not None and direct_price != "":
+                                    effective_price = float(direct_price)
+                                elif prod.get("price") and prod.get("price") != reg_price:
+                                    effective_price = float(prod.get("price"))
+                                elif reg_price > 0 and promo_info and promo_info.promo_type == "bogo":
+                                    buy_qty = promo_info.buy_qty or 1
+                                    free_qty = promo_info.free_qty or 1
+                                    total_qty = promo_info.qualifying_qty or (buy_qty + free_qty)
+                                    effective_price = round((buy_qty * reg_price) / total_qty, 2)
+                                elif reg_price > 0:
+                                    effective_price = float(reg_price)
+
                             unit_price = round(effective_price / unit_size, 4) if (effective_price and unit_size and unit_size > 0) else None
 
                             prod_img = prod.get("image", {}).get("large") or image_url
                             deal_id = int(f"{ad_id}{p_idx}")
+                            p_type = promo_info.promo_type if promo_info else "standard"
+                            p_detail = promo_info.promo_detail if promo_info else sales_text
+                            q_qty = promo_info.qualifying_qty if promo_info else 1
 
                             normalized_deals.append(
                                 NormalizedDeal(
@@ -251,13 +271,13 @@ class GiantGridFetcher:
                                     unit_price=unit_price,
                                     raw_title=f"{prod_name} - {sales_text}",
                                     image_url=prod_img,
-                                    promo_type="bogo",
+                                    promo_type=p_type,
                                     is_trusted=True,
                                     source_type="giant_grid_api",
                                     category=category_name or prod.get("rootCatName"),
-                                    promo_detail=promo_info.promo_detail or f"BUY {buy_qty} GET {free_qty} FREE",
-                                    qualifying_qty=total_qty,
-                                    base_price=reg_price,
+                                    promo_detail=p_detail,
+                                    qualifying_qty=q_qty,
+                                    base_price=reg_price if reg_price > 0 else None,
                                 )
                             )
                         continue
