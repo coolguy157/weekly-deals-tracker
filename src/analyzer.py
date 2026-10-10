@@ -216,6 +216,8 @@ class DealAnalyzer:
             promo_note = f" • [{promo_detail or 'Spend & Save'}]"
         elif promo_type == "percent_off":
             promo_note = f" • [{promo_detail or 'Percent Off'}]"
+        elif promo_type == "meal_deal":
+            promo_note = f" • [{promo_detail or 'Weekly Meal Deal'}]"
 
         cat_note = ""
         if cat_min_unit is not None and cat_avg_unit is not None and unit_price is not None:

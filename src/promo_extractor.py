@@ -137,6 +137,13 @@ class PromoExtractor:
         re.IGNORECASE,
     )
 
+    # 9. Meal Deal / Buy Main Item Get Sides Free Patterns
+    # "buy this Our Brand Boneless Beef Chuck Roast get these FREE* ... SAVE at least $8.27* with this week's meal deal"
+    MEAL_DEAL_PATTERN = re.compile(
+        r"(?:BUY\s+THIS\s+(.*?)\s+GET\s+THESE\s+FREE.*?(?:SAVE\s+(?:AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?))?.*?(?:MEAL\s+DEAL)?|MEAL\s+DEAL)",
+        re.IGNORECASE,
+    )
+
     WORD_TO_NUM = {
         "one": 1,
         "two": 2,
@@ -182,6 +189,30 @@ class PromoExtractor:
         # Normalize bullets, middle dots, special dashes, etc. to spaces
         cleaned_text = re.sub(r"[•・·\-\*]+", " ", combined_text)
         cleaned_text = re.sub(r"\s+", " ", cleaned_text).strip()
+
+        # 0. Meal Deal / Buy Main Get Sides Free Check
+        if "meal deal" in cleaned_text.lower() or ("buy this" in cleaned_text.lower() and "get these free" in cleaned_text.lower()):
+            m_main = re.search(r"BUY\s+THIS\s+(.*?)\s+GET\s+THESE\s+FREE", cleaned_text, re.IGNORECASE)
+            main_item = m_main.group(1).strip() if m_main else ""
+            m_save = re.search(r"SAVE\s+(?:UP\s+TO\s+|AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?)", cleaned_text, re.IGNORECASE)
+            save_amt = float(m_save.group(1)) if m_save else None
+
+            # Clean anchor item name if matched
+            if main_item:
+                main_item = re.sub(r"(?i)\b(?:Butcher Shop|U\.?S\.?D\.?A\.?|Choice|Fresh|Vacuum Sealed)\b.*", "", main_item).strip()
+            detail = "MEAL DEAL: Buy Main Item, Get Free Sides"
+            if main_item and save_amt:
+                detail = f"MEAL DEAL: Buy {main_item} Get Free Sides (Save ${save_amt:.2f})"
+            elif main_item:
+                detail = f"MEAL DEAL: Buy {main_item} Get Free Sides"
+            elif save_amt:
+                detail = f"MEAL DEAL: Buy Main Item, Get Free Sides (Save ${save_amt:.2f})"
+            return PromoInfo(
+                promo_type="meal_deal",
+                promo_detail=detail,
+                qualifying_qty=1,
+                coupon_discount=save_amt,
+            )
 
         # 1. BOGO Check
         m_bogo = cls.BOGO_PATTERN.search(cleaned_text)

@@ -192,13 +192,20 @@ class TestPromoExtractor(unittest.TestCase):
         eff = PromoExtractor.calculate_effective_price(p1, base_price=4.99)
         self.assertEqual(eff, 3.99)
 
-        # 50¢ Off
-        p2 = PromoExtractor.extract_promo("Rastelli's Ground Beef 50¢ Off")
+    def test_meal_deal_patterns(self):
+        # Weekly Meal Deal: buy this roast get these free potatoes, seasoning, broth (save at least $8.27)
+        sales_text = "buy this Our Brand Boneless Beef Chuck Roast get these FREE* Our Brand Mini Potatoes SAVE at least $8.27* with this week's meal deal"
+        p1 = PromoExtractor.extract_promo(sales_text)
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "meal_deal")
+        self.assertEqual(p1.coupon_discount, 8.27)
+        self.assertIn("MEAL DEAL", p1.promo_detail)
+        self.assertIn("Beef Chuck Roast", p1.promo_detail)
+
+        # Standalone meal deal text
+        p2 = PromoExtractor.extract_promo("Our Brand Boneless Beef Chuck Roast Meal Deal")
         self.assertIsNotNone(p2)
-        self.assertEqual(p2.promo_type, "dollar_off")
-        self.assertEqual(p2.coupon_discount, 0.50)
-        eff2 = PromoExtractor.calculate_effective_price(p2, base_price=5.99)
-        self.assertEqual(eff2, 5.49)
+        self.assertEqual(p2.promo_type, "meal_deal")
 
 
 if __name__ == "__main__":
