@@ -909,6 +909,128 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[2].brand, "Perdue")
         self.assertEqual(deals[2].unit_size, 1.0)
 
+    def test_giant_produce_salad_dressing_tomatoes_bundle(self):
+        item = FlyerItem(
+            id=3001,
+            flyer_id=8159694,
+            name="Nature's Promise Greenhouse Grown Dole or Our Brand Salad Blend or Kit, Bolthouse Dressing or NatureSweet Cherub or Golden Cherub Tomatoes",
+            price=2.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 6)
+
+        self.assertEqual(deals[0].canonical_name, "Nature's Promise Greenhouse Grown Salad Blend or Kit")
+        self.assertEqual(deals[0].brand, "Nature's Promise")
+        self.assertEqual(deals[0].category, "Salad")
+        self.assertEqual(deals[0].advertised_price, 2.99)
+
+        self.assertEqual(deals[1].canonical_name, "Dole Salad Blend or Kit")
+        self.assertEqual(deals[1].brand, "Dole")
+        self.assertEqual(deals[1].category, "Salad")
+        self.assertEqual(deals[1].advertised_price, 2.99)
+
+        self.assertEqual(deals[2].canonical_name, "Our Brand Salad Blend or Kit")
+        self.assertEqual(deals[2].brand, "Our Brand")
+        self.assertEqual(deals[2].category, "Salad")
+        self.assertEqual(deals[2].advertised_price, 2.99)
+
+        self.assertEqual(deals[3].canonical_name, "Bolthouse Dressing")
+        self.assertEqual(deals[3].brand, "Bolthouse")
+        self.assertEqual(deals[3].category, "Salad Dressing")
+        self.assertEqual(deals[3].advertised_price, 2.99)
+
+        self.assertEqual(deals[4].canonical_name, "NatureSweet Cherub Tomatoes")
+        self.assertEqual(deals[4].brand, "NatureSweet")
+        self.assertEqual(deals[4].category, "Tomatoes")
+        self.assertEqual(deals[4].advertised_price, 2.99)
+
+        self.assertEqual(deals[5].canonical_name, "NatureSweet Golden Cherub Tomatoes")
+        self.assertEqual(deals[5].brand, "NatureSweet")
+        self.assertEqual(deals[5].category, "Tomatoes")
+        self.assertEqual(deals[5].advertised_price, 2.99)
+
+    def test_salad_blend_kit_coordination_expansion(self):
+        item = FlyerItem(
+            id=3002,
+            flyer_id=8159694,
+            name="Dole or Our Brand Salad Blend or Kit",
+            price=2.49,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=2,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 2)
+        self.assertEqual(deals[0].canonical_name, "Dole Salad Blend or Kit")
+        self.assertEqual(deals[0].brand, "Dole")
+        self.assertEqual(deals[0].category, "Salad")
+        self.assertEqual(deals[1].canonical_name, "Our Brand Salad Blend or Kit")
+        self.assertEqual(deals[1].brand, "Our Brand")
+        self.assertEqual(deals[1].category, "Salad")
+
+    def test_salad_kit_bowl_coordination_expansion(self):
+        item = FlyerItem(
+            id=3003,
+            flyer_id=8159694,
+            name="Fresh Express or Taylor Farms Salad Kit or Bowl",
+            price=3.49,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=2,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 2)
+        self.assertEqual(deals[0].canonical_name, "Fresh Express Salad Kit or Bowl")
+        self.assertEqual(deals[0].brand, "Fresh Express")
+        self.assertEqual(deals[1].canonical_name, "Taylor Farms Salad Kit or Bowl")
+        self.assertEqual(deals[1].brand, "Taylor Farms")
+
+    def test_naturesweet_cherub_tomatoes_variety_expansion(self):
+        item = FlyerItem(
+            id=3004,
+            flyer_id=8159694,
+            name="NatureSweet Cherub or Golden Cherub Tomatoes",
+            price=2.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 2)
+        self.assertEqual(deals[0].canonical_name, "NatureSweet Cherub Tomatoes")
+        self.assertEqual(deals[0].brand, "NatureSweet")
+        self.assertEqual(deals[0].category, "Tomatoes")
+        self.assertEqual(deals[1].canonical_name, "NatureSweet Golden Cherub Tomatoes")
+        self.assertEqual(deals[1].brand, "NatureSweet")
+        self.assertEqual(deals[1].category, "Tomatoes")
+
 
 if __name__ == "__main__":
     unittest.main()

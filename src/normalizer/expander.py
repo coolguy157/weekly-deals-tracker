@@ -140,8 +140,55 @@ def pre_expand_deal_string(name: str) -> str:
         flags=re.IGNORECASE,
     )
 
-    produce_nouns = "Squash|Potatoes|Apples|Grapes|Pears|Melons|Peppers|Onions|Tomatoes|Oranges|Citrus|Peaches|Plums"
-    variety_pat = r"(?:(?!or\b|and\b)[A-Za-z]+(?:'[A-Za-z]+)?)(?:\s+(?:(?!or\b|and\b)[A-Za-z]+))?"
+    # Boundary between Greenhouse Grown and next brand if missing comma (common in Giant circulars)
+    cleaned_name = re.sub(
+        r"\b(Greenhouse\s+Grown)\s+(Dole|Bolthouse|NatureSweet|Fresh\s+Express|Taylor\s+Farms|Our\s+Brand|Earthbound\s+Farm)\b",
+        r"\1, \2",
+        cleaned_name,
+        flags=re.IGNORECASE,
+    )
+
+    salad_brand_pat = r"(?:(?!or\b|and\b|Salad\b|Blend\b|Kit\b|Bowl\b)[A-Za-z0-9'&]+(?:\s+(?!or\b|and\b|Salad\b|Blend\b|Kit\b|Bowl\b)[A-Za-z0-9'&]+)*)"
+    salad_compound_pat = r"(?:Salad\s+(?:Blends?|Kits?|Bowls?)(?:\s+or\s+(?:Salad\s+)?(?:Blends?|Kits?|Bowls?))?|(?:Salad\s+)?(?:Blends?|Kits?|Bowls?)\s+or\s+(?:Salad\s+)?(?:Blends?|Kits?|Bowls?)|Salad\s+(?:Blends?|Kits?|Bowls?))"
+
+    def _protect_or(s: str) -> str:
+        return re.sub(r"\s+or\s+", "__OR__", s, flags=re.IGNORECASE)
+
+    # 3-item salad list: "Brand1, Brand2 or Brand3 Salad Blend or Kit"
+    def _expand_salad_trio(m):
+        b1 = m.group(1).strip()
+        b2 = m.group(2).strip()
+        b3 = m.group(3).strip()
+        suf = _protect_or(m.group(4).strip())
+        return f"{b1} {suf} or {b2} {suf} or {b3} {suf}"
+
+    cleaned_name = re.sub(
+        rf"\b({salad_brand_pat}),\s*({salad_brand_pat})\s+or\s+({salad_brand_pat})\s+({salad_compound_pat})\b",
+        _expand_salad_trio,
+        cleaned_name,
+        flags=re.IGNORECASE,
+    )
+
+    # 2-item salad pair: "Dole or Our Brand Salad Blend or Kit"
+    def _expand_salad_pair(m):
+        b1 = m.group(1).strip()
+        b2 = m.group(2).strip()
+        suf = _protect_or(m.group(3).strip())
+        return f"{b1} {suf} or {b2} {suf}"
+
+    cleaned_name = re.sub(
+        rf"\b({salad_brand_pat})\s+or\s+({salad_brand_pat})\s+({salad_compound_pat})\b",
+        _expand_salad_pair,
+        cleaned_name,
+        flags=re.IGNORECASE,
+    )
+
+    produce_nouns = "Squash|Potatoes|Apples|Grapes|Pears|Melons|Peppers|Onions|Tomatoes|Oranges|Citrus|Peaches|Plums|Berries"
+    variety_pat = r"(?:(?!or\b|and\b)[A-Za-z0-9']+(?:\s+(?!or\b|and\b)[A-Za-z0-9']+)*)"
+    known_produce_brands = {
+        "NatureSweet", "Driscoll's", "Sunkist", "Halo", "Cuties", "Dole",
+        "Chiquita", "Del Monte", "Bolthouse", "Bolthouse Farms", "Fresh Express", "Taylor Farms",
+    }
 
     # Expand produce suffix lists: "Acorn, Butternut or Spaghetti Squash" -> "Acorn Squash or Butternut Squash or Spaghetti Squash"
     def _expand_suffix_list(m):
@@ -171,6 +218,14 @@ def pre_expand_deal_string(name: str) -> str:
         v2_last = v2.split()[-1].lower() if v2 else ""
         if v2_last in known_produce_nouns or (v2_last.endswith("s") and v2_last[:-1] in known_produce_nouns):
             return m.group(0)
+
+        # If v1 starts with a known brand and v2 does not, propagate brand prefix to v2
+        v1_words = v1.split()
+        if len(v1_words) > 1 and (v1_words[0] in known_produce_brands or any(v1.lower().startswith(b.lower()) for b in known_produce_brands)):
+            brand_prefix = v1_words[0]
+            if not v2.lower().startswith(brand_prefix.lower()):
+                v2 = f"{brand_prefix} {v2}"
+
         return f"{v1} {noun} or {v2} {noun}"
 
     cleaned_name = re.sub(

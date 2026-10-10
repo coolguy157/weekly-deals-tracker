@@ -18,6 +18,11 @@ STORE_BRANDS: List[str] = [
     "Primo Taglio",
     "Signature Cafe",
     "Nature's Promise",
+    "Our Brand",
+    "Giant",
+    "Martin's",
+    "Taste of Inspirations",
+    "Guiding Stars",
 ]
 
 DEPARTMENT_BANNERS: Set[str] = {

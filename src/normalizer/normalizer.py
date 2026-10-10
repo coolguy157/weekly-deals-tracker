@@ -112,13 +112,13 @@ class ProductNormalizer:
         for chunk in chunks:
             expanded = self._expand_chunk(chunk)
             for sub in expanded:
-                sub_clean = sub.strip(" ,.-")
+                sub_clean = sub.replace("__OR__", " or ").strip(" ,.-")
                 if not sub_clean or self.DISCARD_CHUNK_PATTERN.search(sub_clean):
                     continue
                 sub_items.append(sub_clean)
 
         if not sub_items:
-            sub_items = [cleaned_name]
+            sub_items = [cleaned_name.replace("__OR__", " or ")]
 
         normalized_deals: List[NormalizedDeal] = []
 
@@ -151,6 +151,14 @@ class ProductNormalizer:
                     "Premier Protein", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
                     "Tina's", "Yoplait", "Chobani", "Dannon", "Oikos", "Tillamook",
                     "Quaker", "Cap'n Crunch", "Life", "Campbell's", "Chef Boyardee", "Barilla",
+                    "Dole", "Bolthouse", "Bolthouse Farms", "NatureSweet", "Fresh Express", "Taylor Farms",
+                    "Earthbound Farm", "Organic Girl", "Green Giant", "Birds Eye",
+                    "Driscoll's", "Sunkist", "Halo", "Cuties", "Chiquita", "Del Monte",
+                    "Stouffer's", "Lean Cuisine", "Perdue", "Tyson", "Oscar Mayer",
+                    "Sugardale", "Jimmy Dean", "Hillshire Farm", "Applegate", "Hebrew National", "Ball Park", "Nathan's",
+                    "General Mills", "Kellogg's", "Post", "Sargento", "Cabot", "Hidden Valley", "Ken's",
+                    "Ken's Steak House", "Marzetti", "Newman's Own", "Wish-Bone", "Heinz", "French's",
+                    "Hellmann's", "Best Foods",
                 ]:
                     if re.search(r"\b" + re.escape(nb) + r"\b", sub_name, re.IGNORECASE):
                         brand = nb

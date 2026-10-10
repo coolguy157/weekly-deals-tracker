@@ -50,6 +50,8 @@ COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\bsquash\b", re.IGNORECASE), "Squash"),
     (re.compile(r"\bonions?\b", re.IGNORECASE), "Onions"),
     (re.compile(r"\bpeppers?\b", re.IGNORECASE), "Peppers"),
+    (re.compile(r"\bsalad\s+(?:blend|kit|bowl|greens)s?\b|\bsalads?\b|\bgreenhouse\s+grown\b", re.IGNORECASE), "Salad"),
+    (re.compile(r"\b(?:salad\s+)?dressings?\b", re.IGNORECASE), "Salad Dressing"),
     # Pantry & Bakery
     (re.compile(r"\bbread\b", re.IGNORECASE), "Bread"),
     (re.compile(r"\btortillas?\b", re.IGNORECASE), "Tortillas"),

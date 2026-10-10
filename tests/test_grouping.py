@@ -93,6 +93,43 @@ def synthesize_group_title(items):
         return f"{brands[0]}, {brands[1]} & more{pkg} ({len(items)} Items)"
 
 
+def group_all_deals(deals):
+    groups_map = {}
+    for d in deals:
+        k = get_group_key(d)
+        existing = groups_map.setdefault(k, [])
+        if not any(it.get('name') == d.get('name') and abs((it.get('price') or 0) - (d.get('price') or 0)) < 0.01 for it in existing):
+            existing.append(d)
+
+    # Merge redundant meal deal sub-ads on the same page
+    meal_deal_groups = {k: v for k, v in groups_map.items() if k.startswith("meal_deal_")}
+    to_delete = []
+    for k, items in groups_map.items():
+        if k.startswith("meal_deal_"):
+            continue
+        for md_k, md_items in meal_deal_groups.items():
+            match_count = sum(1 for it in items if any(m.get('name') == it.get('name') for m in md_items))
+            if items and match_count >= min(3, len(items)) and (match_count / len(items)) >= 0.7:
+                for it in items:
+                    if not any(m.get('name') == it.get('name') for m in md_items):
+                        md_items.append(it)
+                to_delete.append(k)
+                break
+
+    for k in to_delete:
+        del groups_map[k]
+
+    return groups_map
+
+
+def get_meal_deal_headline_price(items):
+    # Headline price for a meal deal must be the anchor item (highest price qualifying purchase)
+    if not items:
+        return 0.0
+    anchor = max(items, key=lambda x: x.get("price") or 0)
+    return anchor.get("price") or 0.0
+
+
 class TestGroupingLogic(unittest.TestCase):
 
     def test_b2g2_soda_grouping(self):
@@ -127,6 +164,28 @@ class TestGroupingLogic(unittest.TestCase):
         self.assertEqual(title, "Weekly Meal Deal")
         self.assertNotIn("McCormick, Our Brand Selection", title)
 
+    def test_meal_deal_anchor_pricing_and_sub_ad_merging(self):
+        # Full meal deal set including ad_1044980904 (which Flipp published without promo_detail)
+        all_ads_items = [
+            # Group 1 from ad 1044980878
+            {"deal_id": 101, "raw_deal_id": 10449808780, "name": "Our Brand Boneless Beef Chuck Roast", "price": 29.97, "page": 5, "promo_type": "meal_deal", "promo_detail": "meal deal"},
+            {"deal_id": 102, "raw_deal_id": 10449808781, "name": "Our Brand Baby Carrots", "price": 1.29, "page": 5, "promo_type": "meal_deal", "promo_detail": "meal deal"},
+            {"deal_id": 103, "raw_deal_id": 10449808782, "name": "McCormick Seasoning Mix", "price": 2.00, "page": 5, "promo_type": "meal_deal", "promo_detail": "meal deal"},
+            # Group 2 from ad 1044980904 (published as standard without promo tag)
+            {"deal_id": 201, "raw_deal_id": 10449809040, "ad_id": 1044980904, "name": "Our Brand Boneless Beef Chuck Roast", "price": 29.97, "page": 5, "promo_type": "standard", "promo_detail": ""},
+            {"deal_id": 202, "raw_deal_id": 10449809041, "ad_id": 1044980904, "name": "Our Brand Baby Carrots", "price": 1.29, "page": 5, "promo_type": "standard", "promo_detail": ""},
+            {"deal_id": 203, "raw_deal_id": 10449809042, "ad_id": 1044980904, "name": "McCormick Seasoning Mix", "price": 2.00, "page": 5, "promo_type": "standard", "promo_detail": ""},
+        ]
+        groups = group_all_deals(all_ads_items)
+        # Should have collapsed ad_1044980904 into meal_deal_p5
+        self.assertEqual(len(groups), 1)
+        self.assertIn("meal_deal_p5", groups)
+        self.assertNotIn("ad_1044980904", groups)
+
+        # Headline price should be 29.97 (the roast), not 1.29 or a range
+        headline_price = get_meal_deal_headline_price(groups["meal_deal_p5"])
+        self.assertEqual(headline_price, 29.97)
+
     def test_multi_brand_specialized_labeling(self):
         # Duncan Hines + PAM items should not be labeled "Duncan Hines, PAM Selection"
         baking_items = [
@@ -140,3 +199,4 @@ class TestGroupingLogic(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
