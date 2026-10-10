@@ -126,6 +126,29 @@ class TestPromoExtractor(unittest.TestCase):
         self.assertEqual(p1.points_saved_val, 1.89)
         self.assertEqual(PromoExtractor.calculate_effective_price(p1), 0.0)
 
+        # 5-Point Freebie (Hyphenated, "Save at least")
+        p_bob = PromoExtractor.extract_promo("Bob Evans 18g Protein Macaroni & Cheese Refrigerated - 5-POINT FREEBIE, Save at least $5.79")
+        self.assertIsNotNone(p_bob)
+        self.assertEqual(p_bob.promo_type, "points_redemption")
+        self.assertEqual(p_bob.points_cost, 5)
+        self.assertEqual(p_bob.points_saved_val, 5.79)
+        self.assertEqual(PromoExtractor.calculate_effective_price(p_bob), 0.0)
+
+        # 5 Point Freebie (Space separated, "Save up to")
+        p_space = PromoExtractor.extract_promo("Barilla Pasta 5 POINT FREEBIE SAVE UP TO $2.49")
+        self.assertIsNotNone(p_space)
+        self.assertEqual(p_space.promo_type, "points_redemption")
+        self.assertEqual(p_space.points_cost, 5)
+        self.assertEqual(p_space.points_saved_val, 2.49)
+        self.assertEqual(PromoExtractor.calculate_effective_price(p_space), 0.0)
+
+        # 75 CHOICE Points Dressing
+        p_dress = PromoExtractor.extract_promo("Our Brand Blue Cheese Dressing - FREE Our Brand Dressing when you redeem 75 CHOICE points, SAVE up to $2.00")
+        self.assertIsNotNone(p_dress)
+        self.assertEqual(p_dress.promo_type, "points_redemption")
+        self.assertEqual(p_dress.points_cost, 75)
+        self.assertEqual(p_dress.points_saved_val, 2.00)
+
         # 300 CHOICE Points when you spend $20
         p2 = PromoExtractor.extract_promo("Purina Tidy Cats 300 CHOICE POINTS When you spend $20 on participating products", point_value=0.0274)
         self.assertIsNotNone(p2)

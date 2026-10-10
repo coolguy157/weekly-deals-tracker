@@ -83,9 +83,9 @@ class PromoExtractor:
     )
 
     # 4. Points Redemption Patterns (Buy with points / Free with points)
-    # "FREE ... when you redeem 75 CHOICE points", "5-POINT FREEBIE", "when you redeem 100 CHOICE points"
+    # "FREE ... when you redeem 75 CHOICE points", "5-POINT FREEBIE", "5 POINT FREEBIE", "when you redeem 100 CHOICE points"
     REDEEM_POINTS_PATTERN = re.compile(
-        r"(?:REDEEM\s+(\d+)\s+(?:CHOICE\s+)?POINTS|(\d+)-POINT\s+FREEBIE)",
+        r"(?:REDEEM\s+(\d+)\s+(?:CHOICE\s+)?POINTS|(\d+)[-\s]+POINT\s+FREEBIE)",
         re.IGNORECASE,
     )
     POINTS_SAVE_AMT_PATTERN = re.compile(

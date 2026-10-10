@@ -123,7 +123,12 @@ def format_compact_note(ev: Any) -> str:
 def print_deal_card(ev: Any, verbose: bool = False) -> None:
     """Print a single deal observation with formatted badge and inline metadata."""
     badge_str = format_badge_fixed(ev.badge, width=16)
-    price_str = f"${ev.current_price:.2f}" if ev.current_price is not None else "See ad"
+    if ev.badge == "POINTS_FREEBIE" or getattr(ev, "promo_type", "") == "points_redemption":
+        price_str = "   FREE"
+    elif ev.current_price is not None:
+        price_str = f"${ev.current_price:.2f}"
+    else:
+        price_str = " See ad"
     page_str = f"p.{ev.page_number}" + (" (Cover)" if ev.is_front_page else "")
 
     # Deduplicate brand tag if brand is already part of canonical product name

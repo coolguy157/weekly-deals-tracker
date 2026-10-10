@@ -1031,7 +1031,31 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[1].brand, "NatureSweet")
         self.assertEqual(deals[1].category, "Tomatoes")
 
+    def test_points_freebie_normalization(self):
+        # 5-Point Freebie product title cleaning and normalization
+        item = FlyerItem(
+            id=4001,
+            flyer_id=8159694,
+            name="Bob Evans 18g Protein Macaroni & Cheese Refrigerated - 5-POINT FREEBIE, Save at least $5.79",
+            price=5.79,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Bob Evans",
+            page_number=5,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 1)
+        self.assertEqual(deals[0].canonical_name, "Bob Evans 18g Protein Macaroni & Cheese Refrigerated")
+        self.assertEqual(deals[0].brand, "Bob Evans")
+        self.assertEqual(deals[0].promo_detail, "FREE with 5 CHOICE points (Save $5.79)")
+
 
 if __name__ == "__main__":
     unittest.main()
+
 

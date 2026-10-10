@@ -71,10 +71,12 @@ PACKAGING_SALES_PATTERNS: List[re.Pattern] = [
     re.compile(r",?\s*\b(?:SAVE|\$)\s*\d+(?:\.\d{2})?\s+(?:OFF\s+)?(?:WITH\s+)?(?:DIGITAL\s+COUPON|FOR\s*U)\b", re.IGNORECASE),
     re.compile(r",?\s*-\s*\$\d+(?:\.\d{2})?(?:\s*/\s*(?:lb|ea|count|oz|pkg))?\.?\s*(?:DIGITAL\s+COUPON|FOR\s*U|WITH\s+CARD|MEMBER\s+PRICE)?\b", re.IGNORECASE),
     re.compile(r",?\s*(?:-\s*)?\$?\d+(?:\.\d{2})?\s*/\s*(?:lb|ea|count|oz|pkg)\.?\s*(?:DIGITAL\s+COUPON|FOR\s*U|WITH\s+CARD|MEMBER\s+PRICE)\b", re.IGNORECASE),
+    re.compile(r",?\s*(?:-\s*)?(?:\d+[-\s]+POINT\s+FREEBIE|FREE\s+(?:.*?\s+)?when\s+you\s+redeem\s+\d+\s+(?:CHOICE\s+)?points?)(?:,?\s*Save\s+(?:at\s+least|up\s+to)?\s*\$?\d+(?:\.\d{2})?)?.*$", re.IGNORECASE),
+    re.compile(r",?\s*(?:-\s*)?Save\s+(?:at\s+least|up\s+to)?\s*\$?\d+(?:\.\d{2})?\s*(?:with\s+this\s+week['’]?s\s+meal\s+deal)?.*$", re.IGNORECASE),
 ]
 
 DISCARD_CHUNK_PATTERN = re.compile(
-    r"^(Sold in|Sold by|Limit \d+|Seasoned \$|\$\d+|for \$|each Limit|Select Varieties|Selected Varieties)",
+    r"^(Sold in|Sold by|Limit \d+|Seasoned \$|\$\d+|for \$|each Limit|Select Varieties|Selected Varieties|\d+[-\s]+POINT\s+FREEBIE|Save at least|Save up to)",
     re.IGNORECASE,
 )
 

@@ -493,6 +493,57 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertEqual(eval_1.ad_id, "1044979722")
         self.assertEqual(eval_2.ad_id, "1044979722")
 
+    def test_points_freebie_ranked_first(self):
+        flyer = FlyerMetadata(
+            id=501,
+            merchant="Giant",
+            merchant_id=2381,
+            name="Weekly Ad",
+            postal_code="17837",
+            valid_from="2026-10-01T00:00:00",
+            valid_to="2026-10-07T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=501,
+                    flyer_id=501,
+                    page_number=3,
+                    is_front_page=False,
+                    canonical_name="Barilla Pasta 16 oz",
+                    brand="Barilla",
+                    advertised_price=None,
+                    unit_size=16.0,
+                    unit_type="oz",
+                    unit_price=None,
+                    raw_title="Barilla Pasta 5-POINT FREEBIE SAVE UP TO $2.49",
+                    image_url=None,
+                    promo_detail="5-POINT FREEBIE",
+                ),
+                NormalizedDeal(
+                    raw_deal_id=502,
+                    flyer_id=501,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Sugardale Bacon 12 oz",
+                    brand="Sugardale",
+                    advertised_price=1.99,
+                    unit_size=12.0,
+                    unit_type="oz",
+                    unit_price=0.166,
+                    raw_title="Sugardale Bacon",
+                    image_url=None,
+                ),
+            ]
+        )
+        evals = self.analyzer.evaluate_flyer(501)
+        self.assertEqual(len(evals), 2)
+        # POINTS_FREEBIE should be ranked first ahead of other deals
+        self.assertEqual(evals[0].badge, "POINTS_FREEBIE")
+        self.assertEqual(evals[0].canonical_name, "Barilla Pasta 16 oz")
+
 
 if __name__ == "__main__":
     unittest.main()
+
