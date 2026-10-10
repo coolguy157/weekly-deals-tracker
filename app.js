@@ -146,6 +146,52 @@
     return /points_freebie|freebie/i.test(badge) || pType === 'points_redemption' || /freebie|free with \d+ choice points/i.test(pDetail);
   }
 
+  function getPointsExtrapolatedInfo(d) {
+    if (!d || !isPointsFreebie(d)) return null;
+
+    const text = `${d.promo_detail || ''} ${d.analysis || ''} ${d.raw_title || ''} ${d.name || ''}`;
+    let pts = null;
+    let savedVal = null;
+    let rateCents = null;
+
+    const mPts = text.match(/(\d+)[-\s]+(?:CHOICE\s+)?POINTS/i) || text.match(/(\d+)[-\s]+POINT\s+FREEBIE/i) || text.match(/FREE\s+with\s+(\d+)\s+CHOICE\s+points/i);
+    if (mPts) {
+      pts = parseInt(mPts[1], 10);
+    }
+
+    const mSave = text.match(/SAVE\s+(?:UP\s+TO\s+|AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?)/i) || text.match(/Save\s+\$(\d+(?:\.\d{2})?)/i);
+    if (mSave) {
+      savedVal = parseFloat(mSave[1]);
+    } else if (d.base_price && d.base_price > 0) {
+      savedVal = d.base_price;
+    } else if (d.price && d.price > 0) {
+      savedVal = d.price;
+    }
+
+    const mRate = text.match(/([\d\.]+)¢\/pt/i);
+    if (mRate) {
+      rateCents = parseFloat(mRate[1]).toFixed(1);
+    } else if (pts && savedVal && pts > 0) {
+      rateCents = ((savedVal / pts) * 100).toFixed(1);
+    }
+
+    let yieldTag = '';
+    if (pts && savedVal && rateCents) {
+      yieldTag = `🪙 ${pts} pts • Save $${savedVal.toFixed(2)} (${rateCents}¢/pt)`;
+    } else if (pts && savedVal) {
+      yieldTag = `🪙 ${pts} pts • Save $${savedVal.toFixed(2)}`;
+    } else if (pts) {
+      yieldTag = `🪙 FREE with ${pts} pts`;
+    }
+
+    return {
+      pts,
+      savedVal,
+      rateCents,
+      yieldTag,
+    };
+  }
+
   function getBadgeHtml(d) {
     const rawBadge = (d.badge || '').toUpperCase();
     const badges = [];
@@ -754,10 +800,18 @@
     // Price range display
     let priceDisplay = '—';
     let unitPriceDisplay = '';
+    const isGroupFreebie = g.hasPointsFreebie || isPointsFreebie(rep) || g.items.every(it => isPointsFreebie(it));
+    const repPtsInfo = getPointsExtrapolatedInfo(rep) || (g.items[0] ? getPointsExtrapolatedInfo(g.items[0]) : null);
+
     if (g.isMealDeal && g.anchorItem && g.anchorItem.price != null) {
       priceDisplay = formatMoney(g.anchorItem.price);
       if (g.anchorItem.unit_price != null) {
         unitPriceDisplay = formatUnitPrice(g.anchorItem.unit_price, g.anchorItem.unit_type);
+      }
+    } else if (isGroupFreebie) {
+      priceDisplay = '<span class="free-price">FREE</span>';
+      if (repPtsInfo && repPtsInfo.yieldTag) {
+        unitPriceDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(repPtsInfo.yieldTag)}</span>`;
       }
     } else if (g.minPrice != null && g.maxPrice != null) {
       if (Math.abs(g.minPrice - g.maxPrice) < 0.01) {
@@ -811,12 +865,17 @@
           <div class="group-items-list">
             ${g.items.map(item => {
               const itemInList = shoppingList.some(s => s.id === item.deal_id);
-              const itemUnit = formatUnitPrice(item.unit_price, item.unit_type);
+              const isItemFreebie = isPointsFreebie(item);
+              const itemPtsInfo = isItemFreebie ? getPointsExtrapolatedInfo(item) : null;
+              const itemUnit = isItemFreebie && itemPtsInfo && itemPtsInfo.pts ? `🪙 ${itemPtsInfo.pts} pts` : formatUnitPrice(item.unit_price, item.unit_type);
               const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
               const isMain = g.isMealDeal && g.anchorItem && (item.deal_id === g.anchorItem.deal_id || item.name === g.anchorItem.name);
               let itemPriceHtml = `<span class="group-item-price">${formatMoney(item.price)}</span>`;
               let itemRoleBadge = '';
-              if (g.isMealDeal) {
+              if (isItemFreebie) {
+                itemRoleBadge = '<span class="deal-badge points-freebie" style="font-size:0.65rem; padding:1px 4px; margin-right:4px;">🪙 FREE w/ Points</span>';
+                itemPriceHtml = `<span class="group-item-price free-price" style="color:#7e22ce; font-weight:800;">FREE</span>`;
+              } else if (g.isMealDeal) {
                 if (isMain) {
                   itemRoleBadge = '<span class="deal-badge" style="font-size:0.65rem; background:#dbeafe; color:#1e40af; margin-right:4px;">Main Item</span>';
                   itemPriceHtml = `<span class="group-item-price" style="font-weight:700;">${formatMoney(item.price)}</span>`;
@@ -891,8 +950,20 @@
   function renderSingleItemCard(d) {
     const isInList = shoppingList.some(item => item.id === d.deal_id);
     const isAtl = isAtlBadge(d.badge);
+    const isFreebie = isPointsFreebie(d);
+    const ptsInfo = isFreebie ? getPointsExtrapolatedInfo(d) : null;
     const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
     const badgeHtml = getBadgeHtml(d);
+
+    let priceDisplayHtml = `<span class="current-price">${formatMoney(d.price)}</span>`;
+    let unitDisplayHtml = unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : '';
+
+    if (isFreebie) {
+      priceDisplayHtml = `<span class="current-price free-price">FREE</span>`;
+      if (ptsInfo && ptsInfo.yieldTag) {
+        unitDisplayHtml = `<span class="unit-price-tag points-yield-tag">${escapeHtml(ptsInfo.yieldTag)}</span>`;
+      }
+    }
 
     let promoDetailHtml = '';
     if (d.promo_detail) {
@@ -920,8 +991,8 @@
           <h3 class="product-name">${escapeHtml(d.name)}</h3>
 
           <div class="price-container">
-            <span class="current-price">${formatMoney(d.price)}</span>
-            ${unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : ''}
+            ${priceDisplayHtml}
+            ${unitDisplayHtml}
           </div>
 
           ${promoDetailHtml}
@@ -943,17 +1014,26 @@
       if (g.isMulti) {
         const isExpanded = expandedGroupIds.has(g.groupId);
         const isAllInList = g.items.every(it => shoppingList.some(s => s.id === it.deal_id));
+        const isGroupFreebie = g.hasPointsFreebie || isPointsFreebie(g.representativeDeal) || g.items.every(it => isPointsFreebie(it));
         const badgeHtml = getBadgeHtml(g.representativeDeal);
         let priceDisplay = formatMoney(g.minPrice);
+        let unitDisplay = formatUnitPrice(g.minUnitPrice, g.primaryUnitType);
+
         if (g.isMealDeal && g.anchorItem && g.anchorItem.price != null) {
           priceDisplay = formatMoney(g.anchorItem.price);
+        } else if (isGroupFreebie) {
+          priceDisplay = `<span class="free-price" style="font-size:1.1rem;">FREE</span>`;
+          const repPts = getPointsExtrapolatedInfo(g.representativeDeal) || (g.items[0] ? getPointsExtrapolatedInfo(g.items[0]) : null);
+          if (repPts && repPts.yieldTag) {
+            unitDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(repPts.yieldTag)}</span>`;
+          }
         } else if (g.minPrice != null && g.maxPrice != null && Math.abs(g.minPrice - g.maxPrice) >= 0.01) {
           priceDisplay = `${formatMoney(g.minPrice)} – ${formatMoney(g.maxPrice)}`;
         }
-        let unitDisplay = formatUnitPrice(g.minUnitPrice, g.primaryUnitType);
+
         if (g.isMealDeal && g.anchorItem && g.anchorItem.unit_price != null) {
           unitDisplay = formatUnitPrice(g.anchorItem.unit_price, g.anchorItem.unit_type);
-        } else if (g.minUnitPrice != null && g.maxUnitPrice != null && Math.abs(g.minUnitPrice - g.maxUnitPrice) >= 0.005) {
+        } else if (!isGroupFreebie && g.minUnitPrice != null && g.maxUnitPrice != null && Math.abs(g.minUnitPrice - g.maxUnitPrice) >= 0.005) {
           unitDisplay = `$${g.minUnitPrice.toFixed(2)} – $${g.maxUnitPrice.toFixed(2)}/${g.primaryUnitType || 'unit'}`;
         }
 
@@ -973,7 +1053,7 @@
             </td>
             <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${g.category || 'Other'}</span></td>
             <td><strong style="font-size:1.1rem; color:var(--slate-900);">${priceDisplay}</strong></td>
-            <td>${unitDisplay ? `<span class="unit-price-tag">${unitDisplay}</span>` : '—'}</td>
+            <td>${unitDisplay ? (unitDisplay.startsWith('<span') ? unitDisplay : `<span class="unit-price-tag">${unitDisplay}</span>`) : '—'}</td>
             <td>
               ${badgeHtml}
               ${promoText ? `<div style="font-size:0.75rem; color:var(--primary-700); font-weight:600; margin-top:2px;">🏷️ ${escapeHtml(promoText)}</div>` : ''}
@@ -988,12 +1068,18 @@
 
         const childRows = g.items.map(item => {
           const itemInList = shoppingList.some(s => s.id === item.deal_id);
-          const itemUnit = formatUnitPrice(item.unit_price, item.unit_type);
+          const isItemFreebie = isPointsFreebie(item);
+          const itemPtsInfo = isItemFreebie ? getPointsExtrapolatedInfo(item) : null;
+          const itemUnit = isItemFreebie && itemPtsInfo && itemPtsInfo.pts ? `🪙 ${itemPtsInfo.pts} pts` : formatUnitPrice(item.unit_price, item.unit_type);
           const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
           const isMain = g.isMealDeal && g.anchorItem && (item.deal_id === g.anchorItem.deal_id || item.name === g.anchorItem.name);
           let priceCell = `<strong>${formatMoney(item.price)}</strong>`;
           let badgeCell = itemBadge;
-          if (g.isMealDeal) {
+
+          if (isItemFreebie) {
+            badgeCell = `<span class="deal-badge points-freebie" style="font-size:0.65rem; padding:1px 4px;">🪙 FREE w/ Points</span> ${itemBadge}`;
+            priceCell = `<strong class="free-price" style="color:#7e22ce;">FREE</strong>`;
+          } else if (g.isMealDeal) {
             if (isMain) {
               badgeCell = `<span class="deal-badge" style="font-size:0.65rem; background:#dbeafe; color:#1e40af;">Main Item</span> ${itemBadge}`;
             } else {
@@ -1026,8 +1112,19 @@
       } else {
         const d = g.items[0];
         const isInList = shoppingList.some(item => item.id === d.deal_id);
+        const isFreebie = isPointsFreebie(d);
+        const ptsInfo = isFreebie ? getPointsExtrapolatedInfo(d) : null;
         const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
         const badgeHtml = getBadgeHtml(d);
+        let priceDisplay = `<strong style="font-size:1.1rem; color:var(--slate-900);">${formatMoney(d.price)}</strong>`;
+        let unitDisplay = unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : '—';
+
+        if (isFreebie) {
+          priceDisplay = `<strong class="free-price" style="font-size:1.1rem;">FREE</strong>`;
+          if (ptsInfo && ptsInfo.yieldTag) {
+            unitDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(ptsInfo.yieldTag)}</span>`;
+          }
+        }
 
         return `
           <tr>
@@ -1037,8 +1134,8 @@
               ${d.brand ? `<div style="font-size:0.75rem; color:var(--slate-500); text-transform:uppercase;">${escapeHtml(d.brand)}</div>` : ''}
             </td>
             <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${d.category || 'Other'}</span></td>
-            <td><strong style="font-size:1.1rem; color:var(--slate-900);">${formatMoney(d.price)}</strong></td>
-            <td>${unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : '—'}</td>
+            <td>${priceDisplay}</td>
+            <td>${unitDisplay}</td>
             <td>
               ${badgeHtml}
               <div style="font-size:0.75rem; color:var(--slate-500); margin-top:2px;">${escapeHtml(d.analysis || '')}</div>
@@ -1062,8 +1159,19 @@
   function renderFlatTableView(deals) {
     dealsTableBody.innerHTML = deals.map(d => {
       const isInList = shoppingList.some(item => item.id === d.deal_id);
+      const isFreebie = isPointsFreebie(d);
+      const ptsInfo = isFreebie ? getPointsExtrapolatedInfo(d) : null;
       const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
       const badgeHtml = getBadgeHtml(d);
+      let priceDisplay = `<strong style="font-size:1.1rem; color:var(--slate-900);">${formatMoney(d.price)}</strong>`;
+      let unitDisplay = unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : '—';
+
+      if (isFreebie) {
+        priceDisplay = `<strong class="free-price" style="font-size:1.1rem;">FREE</strong>`;
+        if (ptsInfo && ptsInfo.yieldTag) {
+          unitDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(ptsInfo.yieldTag)}</span>`;
+        }
+      }
 
       return `
         <tr>
@@ -1073,8 +1181,8 @@
             ${d.brand ? `<div style="font-size:0.75rem; color:var(--slate-500); text-transform:uppercase;">${escapeHtml(d.brand)}</div>` : ''}
           </td>
           <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${d.category || 'Other'}</span></td>
-          <td><strong style="font-size:1.1rem; color:var(--slate-900);">${formatMoney(d.price)}</strong></td>
-          <td>${unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : '—'}</td>
+          <td>${priceDisplay}</td>
+          <td>${unitDisplay}</td>
           <td>
             ${badgeHtml}
             <div style="font-size:0.75rem; color:var(--slate-500); margin-top:2px;">${escapeHtml(d.analysis || '')}</div>

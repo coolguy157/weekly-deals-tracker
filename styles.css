@@ -654,6 +654,12 @@ body {
   color: var(--slate-900);
 }
 
+.current-price.free-price, .free-price {
+  color: #7e22ce;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
 .unit-price-tag {
   font-size: 0.85rem;
   font-weight: 600;
@@ -661,6 +667,13 @@ body {
   background: var(--slate-100);
   padding: 2px 6px;
   border-radius: var(--radius-sm);
+}
+
+.unit-price-tag.points-yield-tag {
+  background: #fdf4ff;
+  color: #7e22ce;
+  border: 1px solid #f0abfc;
+  font-weight: 600;
 }
 
 .promo-detail-note {
