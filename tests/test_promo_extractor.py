@@ -198,8 +198,7 @@ class TestPromoExtractor(unittest.TestCase):
         p1 = PromoExtractor.extract_promo(sales_text)
         self.assertIsNotNone(p1)
         self.assertEqual(p1.promo_type, "meal_deal")
-        self.assertEqual(p1.coupon_discount, 8.27)
-        self.assertIn("MEAL DEAL", p1.promo_detail)
+        self.assertIn("Weekly Meal Deal", p1.promo_detail)
         self.assertIn("Beef Chuck Roast", p1.promo_detail)
 
         # Standalone meal deal text

@@ -13,8 +13,8 @@ def get_group_key(deal):
     page = deal.get("page") or 1
 
     # Weekly Meal Deal bundle check
-    if deal.get("promo_type") == "meal_deal" or "meal deal" in promo or "get these free" in promo or ("chuck roast" in promo and "free" in promo):
-        return f"meal_deal_p{page}_chuck_roast"
+    if deal.get("promo_type") == "meal_deal" or "meal deal" in promo or "get these free" in promo:
+        return f"meal_deal_p{page}"
 
     if deal.get("ad_id"):
         return f"ad_{deal['ad_id']}"
@@ -39,10 +39,7 @@ def synthesize_group_title(items):
     # Meal Deal bundle check
     promo = (items[0].get("promo_detail") or "").lower()
     if any(it.get("promo_type") == "meal_deal" for it in items) or "meal deal" in promo or "get these free" in promo:
-        anchor = max(items, key=lambda x: x.get("price") or 0)
-        anchor_name = (anchor.get("name") or "Beef Chuck Roast").split(" - ")[0]
-        anchor_name = re.sub(r"(?i)\b(?:Vacuum Sealed Fresh|Butcher Shop.*|U\.?S\.?D\.?A\.? Choice)\b", "", anchor_name).strip()
-        return f"{anchor_name} Meal Deal (Free Sides Included)"
+        return "Weekly Meal Deal"
 
     brands = sorted(list({it.get("brand") for it in items if it.get("brand")}))
     names = [it.get("name") or "" for it in items]
@@ -124,11 +121,10 @@ class TestGroupingLogic(unittest.TestCase):
         keys = [get_group_key(d) for d in meal_deal_items]
         # All items must collapse into the same meal deal group
         self.assertEqual(len(set(keys)), 1)
-        self.assertEqual(keys[0], "meal_deal_p5_chuck_roast")
+        self.assertEqual(keys[0], "meal_deal_p5")
 
         title = synthesize_group_title(meal_deal_items)
-        self.assertIn("Chuck Roast", title)
-        self.assertIn("Meal Deal", title)
+        self.assertEqual(title, "Weekly Meal Deal")
         self.assertNotIn("McCormick, Our Brand Selection", title)
 
     def test_multi_brand_specialized_labeling(self):

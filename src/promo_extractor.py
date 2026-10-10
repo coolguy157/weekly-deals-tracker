@@ -200,13 +200,13 @@ class PromoExtractor:
             # Clean anchor item name if matched
             if main_item:
                 main_item = re.sub(r"(?i)\b(?:Butcher Shop|U\.?S\.?D\.?A\.?|Choice|Fresh|Vacuum Sealed)\b.*", "", main_item).strip()
-            detail = "MEAL DEAL: Buy Main Item, Get Free Sides"
+            detail = "Weekly Meal Deal"
             if main_item and save_amt:
-                detail = f"MEAL DEAL: Buy {main_item} Get Free Sides (Save ${save_amt:.2f})"
+                detail = f"Weekly Meal Deal: Buy {main_item} (Save ${save_amt:.2f})"
             elif main_item:
-                detail = f"MEAL DEAL: Buy {main_item} Get Free Sides"
+                detail = f"Weekly Meal Deal: Buy {main_item}"
             elif save_amt:
-                detail = f"MEAL DEAL: Buy Main Item, Get Free Sides (Save ${save_amt:.2f})"
+                detail = f"Weekly Meal Deal (Save ${save_amt:.2f})"
             return PromoInfo(
                 promo_type="meal_deal",
                 promo_detail=detail,
