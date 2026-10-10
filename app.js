@@ -199,6 +199,14 @@
   // =========================================================================
 
   function getGroupKey(deal) {
+    const promo = (deal.promo_detail || '').trim().toLowerCase();
+    const page = deal.page || 1;
+
+    // Check if this is part of the weekly Meal Deal bundle (e.g. Chuck roast + potatoes + broth + carrots + seasoning)
+    if (deal.promo_type === 'meal_deal' || promo.includes('meal deal') || promo.includes('get these free') || (promo.includes('chuck roast') && promo.includes('free'))) {
+      return `meal_deal_p${page}_chuck_roast`;
+    }
+
     if (deal.ad_id) {
       return `ad_${deal.ad_id}`;
     }
@@ -211,9 +219,7 @@
     }
 
     // Fallback: group by page, promo_type, and normalized promo_detail
-    const promo = (deal.promo_detail || '').trim().toLowerCase();
     const pType = deal.promo_type || 'standard';
-    const page = deal.page || 1;
     const brand = (deal.brand || '').toLowerCase();
     if (promo && promo !== 'standard' && promo !== '(none)') {
       const cleanP = promo.replace(/[^a-z0-9]/g, '').slice(0, 25);
@@ -227,8 +233,34 @@
       return items[0].name || 'Deal Item';
     }
 
+    // Check if this is a Meal Deal bundle
+    const promo = (items[0].promo_detail || '').toLowerCase();
+    if (items.some(it => it.promo_type === 'meal_deal') || promo.includes('meal deal') || promo.includes('get these free')) {
+      const anchor = items.reduce((prev, curr) => ((curr.price || 0) > (prev.price || 0) ? curr : prev), items[0]);
+      let anchorName = (anchor.name || 'Beef Chuck Roast').split(' - ')[0];
+      anchorName = anchorName.replace(/Vacuum Sealed Fresh|Butcher Shop.*|U\.?S\.?D\.?A\.? Choice/gi, '').trim();
+      return `${anchorName} Meal Deal (Free Sides Included)`;
+    }
+
     const brands = Array.from(new Set(items.map(it => it.brand).filter(Boolean))).sort();
     const names = items.map(it => it.name || '');
+
+    // Multi-brand specialized categories
+    if (brands.includes('Duncan Hines') && brands.includes('PAM')) {
+      return 'Duncan Hines & PAM • Cake Mixes, Frosting & Baking Spray';
+    }
+    if (brands.includes('CareOne') && brands.includes("Nature's Promise")) {
+      return "Nature's Promise & CareOne • Vitamins & Supplements";
+    }
+    if (brands.includes('Floral') || names.some(n => /carnation|mum/i.test(n))) {
+      return 'Floral • Carnations & Mums (Colors May Vary)';
+    }
+    if (brands.includes("Martin's Snacks") && brands.includes("Nature's Own")) {
+      return "Martin's Snacks & Nature's Own • Chips, Popcorn & Bread";
+    }
+    if (brands.includes('Fresh Seafood') || brands.includes('Hannaford') || names.some(n => /fillet|swai|cod|whiting/i.test(n))) {
+      return 'Fresh & Frozen Seafood Fillets';
+    }
 
     // Common grocery product types
     const keywords = [
@@ -270,15 +302,15 @@
     }
 
     if (brands.length === 1) {
-      return `${brands[0]} Assorted Varieties (${items.length} Items)`;
+      return `${brands[0]} Assorted Varieties${pkg} (${items.length} Items)`;
     } else if (brands.length > 0 && brands.length <= 3) {
-      return `${brands.join(', ')} Selection (${items.length} Items)`;
+      return `${brands.join(', ')} Selection${pkg} (${items.length} Items)`;
     } else if (brands.length > 3) {
-      return `${brands.slice(0, 2).join(', ')} & more (${items.length} Items)`;
+      return `${brands.slice(0, 2).join(', ')} & more${pkg} (${items.length} Items)`;
     }
 
     const cat = items[0].category || 'Featured';
-    return `${cat} Mix & Match (${items.length} Items)`;
+    return `${cat} Mix & Match${pkg} (${items.length} Items)`;
   }
 
   function buildGroupObject(groupId, items) {
@@ -337,7 +369,13 @@
       if (!groupsMap.has(key)) {
         groupsMap.set(key, []);
       }
-      groupsMap.get(key).push(d);
+      const existingItems = groupsMap.get(key);
+      // Deduplicate identical product instances inside the same group
+      if (!existingItems.some(it => it.product_id === d.product_id && it.deal_id === d.deal_id)) {
+        if (!existingItems.some(it => it.name === d.name && Math.abs((it.price || 0) - (d.price || 0)) < 0.01)) {
+          existingItems.push(d);
+        }
+      }
     });
 
     const groups = [];
