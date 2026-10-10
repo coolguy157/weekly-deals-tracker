@@ -202,9 +202,9 @@
     const promo = (deal.promo_detail || '').trim().toLowerCase();
     const page = deal.page || 1;
 
-    // Check if this is part of the weekly Meal Deal bundle (e.g. Chuck roast + potatoes + broth + carrots + seasoning)
-    if (deal.promo_type === 'meal_deal' || promo.includes('meal deal') || promo.includes('get these free') || (promo.includes('chuck roast') && promo.includes('free'))) {
-      return `meal_deal_p${page}_chuck_roast`;
+    // Check if this is part of the weekly Meal Deal bundle
+    if (deal.promo_type === 'meal_deal' || promo.includes('meal deal') || promo.includes('get these free')) {
+      return `meal_deal_p${page}`;
     }
 
     if (deal.ad_id) {
@@ -236,10 +236,7 @@
     // Check if this is a Meal Deal bundle
     const promo = (items[0].promo_detail || '').toLowerCase();
     if (items.some(it => it.promo_type === 'meal_deal') || promo.includes('meal deal') || promo.includes('get these free')) {
-      const anchor = items.reduce((prev, curr) => ((curr.price || 0) > (prev.price || 0) ? curr : prev), items[0]);
-      let anchorName = (anchor.name || 'Beef Chuck Roast').split(' - ')[0];
-      anchorName = anchorName.replace(/Vacuum Sealed Fresh|Butcher Shop.*|U\.?S\.?D\.?A\.? Choice/gi, '').trim();
-      return `${anchorName} Meal Deal (Free Sides Included)`;
+      return 'Weekly Meal Deal';
     }
 
     const brands = Array.from(new Set(items.map(it => it.brand).filter(Boolean))).sort();
