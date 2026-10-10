@@ -673,6 +673,18 @@ body {
   font-weight: 600;
 }
 
+.meal-deal-qualifier-note {
+  font-size: 0.8rem;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
 .history-summary {
   font-size: 0.8rem;
   color: var(--slate-500);

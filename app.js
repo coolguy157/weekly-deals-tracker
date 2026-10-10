@@ -335,10 +335,17 @@
     const category = items[0].category || 'Other';
 
     const title = synthesizeGroupTitle(items);
+    const isMealDeal = groupId.startsWith('meal_deal_') || promoType === 'meal_deal' || title.toLowerCase().includes('meal deal');
+    let anchorItem = null;
+    if (isMealDeal && items.length > 0) {
+      anchorItem = items.reduce((prev, curr) => ((curr.price || 0) > (prev.price || 0) ? curr : prev), items[0]);
+    }
 
     return {
       groupId,
       isMulti,
+      isMealDeal,
+      anchorItem,
       items,
       title,
       page,
@@ -355,7 +362,7 @@
       hasAtl,
       hasGreat,
       hasCatBest,
-      representativeDeal: items[0],
+      representativeDeal: anchorItem || items[0],
     };
   }
 
@@ -374,6 +381,38 @@
         }
       }
     });
+
+    // Merge any duplicate sub-ad groups that belong to a meal deal on the same page
+    const mealDealKeyPrefix = 'meal_deal_';
+    const mealDealGroups = [];
+    groupsMap.forEach((items, key) => {
+      if (key.startsWith(mealDealKeyPrefix)) {
+        mealDealGroups.push({ key, items });
+      }
+    });
+
+    if (mealDealGroups.length > 0) {
+      const keysToDelete = [];
+      groupsMap.forEach((items, key) => {
+        if (key.startsWith(mealDealKeyPrefix)) return;
+        for (const md of mealDealGroups) {
+          const matchCount = items.filter(it =>
+            md.items.some(mdItem => mdItem.name === it.name || (mdItem.product_id && mdItem.product_id === it.product_id))
+          ).length;
+          // If the items in this group are 70%+ identical to the meal deal bundle, merge into meal deal
+          if (items.length > 0 && matchCount >= Math.min(3, items.length) && (matchCount / items.length) >= 0.7) {
+            items.forEach(it => {
+              if (!md.items.some(m => m.name === it.name && Math.abs((m.price || 0) - (it.price || 0)) < 0.01)) {
+                md.items.push(it);
+              }
+            });
+            keysToDelete.push(key);
+            break;
+          }
+        }
+      });
+      keysToDelete.forEach(k => groupsMap.delete(k));
+    }
 
     const groups = [];
     groupsMap.forEach((items, key) => {
@@ -705,27 +744,33 @@
 
     // Price range display
     let priceDisplay = '—';
-    if (g.minPrice != null && g.maxPrice != null) {
+    let unitPriceDisplay = '';
+    if (g.isMealDeal && g.anchorItem && g.anchorItem.price != null) {
+      priceDisplay = formatMoney(g.anchorItem.price);
+      if (g.anchorItem.unit_price != null) {
+        unitPriceDisplay = formatUnitPrice(g.anchorItem.unit_price, g.anchorItem.unit_type);
+      }
+    } else if (g.minPrice != null && g.maxPrice != null) {
       if (Math.abs(g.minPrice - g.maxPrice) < 0.01) {
         priceDisplay = formatMoney(g.minPrice);
       } else {
         priceDisplay = `${formatMoney(g.minPrice)} – ${formatMoney(g.maxPrice)}`;
       }
-    }
-
-    // Unit price range display
-    let unitPriceDisplay = '';
-    if (g.minUnitPrice != null && g.maxUnitPrice != null) {
-      if (Math.abs(g.minUnitPrice - g.maxUnitPrice) < 0.005) {
-        unitPriceDisplay = formatUnitPrice(g.minUnitPrice, g.primaryUnitType);
-      } else {
-        unitPriceDisplay = `$${g.minUnitPrice.toFixed(2)} – $${g.maxUnitPrice.toFixed(2)}/${g.primaryUnitType || 'unit'}`;
+      if (g.minUnitPrice != null && g.maxUnitPrice != null) {
+        if (Math.abs(g.minUnitPrice - g.maxUnitPrice) < 0.005) {
+          unitPriceDisplay = formatUnitPrice(g.minUnitPrice, g.primaryUnitType);
+        } else {
+          unitPriceDisplay = `$${g.minUnitPrice.toFixed(2)} – $${g.maxUnitPrice.toFixed(2)}/${g.primaryUnitType || 'unit'}`;
+        }
       }
     }
 
     // Promo details note
     let promoDetailHtml = '';
-    if (g.promoDetail) {
+    if (g.isMealDeal && g.anchorItem) {
+      const anchorClean = escapeHtml(g.anchorItem.name.split(' - ')[0]);
+      promoDetailHtml = `<div class="meal-deal-qualifier-note">✨ Buy <strong>${anchorClean}</strong> (${formatMoney(g.anchorItem.price)}), get ${g.items.length - 1} sides & mixes <strong>FREE</strong></div>`;
+    } else if (g.promoDetail) {
       promoDetailHtml = `<div class="promo-detail-note">🏷️ ${escapeHtml(g.promoDetail)}</div>`;
     }
 
@@ -759,18 +804,32 @@
               const itemInList = shoppingList.some(s => s.id === item.deal_id);
               const itemUnit = formatUnitPrice(item.unit_price, item.unit_type);
               const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
+              const isMain = g.isMealDeal && g.anchorItem && (item.deal_id === g.anchorItem.deal_id || item.name === g.anchorItem.name);
+              let itemPriceHtml = `<span class="group-item-price">${formatMoney(item.price)}</span>`;
+              let itemRoleBadge = '';
+              if (g.isMealDeal) {
+                if (isMain) {
+                  itemRoleBadge = '<span class="deal-badge" style="font-size:0.65rem; background:#dbeafe; color:#1e40af; margin-right:4px;">Main Item</span>';
+                  itemPriceHtml = `<span class="group-item-price" style="font-weight:700;">${formatMoney(item.price)}</span>`;
+                } else {
+                  itemRoleBadge = '<span class="deal-badge" style="font-size:0.65rem; background:#dcfce7; color:#166534; margin-right:4px;">FREE with purchase</span>';
+                  itemPriceHtml = `<span class="group-item-price" style="color:#059669; font-weight:700;">$0.00 <span style="text-decoration:line-through; color:var(--slate-400); font-weight:400; font-size:0.75rem;">${formatMoney(item.price)}</span></span>`;
+                }
+              }
+
               return `
                 <div class="group-item-row" data-deal-id="${item.deal_id}">
                   <div class="group-item-info">
                     <div class="group-item-name">${escapeHtml(item.name)}</div>
                     <div class="group-item-sub">
+                      ${itemRoleBadge}
                       ${item.brand ? `<span>${escapeHtml(item.brand)}</span>` : ''}
                       ${itemUnit ? `<span>• ${itemUnit}</span>` : ''}
                       ${itemBadge}
                     </div>
                   </div>
                   <div class="group-item-actions">
-                    <span class="group-item-price">${formatMoney(item.price)}</span>
+                    ${itemPriceHtml}
                     <button class="btn-item-add ${itemInList ? 'in-list' : ''}" onclick="window.__toggleShoppingItem(${item.deal_id})">
                       ${itemInList ? '✓ In List' : '+ List'}
                     </button>
@@ -877,13 +936,19 @@
         const isAllInList = g.items.every(it => shoppingList.some(s => s.id === it.deal_id));
         const badgeHtml = getBadgeHtml(g.representativeDeal);
         let priceDisplay = formatMoney(g.minPrice);
-        if (g.minPrice != null && g.maxPrice != null && Math.abs(g.minPrice - g.maxPrice) >= 0.01) {
+        if (g.isMealDeal && g.anchorItem && g.anchorItem.price != null) {
+          priceDisplay = formatMoney(g.anchorItem.price);
+        } else if (g.minPrice != null && g.maxPrice != null && Math.abs(g.minPrice - g.maxPrice) >= 0.01) {
           priceDisplay = `${formatMoney(g.minPrice)} – ${formatMoney(g.maxPrice)}`;
         }
         let unitDisplay = formatUnitPrice(g.minUnitPrice, g.primaryUnitType);
-        if (g.minUnitPrice != null && g.maxUnitPrice != null && Math.abs(g.minUnitPrice - g.maxUnitPrice) >= 0.005) {
+        if (g.isMealDeal && g.anchorItem && g.anchorItem.unit_price != null) {
+          unitDisplay = formatUnitPrice(g.anchorItem.unit_price, g.anchorItem.unit_type);
+        } else if (g.minUnitPrice != null && g.maxUnitPrice != null && Math.abs(g.minUnitPrice - g.maxUnitPrice) >= 0.005) {
           unitDisplay = `$${g.minUnitPrice.toFixed(2)} – $${g.maxUnitPrice.toFixed(2)}/${g.primaryUnitType || 'unit'}`;
         }
+
+        const promoText = g.isMealDeal && g.anchorItem ? `✨ Buy ${escapeHtml(g.anchorItem.name.split(' - ')[0])}, Get Sides FREE` : g.promoDetail;
 
         const parentRow = `
           <tr class="table-group-header-row">
@@ -902,7 +967,7 @@
             <td>${unitDisplay ? `<span class="unit-price-tag">${unitDisplay}</span>` : '—'}</td>
             <td>
               ${badgeHtml}
-              ${g.promoDetail ? `<div style="font-size:0.75rem; color:var(--primary-700); font-weight:600; margin-top:2px;">🏷️ ${escapeHtml(g.promoDetail)}</div>` : ''}
+              ${promoText ? `<div style="font-size:0.75rem; color:var(--primary-700); font-weight:600; margin-top:2px;">🏷️ ${escapeHtml(promoText)}</div>` : ''}
             </td>
             <td>
               <button class="btn-add-list ${isAllInList ? 'in-list' : ''}" style="padding:6px 10px; font-size:0.75rem;" onclick="window.__toggleGroupAll('${g.groupId}')">
@@ -916,6 +981,18 @@
           const itemInList = shoppingList.some(s => s.id === item.deal_id);
           const itemUnit = formatUnitPrice(item.unit_price, item.unit_type);
           const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
+          const isMain = g.isMealDeal && g.anchorItem && (item.deal_id === g.anchorItem.deal_id || item.name === g.anchorItem.name);
+          let priceCell = `<strong>${formatMoney(item.price)}</strong>`;
+          let badgeCell = itemBadge;
+          if (g.isMealDeal) {
+            if (isMain) {
+              badgeCell = `<span class="deal-badge" style="font-size:0.65rem; background:#dbeafe; color:#1e40af;">Main Item</span> ${itemBadge}`;
+            } else {
+              badgeCell = `<span class="deal-badge" style="font-size:0.65rem; background:#dcfce7; color:#166534;">FREE with purchase</span> ${itemBadge}`;
+              priceCell = `<strong style="color:#059669;">$0.00</strong> <span style="text-decoration:line-through; color:var(--slate-400); font-size:0.75rem;">${formatMoney(item.price)}</span>`;
+            }
+          }
+
           return `
             <tr class="table-child-row ${isExpanded ? '' : 'collapsed'}">
               <td></td>
@@ -924,9 +1001,9 @@
                 ${item.brand ? `<span style="font-size:0.7rem; color:var(--slate-400); margin-left:6px;">(${escapeHtml(item.brand)})</span>` : ''}
               </td>
               <td><span style="font-size:0.75rem; color:var(--slate-500);">${item.category || ''}</span></td>
-              <td><strong>${formatMoney(item.price)}</strong></td>
+              <td>${priceCell}</td>
               <td>${itemUnit ? `<span class="unit-price-tag" style="font-size:0.75rem;">${itemUnit}</span>` : '—'}</td>
-              <td>${itemBadge}</td>
+              <td>${badgeCell}</td>
               <td>
                 <button class="btn-item-add ${itemInList ? 'in-list' : ''}" onclick="window.__toggleShoppingItem(${item.deal_id})">
                   ${itemInList ? '✓ In' : '+ Add'}
