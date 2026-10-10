@@ -433,11 +433,54 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   padding: 0 4px;
   font-size: 0.85rem;
-  color: var(--slate-500);
+  color: var(--slate-600);
   font-weight: 500;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.results-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.results-group-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.group-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  color: var(--slate-700);
+  border: 1px solid var(--slate-300);
+  padding: 5px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s ease;
+}
+
+.group-toggle-btn:hover {
+  background: var(--slate-50);
+  border-color: var(--slate-400);
+  color: var(--slate-900);
+}
+
+.group-toggle-btn.active {
+  background: var(--primary-50);
+  color: var(--primary-800);
+  border-color: var(--primary-600);
+  font-weight: 700;
 }
 
 .reset-link {
@@ -452,7 +495,7 @@ body {
 /* Deals Grid View */
 .deals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
 }
 
@@ -641,11 +684,76 @@ body {
   color: var(--slate-700);
 }
 
+.deal-badge.group-count {
+  background: var(--slate-100);
+  color: var(--slate-700);
+  border: 1px solid var(--slate-300);
+  font-weight: 700;
+}
+
+.deal-card.is-group {
+  border-top: 3px solid var(--primary-600);
+}
+
+.group-varieties-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.variety-chip {
+  font-size: 0.72rem;
+  background: var(--slate-100);
+  color: var(--slate-700);
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--slate-200);
+  white-space: nowrap;
+}
+
+.variety-chip.more {
+  background: var(--primary-50);
+  color: var(--primary-800);
+  font-weight: 700;
+  border-color: var(--primary-200);
+}
+
 /* Card Action Button */
 .card-action-row {
   margin-top: auto;
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-expand-group {
+  flex: 1;
+  background: var(--primary-50);
+  color: var(--primary-800);
+  border: 1px solid var(--primary-200);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-expand-group:hover {
+  background: var(--primary-600);
+  color: white;
+  border-color: var(--primary-600);
+}
+
+.btn-expand-group.expanded {
+  background: var(--slate-200);
+  color: var(--slate-800);
+  border-color: var(--slate-300);
 }
 
 .btn-add-list {
@@ -663,6 +771,7 @@ body {
   justify-content: center;
   gap: 6px;
   transition: all 0.15s ease;
+  min-width: 100px;
 }
 
 .btn-add-list:hover {
@@ -677,6 +786,118 @@ body {
   border-color: var(--primary-600);
 }
 
+/* Expanded Group Items Section */
+.group-expanded-container {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--slate-300);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.group-expanded-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.group-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.group-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  gap: 8px;
+  transition: background 0.1s ease;
+}
+
+.group-item-row:hover {
+  background: white;
+  border-color: var(--slate-300);
+}
+
+.group-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.group-item-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--slate-900);
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.group-item-sub {
+  font-size: 0.72rem;
+  color: var(--slate-500);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.group-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.group-item-price {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--slate-900);
+}
+
+.btn-item-add {
+  background: white;
+  border: 1px solid var(--slate-300);
+  color: var(--slate-700);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-item-add:hover {
+  background: var(--primary-600);
+  color: white;
+  border-color: var(--primary-600);
+}
+
+.btn-item-add.in-list {
+  background: var(--primary-100);
+  color: var(--primary-900);
+  border-color: var(--primary-600);
+  font-weight: 700;
+}
+
 /* Table View */
 .table-view-container {
   background: white;
@@ -684,6 +905,39 @@ body {
   border: 1px solid var(--slate-200);
   overflow-x: auto;
   box-shadow: var(--shadow-sm);
+}
+
+.table-group-header-row {
+  background: var(--slate-50);
+  font-weight: 600;
+}
+
+.table-child-row {
+  background: #fafbfc;
+  border-left: 3px solid var(--primary-500);
+}
+
+.table-child-row.collapsed {
+  display: none;
+}
+
+.btn-table-expand {
+  background: var(--primary-50);
+  border: 1px solid var(--primary-200);
+  color: var(--primary-800);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-table-expand:hover {
+  background: var(--primary-600);
+  color: white;
 }
 
 .deals-table {
