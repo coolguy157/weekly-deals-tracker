@@ -138,6 +138,13 @@
   function isGreatBadge(badge) {
     return /great|beat/i.test(badge || '');
   }
+  function isPointsFreebie(d) {
+    if (!d) return false;
+    const badge = typeof d === 'string' ? d : (d.badge || '');
+    const pType = typeof d === 'object' ? (d.promo_type || '') : '';
+    const pDetail = typeof d === 'object' ? (d.promo_detail || '') : '';
+    return /points_freebie|freebie/i.test(badge) || pType === 'points_redemption' || /freebie|free with \d+ choice points/i.test(pDetail);
+  }
 
   function getBadgeHtml(d) {
     const rawBadge = (d.badge || '').toUpperCase();
@@ -330,6 +337,7 @@
     const hasAtl = items.some(it => isAtlBadge(it.badge));
     const hasGreat = items.some(it => isGreatBadge(it.badge) || isAtlBadge(it.badge) || /beat/i.test(it.badge || ''));
     const hasCatBest = items.some(it => it.is_category_best);
+    const hasPointsFreebie = items.some(it => isPointsFreebie(it));
     const isFrontPage = items.some(it => it.is_front_page);
     const page = items[0].page || 1;
     const category = items[0].category || 'Other';
@@ -359,6 +367,7 @@
       primaryUnitType,
       promoDetail,
       promoType,
+      hasPointsFreebie,
       hasAtl,
       hasGreat,
       hasCatBest,
@@ -586,9 +595,9 @@
         return (a.title || '').localeCompare(b.title || '');
       }
 
-      // 'featured' default
-      const scoreA = (a.hasAtl ? 100 : a.hasGreat ? 50 : 0) + (a.isFrontPage ? 20 : 0);
-      const scoreB = (b.hasAtl ? 100 : b.hasGreat ? 50 : 0) + (b.isFrontPage ? 20 : 0);
+      // 'featured' default: 5-Point / Points Freebies (200) > ALL-TIME LOW (100) > Great Deal / Beat Avg (50) + Front page bonus (20)
+      const scoreA = (a.hasPointsFreebie ? 200 : a.hasAtl ? 100 : a.hasGreat ? 50 : 0) + (a.isFrontPage ? 20 : 0);
+      const scoreB = (b.hasPointsFreebie ? 200 : b.hasAtl ? 100 : b.hasGreat ? 50 : 0) + (b.isFrontPage ? 20 : 0);
       if (scoreA !== scoreB) return scoreB - scoreA;
       return (a.page || 1) - (b.page || 1);
     });
@@ -655,8 +664,8 @@
       if (activeSort === 'name_asc') {
         return (a.name || '').localeCompare(b.name || '');
       }
-      const scoreA = (a.badge === 'ALL-TIME LOW' ? 100 : a.badge === 'GREAT DEAL' ? 50 : 0) + (a.is_front_page ? 20 : 0);
-      const scoreB = (b.badge === 'ALL-TIME LOW' ? 100 : b.badge === 'GREAT DEAL' ? 50 : 0) + (b.is_front_page ? 20 : 0);
+      const scoreA = (isPointsFreebie(a) ? 200 : isAtlBadge(a.badge) ? 100 : isGreatBadge(a.badge) ? 50 : 0) + (a.is_front_page ? 20 : 0);
+      const scoreB = (isPointsFreebie(b) ? 200 : isAtlBadge(b.badge) ? 100 : isGreatBadge(b.badge) ? 50 : 0) + (b.is_front_page ? 20 : 0);
       if (scoreA !== scoreB) return scoreB - scoreA;
       return (a.page || 1) - (b.page || 1);
     });
@@ -769,7 +778,7 @@
     let promoDetailHtml = '';
     if (g.isMealDeal && g.anchorItem) {
       const anchorClean = escapeHtml(g.anchorItem.name.split(' - ')[0]);
-      promoDetailHtml = `<div class="meal-deal-qualifier-note">✨ Buy <strong>${anchorClean}</strong> (${formatMoney(g.anchorItem.price)}), get ${g.items.length - 1} sides & mixes <strong>FREE</strong></div>`;
+      promoDetailHtml = `<div class="meal-deal-qualifier-note">✨ Buy <strong>${anchorClean}</strong> (${formatMoney(g.anchorItem.price)}), get bundled items <strong>FREE</strong></div>`;
     } else if (g.promoDetail) {
       promoDetailHtml = `<div class="promo-detail-note">🏷️ ${escapeHtml(g.promoDetail)}</div>`;
     }
@@ -948,7 +957,7 @@
           unitDisplay = `$${g.minUnitPrice.toFixed(2)} – $${g.maxUnitPrice.toFixed(2)}/${g.primaryUnitType || 'unit'}`;
         }
 
-        const promoText = g.isMealDeal && g.anchorItem ? `✨ Buy ${escapeHtml(g.anchorItem.name.split(' - ')[0])}, Get Sides FREE` : g.promoDetail;
+        const promoText = g.isMealDeal && g.anchorItem ? `✨ Buy ${escapeHtml(g.anchorItem.name.split(' - ')[0])}, Get Bundled Items FREE` : g.promoDetail;
 
         const parentRow = `
           <tr class="table-group-header-row">

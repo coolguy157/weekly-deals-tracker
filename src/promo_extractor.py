@@ -5,7 +5,7 @@ Parses BOGOs, 'Must Buy' quantity thresholds, 'X for $Y' bundles, and digital co
 """
 
 from dataclasses import dataclass
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 import re
 
 
@@ -512,3 +512,34 @@ class PromoExtractor:
             return None
 
         return None
+
+    @classmethod
+    def calculate_dynamic_point_value(
+        cls,
+        items: List[Any],
+        default_value: float = DEFAULT_POINT_VALUE,
+        min_points_threshold: int = 50,
+        exclude_points: Tuple[int, ...] = (5, 10),
+    ) -> float:
+        """
+        Dynamically calculates the baseline point value ($/point) from standard grocery redemption promotions.
+        Explicitly excludes promotional doorbusters/freebies (e.g. 5-point freebies) to avoid skewing standard reward valuation.
+        """
+        redemption_values = []
+        for item in items:
+            p_info = None
+            if isinstance(item, PromoInfo):
+                p_info = item
+            elif isinstance(item, dict):
+                p_text = f"{item.get('raw_title') or ''} {item.get('promo_detail') or ''}"
+                p_info = cls.extract_promo(p_text, [item.get("canonical_name")])
+
+            if p_info and p_info.promo_type == "points_redemption" and p_info.points_cost and p_info.points_saved_val:
+                # Specifically ignore 5-point freebies and small loss-leader doorbusters
+                if p_info.points_cost not in exclude_points and p_info.points_cost >= min_points_threshold:
+                    redemption_values.append(p_info.points_saved_val / p_info.points_cost)
+
+        if redemption_values:
+            return round(sum(redemption_values) / len(redemption_values), 4)
+        return default_value
+

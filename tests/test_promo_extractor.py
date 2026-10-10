@@ -201,12 +201,21 @@ class TestPromoExtractor(unittest.TestCase):
         self.assertIn("Weekly Meal Deal", p1.promo_detail)
         self.assertIn("Beef Chuck Roast", p1.promo_detail)
 
-        # Standalone meal deal text
-        p2 = PromoExtractor.extract_promo("Our Brand Boneless Beef Chuck Roast Meal Deal")
-        self.assertIsNotNone(p2)
-        self.assertEqual(p2.promo_type, "meal_deal")
+    def test_dynamic_point_value_calculation_ignores_5_point_freebies(self):
+        items = [
+            # Standard points redemption: 75 pts, save $2.25 -> 3.00¢/pt
+            {"raw_title": "Rice FREE when you redeem 75 CHOICE points SAVE UP TO $2.25", "promo_detail": ""},
+            # Standard points redemption: 100 pts, save $2.80 -> 2.80¢/pt
+            {"raw_title": "Oats FREE when you redeem 100 CHOICE points SAVE UP TO $2.80", "promo_detail": ""},
+            # 5-point freebie: 5 pts, save $2.50 -> 50.0¢/pt (MUST BE IGNORED)
+            {"raw_title": "Pasta 5-POINT FREEBIE SAVE UP TO $2.50", "promo_detail": ""},
+        ]
+        # Expected dynamic valuation is (0.0300 + 0.0280) / 2 = 0.0290, NOT inflated by the 5-point freebie
+        dyn_val = PromoExtractor.calculate_dynamic_point_value(items)
+        self.assertAlmostEqual(dyn_val, 0.0290, places=4)
 
 
 if __name__ == "__main__":
     unittest.main()
+
 

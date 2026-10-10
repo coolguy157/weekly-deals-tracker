@@ -572,16 +572,9 @@ class DealAnalyzer:
         """Evaluate all deals in a circular against historical data."""
         deals = self.db.get_deals_for_flyer(flyer_id, front_page_only=front_page_only)
 
-        # Precompute circular-wide average point valuation from points redemption deals
+        # Precompute circular-wide average point valuation from points redemption deals (specifically ignoring 5-point freebies)
         from .promo_extractor import PromoExtractor
-        redemption_values = []
-        for d in deals:
-            p_text = f"{d.get('raw_title') or ''} {d.get('promo_detail') or ''}"
-            p_info = PromoExtractor.extract_promo(p_text, [d.get('canonical_name')])
-            if p_info and p_info.promo_type == "points_redemption" and p_info.points_cost and p_info.points_saved_val:
-                if p_info.points_cost >= 50:
-                    redemption_values.append(p_info.points_saved_val / p_info.points_cost)
-        avg_point_val = sum(redemption_values) / len(redemption_values) if redemption_values else PromoExtractor.DEFAULT_POINT_VALUE
+        avg_point_val = PromoExtractor.calculate_dynamic_point_value(deals, default_value=PromoExtractor.DEFAULT_POINT_VALUE)
 
         # Precompute current flyer category min unit prices
         flyer_cat_mins: Dict[Tuple[str, str], float] = {}
@@ -599,10 +592,10 @@ class DealAnalyzer:
             for d in deals
         ]
 
-        # Prioritize All-Time Lows, Points Freebies & Rewards, and Beat Average deals first
+        # Prioritize 5-Point / Points Freebies, All-Time Lows, Points Rewards, and Beat Average deals first
         priority_order = {
-            "ALL_TIME_LOW": 0,
-            "POINTS_FREEBIE": 1,
+            "POINTS_FREEBIE": 0,
+            "ALL_TIME_LOW": 1,
             "POINTS_REWARD": 2,
             "SPEND_SAVE": 3,
             "PERCENT_OFF": 4,
@@ -615,3 +608,4 @@ class DealAnalyzer:
         }
         evaluations.sort(key=lambda x: (priority_order.get(x.badge, 99), x.current_price or 999))
         return evaluations
+
