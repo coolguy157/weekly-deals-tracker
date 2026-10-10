@@ -98,6 +98,51 @@ def pre_expand_deal_string(name: str) -> str:
     # Simplify packaging options "Cans or Bottles" -> "Cans/Bottles"
     cleaned_name = re.sub(r"\b(?:Cans|Bottles)\s+or\s+(?:Bottles|Cans)\b", "Cans/Bottles", cleaned_name, flags=re.IGNORECASE)
 
+    # Expand multi-cut chicken lists: "Fresh Boneless Skinless Chicken Breasts, Thin Sliced or Tenders"
+    def _expand_chicken_trio(m):
+        prefix = m.group(1).strip()
+        thin = m.group(2).strip()
+        opt3 = m.group(3).strip()
+        m_base = re.match(r"^(.*?)\b(?:Boneless\s+Skinless|Boneless|Bone-In)?\s*Chicken\s+Breasts?$", prefix, re.IGNORECASE)
+        base = m_base.group(1).strip() if m_base else prefix.replace("Chicken Breasts", "").replace("Breasts", "").strip()
+        b_str = f"{base} " if base else ""
+        item1 = prefix
+        item2 = f"{prefix.replace('Chicken Breasts', '').replace('Breasts', '').strip()} Thin Sliced Chicken Breasts".strip()
+        item2 = " ".join(item2.split())
+        item3 = f"{b_str}Chicken {opt3}".strip()
+        item3 = " ".join(item3.split())
+        return f"{item1} or {item2} or {item3}"
+
+    cleaned_name = re.sub(
+        r"\b([A-Za-z0-9'\s]+?\b(?:Chicken\s+)?Breasts?),\s*(Thin\s+Sliced(?:\s+Breasts?)?)\s+or\s+(Tenders|Cutlets|Wings|Thighs)\b",
+        _expand_chicken_trio,
+        cleaned_name,
+        flags=re.IGNORECASE,
+    )
+
+    # Expand multi-cut poultry lists: "<Prefix> Chicken Breasts, Thighs or Drumsticks"
+    def _expand_poultry_trio(m):
+        prefix = m.group(1).strip()
+        c2 = m.group(2).strip()
+        c3 = m.group(3).strip()
+        m_base = re.match(r"^(.*?)\b(?:Boneless\s+Skinless|Boneless|Bone-In)?\s*Chicken\b", prefix, re.IGNORECASE)
+        base = m_base.group(1).strip() if m_base else prefix.replace("Chicken Breasts", "").strip()
+        b_str = f"{base} " if base else ""
+        item1 = prefix
+        item2 = f"{b_str}Chicken {c2}".strip()
+        item3 = f"{b_str}Chicken {c3}".strip()
+        return f"{item1} or {item2} or {item3}"
+
+    cleaned_name = re.sub(
+        r"\b([A-Za-z0-9'\s]+?\b(?:Chicken\s+)?Breasts?),\s*(Thighs|Drumsticks|Wings|Tenders|Cutlets)\s+or\s+(Thighs|Drumsticks|Wings|Tenders|Cutlets)\b",
+        _expand_poultry_trio,
+        cleaned_name,
+        flags=re.IGNORECASE,
+    )
+
+    produce_nouns = "Squash|Potatoes|Apples|Grapes|Pears|Melons|Peppers|Onions|Tomatoes|Oranges|Citrus|Peaches|Plums"
+    variety_pat = r"(?:(?!or\b|and\b)[A-Za-z]+(?:'[A-Za-z]+)?)(?:\s+(?:(?!or\b|and\b)[A-Za-z]+))?"
+
     # Expand produce suffix lists: "Acorn, Butternut or Spaghetti Squash" -> "Acorn Squash or Butternut Squash or Spaghetti Squash"
     def _expand_suffix_list(m):
         v1 = m.group(1).strip()
@@ -107,8 +152,30 @@ def pre_expand_deal_string(name: str) -> str:
         return f"{v1} {noun} or {v2} {noun} or {v3} {noun}"
 
     cleaned_name = re.sub(
-        r"\b([A-Za-z]+),\s*([A-Za-z]+)\s+or\s+([A-Za-z]+)\s+(Squash|Potatoes|Apples|Grapes|Pears|Melons|Peppers|Onions)\b",
+        rf"\b({variety_pat}),\s*({variety_pat})\s+or\s+({variety_pat})\s+({produce_nouns})\b",
         _expand_suffix_list,
+        cleaned_name,
+        flags=re.IGNORECASE,
+    )
+
+    # Expand 2-variety produce suffix pairs: "Fuji or Granny Smith Apples" -> "Fuji Apples or Granny Smith Apples"
+    known_produce_nouns = set("pumpkins squash potatoes apples grapes pears melons peppers onions tomatoes oranges citrus peaches plums berries".split())
+
+    def _expand_suffix_pair(m):
+        v1 = m.group(1).strip()
+        v2 = m.group(2).strip()
+        noun = m.group(3).strip()
+        v1_last = v1.split()[-1].lower() if v1 else ""
+        if v1_last in known_produce_nouns or (v1_last.endswith("s") and v1_last[:-1] in known_produce_nouns):
+            return m.group(0)
+        v2_last = v2.split()[-1].lower() if v2 else ""
+        if v2_last in known_produce_nouns or (v2_last.endswith("s") and v2_last[:-1] in known_produce_nouns):
+            return m.group(0)
+        return f"{v1} {noun} or {v2} {noun}"
+
+    cleaned_name = re.sub(
+        rf"\b({variety_pat})\s+or\s+({variety_pat})\s+({produce_nouns})\b",
+        _expand_suffix_pair,
         cleaned_name,
         flags=re.IGNORECASE,
     )

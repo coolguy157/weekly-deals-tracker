@@ -1,6 +1,7 @@
 /**
  * Giant Weekly Deals - Lewisburg PA Tracker
  * Client-side Controller & Dynamic Filter Engine
+ * Supports circular ad grouping with expandable individual item breakdowns
  */
 
 (function () {
@@ -10,11 +11,13 @@
   let allDeals = [];
   let flyerMeta = null;
   let activeCategory = 'ALL';
-  let activeFilter = null; // 'atl', 'great', 'front', 'catbest', 'bogo'
+  let activeFilter = null; // 'atl', 'great', 'front', 'catbest', 'bogo', 'points'
   let searchQuery = '';
   let activeSort = 'featured';
   let viewMode = 'grid'; // 'grid' | 'table'
-  let shoppingList = []; // { id, name, price, unit_price, checked }
+  let groupByAd = true; // Group deals by circular ad by default
+  let expandedGroupIds = new Set(); // Multi-item groups currently expanded (collapsed by default)
+  let shoppingList = []; // { id, name, price, unit_price, checked, page }
 
   // DOM Elements
   const dealsGrid = document.getElementById('deals-grid');
@@ -31,6 +34,10 @@
   const resultsCountText = document.getElementById('results-count-text');
   const resetFiltersBtn = document.getElementById('reset-filters-btn');
   const emptyResetBtn = document.getElementById('empty-reset-btn');
+  const toggleGroupingBtn = document.getElementById('toggle-grouping-btn');
+  const expandCollapseAllBtn = document.getElementById('expand-collapse-all-btn');
+  const expandCollapseIcon = document.getElementById('expand-collapse-icon');
+  const expandCollapseText = document.getElementById('expand-collapse-text');
 
   // Stats Counters
   const statTotalCount = document.getElementById('stat-total-count');
@@ -91,7 +98,6 @@
   // Data Fetching
   async function fetchDeals() {
     try {
-      // First try local deals.json with cache-busting
       const response = await fetch('deals.json?t=' + Date.now(), { cache: 'no-store' });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -107,7 +113,7 @@
 
       initData();
     } catch (err) {
-      console.warn('Failed to load deals.json, attempting fallback or mock', err);
+      console.warn('Failed to load deals.json, attempting fallback', err);
       loadingState.innerHTML = `
         <div class="empty-icon">⚠️</div>
         <h3>Waiting for Circular Sync</h3>
@@ -164,6 +170,181 @@
     }
 
     return badges.join(' ');
+  }
+
+  // Format Helpers
+  function formatMoney(val) {
+    if (val == null || isNaN(val)) return '—';
+    return `$${Number(val).toFixed(2)}`;
+  }
+
+  function formatUnitPrice(val, unitType) {
+    if (val == null || isNaN(val)) return '';
+    const unit = unitType ? `/${unitType}` : '/unit';
+    return `$${Number(val).toFixed(2)}${unit}`;
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // =========================================================================
+  // AD GROUPING LOGIC & DATA MODEL
+  // =========================================================================
+
+  function getGroupKey(deal) {
+    if (deal.ad_id) {
+      return `ad_${deal.ad_id}`;
+    }
+    const rawId = String(deal.raw_deal_id || '');
+    if (rawId.length >= 11) {
+      return `ad_${rawId.slice(0, 10)}`;
+    }
+    if (rawId && rawId !== '0') {
+      return `raw_${rawId}`;
+    }
+
+    // Fallback: group by page, promo_type, and normalized promo_detail
+    const promo = (deal.promo_detail || '').trim().toLowerCase();
+    const pType = deal.promo_type || 'standard';
+    const page = deal.page || 1;
+    const brand = (deal.brand || '').toLowerCase();
+    if (promo && promo !== 'standard' && promo !== '(none)') {
+      const cleanP = promo.replace(/[^a-z0-9]/g, '').slice(0, 25);
+      return `promo_p${page}_${pType}_${cleanP}_${brand}`;
+    }
+    return `deal_${deal.deal_id}`;
+  }
+
+  function synthesizeGroupTitle(items) {
+    if (items.length === 1) {
+      return items[0].name || 'Deal Item';
+    }
+
+    const brands = Array.from(new Set(items.map(it => it.brand).filter(Boolean))).sort();
+    const names = items.map(it => it.name || '');
+
+    // Common grocery product types
+    const keywords = [
+      'Soda', 'Potato Chips', 'Tortilla Chips', 'Chips', 'Cookies', 'Cereal',
+      'Sausage', 'Bratwurst', 'Brats', 'Shampoo', 'Lotion', 'Bread', 'Dressing',
+      'Broth', 'Crackers', 'Water', 'Tea', 'Juice', 'Vitamins', 'Candy', 'Dip',
+      'Pasta', 'Rice', 'Ice Cream', 'Coffee', 'Cheese', 'Spices', 'Yogurt',
+      'Snacks', 'Sauce', 'Chicken', 'Beef', 'Pork', 'Fish', 'Seafood', 'Bacon'
+    ];
+
+    let matchedKeyword = null;
+    for (const kw of keywords) {
+      if (names.every(n => n.toLowerCase().includes(kw.toLowerCase()))) {
+        matchedKeyword = kw;
+        break;
+      }
+    }
+
+    // Common pack packaging
+    let pkg = '';
+    const packSizes = ['12 pk', '6 pk', '8 pk', '15 ct', 'Family Size', 'Party Size', '1 Liter', '2 Liter'];
+    for (const p of packSizes) {
+      if (names.every(n => n.toLowerCase().includes(p.toLowerCase()))) {
+        pkg = ` (${p})`;
+        break;
+      }
+    }
+
+    if (matchedKeyword) {
+      if (brands.length === 1) {
+        return `${brands[0]} ${matchedKeyword}${pkg}`;
+      } else if (brands.length > 0 && brands.length <= 3) {
+        return `${brands.join(', ')} • ${matchedKeyword}${pkg}`;
+      } else if (brands.length > 3) {
+        return `${brands.slice(0, 2).join(', ')} & more • ${matchedKeyword}${pkg}`;
+      } else {
+        return `${matchedKeyword} Selection${pkg}`;
+      }
+    }
+
+    if (brands.length === 1) {
+      return `${brands[0]} Assorted Varieties (${items.length} Items)`;
+    } else if (brands.length > 0 && brands.length <= 3) {
+      return `${brands.join(', ')} Selection (${items.length} Items)`;
+    } else if (brands.length > 3) {
+      return `${brands.slice(0, 2).join(', ')} & more (${items.length} Items)`;
+    }
+
+    const cat = items[0].category || 'Featured';
+    return `${cat} Mix & Match (${items.length} Items)`;
+  }
+
+  function buildGroupObject(groupId, items) {
+    const isMulti = items.length > 1;
+    const brands = Array.from(new Set(items.map(it => it.brand).filter(Boolean))).sort();
+    const prices = items.map(it => it.price).filter(p => p != null && !isNaN(p));
+    const minPrice = prices.length ? Math.min(...prices) : null;
+    const maxPrice = prices.length ? Math.max(...prices) : null;
+
+    const unitPrices = items.map(it => it.unit_price).filter(p => p != null && !isNaN(p));
+    const minUnitPrice = unitPrices.length ? Math.min(...unitPrices) : null;
+    const maxUnitPrice = unitPrices.length ? Math.max(...unitPrices) : null;
+
+    const unitTypes = Array.from(new Set(items.map(it => it.unit_type).filter(Boolean)));
+    const primaryUnitType = unitTypes[0] || null;
+
+    const promoDetail = items.find(it => it.promo_detail)?.promo_detail || items[0].promo_detail || '';
+    const promoType = items.find(it => it.promo_type && it.promo_type !== 'standard')?.promo_type || items[0].promo_type || 'standard';
+
+    const hasAtl = items.some(it => isAtlBadge(it.badge));
+    const hasGreat = items.some(it => isGreatBadge(it.badge) || isAtlBadge(it.badge) || /beat/i.test(it.badge || ''));
+    const hasCatBest = items.some(it => it.is_category_best);
+    const isFrontPage = items.some(it => it.is_front_page);
+    const page = items[0].page || 1;
+    const category = items[0].category || 'Other';
+
+    const title = synthesizeGroupTitle(items);
+
+    return {
+      groupId,
+      isMulti,
+      items,
+      title,
+      page,
+      isFrontPage,
+      category,
+      brands,
+      minPrice,
+      maxPrice,
+      minUnitPrice,
+      maxUnitPrice,
+      primaryUnitType,
+      promoDetail,
+      promoType,
+      hasAtl,
+      hasGreat,
+      hasCatBest,
+      representativeDeal: items[0],
+    };
+  }
+
+  function getAllGroups() {
+    const groupsMap = new Map();
+    allDeals.forEach(d => {
+      const key = getGroupKey(d);
+      if (!groupsMap.has(key)) {
+        groupsMap.set(key, []);
+      }
+      groupsMap.get(key).push(d);
+    });
+
+    const groups = [];
+    groupsMap.forEach((items, key) => {
+      groups.push(buildGroupObject(key, items));
+    });
+    return groups;
   }
 
   // Initialize UI with fetched data
@@ -243,16 +424,112 @@
     renderDeals();
   }
 
-  // Filtering & Sorting
-  function getFilteredDeals() {
-    let filtered = [...allDeals];
+  // Filtering & Sorting for Groups
+  function getFilteredGroups() {
+    const allGroups = getAllGroups();
+    let filtered = [...allGroups];
 
     // Category Filter
+    if (activeCategory !== 'ALL') {
+      filtered = filtered.filter(g =>
+        g.items.some(d => (d.category || 'Other') === activeCategory)
+      );
+    }
+
+    // Chip Filter
+    if (activeFilter === 'atl') {
+      filtered = filtered.filter(g => g.hasAtl);
+    } else if (activeFilter === 'beat' || activeFilter === 'great') {
+      filtered = filtered.filter(g => g.hasGreat);
+    } else if (activeFilter === 'cycle') {
+      filtered = filtered.filter(g =>
+        g.items.some(d => /cycle|refresh/i.test(d.badge || ''))
+      );
+    } else if (activeFilter === 'firstseen') {
+      filtered = filtered.filter(g =>
+        g.items.some(d => /first/i.test(d.badge || ''))
+      );
+    } else if (activeFilter === 'hike') {
+      filtered = filtered.filter(g =>
+        g.items.some(d => /hike/i.test(d.badge || ''))
+      );
+    } else if (activeFilter === 'front') {
+      filtered = filtered.filter(g => g.isFrontPage);
+    } else if (activeFilter === 'catbest') {
+      filtered = filtered.filter(g => g.hasCatBest);
+    } else if (activeFilter === 'bogo') {
+      filtered = filtered.filter(g =>
+        g.items.some(d => (d.promo_type && d.promo_type !== 'standard') || (d.promo_detail && /bogo|buy/i.test(d.promo_detail)))
+      );
+    } else if (activeFilter === 'points') {
+      filtered = filtered.filter(g =>
+        g.items.some(d =>
+          /points|freebie|reward/i.test(d.badge || '') ||
+          (d.promo_type && d.promo_type.startsWith('points')) ||
+          (d.promo_detail && /choice|points/i.test(d.promo_detail))
+        )
+      );
+    }
+
+    // Search Filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(g => {
+        const titleMatch = (g.title || '').toLowerCase().includes(q);
+        const promoMatch = (g.promoDetail || '').toLowerCase().includes(q);
+        const brandMatch = g.brands.some(b => b.toLowerCase().includes(q));
+        const itemMatch = g.items.some(d => {
+          const n = (d.name || '').toLowerCase();
+          const b = (d.brand || '').toLowerCase();
+          const c = (d.category || '').toLowerCase();
+          return n.includes(q) || b.includes(q) || c.includes(q);
+        });
+        return titleMatch || promoMatch || brandMatch || itemMatch;
+      });
+    }
+
+    // Sorting
+    filtered.sort((a, b) => {
+      if (activeSort === 'unit_price_asc') {
+        const upA = a.minUnitPrice != null ? a.minUnitPrice : 999999;
+        const upB = b.minUnitPrice != null ? b.minUnitPrice : 999999;
+        return upA - upB;
+      }
+      if (activeSort === 'price_asc') {
+        const pA = a.minPrice != null ? a.minPrice : 999999;
+        const pB = b.minPrice != null ? b.minPrice : 999999;
+        return pA - pB;
+      }
+      if (activeSort === 'price_desc') {
+        const pA = a.maxPrice != null ? a.maxPrice : -1;
+        const pB = b.maxPrice != null ? b.maxPrice : -1;
+        return pB - pA;
+      }
+      if (activeSort === 'page_asc') {
+        return (a.page || 1) - (b.page || 1);
+      }
+      if (activeSort === 'name_asc') {
+        return (a.title || '').localeCompare(b.title || '');
+      }
+
+      // 'featured' default
+      const scoreA = (a.hasAtl ? 100 : a.hasGreat ? 50 : 0) + (a.isFrontPage ? 20 : 0);
+      const scoreB = (b.hasAtl ? 100 : b.hasGreat ? 50 : 0) + (b.isFrontPage ? 20 : 0);
+      if (scoreA !== scoreB) return scoreB - scoreA;
+      return (a.page || 1) - (b.page || 1);
+    });
+
+    return filtered;
+  }
+
+  // Flat deals filter (if groupByAd is disabled)
+  function getFilteredDealsFlat() {
+    let filtered = [...allDeals];
+
     if (activeCategory !== 'ALL') {
       filtered = filtered.filter(d => (d.category || 'Other') === activeCategory);
     }
 
-    // Chip Filter
     if (activeFilter === 'atl') {
       filtered = filtered.filter(d => isAtlBadge(d.badge));
     } else if (activeFilter === 'beat' || activeFilter === 'great') {
@@ -270,10 +547,13 @@
     } else if (activeFilter === 'bogo') {
       filtered = filtered.filter(d => (d.promo_type && d.promo_type !== 'standard') || (d.promo_detail && /bogo|buy/i.test(d.promo_detail)));
     } else if (activeFilter === 'points') {
-      filtered = filtered.filter(d => /points|freebie|reward/i.test(d.badge || '') || (d.promo_type && d.promo_type.startsWith('points')) || (d.promo_detail && /choice|points/i.test(d.promo_detail)));
+      filtered = filtered.filter(d =>
+        /points|freebie|reward/i.test(d.badge || '') ||
+        (d.promo_type && d.promo_type.startsWith('points')) ||
+        (d.promo_detail && /choice|points/i.test(d.promo_detail))
+      );
     }
 
-    // Search Filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(d => {
@@ -285,22 +565,15 @@
       });
     }
 
-    // Sorting
     filtered.sort((a, b) => {
       if (activeSort === 'unit_price_asc') {
-        const upA = a.unit_price != null ? a.unit_price : 999999;
-        const upB = b.unit_price != null ? b.unit_price : 999999;
-        return upA - upB;
+        return (a.unit_price != null ? a.unit_price : 999999) - (b.unit_price != null ? b.unit_price : 999999);
       }
       if (activeSort === 'price_asc') {
-        const pA = a.price != null ? a.price : 999999;
-        const pB = b.price != null ? b.price : 999999;
-        return pA - pB;
+        return (a.price != null ? a.price : 999999) - (b.price != null ? b.price : 999999);
       }
       if (activeSort === 'price_desc') {
-        const pA = a.price != null ? a.price : -1;
-        const pB = b.price != null ? b.price : -1;
-        return pB - pA;
+        return (b.price != null ? b.price : -1) - (a.price != null ? a.price : -1);
       }
       if (activeSort === 'page_asc') {
         return (a.page || 1) - (b.page || 1);
@@ -308,7 +581,6 @@
       if (activeSort === 'name_asc') {
         return (a.name || '').localeCompare(b.name || '');
       }
-      // 'featured' default: ATL first, then Great Deals, then front page, then page asc
       const scoreA = (a.badge === 'ALL-TIME LOW' ? 100 : a.badge === 'GREAT DEAL' ? 50 : 0) + (a.is_front_page ? 20 : 0);
       const scoreB = (b.badge === 'ALL-TIME LOW' ? 100 : b.badge === 'GREAT DEAL' ? 50 : 0) + (b.is_front_page ? 20 : 0);
       if (scoreA !== scoreB) return scoreB - scoreA;
@@ -318,99 +590,355 @@
     return filtered;
   }
 
-  // Format Helper
-  function formatMoney(val) {
-    if (val == null || isNaN(val)) return '—';
-    return `$${Number(val).toFixed(2)}`;
-  }
+  // =========================================================================
+  // RENDERING ENGINE
+  // =========================================================================
 
-  function formatUnitPrice(val, unitType) {
-    if (val == null || isNaN(val)) return '';
-    const unit = unitType ? `/${unitType}` : '/unit';
-    return `$${Number(val).toFixed(2)}${unit}`;
-  }
-
-  // Render Deal Cards (Grid View)
   function renderDeals() {
-    const deals = getFilteredDeals();
+    if (groupByAd) {
+      const groups = getFilteredGroups();
+      const totalItemCount = groups.reduce((acc, g) => acc + g.items.length, 0);
 
-    // Results info text
-    resultsCountText.textContent = `Showing ${deals.length} ${deals.length === 1 ? 'deal' : 'deals'}`;
-    const hasFilters = activeCategory !== 'ALL' || activeFilter !== null || searchQuery.trim() !== '';
-    resetFiltersBtn.style.display = hasFilters ? 'inline' : 'none';
+      resultsCountText.textContent = `Showing ${groups.length} ${groups.length === 1 ? 'circular ad' : 'circular ads'} (${totalItemCount} ${totalItemCount === 1 ? 'item' : 'items'})`;
+      const hasFilters = activeCategory !== 'ALL' || activeFilter !== null || searchQuery.trim() !== '';
+      resetFiltersBtn.style.display = hasFilters ? 'inline' : 'none';
 
-    if (deals.length === 0) {
-      dealsGrid.style.display = 'none';
-      dealsTableContainer.style.display = 'none';
-      emptyState.style.display = 'block';
-      return;
-    }
+      if (groups.length === 0) {
+        dealsGrid.style.display = 'none';
+        dealsTableContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
 
-    emptyState.style.display = 'none';
+      emptyState.style.display = 'none';
 
-    if (viewMode === 'grid') {
-      dealsGrid.style.display = 'grid';
-      dealsTableContainer.style.display = 'none';
-      renderGridView(deals);
+      if (viewMode === 'grid') {
+        dealsGrid.style.display = 'grid';
+        dealsTableContainer.style.display = 'none';
+        renderGroupedGridView(groups);
+      } else {
+        dealsGrid.style.display = 'none';
+        dealsTableContainer.style.display = 'block';
+        renderGroupedTableView(groups);
+      }
     } else {
-      dealsGrid.style.display = 'none';
-      dealsTableContainer.style.display = 'block';
-      renderTableView(deals);
+      const deals = getFilteredDealsFlat();
+      resultsCountText.textContent = `Showing ${deals.length} ${deals.length === 1 ? 'deal' : 'deals'}`;
+      const hasFilters = activeCategory !== 'ALL' || activeFilter !== null || searchQuery.trim() !== '';
+      resetFiltersBtn.style.display = hasFilters ? 'inline' : 'none';
+
+      if (deals.length === 0) {
+        dealsGrid.style.display = 'none';
+        dealsTableContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+
+      if (viewMode === 'grid') {
+        dealsGrid.style.display = 'grid';
+        dealsTableContainer.style.display = 'none';
+        renderFlatGridView(deals);
+      } else {
+        dealsGrid.style.display = 'none';
+        dealsTableContainer.style.display = 'block';
+        renderFlatTableView(deals);
+      }
     }
+
+    updateExpandAllButtonState();
   }
 
-  function renderGridView(deals) {
-    dealsGrid.innerHTML = deals.map(d => {
-      const isInList = shoppingList.some(item => item.id === d.deal_id);
-      const isAtl = isAtlBadge(d.badge);
-      const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
-      const badgeHtml = getBadgeHtml(d);
-
-      let promoDetailHtml = '';
-      if (d.promo_detail) {
-        promoDetailHtml = `<div class="promo-detail-note">🏷️ ${d.promo_detail}</div>`;
+  // Render Grouped Grid View
+  function renderGroupedGridView(groups) {
+    dealsGrid.innerHTML = groups.map(g => {
+      if (g.isMulti) {
+        return renderMultiItemGroupCard(g);
+      } else {
+        return renderSingleItemCard(g.items[0]);
       }
-
-      let historyHtml = '';
-      if (d.historical_min && d.historical_avg && d.historical_min < d.price) {
-        historyHtml = `<div class="history-summary">Avg: <strong>${formatMoney(d.historical_avg)}</strong> • Min: <strong>${formatMoney(d.historical_min)}</strong></div>`;
-      } else if (isAtl && d.historical_avg) {
-        historyHtml = `<div class="history-summary">Best price recorded (Avg: <strong>${formatMoney(d.historical_avg)}</strong>)</div>`;
-      }
-
-      return `
-        <div class="deal-card ${isAtl ? 'is-atl' : ''}" data-id="${d.deal_id}">
-          <div>
-            <div class="card-top">
-              <div class="badge-row">
-                ${badgeHtml}
-              </div>
-              <span class="page-indicator">Pg ${d.page || 1}</span>
-            </div>
-
-            ${d.brand ? `<div class="product-brand">${escapeHtml(d.brand)}</div>` : ''}
-            <h3 class="product-name">${escapeHtml(d.name)}</h3>
-
-            <div class="price-container">
-              <span class="current-price">${formatMoney(d.price)}</span>
-              ${unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : ''}
-            </div>
-
-            ${promoDetailHtml}
-            ${historyHtml}
-          </div>
-
-          <div class="card-action-row">
-            <button class="btn-add-list ${isInList ? 'in-list' : ''}" onclick="window.__toggleShoppingItem(${d.deal_id})">
-              ${isInList ? '✓ In List' : '+ Add to List'}
-            </button>
-          </div>
-        </div>
-      `;
     }).join('');
   }
 
-  function renderTableView(deals) {
+  function renderMultiItemGroupCard(g) {
+    const isExpanded = expandedGroupIds.has(g.groupId);
+    const isAllInList = g.items.every(it => shoppingList.some(s => s.id === it.deal_id));
+    const someInList = g.items.some(it => shoppingList.some(s => s.id === it.deal_id));
+    const rep = g.representativeDeal;
+    const badgeHtml = getBadgeHtml(rep);
+
+    // Price range display
+    let priceDisplay = '—';
+    if (g.minPrice != null && g.maxPrice != null) {
+      if (Math.abs(g.minPrice - g.maxPrice) < 0.01) {
+        priceDisplay = formatMoney(g.minPrice);
+      } else {
+        priceDisplay = `${formatMoney(g.minPrice)} – ${formatMoney(g.maxPrice)}`;
+      }
+    }
+
+    // Unit price range display
+    let unitPriceDisplay = '';
+    if (g.minUnitPrice != null && g.maxUnitPrice != null) {
+      if (Math.abs(g.minUnitPrice - g.maxUnitPrice) < 0.005) {
+        unitPriceDisplay = formatUnitPrice(g.minUnitPrice, g.primaryUnitType);
+      } else {
+        unitPriceDisplay = `$${g.minUnitPrice.toFixed(2)} – $${g.maxUnitPrice.toFixed(2)}/${g.primaryUnitType || 'unit'}`;
+      }
+    }
+
+    // Promo details note
+    let promoDetailHtml = '';
+    if (g.promoDetail) {
+      promoDetailHtml = `<div class="promo-detail-note">🏷️ ${escapeHtml(g.promoDetail)}</div>`;
+    }
+
+    // Brand display string
+    const brandStr = g.brands.length > 0 ? g.brands.slice(0, 4).join(' • ') + (g.brands.length > 4 ? ' • ...' : '') : '';
+
+    // Variety preview chips (when collapsed)
+    let previewChipsHtml = '';
+    if (!isExpanded) {
+      const topItems = g.items.slice(0, 4);
+      const remaining = g.items.length - topItems.length;
+      previewChipsHtml = `
+        <div class="group-varieties-preview" title="Items included in this ad promotion">
+          ${topItems.map(it => `<span class="variety-chip">${escapeHtml(it.name.split(' - ')[0])}</span>`).join('')}
+          ${remaining > 0 ? `<span class="variety-chip more">+${remaining} more varieties</span>` : ''}
+        </div>
+      `;
+    }
+
+    // Expanded child items list
+    let expandedSectionHtml = '';
+    if (isExpanded) {
+      expandedSectionHtml = `
+        <div class="group-expanded-container">
+          <div class="group-expanded-title">
+            <span>Varieties & Items (${g.items.length}):</span>
+            <span style="font-size:0.7rem; color:var(--primary-700); cursor:pointer;" onclick="window.__toggleGroupExpand('${g.groupId}')">▲ Collapse</span>
+          </div>
+          <div class="group-items-list">
+            ${g.items.map(item => {
+              const itemInList = shoppingList.some(s => s.id === item.deal_id);
+              const itemUnit = formatUnitPrice(item.unit_price, item.unit_type);
+              const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
+              return `
+                <div class="group-item-row" data-deal-id="${item.deal_id}">
+                  <div class="group-item-info">
+                    <div class="group-item-name">${escapeHtml(item.name)}</div>
+                    <div class="group-item-sub">
+                      ${item.brand ? `<span>${escapeHtml(item.brand)}</span>` : ''}
+                      ${itemUnit ? `<span>• ${itemUnit}</span>` : ''}
+                      ${itemBadge}
+                    </div>
+                  </div>
+                  <div class="group-item-actions">
+                    <span class="group-item-price">${formatMoney(item.price)}</span>
+                    <button class="btn-item-add ${itemInList ? 'in-list' : ''}" onclick="window.__toggleShoppingItem(${item.deal_id})">
+                      ${itemInList ? '✓ In List' : '+ List'}
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="deal-card is-group ${g.hasAtl ? 'is-atl' : ''}" data-group-id="${g.groupId}">
+        <div>
+          <div class="card-top">
+            <div class="badge-row">
+              ${badgeHtml}
+              <span class="deal-badge group-count">📦 ${g.items.length} Varieties</span>
+            </div>
+            <span class="page-indicator">Pg ${g.page || 1}</span>
+          </div>
+
+          ${brandStr ? `<div class="product-brand">${escapeHtml(brandStr)}</div>` : ''}
+          <h3 class="product-name">${escapeHtml(g.title)}</h3>
+
+          <div class="price-container">
+            <span class="current-price">${priceDisplay}</span>
+            ${unitPriceDisplay ? `<span class="unit-price-tag">${unitPriceDisplay}</span>` : ''}
+          </div>
+
+          ${promoDetailHtml}
+          ${previewChipsHtml}
+        </div>
+
+        <div class="card-action-row">
+          <button class="btn-expand-group ${isExpanded ? 'expanded' : ''}" onclick="window.__toggleGroupExpand('${g.groupId}')">
+            ${isExpanded ? '▲ Hide Individual Items' : `▼ View All ${g.items.length} Items`}
+          </button>
+          <button class="btn-add-list ${isAllInList ? 'in-list' : ''}" onclick="window.__toggleGroupAll('${g.groupId}')">
+            ${isAllInList ? `✓ All ${g.items.length} In List` : someInList ? `+ Add All (${g.items.length})` : `+ Add All (${g.items.length})`}
+          </button>
+        </div>
+
+        ${expandedSectionHtml}
+      </div>
+    `;
+  }
+
+  function renderSingleItemCard(d) {
+    const isInList = shoppingList.some(item => item.id === d.deal_id);
+    const isAtl = isAtlBadge(d.badge);
+    const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
+    const badgeHtml = getBadgeHtml(d);
+
+    let promoDetailHtml = '';
+    if (d.promo_detail) {
+      promoDetailHtml = `<div class="promo-detail-note">🏷️ ${escapeHtml(d.promo_detail)}</div>`;
+    }
+
+    let historyHtml = '';
+    if (d.historical_min && d.historical_avg && d.historical_min < d.price) {
+      historyHtml = `<div class="history-summary">Avg: <strong>${formatMoney(d.historical_avg)}</strong> • Min: <strong>${formatMoney(d.historical_min)}</strong></div>`;
+    } else if (isAtl && d.historical_avg) {
+      historyHtml = `<div class="history-summary">Best price recorded (Avg: <strong>${formatMoney(d.historical_avg)}</strong>)</div>`;
+    }
+
+    return `
+      <div class="deal-card ${isAtl ? 'is-atl' : ''}" data-id="${d.deal_id}">
+        <div>
+          <div class="card-top">
+            <div class="badge-row">
+              ${badgeHtml}
+            </div>
+            <span class="page-indicator">Pg ${d.page || 1}</span>
+          </div>
+
+          ${d.brand ? `<div class="product-brand">${escapeHtml(d.brand)}</div>` : ''}
+          <h3 class="product-name">${escapeHtml(d.name)}</h3>
+
+          <div class="price-container">
+            <span class="current-price">${formatMoney(d.price)}</span>
+            ${unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : ''}
+          </div>
+
+          ${promoDetailHtml}
+          ${historyHtml}
+        </div>
+
+        <div class="card-action-row">
+          <button class="btn-add-list ${isInList ? 'in-list' : ''}" onclick="window.__toggleShoppingItem(${d.deal_id})">
+            ${isInList ? '✓ In List' : '+ Add to List'}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Render Grouped Table View
+  function renderGroupedTableView(groups) {
+    dealsTableBody.innerHTML = groups.map(g => {
+      if (g.isMulti) {
+        const isExpanded = expandedGroupIds.has(g.groupId);
+        const isAllInList = g.items.every(it => shoppingList.some(s => s.id === it.deal_id));
+        const badgeHtml = getBadgeHtml(g.representativeDeal);
+        let priceDisplay = formatMoney(g.minPrice);
+        if (g.minPrice != null && g.maxPrice != null && Math.abs(g.minPrice - g.maxPrice) >= 0.01) {
+          priceDisplay = `${formatMoney(g.minPrice)} – ${formatMoney(g.maxPrice)}`;
+        }
+        let unitDisplay = formatUnitPrice(g.minUnitPrice, g.primaryUnitType);
+        if (g.minUnitPrice != null && g.maxUnitPrice != null && Math.abs(g.minUnitPrice - g.maxUnitPrice) >= 0.005) {
+          unitDisplay = `$${g.minUnitPrice.toFixed(2)} – $${g.maxUnitPrice.toFixed(2)}/${g.primaryUnitType || 'unit'}`;
+        }
+
+        const parentRow = `
+          <tr class="table-group-header-row">
+            <td><span class="page-indicator">Pg ${g.page || 1}</span></td>
+            <td>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button class="btn-table-expand" onclick="window.__toggleGroupExpand('${g.groupId}')">
+                  ${isExpanded ? '▲' : '▼'} ${g.items.length} items
+                </button>
+                <strong>${escapeHtml(g.title)}</strong>
+              </div>
+              ${g.brands.length ? `<div style="font-size:0.75rem; color:var(--slate-500); text-transform:uppercase; margin-left:32px;">${escapeHtml(g.brands.join(', '))}</div>` : ''}
+            </td>
+            <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${g.category || 'Other'}</span></td>
+            <td><strong style="font-size:1.1rem; color:var(--slate-900);">${priceDisplay}</strong></td>
+            <td>${unitDisplay ? `<span class="unit-price-tag">${unitDisplay}</span>` : '—'}</td>
+            <td>
+              ${badgeHtml}
+              ${g.promoDetail ? `<div style="font-size:0.75rem; color:var(--primary-700); font-weight:600; margin-top:2px;">🏷️ ${escapeHtml(g.promoDetail)}</div>` : ''}
+            </td>
+            <td>
+              <button class="btn-add-list ${isAllInList ? 'in-list' : ''}" style="padding:6px 10px; font-size:0.75rem;" onclick="window.__toggleGroupAll('${g.groupId}')">
+                ${isAllInList ? '✓ All In' : `+ All (${g.items.length})`}
+              </button>
+            </td>
+          </tr>
+        `;
+
+        const childRows = g.items.map(item => {
+          const itemInList = shoppingList.some(s => s.id === item.deal_id);
+          const itemUnit = formatUnitPrice(item.unit_price, item.unit_type);
+          const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
+          return `
+            <tr class="table-child-row ${isExpanded ? '' : 'collapsed'}">
+              <td></td>
+              <td style="padding-left:36px;">
+                <span>${escapeHtml(item.name)}</span>
+                ${item.brand ? `<span style="font-size:0.7rem; color:var(--slate-400); margin-left:6px;">(${escapeHtml(item.brand)})</span>` : ''}
+              </td>
+              <td><span style="font-size:0.75rem; color:var(--slate-500);">${item.category || ''}</span></td>
+              <td><strong>${formatMoney(item.price)}</strong></td>
+              <td>${itemUnit ? `<span class="unit-price-tag" style="font-size:0.75rem;">${itemUnit}</span>` : '—'}</td>
+              <td>${itemBadge}</td>
+              <td>
+                <button class="btn-item-add ${itemInList ? 'in-list' : ''}" onclick="window.__toggleShoppingItem(${item.deal_id})">
+                  ${itemInList ? '✓ In' : '+ Add'}
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        return parentRow + childRows;
+      } else {
+        const d = g.items[0];
+        const isInList = shoppingList.some(item => item.id === d.deal_id);
+        const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
+        const badgeHtml = getBadgeHtml(d);
+
+        return `
+          <tr>
+            <td><span class="page-indicator">Pg ${d.page || 1}</span></td>
+            <td>
+              <strong>${escapeHtml(d.name)}</strong>
+              ${d.brand ? `<div style="font-size:0.75rem; color:var(--slate-500); text-transform:uppercase;">${escapeHtml(d.brand)}</div>` : ''}
+            </td>
+            <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${d.category || 'Other'}</span></td>
+            <td><strong style="font-size:1.1rem; color:var(--slate-900);">${formatMoney(d.price)}</strong></td>
+            <td>${unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : '—'}</td>
+            <td>
+              ${badgeHtml}
+              <div style="font-size:0.75rem; color:var(--slate-500); margin-top:2px;">${escapeHtml(d.analysis || '')}</div>
+            </td>
+            <td>
+              <button class="btn-add-list ${isInList ? 'in-list' : ''}" style="padding:6px 10px; font-size:0.75rem;" onclick="window.__toggleShoppingItem(${d.deal_id})">
+                ${isInList ? '✓ In List' : '+ Add'}
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+    }).join('');
+  }
+
+  // Flat rendering fallbacks
+  function renderFlatGridView(deals) {
+    dealsGrid.innerHTML = deals.map(d => renderSingleItemCard(d)).join('');
+  }
+
+  function renderFlatTableView(deals) {
     dealsTableBody.innerHTML = deals.map(d => {
       const isInList = shoppingList.some(item => item.id === d.deal_id);
       const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
@@ -429,6 +957,7 @@
           <td>
             ${badgeHtml}
             <div style="font-size:0.75rem; color:var(--slate-500); margin-top:2px;">${escapeHtml(d.analysis || '')}</div>
+          </td>
           <td>
             <button class="btn-add-list ${isInList ? 'in-list' : ''}" style="padding:6px 10px; font-size:0.75rem;" onclick="window.__toggleShoppingItem(${d.deal_id})">
               ${isInList ? '✓ In List' : '+ Add'}
@@ -439,7 +968,56 @@
     }).join('');
   }
 
-  // Shopping List Management
+  // =========================================================================
+  // INTERACTION HANDLERS & EXPANSION
+  // =========================================================================
+
+  window.__toggleGroupExpand = function (groupId) {
+    if (expandedGroupIds.has(groupId)) {
+      expandedGroupIds.delete(groupId);
+    } else {
+      expandedGroupIds.add(groupId);
+    }
+    renderDeals();
+  };
+
+  window.__toggleGroupAll = function (groupId) {
+    const allGroups = getAllGroups();
+    const group = allGroups.find(g => g.groupId === groupId);
+    if (!group) return;
+
+    const allInList = group.items.every(it => shoppingList.some(s => s.id === it.deal_id));
+    if (allInList) {
+      // Remove all
+      group.items.forEach(it => {
+        const idx = shoppingList.findIndex(s => s.id === it.deal_id);
+        if (idx >= 0) shoppingList.splice(idx, 1);
+      });
+      showToast(`Removed all ${group.items.length} items from shopping list`);
+    } else {
+      // Add all
+      let addedCount = 0;
+      group.items.forEach(it => {
+        if (!shoppingList.some(s => s.id === it.deal_id)) {
+          shoppingList.push({
+            id: it.deal_id,
+            name: it.name,
+            price: it.price || 0,
+            unit_price: it.unit_price,
+            unit_type: it.unit_type,
+            page: it.page || 1,
+            checked: false,
+          });
+          addedCount++;
+        }
+      });
+      showToast(`Added ${addedCount} varieties to shopping list!`);
+    }
+
+    saveShoppingList();
+    renderDeals();
+  };
+
   window.__toggleShoppingItem = function (dealId) {
     const deal = allDeals.find(d => d.deal_id === dealId);
     if (!deal) return;
@@ -456,7 +1034,7 @@
         unit_price: deal.unit_price,
         unit_type: deal.unit_type,
         page: deal.page || 1,
-        checked: false
+        checked: false,
       });
       showToast(`Added "${deal.name}" to shopping list!`);
     }
@@ -465,6 +1043,39 @@
     renderDeals();
   };
 
+  function updateExpandAllButtonState() {
+    if (!expandCollapseAllBtn) return;
+    if (!groupByAd) {
+      expandCollapseAllBtn.style.display = 'none';
+      return;
+    }
+    expandCollapseAllBtn.style.display = 'inline-flex';
+
+    const currentGroups = getFilteredGroups().filter(g => g.isMulti);
+    const allExpanded = currentGroups.length > 0 && currentGroups.every(g => expandedGroupIds.has(g.groupId));
+
+    if (allExpanded) {
+      expandCollapseIcon.textContent = '▲';
+      expandCollapseText.textContent = 'Collapse All';
+    } else {
+      expandCollapseIcon.textContent = '▼';
+      expandCollapseText.textContent = 'Expand All';
+    }
+  }
+
+  function toggleExpandCollapseAll() {
+    const currentGroups = getFilteredGroups().filter(g => g.isMulti);
+    const allExpanded = currentGroups.length > 0 && currentGroups.every(g => expandedGroupIds.has(g.groupId));
+
+    if (allExpanded) {
+      currentGroups.forEach(g => expandedGroupIds.delete(g.groupId));
+    } else {
+      currentGroups.forEach(g => expandedGroupIds.add(g.groupId));
+    }
+    renderDeals();
+  }
+
+  // Shopping List Drawer UI
   function updateShoppingListUI() {
     listCountBadge.textContent = shoppingList.length;
     drawerItemCount.textContent = `${shoppingList.length} ${shoppingList.length === 1 ? 'item' : 'items'}`;
@@ -516,7 +1127,6 @@
     }
   };
 
-  // Drawer Open / Close
   function openDrawer() {
     shoppingDrawer.classList.add('active');
     drawerBackdrop.classList.add('active');
@@ -527,7 +1137,6 @@
     drawerBackdrop.classList.remove('active');
   }
 
-  // Copy List to Clipboard
   function copyListToClipboard() {
     if (shoppingList.length === 0) {
       showToast('Shopping list is empty');
@@ -561,18 +1170,6 @@
     }
   }
 
-  // Escape HTML helper
-  function escapeHtml(str) {
-    if (!str) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  // Reset Filters
   function resetAllFilters() {
     activeCategory = 'ALL';
     activeFilter = null;
@@ -588,7 +1185,10 @@
     renderDeals();
   }
 
-  // Event Listeners
+  // =========================================================================
+  // EVENT LISTENERS
+  // =========================================================================
+
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value;
     searchClearBtn.style.display = searchQuery ? 'flex' : 'none';
@@ -622,6 +1222,21 @@
       renderDeals();
     });
   });
+
+  // Toggle Grouping By Ad Button
+  if (toggleGroupingBtn) {
+    toggleGroupingBtn.addEventListener('click', () => {
+      groupByAd = !groupByAd;
+      toggleGroupingBtn.classList.toggle('active', groupByAd);
+      renderDeals();
+      showToast(groupByAd ? 'Grouping by circular ad' : 'Showing all individual items');
+    });
+  }
+
+  // Expand / Collapse All Button
+  if (expandCollapseAllBtn) {
+    expandCollapseAllBtn.addEventListener('click', toggleExpandCollapseAll);
+  }
 
   // Stat Cards Quick Click Filters
   document.getElementById('stat-all-deals').addEventListener('click', resetAllFilters);

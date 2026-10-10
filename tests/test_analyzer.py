@@ -468,6 +468,31 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertIn("Best Shredded Cheese price", tillamook.summary_reason)
         self.assertIn("lowest across all brands", tillamook.summary_reason)
 
+    def test_ad_id_derivation(self):
+        # 11-digit raw_deal_id (e.g. 10449797220) should derive 10-digit ad_id (1044979722)
+        deal_record_1 = {
+            "id": 1,
+            "product_id": 10,
+            "raw_deal_id": 10449797220,
+            "canonical_name": "Pepsi 12 pk",
+            "advertised_price": 5.50,
+            "page_number": 1,
+            "is_front_page": 1,
+        }
+        deal_record_2 = {
+            "id": 2,
+            "product_id": 11,
+            "raw_deal_id": 104497972214,
+            "canonical_name": "Canada Dry 12 pk",
+            "advertised_price": 5.00,
+            "page_number": 1,
+            "is_front_page": 1,
+        }
+        eval_1 = self.analyzer.evaluate_deal(deal_record_1)
+        eval_2 = self.analyzer.evaluate_deal(deal_record_2)
+        self.assertEqual(eval_1.ad_id, "1044979722")
+        self.assertEqual(eval_2.ad_id, "1044979722")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -25,8 +25,8 @@ if exist "%LOGFILE%" (
 
 echo --- Starting Tom Thumb Weekly Deals Sync: %DATE% %TIME% --- >> "%LOGFILE%"
 
-:: Run Python CLI sync with unbuffered stdout (reads TRACKER_ZIP from local .env)
-py -u -m src.cli sync >> "%LOGFILE%" 2>&1
+:: Run Python CLI sync with unbuffered stdout for Tom Thumb (with mobile app enrichment)
+py -u -m src.cli sync --store tomthumb --enrich-app >> "%LOGFILE%" 2>&1
 set EXIT_CODE=%ERRORLEVEL%
 
 echo --- Finished with exit code: %EXIT_CODE% at %DATE% %TIME% --- >> "%LOGFILE%"

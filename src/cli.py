@@ -125,13 +125,14 @@ def cmd_deals(args: argparse.Namespace) -> None:
 def cmd_history(args: argparse.Namespace) -> None:
     """Display price history timeline for a product."""
     db = DealsDatabase(args.db)
-    products = db.search_products(args.query)
+    merchant = _resolve_merchant_filter(args)
+    products = db.search_products(args.query, merchant=merchant)
 
     if not products:
-        print(f"No products found matching '{args.query}'.")
+        target_str = f" for store '{merchant}'" if merchant else ""
+        print(f"No products found matching '{args.query}'{target_str}.")
         return
 
-    merchant = _resolve_merchant_filter(args)
     limit = getattr(args, "limit", None) or len(products)
     shown = products[:limit]
     limit_note = f" (showing first {len(shown)} - use --limit to view more)" if len(shown) < len(products) else ""

@@ -64,8 +64,9 @@ class ProductNormalizer:
         if not raw_name:
             return []
 
-        # Ignore department banner headers with no price
-        if (item.price is None or item.price <= 0) and raw_name.lower() in self.DEPARTMENT_BANNERS:
+        # Ignore department banner headers
+        lower_raw = raw_name.lower().strip()
+        if lower_raw in self.DEPARTMENT_BANNERS or any(lower_raw.startswith(b) for b in self.DEPARTMENT_BANNERS if len(b) > 8):
             return []
 
         # Strip packaging and promotional notes before disaggregation
@@ -142,12 +143,14 @@ class ProductNormalizer:
             if not brand:
                 for nb in [
                     "McCormick", "Kraft", "Pillsbury", "Ro-Tel", "Libby's", "Bush's", "Mission",
-                    "Fage", "Horizon", "Daisy", "Philadelphia", "Lays", "Lay's", "Cheetos",
-                    "Doritos", "Tostitos", "Coca-Cola", "Pepsi", "Gatorade", "Budweiser", "Bud",
+                    "Fage", "Horizon", "Daisy", "Philadelphia", "Lays", "Lay's", "Cheetos", "Ruffles",
+                    "Doritos", "Tostitos", "Smartfood", "Frito Lay", "Utz", "Planters",
+                    "Coca-Cola", "Pepsi", "Gatorade", "Propel", "Budweiser", "Bud",
                     "Shiner", "Corona", "Modelo", "Dos Equis", "Decoy", "Conundrum", "Rold Gold",
                     "Miss Vickie's", "Soleil", "Snapple", "Poppi", "Ozarka", "Sunny Delight",
                     "Premier Protein", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
                     "Tina's", "Yoplait", "Chobani", "Dannon", "Oikos", "Tillamook",
+                    "Quaker", "Cap'n Crunch", "Life", "Campbell's", "Chef Boyardee", "Barilla",
                 ]:
                     if re.search(r"\b" + re.escape(nb) + r"\b", sub_name, re.IGNORECASE):
                         brand = nb
@@ -248,10 +251,19 @@ class ProductNormalizer:
                     if item.price and size > 0:
                         unit_price = round(item.price / size, 4)
 
-            # Deli counter cheese & meat sold by the pound fallback
+            # Deli counter cheese & meat / fresh butcher meat sold by the pound fallback
             deli_brands = ("Primo Taglio", "Dietz & Watson", "Dietz Watson", "Boar's Head")
+            full_item_text = f"{item.name} {item.description or ''} {item.pre_price_text or ''} {item.post_price_text or ''}"
             if size is None and item.price:
-                if brand in deli_brands or re.search(r"\b(?:per\s+lb|sold\s+by\s+the\s+lb|/lb|\$?\d+(?:\.\d+)?\s*lb)\b", item.name, re.IGNORECASE):
+                is_fresh_meat_cut = (
+                    any(k in canonical.lower() for k in ("boneless", "skinless", "bone-in", "fresh", "center cut", "loin chop", "pork chop", "ribeye", "sirloin", "t-bone", "filet mignon", "flank steak", "drumsticks", "tenders", "cutlets"))
+                    and any(k in canonical.lower() for k in ("chicken", "beef", "pork", "turkey", "salmon", "tilapia", "cod", "shrimp"))
+                )
+                if (
+                    brand in deli_brands
+                    or re.search(r"\b(?:per\s+lb|sold\s+by\s+the\s+lb|/lb|\$?\d+(?:\.\d+)?\s*/?\s*lb)\b", full_item_text, re.IGNORECASE)
+                    or is_fresh_meat_cut
+                ):
                     size = 1.0
                     unit = "lb"
                     unit_price = round(item.price / 1.0, 4)

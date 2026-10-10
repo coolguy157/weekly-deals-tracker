@@ -8,6 +8,7 @@ import urllib.request
 import urllib.error
 import json
 import logging
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -134,8 +135,47 @@ class FlippAdFetcher:
             )
         return results
 
+    @staticmethod
+    def _detect_front_page_number(pages: List[FlyerPage], page_items_map: Dict[int, list]) -> int:
+        """
+        Detect the true front page number of the weekly circular.
+        Handles circular formats where multi-month promotional inserts (e.g. Tom Thumb's
+        'Savings Lock' pages) precede the actual weekly ad cover page.
+        """
+        if not pages:
+            return 1
+
+        for page in pages:
+            p_items = page_items_map.get(page.page_number, [])
+            if not p_items:
+                continue
+
+            has_weekly_item = False
+            has_dates = False
+            for it in p_items:
+                v_from = it.get("valid_from")
+                v_to = it.get("valid_to")
+                if v_from and v_to:
+                    try:
+                        d_from = datetime.fromisoformat(str(v_from)[:10])
+                        d_to = datetime.fromisoformat(str(v_to)[:10])
+                        has_dates = True
+                        if (d_to - d_from).days <= 21:
+                            has_weekly_item = True
+                            break
+                    except Exception:
+                        pass
+
+            if not has_dates or has_weekly_item:
+                return page.page_number
+
+        return 1
+
     def get_flyer_pages_and_items(
-        self, flyer_id: int, front_page_only: bool = False
+        self,
+        flyer_id: int,
+        front_page_only: bool = False,
+        front_page_number: Optional[int] = None,
     ) -> tuple[List[FlyerPage], List[FlyerItem]]:
         """Fetch the full flyer payload and resolve items to flyer pages using coordinate math."""
         url = f"{self.BASE_URL}/flyers/{flyer_id}"
@@ -161,7 +201,8 @@ class FlippAdFetcher:
 
         # 2. Parse items and assign page based on coordinate overlap
         raw_items = data.get("items", [])
-        items: List[FlyerItem] = []
+        page_items_map: Dict[int, list] = {}
+        assigned_raw: List[tuple] = []
 
         for it in raw_items:
             it_left = float(it.get("left", 0.0))
@@ -175,7 +216,15 @@ class FlippAdFetcher:
                     item_page_num = page.page_number
                     break
 
-            is_front_page = (item_page_num == 1)
+            page_items_map.setdefault(item_page_num, []).append(it)
+            assigned_raw.append((it, item_page_num, it_left, it_right))
+
+        # Detect front page number (handles multi-month Savings Lock inserts preceding weekly cover)
+        target_front_page = front_page_number or self._detect_front_page_number(pages, page_items_map)
+
+        items: List[FlyerItem] = []
+        for it, item_page_num, it_left, it_right in assigned_raw:
+            is_front_page = (item_page_num == target_front_page)
             if front_page_only and not is_front_page:
                 continue
 

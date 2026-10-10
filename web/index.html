@@ -138,8 +138,18 @@
 
     <!-- Results Count Bar -->
     <div class="results-info-bar">
-      <div id="results-count-text">Showing deals...</div>
-      <button id="reset-filters-btn" class="reset-link" style="display: none;">Reset all filters</button>
+      <div class="results-left">
+        <div id="results-count-text">Showing deals...</div>
+        <button id="reset-filters-btn" class="reset-link" style="display: none;">Reset all filters</button>
+      </div>
+      <div class="results-group-controls">
+        <button id="toggle-grouping-btn" class="group-toggle-btn active" title="Toggle grouping items by circular ad">
+          <span class="group-icon">📦</span> Group by Ad
+        </button>
+        <button id="expand-collapse-all-btn" class="group-toggle-btn" title="Expand or collapse all ad groups">
+          <span id="expand-collapse-icon">▼</span> <span id="expand-collapse-text">Expand All</span>
+        </button>
+      </div>
     </div>
 
     <!-- Deals Container (Grid View) -->

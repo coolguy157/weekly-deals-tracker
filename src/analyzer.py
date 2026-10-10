@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
 from .database import DealsDatabase
+from .normalizer.cleaner import GENERIC_PLACEHOLDER_NAMES
 
 
 @dataclass
@@ -44,6 +45,10 @@ class DealEvaluation:
     promo_detail: Optional[str] = None
     qualifying_qty: int = 1
     base_price: Optional[float] = None
+    raw_deal_id: Optional[int] = None
+    ad_id: Optional[str] = None
+    raw_title: Optional[str] = None
+    image_url: Optional[str] = None
 
     @property
     def is_category_best(self) -> bool:
@@ -172,6 +177,17 @@ class DealAnalyzer:
         base_price = deal_record.get("base_price") or deal_record.get("last_shelf_price")
         raw_title = deal_record.get("raw_title") or ""
         canonical_name = deal_record.get("canonical_name") or ""
+        raw_deal_id = deal_record.get("raw_deal_id")
+        image_url = deal_record.get("image_url")
+
+        # Derive parent ad_id
+        ad_id = None
+        if raw_deal_id is not None:
+            raw_id_str = str(raw_deal_id)
+            if len(raw_id_str) >= 11:
+                ad_id = raw_id_str[:10]
+            else:
+                ad_id = raw_id_str
 
         # Extract structured promo info if present
         from .promo_extractor import PromoExtractor
@@ -241,6 +257,10 @@ class DealAnalyzer:
                 promo_detail=promo_detail,
                 qualifying_qty=qualifying_qty,
                 base_price=base_price,
+                raw_deal_id=raw_deal_id,
+                ad_id=ad_id,
+                raw_title=raw_title,
+                image_url=image_url,
             )
 
         # Handle Extra Points / Points Bonus
@@ -285,6 +305,10 @@ class DealAnalyzer:
                 promo_detail=promo_detail,
                 qualifying_qty=qualifying_qty,
                 base_price=base_price,
+                raw_deal_id=raw_deal_id,
+                ad_id=ad_id,
+                raw_title=raw_title,
+                image_url=image_url,
             )
 
         # Handle Spend & Save Threshold
@@ -318,6 +342,10 @@ class DealAnalyzer:
                 promo_detail=promo_detail,
                 qualifying_qty=qualifying_qty,
                 base_price=base_price,
+                raw_deal_id=raw_deal_id,
+                ad_id=ad_id,
+                raw_title=raw_title,
+                image_url=image_url,
             )
 
         # Handle Percent Off
@@ -351,6 +379,10 @@ class DealAnalyzer:
                     promo_detail=promo_detail,
                     qualifying_qty=qualifying_qty,
                     base_price=base_price,
+                    raw_deal_id=raw_deal_id,
+                    ad_id=ad_id,
+                    raw_title=raw_title,
+                    image_url=image_url,
                 )
 
         if current_price is None:
@@ -382,6 +414,10 @@ class DealAnalyzer:
                 promo_detail=promo_detail,
                 qualifying_qty=qualifying_qty,
                 base_price=base_price,
+                raw_deal_id=raw_deal_id,
+                ad_id=ad_id,
+                raw_title=raw_title,
+                image_url=image_url,
             )
 
         if not past_obs:
@@ -421,6 +457,10 @@ class DealAnalyzer:
                 promo_detail=promo_detail,
                 qualifying_qty=qualifying_qty,
                 base_price=base_price,
+                raw_deal_id=raw_deal_id,
+                ad_id=ad_id,
+                raw_title=raw_title,
+                image_url=image_url,
             )
 
         episodes = self.cluster_episodes(past_obs)
@@ -456,8 +496,12 @@ class DealAnalyzer:
 
         # Has historical variation beyond a single flat price?
         has_price_variation = (h_max - h_min) >= 0.05
+        is_generic_placeholder = canonical_name.strip().lower() in GENERIC_PLACEHOLDER_NAMES
 
-        if is_contiguous_continuation:
+        if is_generic_placeholder:
+            badge = "STANDARD_DEAL"
+            reason = f"Unbranded/assorted circular promo (${current_price:.2f}){promo_note}{cat_note}"
+        elif is_contiguous_continuation:
             # Multi-week promotion continuation
             if current_price <= h_min and has_price_variation:
                 badge = "ALL_TIME_LOW"
@@ -514,6 +558,10 @@ class DealAnalyzer:
             promo_detail=promo_detail,
             qualifying_qty=qualifying_qty,
             base_price=base_price,
+            raw_deal_id=raw_deal_id,
+            ad_id=ad_id,
+            raw_title=raw_title,
+            image_url=image_url,
         )
 
     def evaluate_flyer(

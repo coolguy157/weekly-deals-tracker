@@ -105,6 +105,13 @@ class TestDealsDatabase(unittest.TestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["canonical_name"], "Sugardale Bacon 12 oz.")
 
+        # Test merchant filtering
+        results_tt = self.db.search_products("Bacon", merchant="Tom Thumb")
+        self.assertEqual(len(results_tt), 1)
+
+        results_giant = self.db.search_products("Bacon", merchant="Giant Food Stores")
+        self.assertEqual(len(results_giant), 0)
+
     def test_renormalize_all_deals(self):
         flyer = FlyerMetadata(
             id=9002,

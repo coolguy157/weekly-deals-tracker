@@ -71,9 +71,9 @@ class PromoExtractor:
     )
 
     # 3. Digital Coupon / Member Discount Patterns
-    # "WITH DIGITAL COUPON $1.99", "FOR U FINAL PRICE $2.49", "WITH FOR U COUPON $1.49"
+    # "WITH DIGITAL COUPON $1.99", "FOR U FINAL PRICE $2.49", "$2.99 /lb. DIGITAL COUPON"
     COUPON_FINAL_PRICE_PATTERN = re.compile(
-        r"\b(?:WITH\s+)?(?:DIGITAL\s+COUPON|FOR\s*U\s*COUPON|FOR\s*U|JUST\s*FOR\s*U|MEMBER\s+PRICE|WITH\s+CARD).*?\$(\d+(?:\.\d{2})?)\b",
+        r"(?:\b(?:WITH\s+)?(?:DIGITAL\s+COUPON|FOR\s*U\s*COUPON|FOR\s*U|JUST\s*FOR\s*U|MEMBER\s+PRICE|WITH\s+CARD).*?\$(\d+(?:\.\d{2})?)\b|\$(\d+(?:\.\d{2})?)(?:\s*/\s*(?:lb|ea|count|oz|pkg))?\.?\s*(?:DIGITAL\s+COUPON|FOR\s*U\s*COUPON|FOR\s*U|JUST\s*FOR\s*U|MEMBER\s+PRICE|WITH\s+CARD)\b)",
         re.IGNORECASE,
     )
     # "SAVE $1.00 WITH DIGITAL COUPON", "$1.00 OFF WITH DIGITAL COUPON"
@@ -350,7 +350,8 @@ class PromoExtractor:
         # 6. Digital Coupon Check
         m_coup_price = cls.COUPON_FINAL_PRICE_PATTERN.search(cleaned_text)
         if m_coup_price:
-            price = float(m_coup_price.group(1))
+            price_str = m_coup_price.group(1) or m_coup_price.group(2)
+            price = float(price_str)
             return PromoInfo(
                 promo_type="digital_coupon",
                 promo_detail=f"DIGITAL COUPON ${price:.2f}",

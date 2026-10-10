@@ -748,6 +748,167 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(bogo_deals[0].promo_detail, "BUY 2 GET 2 FREE")
         self.assertEqual(bogo_deals[0].canonical_name, "Doritos Tortilla Chips 9.25 oz")
 
+    def test_two_variety_produce_suffix_pair_expansion(self):
+        item = FlyerItem(
+            id=103,
+            flyer_id=1,
+            name="Fuji or Granny Smith Apples, Bartlett Pears, Roma Tomatoes or Yellow or White Onions",
+            price=0.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        names = [d.canonical_name for d in deals]
+        self.assertIn("Fuji Apples", names)
+        self.assertIn("Granny Smith Apples", names)
+        self.assertIn("Bartlett Pears", names)
+        self.assertIn("Roma Tomatoes", names)
+        self.assertIn("Yellow Onions", names)
+        self.assertIn("White Onions", names)
+        
+        # Verify categories
+        deal_map = {d.canonical_name: d.category for d in deals}
+        self.assertEqual(deal_map["Fuji Apples"], "Apples")
+        self.assertEqual(deal_map["Granny Smith Apples"], "Apples")
+        self.assertEqual(deal_map["Bartlett Pears"], "Pears")
+        self.assertEqual(deal_map["Roma Tomatoes"], "Tomatoes")
+        self.assertEqual(deal_map["Yellow Onions"], "Onions")
+        self.assertEqual(deal_map["White Onions"], "Onions")
+
+    def test_department_banner_discard_even_when_priced(self):
+        item = FlyerItem(
+            id=104,
+            flyer_id=1,
+            name="From Your Full Service Butcher Block",
+            price=1.27,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 0)
+
+    def test_app_marketing_subtitle_and_ellipsis_cleaning(self):
+        item_full = FlyerItem(
+            id=105,
+            flyer_id=1,
+            name="On The Vine Red Tomato - Each (Traditionally comes on the vine)",
+            price=0.79,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        item_trunc = FlyerItem(
+            id=106,
+            flyer_id=1,
+            name="On The Vine Red Tomato - Each...mes on the vine)",
+            price=0.79,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals_full = self.normalizer.disaggregate_and_normalize(item_full)
+        deals_trunc = self.normalizer.disaggregate_and_normalize(item_trunc)
+        self.assertEqual(len(deals_full), 1)
+        self.assertEqual(len(deals_trunc), 1)
+        self.assertEqual(deals_full[0].canonical_name, "On The Vine Red Tomato")
+        self.assertEqual(deals_trunc[0].canonical_name, "On The Vine Red Tomato")
+        self.assertEqual(deals_full[0].category, "Tomatoes")
+        self.assertEqual(deals_trunc[0].category, "Tomatoes")
+
+    def test_meat_multicut_chicken_trio_disaggregation(self):
+        item = FlyerItem(
+            id=1043139658,
+            flyer_id=8159694,
+            name="Nature's Promise Fresh Boneless Skinless Chicken Breasts, Thin Sliced or Tenders - $2.99 /lb. DIGITAL COUPON",
+            price=2.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 3)
+
+        self.assertEqual(deals[0].canonical_name, "Nature's Promise Fresh Boneless Skinless Chicken Breasts")
+        self.assertEqual(deals[0].brand, "Nature's Promise")
+        self.assertEqual(deals[0].unit_size, 1.0)
+        self.assertEqual(deals[0].unit_type, "lb")
+        self.assertEqual(deals[0].promo_type, "digital_coupon")
+
+        self.assertEqual(deals[1].canonical_name, "Nature's Promise Fresh Boneless Skinless Thin Sliced Chicken Breasts")
+        self.assertEqual(deals[1].brand, "Nature's Promise")
+        self.assertEqual(deals[1].unit_size, 1.0)
+        self.assertEqual(deals[1].unit_type, "lb")
+        self.assertEqual(deals[1].promo_type, "digital_coupon")
+
+        self.assertEqual(deals[2].canonical_name, "Nature's Promise Fresh Chicken Tenders")
+        self.assertEqual(deals[2].brand, "Nature's Promise")
+        self.assertEqual(deals[2].unit_size, 1.0)
+        self.assertEqual(deals[2].unit_type, "lb")
+        self.assertEqual(deals[2].promo_type, "digital_coupon")
+
+    def test_perdue_multicut_chicken_disaggregation(self):
+        item = FlyerItem(
+            id=2001,
+            flyer_id=8159694,
+            name="Perdue Fresh Boneless Skinless Chicken Breasts, Thin Sliced or Tenders",
+            price=3.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Perdue",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 3)
+        self.assertEqual(deals[0].canonical_name, "Perdue Fresh Boneless Skinless Chicken Breasts")
+        self.assertEqual(deals[0].brand, "Perdue")
+        self.assertEqual(deals[0].unit_size, 1.0)
+        self.assertEqual(deals[0].unit_type, "lb")
+
+        self.assertEqual(deals[1].canonical_name, "Perdue Fresh Boneless Skinless Thin Sliced Chicken Breasts")
+        self.assertEqual(deals[1].brand, "Perdue")
+        self.assertEqual(deals[1].unit_size, 1.0)
+
+        self.assertEqual(deals[2].canonical_name, "Perdue Fresh Chicken Tenders")
+        self.assertEqual(deals[2].brand, "Perdue")
+        self.assertEqual(deals[2].unit_size, 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()
