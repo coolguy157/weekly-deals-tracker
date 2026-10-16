@@ -120,13 +120,17 @@ def pre_expand_deal_string(name: str) -> str:
         flags=re.IGNORECASE,
     )
 
-    # Expand multi-cut poultry lists: "<Prefix> Chicken Breasts, Thighs or Drumsticks"
+    # Expand multi-cut poultry lists: "<Prefix> Chicken Breasts, Thighs or Drumsticks" or "Fresh Whole Chickens, Thighs or Drumsticks"
     def _expand_poultry_trio(m):
         prefix = m.group(1).strip()
         c2 = m.group(2).strip()
         c3 = m.group(3).strip()
-        m_base = re.match(r"^(.*?)\b(?:Boneless\s+Skinless|Boneless|Bone-In)?\s*Chicken\b", prefix, re.IGNORECASE)
-        base = m_base.group(1).strip() if m_base else prefix.replace("Chicken Breasts", "").strip()
+        base = re.sub(
+            r"\b(?:Boneless\s+Skinless|Boneless|Bone-In)?\s*(?:Chicken\s+Breasts?|Whole\s+Chickens?|Breasts?)\b",
+            "",
+            prefix,
+            flags=re.IGNORECASE,
+        ).strip()
         b_str = f"{base} " if base else ""
         item1 = prefix
         item2 = f"{b_str}Chicken {c2}".strip()
@@ -134,7 +138,7 @@ def pre_expand_deal_string(name: str) -> str:
         return f"{item1} or {item2} or {item3}"
 
     cleaned_name = re.sub(
-        r"\b([A-Za-z0-9'\s]+?\b(?:Chicken\s+)?Breasts?),\s*(Thighs|Drumsticks|Wings|Tenders|Cutlets)\s+or\s+(Thighs|Drumsticks|Wings|Tenders|Cutlets)\b",
+        r"\b([A-Za-z0-9'\s]+?\b(?:Fresh\s+)?(?:Chicken\s+)?(?:Breasts?|Whole\s+Chickens?)),\s*(Thighs|Drumsticks|Wings|Tenders|Cutlets)\s+or\s+(Thighs|Drumsticks|Wings|Tenders|Cutlets)\b",
         _expand_poultry_trio,
         cleaned_name,
         flags=re.IGNORECASE,
@@ -287,10 +291,16 @@ def pre_expand_deal_string(name: str) -> str:
     )
 
     # Expand brand pair with shared size: "Doritos, Tostitos 6-13 oz" or "Lays or Cheetos 8-15 oz"
+    food_keywords = {"bacon", "lunchmeat", "sausage", "chicken", "beef", "pork", "steak", "roast", "fillet", "fillets", "shrimp", "salmon", "cheese", "eggs", "milk", "butter", "bread"}
+
     def _expand_brand_size(m):
         b1 = m.group(1).strip()
         b2 = m.group(2).strip()
         size = m.group(3).strip()
+        if any(w.lower() in food_keywords for w in b1.split() + b2.split()):
+            return m.group(0)
+        if len(b1.split()) > 2 or len(b2.split()) > 2:
+            return m.group(0)
         if not UNIT_PATTERN.search(b1) and len(b1) > 2 and len(b2) > 2:
             return f"{b1} {size}, {b2} {size}"
         return m.group(0)

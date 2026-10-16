@@ -45,14 +45,16 @@ class AnalyticsMixin:
         """Fetch historical unit price observations across all brands for a commodity category."""
         query = """
             SELECT 
-                d.id as deal_id, d.advertised_price, d.unit_price, d.page_number, d.is_front_page,
+                d.id as deal_id, d.advertised_price,
+                COALESCE(d.unit_price, CASE WHEN p.unit_size > 0 THEN ROUND(d.advertised_price / p.unit_size, 4) ELSE NULL END) as unit_price,
+                d.page_number, d.is_front_page,
                 d.promo_type, d.is_trusted, d.source_type, d.recorded_at, f.valid_from, f.valid_to, f.flyer_id,
                 p.product_id, p.canonical_name, p.brand, p.category, p.unit_size, p.unit_type
             FROM deal_observations d
             JOIN products p ON d.product_id = p.product_id
             JOIN flyer_runs f ON d.flyer_id = f.flyer_id
             WHERE (p.category LIKE ? OR p.canonical_name LIKE ?)
-              AND d.unit_price IS NOT NULL
+              AND (d.unit_price IS NOT NULL OR (d.advertised_price IS NOT NULL AND p.unit_size > 0))
               AND d.advertised_price IS NOT NULL
         """
         params: List[Any] = [f"%{category}%", f"%{category}%"]
@@ -61,7 +63,7 @@ class AnalyticsMixin:
             params.append(unit_type)
         if trusted_only:
             query += " AND d.is_trusted = 1"
-        query += " ORDER BY d.unit_price ASC, f.valid_from DESC"
+        query += " ORDER BY unit_price ASC, f.valid_from DESC"
 
         with self._get_connection() as conn:
             rows = conn.execute(query, params).fetchall()

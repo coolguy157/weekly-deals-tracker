@@ -49,8 +49,8 @@ class ProductNormalizer:
     def normalize_text(self, text: str) -> str:
         return normalize_text(text)
 
-    def clean_sales_notes(self, text: str) -> str:
-        return clean_sales_notes(text)
+    def clean_sales_notes(self, text: str, preserve_bulk_pkg: bool = False) -> str:
+        return clean_sales_notes(text, preserve_bulk_pkg=preserve_bulk_pkg)
 
     def extract_unit_info(self, text: str) -> Tuple[Optional[float], Optional[str]]:
         return extract_unit_info(text)
@@ -69,8 +69,8 @@ class ProductNormalizer:
         if lower_raw in self.DEPARTMENT_BANNERS or any(lower_raw.startswith(b) for b in self.DEPARTMENT_BANNERS if len(b) > 8):
             return []
 
-        # Strip packaging and promotional notes before disaggregation
-        cleaned_name = self.clean_sales_notes(raw_name)
+        # Strip packaging and promotional notes before disaggregation (preserving bulk package clauses for pricing)
+        cleaned_name = self.clean_sales_notes(raw_name, preserve_bulk_pkg=True)
         if not cleaned_name:
             cleaned_name = raw_name
 
@@ -92,6 +92,14 @@ class ProductNormalizer:
             r"\b(Boneless|Bone-In|Fresh|Wild|Raw|Cooked),\s*(Skinless|Center\s*Cut|Never\s*Frozen|Caught|Peeled)\b",
             r"\1 \2",
             cleaned_name,
+            flags=re.IGNORECASE,
+        )
+
+        # Remove comma before "Sold in" expressions so bulk rate clause remains attached to preceding item
+        pre_split_name = re.sub(
+            r",\s*(?=Sold in\b)",
+            " ",
+            pre_split_name,
             flags=re.IGNORECASE,
         )
 
@@ -178,9 +186,26 @@ class ProductNormalizer:
             if not brand and len(item_brands) == 1:
                 brand = item_brands[0]
 
-            # Calculate unit price if size and price are present
+            # Check for bulk package rate clause: "Sold in 3 lb. Package for $11.97 ea." or "Sold in a 2 lb. bag for $13.98 each"
+            pkg_rate_match = re.search(
+                r"\bSold in (?:a|the)?\s*(\d+(?:\.\d+)?)\s*(lb|oz|ct|count)\.?\s*(?:bag|package|pkg|box|container)?\s+for\s+\$(\d+(?:\.\d+)?)\b",
+                sub_name,
+                re.IGNORECASE,
+            )
+            pkg_promo_detail = None
+            pkg_advertised_price = None
             unit_price = None
-            if item.price and size and size > 0:
+            if pkg_rate_match and item.price:
+                pkg_qty = float(pkg_rate_match.group(1))
+                pkg_u = pkg_rate_match.group(2).lower()
+                pkg_cost = float(pkg_rate_match.group(3))
+                if pkg_qty > 0 and abs(item.price - (pkg_cost / pkg_qty)) < 0.05:
+                    pkg_advertised_price = pkg_cost
+                    size = pkg_qty
+                    unit = "lb" if pkg_u in ("lb", "pound") else pkg_u
+                    unit_price = round(pkg_cost / pkg_qty, 4)
+                    pkg_promo_detail = f"Sold in {int(pkg_qty) if pkg_qty.is_integer() else pkg_qty} {unit} pkg"
+            elif item.price and size and size > 0:
                 unit_price = round(item.price / size, 4)
 
             # Clean sub_name for canonical representation
@@ -216,6 +241,12 @@ class ProductNormalizer:
             # Normalize trailing value pack modifiers for chicken cuts
             if "chicken" in canonical.lower() and canonical.lower().endswith(" value pack"):
                 canonical = canonical[:-11].strip()
+
+            # Standardize bone-in chicken cuts
+            if re.search(r"^(?:Fresh\s+)?Chicken\s+Thighs$", canonical, re.IGNORECASE):
+                canonical = "Bone-In Chicken Thighs"
+            elif re.search(r"^Fresh\s+Chicken\s+Drumsticks$", canonical, re.IGNORECASE):
+                canonical = "Chicken Drumsticks"
 
             # Standardize seasoning and mix packet canonical names (strip minor packet weight ranges)
             seasoning_keywords = ("taco seasoning", "seasoning mix", "gravy mix", "fajita seasoning", "chili seasoning", "sloppy joe seasoning")
@@ -259,12 +290,22 @@ class ProductNormalizer:
                     if item.price and size > 0:
                         unit_price = round(item.price / size, 4)
 
+            # Standardize fresh Atlantic salmon portions (typically 5 oz skinless portions)
+            if re.search(r"\b(?:Fresh\s+)?(?:Atlantic\s+)?Salmon\s+Portions?\b", canonical, re.IGNORECASE) and not re.search(r"\b\d+\s*oz\b", canonical, re.IGNORECASE):
+                canonical = "Fresh Atlantic Salmon Portions 5 oz Skinless"
+                size = 5.0
+                unit = "oz"
+                if item.price and size > 0:
+                    unit_price = round(item.price / size, 4)
+
             # Deli counter cheese & meat / fresh butcher meat sold by the pound fallback
             deli_brands = ("Primo Taglio", "Dietz & Watson", "Dietz Watson", "Boar's Head")
             full_item_text = f"{item.name} {item.description or ''} {item.pre_price_text or ''} {item.post_price_text or ''}"
             if size is None and item.price:
+                is_portion_or_unit = bool(re.search(r"\b(?:portions?|patt(?:y|ies)|cakes?|skewers?)\b", canonical, re.IGNORECASE))
                 is_fresh_meat_cut = (
-                    any(k in canonical.lower() for k in ("boneless", "skinless", "bone-in", "fresh", "center cut", "loin chop", "pork chop", "ribeye", "sirloin", "t-bone", "filet mignon", "flank steak", "drumsticks", "tenders", "cutlets"))
+                    not is_portion_or_unit
+                    and any(k in canonical.lower() for k in ("boneless", "skinless", "bone-in", "fresh", "whole", "center cut", "loin chop", "pork chop", "ribeye", "sirloin", "t-bone", "filet mignon", "flank steak", "drumsticks", "tenders", "cutlets"))
                     and any(k in canonical.lower() for k in ("chicken", "beef", "pork", "turkey", "salmon", "tilapia", "cod", "shrimp"))
                 )
                 if (
@@ -282,9 +323,12 @@ class ProductNormalizer:
                 additional_texts=[item.name, item.pre_price_text, item.post_price_text, item.description],
             )
 
-            advertised_price = item.price
+            advertised_price = pkg_advertised_price if pkg_advertised_price is not None else item.price
             promo_type = promo_info.promo_type if promo_info else "standard"
             promo_detail = promo_info.promo_detail if promo_info else None
+            if pkg_promo_detail and (not promo_detail or promo_type == "standard"):
+                promo_type = "must_buy"
+                promo_detail = pkg_promo_detail
             qualifying_qty = promo_info.qualifying_qty if promo_info else 1
             coupon_discount = promo_info.coupon_discount if promo_info else None
             base_price = item.original_price

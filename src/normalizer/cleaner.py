@@ -52,7 +52,7 @@ GENERIC_PLACEHOLDER_NAMES: Set[str] = {
 
 # Packaging, portioning, and promotional sales patterns to clean from canonical names
 PACKAGING_SALES_PATTERNS: List[re.Pattern] = [
-    re.compile(r",?\s*Sold in (?:a|the) \d+(?:\.\d+)?\s*(?:lb|oz|ct|bag)\.?\s*bag(?:\s+for\s+\$\d+(?:\.\d+)?)?(?:\s*each)?(?:\s*Limit\s*\d+)?", re.IGNORECASE),
+    re.compile(r",?\s*Sold in (?:a|the)?\s*\d+(?:\.\d+)?\s*(?:lb|oz|ct|bag|package|pkg|box|container)\.?\s*(?:bag|package|pkg|box|container)?(?:\s+for\s+\$\d+(?:\.\d+)?)?(?:\s*(?:each|ea)\b)?(?:\s*Limit\s*\d+)?\.?", re.IGNORECASE),
     re.compile(r",?\s*Sold in (?:a|the) bag", re.IGNORECASE),
     re.compile(r",?\s*Sold by the (?:ea|lb|each|pound)", re.IGNORECASE),
     re.compile(r"\bLimit\s+\d+\b", re.IGNORECASE),
@@ -87,9 +87,11 @@ def normalize_text(text: str) -> str:
     return " ".join(cleaned.split()).strip()
 
 
-def clean_sales_notes(text: str) -> str:
+def clean_sales_notes(text: str, preserve_bulk_pkg: bool = False) -> str:
     """Strip packaging notes, quantity limits, and variant price clauses."""
     cleaned = text
     for pat in PACKAGING_SALES_PATTERNS:
+        if preserve_bulk_pkg and "Sold in" in pat.pattern and "for" in pat.pattern:
+            continue
         cleaned = pat.sub("", cleaned)
     return " ".join(cleaned.split()).strip(" ,.-")

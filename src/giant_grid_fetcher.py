@@ -5,6 +5,7 @@ Extracts product catalog records, regular shelf prices, and solves Buy X Get Y /
 """
 
 import os
+import sys
 import re
 import json
 import logging
@@ -28,11 +29,20 @@ class GiantGridFetcher:
     def __init__(self, user_data_dir: Optional[str] = None, headless: bool = False):
         if user_data_dir is None:
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            self.user_data_dir = os.path.join(base_dir, "..", "data", "chrome_profile")
+            candidate_parent = os.path.join(base_dir, "..", "data")
+            candidate_local = os.path.join(base_dir, "data")
+            target_data_dir = candidate_parent if os.path.exists(candidate_parent) else candidate_local
+            self.user_data_dir = os.path.join(target_data_dir, "chrome_profile")
         else:
             self.user_data_dir = user_data_dir
         os.makedirs(self.user_data_dir, exist_ok=True)
-        self.headless = headless
+
+        # Fallback to headless on Linux when no X11/wayland display server is active
+        if not headless and sys.platform.startswith("linux") and not os.environ.get("DISPLAY"):
+            logger.warning("No X11 DISPLAY detected on Linux. Falling back to headless=True.")
+            self.headless = True
+        else:
+            self.headless = headless
 
     def fetch_circular_deals(
         self,

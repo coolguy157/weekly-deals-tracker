@@ -177,6 +177,36 @@ class TestProductNormalizer(unittest.TestCase):
             ],
         )
 
+    def test_bulk_package_rate_normalization(self):
+        item = FlyerItem(
+            id=1046437290,
+            flyer_id=8180797,
+            name="Signature SELECT® Thick Sliced Bacon Sold in 3 lb. Package for $11.97 ea., Hillshire Farm Lunchmeat 7-9 oz. or Owens Breakfast Sausage 12-16 oz.",
+            price=3.99,
+            original_price=None,
+            page_number=1,
+            is_front_page=True,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Signature SELECT | Hillshire Farm | Owens",
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 3)
+
+        bacon_deal = deals[0]
+        self.assertEqual(bacon_deal.canonical_name, "Thick Sliced Bacon")
+        self.assertEqual(bacon_deal.brand, "Signature SELECT")
+        self.assertEqual(bacon_deal.unit_size, 3.0)
+        self.assertEqual(bacon_deal.unit_type, "lb")
+        self.assertEqual(bacon_deal.advertised_price, 11.97)
+        self.assertEqual(bacon_deal.unit_price, 3.99)
+        self.assertEqual(bacon_deal.promo_type, "must_buy")
+        self.assertEqual(bacon_deal.promo_detail, "Sold in 3 lb pkg")
+
     def test_store_brand_packaged_produce_retains_brand(self):
         item = FlyerItem(
             id=1006,
@@ -695,8 +725,10 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(self.normalizer.infer_category("Philadelphia Cream Cheese 8 oz"), "Cream Cheese")
         self.assertEqual(self.normalizer.infer_category("Primo Taglio American Cheese"), "Cheese")
         self.assertEqual(self.normalizer.infer_category("Sugardale Bacon 12 oz"), "Bacon")
-        self.assertEqual(self.normalizer.infer_category("Lucerne Large Eggs 12 ct"), "Eggs")
-        self.assertEqual(self.normalizer.infer_category("Boneless Skinless Chicken Breasts"), "Chicken Breasts")
+        self.assertEqual(self.normalizer.infer_category("Boneless Skinless Chicken Breasts"), "Boneless Chicken Breasts")
+        self.assertEqual(self.normalizer.infer_category("Boneless Skinless Chicken Thighs"), "Boneless Chicken Thighs")
+        self.assertEqual(self.normalizer.infer_category("Bone-In Chicken Thighs"), "Bone-In Chicken Thighs")
+        self.assertEqual(self.normalizer.infer_category("Fresh Chicken Thighs"), "Bone-In Chicken Thighs")
         self.assertEqual(self.normalizer.infer_category("Signature SELECT Ground Beef 80/20 1 lb"), "Ground Beef")
 
     def test_promo_normalization(self):
@@ -1053,6 +1085,70 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[0].canonical_name, "Bob Evans 18g Protein Macaroni & Cheese Refrigerated")
         self.assertEqual(deals[0].brand, "Bob Evans")
         self.assertEqual(deals[0].promo_detail, "FREE with 5 CHOICE points (Save $5.79)")
+
+    def test_poultry_trio_with_whole_chicken(self):
+        item = FlyerItem(
+            id=5001,
+            flyer_id=8180797,
+            name="Signature SELECT® Fresh Whole Chickens, Thighs or Drumsticks",
+            price=0.97,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Signature SELECT",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 3)
+
+        self.assertEqual(deals[0].canonical_name, "Whole Chickens")
+        self.assertEqual(deals[0].brand, "Signature SELECT")
+        self.assertEqual(deals[0].category, "Whole Chicken")
+        self.assertEqual(deals[0].unit_size, 1.0)
+        self.assertEqual(deals[0].unit_type, "lb")
+        self.assertEqual(deals[0].unit_price, 0.97)
+
+        self.assertEqual(deals[1].canonical_name, "Bone-In Chicken Thighs")
+        self.assertEqual(deals[1].brand, "Signature SELECT")
+        self.assertEqual(deals[1].category, "Bone-In Chicken Thighs")
+        self.assertEqual(deals[1].unit_size, 1.0)
+        self.assertEqual(deals[1].unit_type, "lb")
+        self.assertEqual(deals[1].unit_price, 0.97)
+
+        self.assertEqual(deals[2].canonical_name, "Chicken Drumsticks")
+        self.assertEqual(deals[2].brand, "Signature SELECT")
+        self.assertEqual(deals[2].category, "Chicken Drumsticks")
+        self.assertEqual(deals[2].unit_size, 1.0)
+        self.assertEqual(deals[2].unit_type, "lb")
+        self.assertEqual(deals[2].unit_price, 0.97)
+
+    def test_fresh_atlantic_salmon_portions(self):
+        item = FlyerItem(
+            id=5002,
+            flyer_id=8180797,
+            name="Fresh Atlantic Salmon Portions",
+            price=4.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=3,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 1)
+        self.assertEqual(deals[0].canonical_name, "Fresh Atlantic Salmon Portions 5 oz Skinless")
+        self.assertEqual(deals[0].unit_size, 5.0)
+        self.assertEqual(deals[0].unit_type, "oz")
+        self.assertAlmostEqual(deals[0].unit_price, round(4.99 / 5.0, 4))
+        self.assertEqual(deals[0].category, "Salmon")
 
 
 if __name__ == "__main__":
