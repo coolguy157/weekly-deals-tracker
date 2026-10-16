@@ -195,28 +195,36 @@ def _sync_single_store(
     db = DealsDatabase(db_path)
     merchant_label = merchant or "Any"
 
-    # If Giant Food Stores or use_grid requested, use GiantGridFetcher
+    # If Giant Food Stores or use_grid requested, attempt GiantGridFetcher first
     if (merchant and "giant" in merchant.lower()) or use_grid:
         from .giant_grid_fetcher import GiantGridFetcher
-        print(f"Fetching Giant weekly ad grid & resolving Buy X Get Y prices for ZIP {zip_code}...")
-        grid_fetcher = GiantGridFetcher()
-        weekly_ad, normalized_deals = grid_fetcher.fetch_circular_deals(zip_code=zip_code)
-        
-        db.upsert_flyer_run(weekly_ad)
-        purged = db.purge_overlapping_untrusted_flyers(
-            merchant=weekly_ad.merchant,
-            valid_from=weekly_ad.valid_from,
-            valid_to=weekly_ad.valid_to,
-            keep_flyer_id=weekly_ad.id,
-        )
-        if purged:
-            print(f"Superseded and purged {len(purged)} overlapping backfill circular(s): {purged}")
-            
-        db.delete_flyer(weekly_ad.id)
-        db.upsert_flyer_run(weekly_ad)
-        inserted = db.record_deals(normalized_deals)
-        print(f"Successfully recorded {inserted} normalized Giant deals (including solved BOGOs & shelf prices) into database.\n")
-        return
+        print(f"Attempting Giant weekly ad grid & BxGy solver for ZIP {zip_code}...")
+        weekly_ad = None
+        normalized_deals = []
+        try:
+            grid_fetcher = GiantGridFetcher()
+            weekly_ad, normalized_deals = grid_fetcher.fetch_circular_deals(zip_code=zip_code)
+        except Exception as e:
+            print(f"Warning: Giant grid fetcher error ({e}). Falling back to Flipp circular API.")
+
+        if weekly_ad and normalized_deals and len(normalized_deals) > 0:
+            db.upsert_flyer_run(weekly_ad)
+            purged = db.purge_overlapping_untrusted_flyers(
+                merchant=weekly_ad.merchant,
+                valid_from=weekly_ad.valid_from,
+                valid_to=weekly_ad.valid_to,
+                keep_flyer_id=weekly_ad.id,
+            )
+            if purged:
+                print(f"Superseded and purged {len(purged)} overlapping backfill circular(s): {purged}")
+                
+            db.delete_flyer(weekly_ad.id)
+            db.upsert_flyer_run(weekly_ad)
+            inserted = db.record_deals(normalized_deals)
+            print(f"Successfully recorded {inserted} normalized Giant deals (including solved BOGOs & shelf prices) into database.\n")
+            return
+
+        print("Warning: Giant grid view returned 0 deals (site down or blocked). Falling back to Flipp circular scraper...\n")
 
     fetcher = FlippAdFetcher()
     normalizer = ProductNormalizer()
