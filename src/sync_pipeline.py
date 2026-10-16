@@ -208,7 +208,7 @@ def _sync_single_store(
             print(f"Warning: Giant grid fetcher error ({e}). Falling back to Flipp circular API.")
 
         if weekly_ad and normalized_deals and len(normalized_deals) > 0:
-            db.upsert_flyer_run(weekly_ad)
+            db.upsert_flyer_run(weekly_ad, source_type="giant_grid_api")
             purged = db.purge_overlapping_untrusted_flyers(
                 merchant=weekly_ad.merchant,
                 valid_from=weekly_ad.valid_from,
@@ -219,7 +219,7 @@ def _sync_single_store(
                 print(f"Superseded and purged {len(purged)} overlapping backfill circular(s): {purged}")
                 
             db.delete_flyer(weekly_ad.id)
-            db.upsert_flyer_run(weekly_ad)
+            db.upsert_flyer_run(weekly_ad, source_type="giant_grid_api")
             inserted = db.record_deals(normalized_deals)
             print(f"Successfully recorded {inserted} normalized Giant deals (including solved BOGOs & shelf prices) into database.\n")
             return
@@ -278,8 +278,65 @@ def _get_sync_single_fn():
     return _sync_single_store
 
 
+def is_store_sync_needed(store_key: Optional[str] = None, db_path: Optional[str] = None) -> Tuple[bool, str]:
+    """
+    Check if a circular sync is needed for the given store/preset.
+    Returns (needed: bool, reason: str).
+    """
+    from datetime import date
+    db = DealsDatabase(db_path)
+    today_str = date.today().isoformat()
+
+    preset = resolve_store(store_key) if store_key else None
+    merchant = preset["merchant"] if preset else (store_key or "Giant Food Stores")
+    is_giant = "giant" in merchant.lower()
+
+    with db._get_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT f.flyer_id, f.valid_from, f.valid_to, f.source_type, COUNT(d.id) as deal_count
+            FROM flyer_runs f
+            LEFT JOIN deal_observations d ON f.flyer_id = d.flyer_id
+            WHERE f.merchant LIKE ?
+            GROUP BY f.flyer_id
+            ORDER BY f.valid_from DESC
+            LIMIT 1
+            """,
+            (f"%{merchant}%",),
+        ).fetchone()
+
+        if not row or not row["flyer_id"]:
+            return True, f"No active circular found in database for {merchant}."
+
+        v_from = (row["valid_from"] or "")[:10]
+        v_to = (row["valid_to"] or "")[:10]
+        deal_count = row["deal_count"] or 0
+        source_type = row["source_type"] or ""
+
+        # Expired or empty
+        if today_str > v_to:
+            return True, f"Active circular expired on {v_to} (today is {today_str}). New ad needed."
+        if deal_count == 0:
+            return True, "Current circular in database has 0 deals recorded."
+
+        # For Giant: if previously only ingested via fallback, retry until we get giant_grid_api
+        if is_giant and source_type != "giant_grid_api":
+            return True, f"Current circular (valid {v_from} to {v_to}) is using Flipp fallback. Retrying Giant Grid View & solved BOGOs."
+
+        # Already fully up to date
+        return False, f"Current circular (valid {v_from} to {v_to}) is already fully synced via {source_type} with {deal_count} deals."
+
+
 def cmd_sync(args: argparse.Namespace) -> None:
     """Fetch current circular from Flipp and ingest into SQLite DB."""
+    if getattr(args, "if_needed", False):
+        store_target = getattr(args, "store", None) or getattr(args, "merchant", None) or DEFAULT_STORE
+        needed, reason = is_store_sync_needed(store_target, db_path=args.db)
+        if not needed:
+            print(f"[SKIP] Sync not needed: {reason}")
+            return
+        print(f"[INFO] Proceeding with sync: {reason}")
+
     enrich_app = getattr(args, "enrich_app", False)
     fp_num = getattr(args, "front_page_number", None)
     extra_kwargs = {"front_page_number": fp_num} if fp_num is not None else {}

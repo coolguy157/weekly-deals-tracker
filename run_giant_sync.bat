@@ -34,8 +34,8 @@ if exist "%~dp0..\app_automation\.venv\Scripts\python.exe" (
     set PYTHON_EXE="%~dp0.venv\Scripts\python.exe"
 )
 
-:: 1. Sync Giant weekly ad and calculate BxGy prices into database
-%PYTHON_EXE% -u -m src.cli sync --store giant >> "%LOGFILE%" 2>&1
+:: 1. Sync Giant weekly ad and calculate BxGy prices into database (retries daily if in fallback state)
+%PYTHON_EXE% -u -m src.cli sync --store giant --if-needed >> "%LOGFILE%" 2>&1
 set SYNC_CODE=%ERRORLEVEL%
 
 if %SYNC_CODE% neq 0 (
@@ -46,8 +46,8 @@ if %SYNC_CODE% neq 0 (
 :: 2. Export latest evaluated deals to web/deals.json
 %PYTHON_EXE% -u -m src.cli export --store giant --format json --output web/deals.json >> "%LOGFILE%" 2>&1
 
-:: 3. Git commit and push if web/deals.json changed
-git add web/deals.json src/giant_grid_fetcher.py src/cli.py >> "%LOGFILE%" 2>&1
+:: 3. Git commit and push if web/deals.json or database changed
+git add web/deals.json data/giant_deals.db src/giant_grid_fetcher.py src/cli.py >> "%LOGFILE%" 2>&1
 git diff --staged --quiet
 if errorlevel 1 (
     echo Staged changes detected in web/deals.json. Committing and pushing to main and gh-pages... >> "%LOGFILE%"

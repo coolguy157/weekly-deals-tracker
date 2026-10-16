@@ -217,6 +217,7 @@ def main() -> None:
     p_sync.add_argument("--front-page-only", action="store_true", help="Ingest front page only")
     p_sync.add_argument("--front-page-number", type=int, default=None, help="Explicit front page number (overrides auto-detection for Savings Lock inserts)")
     p_sync.add_argument("--enrich-app", action="store_true", help="Bridge with Tom Thumb mobile app to harvest in-app viewer promos and search base shelf prices")
+    p_sync.add_argument("--if-needed", action="store_true", help="Only run sync if current circular is expired, missing, or needs BxGy resolution")
 
     # deals
     p_deals = subparsers.add_parser("deals", help="List evaluated deals for latest circular")
