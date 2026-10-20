@@ -89,7 +89,10 @@ class GiantGridFetcher:
 
             # Scroll through page to load all lazy-loaded paginated batches (typically 6 batches = ~354 items)
             for _ in range(12):
-                page.evaluate("window.scrollBy(0, 3000)")
+                try:
+                    page.evaluate("window.scrollBy(0, 3000)")
+                except Exception:
+                    page.wait_for_timeout(1500)
                 page.wait_for_timeout(1000)
 
             # Combine and deduplicate all ads across batches
