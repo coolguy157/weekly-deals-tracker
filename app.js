@@ -141,13 +141,29 @@
   function isPointsFreebie(d) {
     if (!d) return false;
     const badge = typeof d === 'string' ? d : (d.badge || '');
+    if (/points_freebie/i.test(badge)) return true;
+    const pDetail = typeof d === 'object' ? (d.promo_detail || '') : '';
+    const mPts = pDetail.match(/(\d+)[-\s]+(?:CHOICE\s+)?POINTS/i) || pDetail.match(/(\d+)[-\s]+POINT\s+FREEBIE/i) || pDetail.match(/FREE\s+with\s+(\d+)\s+CHOICE\s+points/i);
+    if (mPts && parseInt(mPts[1], 10) <= 10) return true;
+    return false;
+  }
+
+  function isPointsDeal(d) {
+    if (!d) return false;
+    const badge = typeof d === 'string' ? d : (d.badge || '');
+    return /points_deal/i.test(badge);
+  }
+
+  function isPointsRedemption(d) {
+    if (!d) return false;
+    const badge = typeof d === 'string' ? d : (d.badge || '');
     const pType = typeof d === 'object' ? (d.promo_type || '') : '';
     const pDetail = typeof d === 'object' ? (d.promo_detail || '') : '';
-    return /points_freebie|freebie/i.test(badge) || pType === 'points_redemption' || /freebie|free with \d+ choice points/i.test(pDetail);
+    return /points_redemption/i.test(badge) || pType === 'points_redemption' || /choice points/i.test(pDetail);
   }
 
   function getPointsExtrapolatedInfo(d) {
-    if (!d || !isPointsFreebie(d)) return null;
+    if (!d || (!isPointsFreebie(d) && !isPointsDeal(d) && !isPointsRedemption(d))) return null;
 
     const text = `${d.promo_detail || ''} ${d.analysis || ''} ${d.raw_title || ''} ${d.name || ''}`;
     let pts = null;
@@ -159,7 +175,7 @@
       pts = parseInt(mPts[1], 10);
     }
 
-    const mSave = text.match(/SAVE\s+(?:UP\s+TO\s+|AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?)/i) || text.match(/Save\s+\$(\d+(?:\.\d{2})?)/i);
+    const mSave = text.match(/SAVE\s+(?:UP\s+TO\s+|AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?)/i) || text.match(/Save\s+\$(\d+(?:\.\d{2})?)/i) || text.match(/for\s+\$(\d+(?:\.\d{2})?)\s+value/i);
     if (mSave) {
       savedVal = parseFloat(mSave[1]);
     } else if (d.base_price && d.base_price > 0) {
@@ -176,12 +192,15 @@
     }
 
     let yieldTag = '';
+    const isFree = isPointsFreebie(d);
     if (pts && savedVal && rateCents) {
-      yieldTag = `🪙 ${pts} pts • Save $${savedVal.toFixed(2)} (${rateCents}¢/pt)`;
+      yieldTag = isFree
+        ? `🪙 ${pts} pts • Save $${savedVal.toFixed(2)} (${rateCents}¢/pt)`
+        : `🪙 ${pts} pts • $${savedVal.toFixed(2)} val (${rateCents}¢/pt)`;
     } else if (pts && savedVal) {
-      yieldTag = `🪙 ${pts} pts • Save $${savedVal.toFixed(2)}`;
+      yieldTag = isFree ? `🪙 ${pts} pts • Save $${savedVal.toFixed(2)}` : `🪙 ${pts} pts • $${savedVal.toFixed(2)} val`;
     } else if (pts) {
-      yieldTag = `🪙 FREE with ${pts} pts`;
+      yieldTag = isFree ? `🪙 FREE with ${pts} pts` : `🪙 ${pts} CHOICE pts`;
     }
 
     return {
@@ -198,10 +217,14 @@
 
     if (/ATL|ALL[-_]TIME/i.test(rawBadge)) {
       badges.push('<span class="deal-badge atl">🔥 ALL-TIME LOW</span>');
-    } else if (/POINTS_FREEBIE|FREEBIE/i.test(rawBadge)) {
+    } else if (/POINTS_FREEBIE/i.test(rawBadge)) {
       badges.push('<span class="deal-badge points-freebie">🪙 FREE W/ POINTS</span>');
+    } else if (/POINTS_DEAL/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge points-deal">🪙 HIGH-YIELD POINTS</span>');
     } else if (/POINTS_REWARD|REWARD/i.test(rawBadge)) {
       badges.push('<span class="deal-badge points-reward">🪙 POINTS REWARD</span>');
+    } else if (/POINTS_REDEMPTION/i.test(rawBadge)) {
+      badges.push('<span class="deal-badge points-redemption">🪙 REDEEM POINTS</span>');
     } else if (/SPEND_SAVE|SPEND/i.test(rawBadge)) {
       badges.push('<span class="deal-badge spend-save">🏷️ SPEND & SAVE</span>');
     } else if (/PERCENT_OFF|DISCOUNT/i.test(rawBadge)) {
@@ -384,6 +407,7 @@
     const hasGreat = items.some(it => isGreatBadge(it.badge) || isAtlBadge(it.badge) || /beat/i.test(it.badge || ''));
     const hasCatBest = items.some(it => it.is_category_best);
     const hasPointsFreebie = items.some(it => isPointsFreebie(it));
+    const hasPointsDeal = items.some(it => isPointsDeal(it));
     const isFrontPage = items.some(it => it.is_front_page);
     const page = items[0].page || 1;
     const category = items[0].category || 'Other';
@@ -414,6 +438,7 @@
       promoDetail,
       promoType,
       hasPointsFreebie,
+      hasPointsDeal,
       hasAtl,
       hasGreat,
       hasCatBest,
@@ -641,9 +666,9 @@
         return (a.title || '').localeCompare(b.title || '');
       }
 
-      // 'featured' default: 5-Point / Points Freebies (200) > ALL-TIME LOW (100) > Great Deal / Beat Avg (50) + Front page bonus (20)
-      const scoreA = (a.hasPointsFreebie ? 200 : a.hasAtl ? 100 : a.hasGreat ? 50 : 0) + (a.isFrontPage ? 20 : 0);
-      const scoreB = (b.hasPointsFreebie ? 200 : b.hasAtl ? 100 : b.hasGreat ? 50 : 0) + (b.isFrontPage ? 20 : 0);
+      // 'featured' default: 5-Point Freebies (200) > ALL-TIME LOW (100) > High-Yield Points Deal (80) > Great Deal / Beat Avg (50) + Front page bonus (20)
+      const scoreA = (a.hasPointsFreebie ? 200 : a.hasAtl ? 100 : a.hasPointsDeal ? 80 : a.hasGreat ? 50 : 0) + (a.isFrontPage ? 20 : 0);
+      const scoreB = (b.hasPointsFreebie ? 200 : b.hasAtl ? 100 : b.hasPointsDeal ? 80 : b.hasGreat ? 50 : 0) + (b.isFrontPage ? 20 : 0);
       if (scoreA !== scoreB) return scoreB - scoreA;
       return (a.page || 1) - (b.page || 1);
     });
@@ -710,8 +735,8 @@
       if (activeSort === 'name_asc') {
         return (a.name || '').localeCompare(b.name || '');
       }
-      const scoreA = (isPointsFreebie(a) ? 200 : isAtlBadge(a.badge) ? 100 : isGreatBadge(a.badge) ? 50 : 0) + (a.is_front_page ? 20 : 0);
-      const scoreB = (isPointsFreebie(b) ? 200 : isAtlBadge(b.badge) ? 100 : isGreatBadge(b.badge) ? 50 : 0) + (b.is_front_page ? 20 : 0);
+      const scoreA = (isPointsFreebie(a) ? 200 : isAtlBadge(a.badge) ? 100 : isPointsDeal(a) ? 80 : isGreatBadge(a.badge) ? 50 : 0) + (a.is_front_page ? 20 : 0);
+      const scoreB = (isPointsFreebie(b) ? 200 : isAtlBadge(b.badge) ? 100 : isPointsDeal(b) ? 80 : isGreatBadge(b.badge) ? 50 : 0) + (b.is_front_page ? 20 : 0);
       if (scoreA !== scoreB) return scoreB - scoreA;
       return (a.page || 1) - (b.page || 1);
     });
@@ -813,6 +838,11 @@
       if (repPtsInfo && repPtsInfo.yieldTag) {
         unitPriceDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(repPtsInfo.yieldTag)}</span>`;
       }
+    } else if (repPtsInfo && repPtsInfo.pts && (g.minPrice == null || g.minPrice === 0 || g.items.every(it => isPointsRedemption(it) || isPointsDeal(it)))) {
+      priceDisplay = `<span class="points-price">${repPtsInfo.pts} pts</span>`;
+      if (repPtsInfo.yieldTag) {
+        unitPriceDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(repPtsInfo.yieldTag)}</span>`;
+      }
     } else if (g.minPrice != null && g.maxPrice != null) {
       if (Math.abs(g.minPrice - g.maxPrice) < 0.01) {
         priceDisplay = formatMoney(g.minPrice);
@@ -866,8 +896,10 @@
             ${g.items.map(item => {
               const itemInList = shoppingList.some(s => s.id === item.deal_id);
               const isItemFreebie = isPointsFreebie(item);
-              const itemPtsInfo = isItemFreebie ? getPointsExtrapolatedInfo(item) : null;
-              const itemUnit = isItemFreebie && itemPtsInfo && itemPtsInfo.pts ? `🪙 ${itemPtsInfo.pts} pts` : formatUnitPrice(item.unit_price, item.unit_type);
+              const isItemDeal = isPointsDeal(item);
+              const isItemRedeem = isPointsRedemption(item);
+              const itemPtsInfo = (isItemFreebie || isItemDeal || isItemRedeem) ? getPointsExtrapolatedInfo(item) : null;
+              const itemUnit = itemPtsInfo && itemPtsInfo.pts ? `🪙 ${itemPtsInfo.pts} pts` : formatUnitPrice(item.unit_price, item.unit_type);
               const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
               const isMain = g.isMealDeal && g.anchorItem && (item.deal_id === g.anchorItem.deal_id || item.name === g.anchorItem.name);
               let itemPriceHtml = `<span class="group-item-price">${formatMoney(item.price)}</span>`;
@@ -875,6 +907,12 @@
               if (isItemFreebie) {
                 itemRoleBadge = '<span class="deal-badge points-freebie" style="font-size:0.65rem; padding:1px 4px; margin-right:4px;">🪙 FREE w/ Points</span>';
                 itemPriceHtml = `<span class="group-item-price free-price" style="color:#7e22ce; font-weight:800;">FREE</span>`;
+              } else if (isItemDeal) {
+                itemRoleBadge = '<span class="deal-badge points-deal" style="font-size:0.65rem; padding:1px 4px; margin-right:4px;">🪙 High-Yield</span>';
+                itemPriceHtml = `<span class="group-item-price points-price">${itemPtsInfo && itemPtsInfo.pts ? `${itemPtsInfo.pts} pts` : formatMoney(item.price)}</span>`;
+              } else if (isItemRedeem) {
+                itemRoleBadge = '<span class="deal-badge points-redemption" style="font-size:0.65rem; padding:1px 4px; margin-right:4px;">🪙 Redeem</span>';
+                itemPriceHtml = `<span class="group-item-price points-price">${itemPtsInfo && itemPtsInfo.pts ? `${itemPtsInfo.pts} pts` : formatMoney(item.price)}</span>`;
               } else if (g.isMealDeal) {
                 if (isMain) {
                   itemRoleBadge = '<span class="deal-badge" style="font-size:0.65rem; background:#dbeafe; color:#1e40af; margin-right:4px;">Main Item</span>';
@@ -951,7 +989,9 @@
     const isInList = shoppingList.some(item => item.id === d.deal_id);
     const isAtl = isAtlBadge(d.badge);
     const isFreebie = isPointsFreebie(d);
-    const ptsInfo = isFreebie ? getPointsExtrapolatedInfo(d) : null;
+    const isDeal = isPointsDeal(d);
+    const isRedeem = isPointsRedemption(d);
+    const ptsInfo = (isFreebie || isDeal || isRedeem) ? getPointsExtrapolatedInfo(d) : null;
     const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
     const badgeHtml = getBadgeHtml(d);
 
@@ -961,6 +1001,11 @@
     if (isFreebie) {
       priceDisplayHtml = `<span class="current-price free-price">FREE</span>`;
       if (ptsInfo && ptsInfo.yieldTag) {
+        unitDisplayHtml = `<span class="unit-price-tag points-yield-tag">${escapeHtml(ptsInfo.yieldTag)}</span>`;
+      }
+    } else if (ptsInfo && ptsInfo.pts && (isDeal || isRedeem || d.price == null || d.price === 0)) {
+      priceDisplayHtml = `<span class="current-price points-price">${ptsInfo.pts} pts</span>`;
+      if (ptsInfo.yieldTag) {
         unitDisplayHtml = `<span class="unit-price-tag points-yield-tag">${escapeHtml(ptsInfo.yieldTag)}</span>`;
       }
     }
@@ -1015,6 +1060,7 @@
         const isExpanded = expandedGroupIds.has(g.groupId);
         const isAllInList = g.items.every(it => shoppingList.some(s => s.id === it.deal_id));
         const isGroupFreebie = g.hasPointsFreebie || isPointsFreebie(g.representativeDeal) || g.items.every(it => isPointsFreebie(it));
+        const repPts = getPointsExtrapolatedInfo(g.representativeDeal) || (g.items[0] ? getPointsExtrapolatedInfo(g.items[0]) : null);
         const badgeHtml = getBadgeHtml(g.representativeDeal);
         let priceDisplay = formatMoney(g.minPrice);
         let unitDisplay = formatUnitPrice(g.minUnitPrice, g.primaryUnitType);
@@ -1023,8 +1069,12 @@
           priceDisplay = formatMoney(g.anchorItem.price);
         } else if (isGroupFreebie) {
           priceDisplay = `<span class="free-price" style="font-size:1.1rem;">FREE</span>`;
-          const repPts = getPointsExtrapolatedInfo(g.representativeDeal) || (g.items[0] ? getPointsExtrapolatedInfo(g.items[0]) : null);
           if (repPts && repPts.yieldTag) {
+            unitDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(repPts.yieldTag)}</span>`;
+          }
+        } else if (repPts && repPts.pts && (g.minPrice == null || g.minPrice === 0 || g.items.every(it => isPointsRedemption(it) || isPointsDeal(it)))) {
+          priceDisplay = `<span class="points-price" style="font-size:1.1rem;">${repPts.pts} pts</span>`;
+          if (repPts.yieldTag) {
             unitDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(repPts.yieldTag)}</span>`;
           }
         } else if (g.minPrice != null && g.maxPrice != null && Math.abs(g.minPrice - g.maxPrice) >= 0.01) {
@@ -1069,8 +1119,10 @@
         const childRows = g.items.map(item => {
           const itemInList = shoppingList.some(s => s.id === item.deal_id);
           const isItemFreebie = isPointsFreebie(item);
-          const itemPtsInfo = isItemFreebie ? getPointsExtrapolatedInfo(item) : null;
-          const itemUnit = isItemFreebie && itemPtsInfo && itemPtsInfo.pts ? `🪙 ${itemPtsInfo.pts} pts` : formatUnitPrice(item.unit_price, item.unit_type);
+          const isItemDeal = isPointsDeal(item);
+          const isItemRedeem = isPointsRedemption(item);
+          const itemPtsInfo = (isItemFreebie || isItemDeal || isItemRedeem) ? getPointsExtrapolatedInfo(item) : null;
+          const itemUnit = itemPtsInfo && itemPtsInfo.pts ? `🪙 ${itemPtsInfo.pts} pts` : formatUnitPrice(item.unit_price, item.unit_type);
           const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
           const isMain = g.isMealDeal && g.anchorItem && (item.deal_id === g.anchorItem.deal_id || item.name === g.anchorItem.name);
           let priceCell = `<strong>${formatMoney(item.price)}</strong>`;
@@ -1079,6 +1131,12 @@
           if (isItemFreebie) {
             badgeCell = `<span class="deal-badge points-freebie" style="font-size:0.65rem; padding:1px 4px;">🪙 FREE w/ Points</span> ${itemBadge}`;
             priceCell = `<strong class="free-price" style="color:#7e22ce;">FREE</strong>`;
+          } else if (isItemDeal) {
+            badgeCell = `<span class="deal-badge points-deal" style="font-size:0.65rem; padding:1px 4px;">🪙 High-Yield</span> ${itemBadge}`;
+            priceCell = `<strong class="points-price">${itemPtsInfo && itemPtsInfo.pts ? `${itemPtsInfo.pts} pts` : formatMoney(item.price)}</strong>`;
+          } else if (isItemRedeem) {
+            badgeCell = `<span class="deal-badge points-redemption" style="font-size:0.65rem; padding:1px 4px;">🪙 Redeem</span> ${itemBadge}`;
+            priceCell = `<strong class="points-price">${itemPtsInfo && itemPtsInfo.pts ? `${itemPtsInfo.pts} pts` : formatMoney(item.price)}</strong>`;
           } else if (g.isMealDeal) {
             if (isMain) {
               badgeCell = `<span class="deal-badge" style="font-size:0.65rem; background:#dbeafe; color:#1e40af;">Main Item</span> ${itemBadge}`;
@@ -1113,7 +1171,9 @@
         const d = g.items[0];
         const isInList = shoppingList.some(item => item.id === d.deal_id);
         const isFreebie = isPointsFreebie(d);
-        const ptsInfo = isFreebie ? getPointsExtrapolatedInfo(d) : null;
+        const isDeal = isPointsDeal(d);
+        const isRedeem = isPointsRedemption(d);
+        const ptsInfo = (isFreebie || isDeal || isRedeem) ? getPointsExtrapolatedInfo(d) : null;
         const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
         const badgeHtml = getBadgeHtml(d);
         let priceDisplay = `<strong style="font-size:1.1rem; color:var(--slate-900);">${formatMoney(d.price)}</strong>`;
@@ -1122,6 +1182,11 @@
         if (isFreebie) {
           priceDisplay = `<strong class="free-price" style="font-size:1.1rem;">FREE</strong>`;
           if (ptsInfo && ptsInfo.yieldTag) {
+            unitDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(ptsInfo.yieldTag)}</span>`;
+          }
+        } else if (ptsInfo && ptsInfo.pts && (isDeal || isRedeem || d.price == null || d.price === 0)) {
+          priceDisplay = `<strong class="points-price" style="font-size:1.1rem;">${ptsInfo.pts} pts</strong>`;
+          if (ptsInfo.yieldTag) {
             unitDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(ptsInfo.yieldTag)}</span>`;
           }
         }
@@ -1160,7 +1225,9 @@
     dealsTableBody.innerHTML = deals.map(d => {
       const isInList = shoppingList.some(item => item.id === d.deal_id);
       const isFreebie = isPointsFreebie(d);
-      const ptsInfo = isFreebie ? getPointsExtrapolatedInfo(d) : null;
+      const isDeal = isPointsDeal(d);
+      const isRedeem = isPointsRedemption(d);
+      const ptsInfo = (isFreebie || isDeal || isRedeem) ? getPointsExtrapolatedInfo(d) : null;
       const unitStr = formatUnitPrice(d.unit_price, d.unit_type);
       const badgeHtml = getBadgeHtml(d);
       let priceDisplay = `<strong style="font-size:1.1rem; color:var(--slate-900);">${formatMoney(d.price)}</strong>`;
@@ -1169,6 +1236,11 @@
       if (isFreebie) {
         priceDisplay = `<strong class="free-price" style="font-size:1.1rem;">FREE</strong>`;
         if (ptsInfo && ptsInfo.yieldTag) {
+          unitDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(ptsInfo.yieldTag)}</span>`;
+        }
+      } else if (ptsInfo && ptsInfo.pts && (isDeal || isRedeem || d.price == null || d.price === 0)) {
+        priceDisplay = `<strong class="points-price" style="font-size:1.1rem;">${ptsInfo.pts} pts</strong>`;
+        if (ptsInfo.yieldTag) {
           unitDisplay = `<span class="unit-price-tag points-yield-tag">${escapeHtml(ptsInfo.yieldTag)}</span>`;
         }
       }
