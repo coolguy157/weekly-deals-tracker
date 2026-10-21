@@ -143,6 +143,55 @@ class TestFlippAdFetcher(unittest.TestCase):
         self.assertEqual(items_fp[0].name, "USDA Chuck Roast")
         self.assertTrue(items_fp[0].is_front_page)
 
+    @patch.object(FlippAdFetcher, "_get_json")
+    def test_get_flyer_pages_and_items_thematic_and_unpriced_insert_detection(self, mock_get_json):
+        """Verify unpriced promo splash (p.1) and Halloween candy insert (p.2) are bypassed for weekly cover (p.3)."""
+        mock_get_json.return_value = {
+            "pages": [
+                {"id": 1, "page": 1, "left": 0.0, "right": 1000.0, "top": 0.0, "bottom": -2560.0},
+                {"id": 2, "page": 2, "left": 1000.0, "right": 2000.0, "top": 0.0, "bottom": -2560.0},
+                {"id": 3, "page": 3, "left": 2000.0, "right": 3000.0, "top": 0.0, "bottom": -2560.0},
+            ],
+            "items": [
+                # Page 1: Unpriced vendor promotional splash items
+                {"id": 301, "name": "Quaker Cereal", "price": "", "left": 100.0, "right": 300.0},
+                {"id": 302, "name": "Doritos Chips", "price": None, "left": 300.0, "right": 500.0},
+                {"id": 303, "name": "Pepsi 12pk", "price": None, "left": 500.0, "right": 700.0},
+                {"id": 304, "name": "Starry Soda", "price": 7.99, "left": 700.0, "right": 900.0},
+
+                # Page 2: Thematic Halloween candy insert items (no fresh meat/produce)
+                {"id": 305, "name": "Hershey's Assorted Halloween Bags", "price": 11.99, "left": 1100.0, "right": 1300.0},
+                {"id": 306, "name": "Brach's Candy Bags", "price": 2.99, "left": 1300.0, "right": 1500.0},
+                {"id": 307, "name": "Ghirardelli Halloween Chocolate Squares", "price": 4.99, "left": 1500.0, "right": 1700.0},
+                {"id": 308, "name": "Totino's Pizza Rolls", "price": 10.99, "left": 1700.0, "right": 1900.0},
+
+                # Page 3: Weekly Ad Cover with fresh anchors
+                {"id": 309, "name": "Boneless Skinless Chicken Breasts", "price": 1.69, "left": 2100.0, "right": 2400.0},
+                {"id": 310, "name": "Honeycrisp Apples", "price": 0.97, "left": 2400.0, "right": 2700.0},
+                {"id": 311, "name": "Fresh 90% Lean Ground Beef", "price": 2.97, "left": 2700.0, "right": 2900.0},
+            ],
+        }
+
+        pages, items = self.fetcher.get_flyer_pages_and_items(8189860)
+        self.assertEqual(len(pages), 3)
+        self.assertEqual(len(items), 11)
+
+        # Check front page assignment
+        p1_item = next(it for it in items if it.name == "Quaker Cereal")
+        p2_item = next(it for it in items if it.name == "Hershey's Assorted Halloween Bags")
+        p3_item = next(it for it in items if it.name == "Boneless Skinless Chicken Breasts")
+
+        self.assertFalse(p1_item.is_front_page)
+        self.assertFalse(p2_item.is_front_page)
+        self.assertTrue(p3_item.is_front_page)
+        self.assertEqual(p3_item.page_number, 3)
+
+        # Verify front_page_only filter
+        pages_fp, items_fp = self.fetcher.get_flyer_pages_and_items(8189860, front_page_only=True)
+        self.assertEqual(len(items_fp), 3)
+        self.assertTrue(all(it.is_front_page for it in items_fp))
+        self.assertTrue(all(it.page_number == 3 for it in items_fp))
+
 
 if __name__ == "__main__":
     unittest.main()

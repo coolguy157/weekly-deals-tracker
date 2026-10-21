@@ -88,13 +88,27 @@ def _get_app_bridge():
     try:
         current_file = Path(__file__).resolve()
         workspace_root = current_file.parent.parent.parent
-        for candidate_name in ["app_automation", "App Automation"]:
-            candidate_dir = workspace_root / candidate_name
-            if candidate_dir.exists():
-                if str(candidate_dir) not in sys.path:
-                    sys.path.insert(0, str(candidate_dir))
-                from src.bridge.circular_bridge import get_inapp_weekly_ad_promos, lookup_shelf_prices, enrich_weekly_ad_ambiguous_deals
-                return get_inapp_weekly_ad_promos, lookup_shelf_prices, enrich_weekly_ad_ambiguous_deals
+        if str(workspace_root) not in sys.path:
+            sys.path.insert(0, str(workspace_root))
+        try:
+            from app_automation.src.bridge.circular_bridge import (
+                get_inapp_weekly_ad_promos,
+                lookup_shelf_prices,
+                enrich_weekly_ad_ambiguous_deals,
+            )
+            return get_inapp_weekly_ad_promos, lookup_shelf_prices, enrich_weekly_ad_ambiguous_deals
+        except ImportError:
+            for candidate_name in ["app_automation", "App Automation"]:
+                candidate_dir = workspace_root / candidate_name
+                if candidate_dir.exists():
+                    if str(candidate_dir) not in sys.path:
+                        sys.path.insert(0, str(candidate_dir))
+                    from bridge.circular_bridge import (
+                        get_inapp_weekly_ad_promos,
+                        lookup_shelf_prices,
+                        enrich_weekly_ad_ambiguous_deals,
+                    )
+                    return get_inapp_weekly_ad_promos, lookup_shelf_prices, enrich_weekly_ad_ambiguous_deals
     except Exception as e:
         print(f"Warning: Could not import App Automation bridge: {e}")
     return None, None, None
@@ -274,7 +288,7 @@ def _get_sync_single_fn():
     for mod_name in ["src.cli", "deals_tracker.src.cli"]:
         mod = sys.modules.get(mod_name)
         if mod and hasattr(mod, "_sync_single_store"):
-            return getattr(mod, "_sync_single_store")
+            return mod._sync_single_store
     return _sync_single_store
 
 

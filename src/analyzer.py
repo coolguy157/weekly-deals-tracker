@@ -233,24 +233,51 @@ class DealAnalyzer:
         # Handle Points Redemption (Free with Points)
         if promo_type == "points_redemption" and promo_info:
             pts = promo_info.points_cost or 0
-            val_str = f" (Save ${promo_info.points_saved_val:.2f} • {((promo_info.points_saved_val/pts)*100):.2f}¢/pt)" if (promo_info.points_saved_val and pts > 0) else ""
+            saved = promo_info.points_saved_val or base_price or deal_record.get("advertised_price")
+            yield_val = (saved / pts) if (saved and pts > 0) else None
+            yield_cents = (yield_val * 100) if yield_val else None
+            unit_size = deal_record.get("unit_size")
+
+            # 1. Promo Freebie (e.g. 5-point, 10-point freebie, or outsized >= 10¢/pt)
+            if pts <= 10 or (yield_val is not None and yield_val >= 0.10):
+                badge = "POINTS_FREEBIE"
+                cur_price = 0.0
+                u_price = 0.0
+                val_str = f" (Save ${saved:.2f} • {yield_cents:.1f}¢/pt)" if (saved and pts > 0) else ""
+                summary_reason = f"🪙 FREE with {pts} CHOICE points{val_str}"
+
+            # 2. High-Yield Points Deal (substantially beats the average grocery redemption valuation: >= 1.3x avg_point_val AND >= 3.0¢/pt)
+            elif yield_val is not None and yield_val >= (point_value * 1.3) and yield_val >= 0.03:
+                badge = "POINTS_DEAL"
+                cur_price = round(pts * 0.01, 2)  # standard cash equivalent floor (100 pts = $1)
+                u_price = round(cur_price / unit_size, 4) if (unit_size and unit_size > 0) else None
+                summary_reason = f"🪙 High-Yield Points Deal: {pts} CHOICE points for ${saved:.2f} value ({yield_cents:.1f}¢/pt vs {point_value*100:.1f}¢ avg)"
+
+            # 3. Standard Points Redemption (fair grocery point redemption, standard conversion)
+            else:
+                badge = "POINTS_REDEMPTION"
+                cur_price = round(pts * 0.01, 2) if pts > 0 else (saved or 0.0)
+                u_price = round(cur_price / unit_size, 4) if (unit_size and unit_size > 0) else None
+                val_str = f" for ${saved:.2f} value ({yield_cents:.1f}¢/pt)" if (saved and pts > 0) else ""
+                summary_reason = f"🪙 Points Redemption: {pts} CHOICE points{val_str}"
+
             return DealEvaluation(
                 deal_id=deal_record.get("id", 0),
                 product_id=product_id,
                 canonical_name=canonical_name,
                 brand=deal_record.get("brand"),
-                current_price=0.0,
-                unit_price=0.0,
+                current_price=cur_price,
+                unit_price=u_price,
                 page_number=deal_record.get("page_number", 1),
                 is_front_page=bool(deal_record.get("is_front_page", 1)),
-                historical_min=0.0,
-                historical_avg=0.0,
-                historical_max=0.0,
+                historical_min=cur_price,
+                historical_avg=cur_price,
+                historical_max=cur_price,
                 past_observations_count=len(past_obs),
                 diff_pct_vs_avg=0.0,
-                badge="POINTS_FREEBIE",
-                summary_reason=f"🪙 FREE with {pts} CHOICE points{val_str}",
-                unit_size=deal_record.get("unit_size"),
+                badge=badge,
+                summary_reason=summary_reason,
+                unit_size=unit_size,
                 unit_type=unit_type,
                 category=category,
                 category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
@@ -592,19 +619,21 @@ class DealAnalyzer:
             for d in deals
         ]
 
-        # Prioritize 5-Point / Points Freebies, All-Time Lows, Points Rewards, and Beat Average deals first
+        # Prioritize 5-Point / Points Freebies, All-Time Lows, High-Yield Points Deals, Points Rewards, and Beat Average deals first
         priority_order = {
             "POINTS_FREEBIE": 0,
             "ALL_TIME_LOW": 1,
-            "POINTS_REWARD": 2,
-            "SPEND_SAVE": 3,
-            "PERCENT_OFF": 4,
-            "BEAT_AVERAGE": 5,
-            "CYCLE_REFRESH": 6,
-            "FIRST_SEEN": 7,
-            "STANDARD_DEAL": 8,
-            "PRICE_HIKE": 9,
-            "SEE_AD": 10,
+            "POINTS_DEAL": 2,
+            "POINTS_REWARD": 3,
+            "SPEND_SAVE": 4,
+            "PERCENT_OFF": 5,
+            "BEAT_AVERAGE": 6,
+            "CYCLE_REFRESH": 7,
+            "FIRST_SEEN": 8,
+            "POINTS_REDEMPTION": 9,
+            "STANDARD_DEAL": 10,
+            "PRICE_HIKE": 11,
+            "SEE_AD": 12,
         }
         evaluations.sort(key=lambda x: (priority_order.get(x.badge, 99), x.current_price or 999))
         return evaluations

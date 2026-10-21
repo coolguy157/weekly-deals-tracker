@@ -140,16 +140,30 @@ class FlippAdFetcher:
         """
         Detect the true front page number of the weekly circular.
         Handles circular formats where multi-month promotional inserts (e.g. Tom Thumb's
-        'Savings Lock' pages) precede the actual weekly ad cover page.
+        'Savings Lock' pages), unpriced vendor promo splash pages, or thematic holiday wraps
+        (e.g. Halloween candy) precede the actual weekly ad cover page.
         """
         if not pages:
             return 1
+
+        thematic_keywords = {
+            "halloween", "trick or treat", "trick-or-treat", "candy bag", "snack size bag",
+            "candy bar", "marshmallow pumpkin", "fall truffle", "costume", "novelty",
+        }
+        fresh_anchor_keywords = {
+            "chicken", "beef", "steak", "roast", "pork", "chop", "ribs", "shrimp",
+            "salmon", "ground beef", "bacon", "turkey", "sirloin", "brisket",
+            "fillet", "catfish", "lobster", "t-bone", "apple", "berries", "strawberry",
+            "grape", "avocado", "broccoli", "lettuce", "banana", "citrus", "orange",
+            "salad kit", "fresh express",
+        }
 
         for page in pages:
             p_items = page_items_map.get(page.page_number, [])
             if not p_items:
                 continue
 
+            # 1. Multi-month duration check (e.g., Savings Lock)
             has_weekly_item = False
             has_dates = False
             for it in p_items:
@@ -166,8 +180,41 @@ class FlippAdFetcher:
                     except Exception:
                         pass
 
-            if not has_dates or has_weekly_item:
-                return page.page_number
+            if has_dates and not has_weekly_item:
+                continue
+
+            # 2. Unpriced vendor promotional splash page check
+            # (e.g. multi-item page where products lack explicit shelf/deal prices)
+            priced_count = 0
+            for it in p_items:
+                for k in ("price", "current_price"):
+                    v = it.get(k)
+                    if v is not None and str(v).strip() != "":
+                        try:
+                            float(v)
+                            priced_count += 1
+                            break
+                        except (ValueError, TypeError):
+                            pass
+
+            if len(p_items) >= 4 and (priced_count < 2 or (priced_count / len(p_items)) <= 0.25):
+                continue
+
+            # 3. Holiday / thematic insert lacking core fresh department anchors
+            # (e.g. standalone Halloween candy / trick-or-treat wraps)
+            thematic_count = 0
+            fresh_anchor_count = 0
+            for it in p_items:
+                name_lower = (it.get("name") or "").lower()
+                if any(kw in name_lower for kw in thematic_keywords):
+                    thematic_count += 1
+                if any(kw in name_lower for kw in fresh_anchor_keywords):
+                    fresh_anchor_count += 1
+
+            if len(p_items) >= 4 and fresh_anchor_count == 0 and (thematic_count / len(p_items)) >= 0.25:
+                continue
+
+            return page.page_number
 
         return 1
 

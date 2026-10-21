@@ -10,7 +10,9 @@ def format_badge_fixed(badge: str, width: int = 16) -> str:
     raw_labels = {
         "ALL_TIME_LOW": "[* ALL-TIME LOW]",
         "POINTS_FREEBIE": "[🪙 FREEBIE]",
+        "POINTS_DEAL": "[🪙 POINTS DEAL]",
         "POINTS_REWARD": "[🪙 REWARD]",
+        "POINTS_REDEMPTION": "[🪙 REDEEM]",
         "SPEND_SAVE": "[🏷️ SPEND & SAVE]",
         "PERCENT_OFF": "[% DISCOUNT]",
         "BEAT_AVERAGE": "[^ BEAT AVERAGE]",
@@ -26,7 +28,9 @@ def format_badge_fixed(badge: str, width: int = 16) -> str:
     color_map = {
         "ALL_TIME_LOW": "\033[92m",
         "POINTS_FREEBIE": "\033[95m",
+        "POINTS_DEAL": "\033[95m",
         "POINTS_REWARD": "\033[95m",
+        "POINTS_REDEMPTION": "\033[94m",
         "SPEND_SAVE": "\033[93m",
         "PERCENT_OFF": "\033[96m",
         "BEAT_AVERAGE": "\033[96m",

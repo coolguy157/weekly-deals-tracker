@@ -543,6 +543,105 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertEqual(evals[0].badge, "POINTS_FREEBIE")
         self.assertEqual(evals[0].canonical_name, "Barilla Pasta 16 oz")
 
+    def test_points_valuation_tiering(self):
+        flyer = FlyerMetadata(
+            id=502,
+            merchant="Giant",
+            merchant_id=2381,
+            name="Weekly Ad",
+            postal_code="17837",
+            valid_from="2026-10-01T00:00:00",
+            valid_to="2026-10-07T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer)
+        self.db.record_deals(
+            [
+                # 1. 5-Point Freebie
+                NormalizedDeal(
+                    raw_deal_id=601,
+                    flyer_id=502,
+                    page_number=2,
+                    is_front_page=False,
+                    canonical_name="Yogurt 5.3 oz",
+                    brand="Chobani",
+                    advertised_price=None,
+                    unit_size=5.3,
+                    unit_type="oz",
+                    unit_price=None,
+                    raw_title="Chobani Yogurt 5-POINT FREEBIE SAVE UP TO $1.50",
+                    image_url=None,
+                    promo_detail="5-POINT FREEBIE",
+                ),
+                # 2. High-Yield Points Deal: 100 pts for $4.50 item (4.5¢/pt)
+                NormalizedDeal(
+                    raw_deal_id=602,
+                    flyer_id=502,
+                    page_number=4,
+                    is_front_page=False,
+                    canonical_name="Premium Roast Beef 8 oz",
+                    brand="Dietz & Watson",
+                    advertised_price=None,
+                    unit_size=8.0,
+                    unit_type="oz",
+                    unit_price=None,
+                    raw_title="Roast Beef FREE when you redeem 100 CHOICE points SAVE UP TO $4.50",
+                    image_url=None,
+                    promo_detail="FREE with 100 CHOICE points (Save $4.50)",
+                ),
+                # 3. Standard Points Redemption: 100 pts for $1.50 item (1.5¢/pt)
+                NormalizedDeal(
+                    raw_deal_id=603,
+                    flyer_id=502,
+                    page_number=5,
+                    is_front_page=False,
+                    canonical_name="Tomato Sauce 15 oz",
+                    brand="Our Brand",
+                    advertised_price=None,
+                    unit_size=15.0,
+                    unit_type="oz",
+                    unit_price=None,
+                    raw_title="Tomato Sauce FREE when you redeem 100 CHOICE points SAVE UP TO $1.50",
+                    image_url=None,
+                    promo_detail="FREE with 100 CHOICE points (Save $1.50)",
+                ),
+                # 4. Regular Cash Deal
+                NormalizedDeal(
+                    raw_deal_id=604,
+                    flyer_id=502,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Bacon 16 oz",
+                    brand="Oscar Mayer",
+                    advertised_price=3.99,
+                    unit_size=16.0,
+                    unit_type="oz",
+                    unit_price=0.249,
+                    raw_title="Oscar Mayer Bacon",
+                    image_url=None,
+                ),
+            ]
+        )
+        evals = self.analyzer.evaluate_flyer(502)
+        self.assertEqual(len(evals), 4)
+
+        eval_map = {e.canonical_name: e for e in evals}
+        # Check badges and prices
+        self.assertEqual(eval_map["Yogurt 5.3 oz"].badge, "POINTS_FREEBIE")
+        self.assertEqual(eval_map["Yogurt 5.3 oz"].current_price, 0.0)
+
+        self.assertEqual(eval_map["Premium Roast Beef 8 oz"].badge, "POINTS_DEAL")
+        self.assertEqual(eval_map["Premium Roast Beef 8 oz"].current_price, 1.00)
+
+        self.assertEqual(eval_map["Tomato Sauce 15 oz"].badge, "POINTS_REDEMPTION")
+        self.assertEqual(eval_map["Tomato Sauce 15 oz"].current_price, 1.00)
+
+        # Ordering check: POINTS_FREEBIE first, POINTS_DEAL ahead of POINTS_REDEMPTION
+        badges_order = [e.badge for e in evals]
+        self.assertEqual(badges_order[0], "POINTS_FREEBIE")
+        self.assertIn("POINTS_DEAL", badges_order)
+        self.assertIn("POINTS_REDEMPTION", badges_order)
+        self.assertLess(badges_order.index("POINTS_DEAL"), badges_order.index("POINTS_REDEMPTION"))
+
 
 if __name__ == "__main__":
     unittest.main()
