@@ -154,7 +154,11 @@ class ProductNormalizer:
                     "Fage", "Horizon", "Daisy", "Philadelphia", "Lays", "Lay's", "Cheetos", "Ruffles",
                     "Doritos", "Tostitos", "Smartfood", "Frito Lay", "Utz", "Planters",
                     "Coca-Cola", "Pepsi", "Gatorade", "Propel", "Budweiser", "Bud",
-                    "Shiner", "Corona", "Modelo", "Dos Equis", "Decoy", "Conundrum", "Rold Gold",
+                    "Shiner", "Corona", "Modelo", "Dos Equis", "Decoy", "Conundrum",
+                    "Kendall-Jackson", "Josh Cellars", "Josh", "La Crema", "Meiomi", "Kim Crawford",
+                    "Chateau Ste. Michelle", "Bogle", "Robert Mondavi", "Barefoot", "Woodbridge",
+                    "Sutter Home", "Yellow Tail", "Cupcake", "Stella Rosa", "14 Hands", "Headsnapper",
+                    "Andre", "Firefly Ridge", "Rold Gold",
                     "Miss Vickie's", "Soleil", "Snapple", "Poppi", "Ozarka", "Sunny Delight",
                     "Premier Protein", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
                     "Tina's", "Yoplait", "Chobani", "Dannon", "Oikos", "Tillamook",
@@ -255,6 +259,15 @@ class ProductNormalizer:
 
             canonical = self.clean_sales_notes(canonical)
             canonical = " ".join(canonical.split()).strip(" ,.-")
+
+            # Standardize Josh / Josh Cellars wine
+            if re.search(r"^Josh(?:\s+Cellars)?(?:\s+Wine)?$", canonical, re.IGNORECASE):
+                canonical = "Josh Cellars Wine"
+                brand = "Josh Cellars"
+            elif re.search(r"\bJosh\s+Cellars\b", canonical, re.IGNORECASE):
+                brand = "Josh Cellars"
+            elif brand == "Josh":
+                brand = "Josh Cellars"
 
             # Standardize Lucerne Eggs canonical name
             if brand == "Lucerne" and ("egg" in canonical.lower() or "eggs" in canonical.lower()):

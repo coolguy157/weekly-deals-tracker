@@ -1150,6 +1150,35 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertAlmostEqual(deals[0].unit_price, round(4.99 / 5.0, 4))
         self.assertEqual(deals[0].category, "Salmon")
 
+    def test_wine_josh_cellars_normalization(self):
+        item = FlyerItem(
+            id=5003,
+            flyer_id=8189860,
+            name="Kendall-Jackson VR Chardonnay or Josh",
+            price=9.89,
+            original_price=12.49,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 2)
+
+        self.assertEqual(deals[0].canonical_name, "Kendall-Jackson VR Chardonnay")
+        self.assertEqual(deals[0].brand, "Kendall-Jackson")
+        self.assertEqual(deals[0].category, "Wine")
+        self.assertEqual(deals[0].advertised_price, 9.89)
+
+        self.assertEqual(deals[1].canonical_name, "Josh Cellars Wine")
+        self.assertEqual(deals[1].brand, "Josh Cellars")
+        self.assertEqual(deals[1].category, "Wine")
+        self.assertEqual(deals[1].advertised_price, 9.89)
+
 
 if __name__ == "__main__":
     unittest.main()
