@@ -81,7 +81,7 @@ def expand_chunk(chunk: str) -> List[str]:
         return prior_items + [item1, item2]
 
     # 4. Standard split if no coordination matched
-    splits = [s.strip() for s in SPLIT_PATTERN.split(chunk) if len(s.strip()) > 3]
+    splits = [s.strip() for s in SPLIT_PATTERN.split(chunk) if len(s.strip()) >= 3]
     if len(splits) > 1:
         all_expanded = []
         for s in splits:
@@ -239,16 +239,36 @@ def pre_expand_deal_string(name: str) -> str:
         flags=re.IGNORECASE,
     )
 
-    # Expand produce prefix lists: "Baby Potatoes Red, Gold or Medley" -> "Baby Potatoes Red or Baby Potatoes Gold or Baby Potatoes Medley"
+    # Expand unit alternatives with shared brand prefix: e.g. "Oxiclean 3 lb. or 24 ct." -> "Oxiclean 3 lb. or Oxiclean 24 ct."
+    cleaned_name = re.sub(
+        r"\b([A-Za-z0-9'\s]+?\b)\s+((?:\d+(?:\.\d+)?|\.\d+)\s*(?:lb|oz|ct|count|pk|pack|qt|pt|gal)\.?)\s+or\s+((?:\d+(?:\.\d+)?|\.\d+)\s*(?:lb|oz|ct|count|pk|pack|qt|pt|gal)\.?)\b",
+        r"\1 \2 or \1 \3",
+        cleaned_name,
+        flags=re.IGNORECASE,
+    )
+
+    # Expand 2-word coordinated adjective/noun prefixes: "Sliced or Whole White Mushrooms", "Yogurt or Oatmeal parfaits"
+    cleaned_name = re.sub(
+        r"\b([A-Za-z]+)\s+or\s+([A-Za-z]+)\s+((?:[A-Za-z]+\s+)?(?:parfaits?|mushrooms?|crusts?|tortillas?))\b",
+        r"\1 \3 or \2 \3",
+        cleaned_name,
+        flags=re.IGNORECASE,
+    )
+
+    # Expand produce prefix lists: "Baby Potatoes Red, Gold or Medley" or "New Crop Pears Bartlett, Red, Bosc or Danjou"
     def _expand_prefix_list(m):
         prefix = m.group(1).strip()
-        v1 = m.group(2).strip()
-        v2 = m.group(3).strip()
-        v3 = m.group(4).strip()
-        return f"{prefix} {v1} or {prefix} {v2} or {prefix} {v3}"
+        v_comma = m.group(2).strip()
+        v_last = m.group(3).strip()
+        parts = [p.strip() for p in v_comma.split(",") if p.strip()] + [v_last]
+        return " or ".join(f"{prefix} {p}" for p in parts)
+
+    _prod_nouns = "Apples|Potatoes|Grapes|Pears|Citrus|Squash|Tomatoes|Onions|Peppers"
+    _var_tok = r"(?:(?!or\b|and\b|" + _prod_nouns + r")[A-Za-z0-9']+(?:\s+(?!or\b|and\b|" + _prod_nouns + r")[A-Za-z0-9']+)?)"
+    _prefix_pat = rf"\b((?:[A-Za-z0-9']+\s+)*(?:Apples|Potatoes|Grapes|Pears|Citrus|Squash))\s+({_var_tok}(?:,\s*{_var_tok})+)\s+or\s+({_var_tok})\b"
 
     cleaned_name = re.sub(
-        r"\b((?:[A-Za-z0-9'\s]+\s+)?(?:Apples|Potatoes|Grapes|Pears|Citrus|Squash))\s+([A-Za-z]+),\s*([A-Za-z]+)\s+or\s+([A-Za-z\s]+)",
+        _prefix_pat,
         _expand_prefix_list,
         cleaned_name,
         flags=re.IGNORECASE,

@@ -103,9 +103,9 @@ class ProductNormalizer:
             flags=re.IGNORECASE,
         )
 
-        # Remove comma before unit/size expressions with optional leading decimal (e.g. ", .5 ltr.")
+        # Remove comma before unit/size/range expressions (e.g. ", 4.75-6 oz." or ", .5 ltr.")
         pre_split_name = re.sub(
-            r",\s*(?=(?:\d+(?:\.\d+)?|\.\d+)\s*(?:ct|count|oz|ounce|lb|pound|pk|pack|ltr|liter|qt|quart|pt|pint|gal|gallon|ml)\b)",
+            r",\s*(?=(?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?\s*(?:ct|count|oz|ounce|lb|pound|pk|pack|ltr|liter|qt|quart|pt|pint|gal|gallon|ml)\b)",
             " ",
             pre_split_name,
             flags=re.IGNORECASE,
@@ -122,6 +122,12 @@ class ProductNormalizer:
             for sub in expanded:
                 sub_clean = sub.replace("__OR__", " or ").strip(" ,.-")
                 if not sub_clean or self.DISCARD_CHUNK_PATTERN.search(sub_clean):
+                    continue
+                # Discard pure numbers or fragments with fewer than 2 letters (e.g. "3.25", "1")
+                if not re.search(r"[A-Za-z]{2,}", sub_clean):
+                    continue
+                # Discard standalone count/unit fragments with no product noun (e.g. "24 ct", "16 ct. minis")
+                if re.match(r"^(?:\d+(?:\.\d+)?|\.\d+)\s*(?:ct\.?|count|oz\.?|ounce|lb\.?|pound|pk\.?|pack)(?:\s+minis)?\.?$", sub_clean, re.IGNORECASE):
                     continue
                 sub_items.append(sub_clean)
 
@@ -269,6 +275,32 @@ class ProductNormalizer:
             canonical = self.clean_sales_notes(canonical)
             canonical = " ".join(canonical.split()).strip(" ,.-")
 
+            # Mix & Match "5 for $5" collage detection:
+            is_5_for_5 = False
+            staples_5for5 = ("kraft", "maruchan", "michelina", "idahoan", "bowl", "crest", "banquet", "snack pack", "chef boyardee", "ragu")
+            if item.price == 5.0 and sum(1 for s in staples_5for5 if s in item.name.lower()) >= 4:
+                is_5_for_5 = True
+                collage_canonical_map = {
+                    "kraft": ("Kraft Macaroni & Cheese", "Kraft"),
+                    "maruchan": ("Maruchan Yakisoba or Ramen", "Maruchan"),
+                    "michelina's": ("Michelina's Entree", "Michelina's"),
+                    "idahoan": ("Idahoan Mashed Potatoes", "Idahoan"),
+                    "bowl": ("Maruchan Ramen Bowl", "Maruchan"),
+                    "crest": ("Crest Toothpaste", "Crest"),
+                    "banquet": ("Banquet Pot Pies", "Banquet"),
+                    "snack pack": ("Snack Pack Pudding", "Snack Pack"),
+                    "chef boyardee": ("Chef Boyardee Canned Pasta", "Chef Boyardee"),
+                    "ragu": ("Ragu Pasta Sauce", "Ragu"),
+                }
+                c_key = canonical.lower().strip()
+                if c_key in collage_canonical_map:
+                    canonical, brand = collage_canonical_map[c_key]
+
+            # Disambiguate Lay's Baked
+            if canonical.lower().startswith("baked ") and any("lay" in b.lower() for b in item_brands + [brand or "", item.name]):
+                canonical = f"Lay's {canonical}"
+                brand = "Lay's"
+
             # Standardize Josh / Josh Cellars wine
             if re.search(r"^Josh(?:\s+Cellars)?(?:\s+Wine)?$", canonical, re.IGNORECASE):
                 canonical = "Josh Cellars Wine"
@@ -352,6 +384,12 @@ class ProductNormalizer:
                 promo_type = "must_buy"
                 promo_detail = pkg_promo_detail
             qualifying_qty = promo_info.qualifying_qty if promo_info else 1
+
+            if is_5_for_5:
+                advertised_price = 1.00
+                promo_type = "must_buy"
+                promo_detail = "5 for $5.00 ($1.00 ea)"
+                qualifying_qty = 5
             coupon_discount = promo_info.coupon_discount if promo_info else None
             base_price = item.original_price
 

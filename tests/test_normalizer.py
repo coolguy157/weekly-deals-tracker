@@ -1179,6 +1179,105 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[1].category, "Wine")
         self.assertEqual(deals[1].advertised_price, 9.89)
 
+    def test_five_for_five_mix_and_match_collage(self):
+        item = FlyerItem(
+            id=5004,
+            flyer_id=8189860,
+            name="Kraft, Maruchan, Michelina's, Idahoan, Bowl, Crest, Banquet, Snack Pack, Chef Boyardee, Ragu",
+            price=5.0,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 10)
+        for d in deals:
+            self.assertEqual(d.advertised_price, 1.0)
+            self.assertEqual(d.promo_type, "must_buy")
+            self.assertEqual(d.promo_detail, "5 for $5.00 ($1.00 ea)")
+            self.assertEqual(d.qualifying_qty, 5)
+
+        names = [d.canonical_name for d in deals]
+        self.assertIn("Kraft Macaroni & Cheese", names)
+        self.assertIn("Maruchan Ramen Bowl", names)
+        self.assertIn("Crest Toothpaste", names)
+        self.assertIn("Ragu Pasta Sauce", names)
+
+    def test_size_range_comma_preservation(self):
+        item = FlyerItem(
+            id=5005,
+            flyer_id=8189860,
+            name="Lay's, 4.75-6 oz., Baked 6.25-7.62 oz., Cheetos 7-10 oz., Smartfood Popcorn 5-10 oz. or Frito Lay Dip Bean Bag 8.5-9 oz.",
+            price=1.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 5)
+        names = [d.canonical_name for d in deals]
+        self.assertEqual(names[0], "Lay's 4.75-6 oz")
+        self.assertEqual(names[1], "Lay's Baked 6.25-7.62 oz")
+        self.assertNotIn("4.75-6 oz", names)
+
+    def test_produce_variety_noun_expansion(self):
+        item = FlyerItem(
+            id=5006,
+            flyer_id=8189860,
+            name="New Crop Pears Bartlett, Red, Bosc or Danjou",
+            price=2.29,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=5,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 4)
+        names = [d.canonical_name for d in deals]
+        self.assertEqual(names[0], "New Crop Pears Bartlett")
+        self.assertEqual(names[1], "New Crop Pears Red")
+        self.assertEqual(names[2], "New Crop Pears Bosc")
+        self.assertEqual(names[3], "New Crop Pears Danjou")
+
+    def test_unit_alternative_brand_expansion(self):
+        item = FlyerItem(
+            id=5007,
+            flyer_id=8189860,
+            name="Oxiclean 3 lb. or 24 ct., Arm & Hammer Laundry Detergent 75-110 oz. or Power Paks 32-42 ct.",
+            price=5.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=4,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        names = [d.canonical_name for d in deals]
+        self.assertIn("Oxiclean 3 lb", names)
+        self.assertIn("Oxiclean 24 ct", names)
+        self.assertNotIn("24 ct", names)
+
 
 if __name__ == "__main__":
     unittest.main()
