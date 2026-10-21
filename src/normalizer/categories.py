@@ -72,7 +72,7 @@ COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\b(?:gatorade|propel|powerade|sports drink)\b", re.IGNORECASE), "Sports Drinks"),
     (re.compile(r"\bpeanuts\b", re.IGNORECASE), "Nuts & Seeds"),
     # Adult Beverages / Wine & Beer
-    (re.compile(r"\b(?:wine|chardonnay|cabernet(?:\s+sauvignon)?|pinot\s+(?:noir|grigio)|merlot|sauvignon\s+blanc|moscato|ros[eé]|prosecco|champagne|sparkling\s+wine|zinfandel|malbec|shiraz|syrah|riesling|red\s+blend|white\s+blend)\b", re.IGNORECASE), "Wine"),
+    (re.compile(r"\b(?:wine|chardonnay|cabernet(?:\s+sauvignon)?|pinot\s+(?:noir|grigio)|merlot|sauvignon\s+blanc|moscato|ros[eé]|prosecco|champagne|sparkling\s+wine|zinfandel|malbec|shiraz|syrah|riesling|red\s+blend|white\s+blend|bogle|menage\s+a\s+trois|m[eé]nage\s+[aà]\s+trois|chloe|nobilo|meiomi|la\s+crema|barefoot|woodbridge|sutter\s+home|yellow\s+tail|cupcake|stella\s+rosa|14\s+hands|headsnapper|firefly\s+ridge|josh\s+cellars)\b", re.IGNORECASE), "Wine"),
     (re.compile(r"\b(?:beer|ale|lager|ipa|stout|pilsner|hard\s+seltzer|cider)\b", re.IGNORECASE), "Beer"),
 ]
 

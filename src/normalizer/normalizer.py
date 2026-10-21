@@ -170,7 +170,7 @@ class ProductNormalizer:
                     "Kendall-Jackson", "Josh Cellars", "Josh", "La Crema", "Meiomi", "Kim Crawford",
                     "Chateau Ste. Michelle", "Bogle", "Robert Mondavi", "Barefoot", "Woodbridge",
                     "Sutter Home", "Yellow Tail", "Cupcake", "Stella Rosa", "14 Hands", "Headsnapper",
-                    "Andre", "Firefly Ridge", "Rold Gold",
+                    "Andre", "Firefly Ridge", "Menage A Trois", "Ménage à Trois", "Chloe", "Nobilo", "Rold Gold",
                     "Miss Vickie's", "Soleil", "Snapple", "Poppi", "Ozarka", "Sunny Delight",
                     "Premier Protein", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
                     "Tina's", "Yoplait", "Chobani", "Dannon", "Oikos", "Tillamook",

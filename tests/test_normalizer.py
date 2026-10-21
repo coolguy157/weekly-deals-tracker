@@ -1278,6 +1278,134 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertIn("Oxiclean 24 ct", names)
         self.assertNotIn("24 ct", names)
 
+    def test_short_token_soda_split(self):
+        item = FlyerItem(
+            id=5008,
+            flyer_id=8189860,
+            name="Crush, Mug or Starry",
+            price=7.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=1,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        names = [d.canonical_name for d in deals]
+        self.assertEqual(len(deals), 3)
+        self.assertEqual(names, ["Crush", "Mug", "Starry"])
+
+    def test_apples_multi_word_variety_expansion(self):
+        item = FlyerItem(
+            id=5009,
+            flyer_id=8189860,
+            name="O Organics Apples Gala, Granny Smith or Fuji",
+            price=4.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=5,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 3)
+        names = [d.canonical_name for d in deals]
+        self.assertEqual(names[0], "O Organics Apples Gala")
+        self.assertEqual(names[1], "O Organics Apples Granny Smith")
+        self.assertEqual(names[2], "O Organics Apples Fuji")
+
+    def test_coordinated_prefix_adjective_noun(self):
+        item_mushrooms = FlyerItem(
+            id=5010,
+            flyer_id=8189860,
+            name="Sliced or Whole White Mushrooms",
+            price=2.79,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=5,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals_mushrooms = self.normalizer.disaggregate_and_normalize(item_mushrooms)
+        names_m = [d.canonical_name for d in deals_mushrooms]
+        self.assertEqual(names_m, ["Sliced White Mushrooms", "Whole White Mushrooms"])
+
+        item_parfaits = FlyerItem(
+            id=5011,
+            flyer_id=8189860,
+            name="Yogurt or Oatmeal parfaits",
+            price=3.49,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=5,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals_parfaits = self.normalizer.disaggregate_and_normalize(item_parfaits)
+        names_p = [d.canonical_name for d in deals_parfaits]
+        self.assertEqual(names_p, ["Yogurt parfaits", "Oatmeal parfaits"])
+
+    def test_stray_number_and_count_noise_discarded(self):
+        item = FlyerItem(
+            id=5012,
+            flyer_id=8189860,
+            name="Blue Bell Ice Cream Half Gallon, Ice Cream Sandwiches 12 ct, 3.25 or 16 ct. minis or Cups 12 ct, 3 oz.",
+            price=6.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        names = [d.canonical_name for d in deals]
+        self.assertNotIn("3.25", names)
+        self.assertNotIn("16 ct. minis", names)
+        self.assertEqual(names, ["Blue Bell Ice Cream Half Gallon", "Ice Cream Sandwiches 12 ct", "Cups 12 ct 3 oz"])
+
+    def test_standalone_wine_brand_categorization(self):
+        item = FlyerItem(
+            id=5013,
+            flyer_id=8189860,
+            name="Menage A Trois or Bogle",
+            price=8.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=4,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 2)
+        self.assertEqual(deals[0].brand, "Menage A Trois")
+        self.assertEqual(deals[0].category, "Wine")
+        self.assertEqual(deals[1].brand, "Bogle")
+        self.assertEqual(deals[1].category, "Wine")
+
 
 if __name__ == "__main__":
     unittest.main()
