@@ -64,9 +64,9 @@ class PromoExtractor:
         r"\b(?:MUST\s+BUY|WHEN\s+YOU\s+BUY)\s+(\d+)\b",
         re.IGNORECASE,
     )
-    # "2 FOR $5", "3 FOR $10.00", "4 FOR $5"
+    # "2 FOR $5", "3 FOR $10.00", "4 FOR $5", "2/ $5.00", "3/ $10"
     X_FOR_Y_PATTERN = re.compile(
-        r"\b(\d+)\s+FOR\s+\$(\d+(?:\.\d{2})?)\b",
+        r"\b(\d+)\s*(?:FOR|/)\s*\$(\d+(?:\.\d{2})?)\b",
         re.IGNORECASE,
     )
 

@@ -300,8 +300,9 @@ class GiantGridFetcher:
                 
                 # Check for X for $Y or other mechanics
                 if promo_info:
-                    if adv_price is None:
-                        adv_price = PromoExtractor.calculate_effective_price(promo_info)
+                    eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=adv_price)
+                    if eff_price is not None:
+                        adv_price = eff_price
                     promo_type = promo_info.promo_type
                     qualifying_qty = promo_info.qualifying_qty
                     promo_detail = promo_info.promo_detail
@@ -310,18 +311,37 @@ class GiantGridFetcher:
                     qualifying_qty = 1
                     promo_detail = sales_text
 
+                # Parse unit size and count from name or description
+                size_candidate = f"{name} {desc}".strip()
+                unit_size, unit_type = extract_unit_info(size_candidate)
+                unit_price = round(adv_price / unit_size, 4) if (adv_price and unit_size and unit_size > 0) else None
+
+                # Disambiguate canonical name if pack size was in description but missing from name
+                canonical_name = name
+                if unit_size and unit_type and not extract_unit_info(name)[0]:
+                    size_label = int(unit_size) if unit_size.is_integer() else unit_size
+                    canonical_name = f"{name} {size_label} {unit_type}"
+
+                brand = item.get("brand")
+                if not brand:
+                    from .normalizer.normalizer import ProductNormalizer
+                    for sb in ProductNormalizer.STORE_BRANDS:
+                        if sb.lower() in name.lower():
+                            brand = sb
+                            break
+
                 normalized_deals.append(
                     NormalizedDeal(
                         raw_deal_id=ad_id,
                         flyer_id=flyer_id,
                         page_number=page_num,
                         is_front_page=is_front,
-                        canonical_name=name,
-                        brand=None,
+                        canonical_name=canonical_name,
+                        brand=brand,
                         advertised_price=adv_price,
-                        unit_size=None,
-                        unit_type=None,
-                        unit_price=None,
+                        unit_size=unit_size,
+                        unit_type=unit_type,
+                        unit_price=unit_price,
                         raw_title=f"{name} - {sales_text}",
                         image_url=image_url,
                         promo_type=promo_type,

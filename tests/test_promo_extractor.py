@@ -237,6 +237,21 @@ class TestPromoExtractor(unittest.TestCase):
         dyn_val = PromoExtractor.calculate_dynamic_point_value(items)
         self.assertAlmostEqual(dyn_val, 0.0290, places=4)
 
+    def test_x_for_y_slash_pattern(self):
+        p1 = PromoExtractor.extract_promo("Cape Cod Potato Chips - 2/ $5.00")
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.promo_type, "must_buy")
+        self.assertEqual(p1.qualifying_qty, 2)
+        self.assertEqual(p1.stated_total_price, 5.00)
+        self.assertEqual(p1.stated_unit_price, 2.50)
+        self.assertEqual(PromoExtractor.calculate_effective_price(p1), 2.50)
+
+        p2 = PromoExtractor.extract_promo("Pure Leaf Tea - 3/ $10.00")
+        self.assertIsNotNone(p2)
+        self.assertEqual(p2.qualifying_qty, 3)
+        self.assertEqual(p2.stated_total_price, 10.00)
+        self.assertEqual(p2.stated_unit_price, 3.33)
+
 
 if __name__ == "__main__":
     unittest.main()

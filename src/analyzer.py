@@ -148,6 +148,27 @@ class DealAnalyzer:
             and h.get("advertised_price") is not None
         ]
 
+        # Scope price history: prioritize same-merchant history to prevent cross-banner distortions
+        merchant = (deal_record.get("merchant") or "").strip().lower()
+        if merchant:
+            same_merchant_obs = [
+                h for h in past_obs
+                if (h.get("merchant") or "").strip().lower() == merchant
+            ]
+            if same_merchant_obs:
+                past_obs = same_merchant_obs
+            else:
+                # Only fall back to other banners if unit size and type strictly match
+                cur_u_size = deal_record.get("unit_size")
+                cur_u_type = deal_record.get("unit_type")
+                if cur_u_size and cur_u_type:
+                    past_obs = [
+                        h for h in past_obs
+                        if h.get("unit_size") == cur_u_size and h.get("unit_type") == cur_u_type
+                    ]
+                else:
+                    past_obs = []
+
         # Tier 3: Category Unit Benchmark across all brands
         category = deal_record.get("category")
         unit_price = deal_record.get("unit_price")

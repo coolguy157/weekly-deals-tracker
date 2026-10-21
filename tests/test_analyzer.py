@@ -642,6 +642,72 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertIn("POINTS_REDEMPTION", badges_order)
         self.assertLess(badges_order.index("POINTS_DEAL"), badges_order.index("POINTS_REDEMPTION"))
 
+    def test_cross_merchant_banner_scoping(self):
+        """Verify un-sized commodities from one merchant (e.g. Tom Thumb $20.99 cupcakes) do not distort another (Giant $4.99 cupcakes)."""
+        flyer_tt = FlyerMetadata(
+            id=701,
+            merchant="Tom Thumb",
+            merchant_id=1,
+            name="Weekly Ad",
+            postal_code="75001",
+            valid_from="2026-10-01T00:00:00",
+            valid_to="2026-10-07T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer_tt)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=70101,
+                    flyer_id=701,
+                    page_number=1,
+                    is_front_page=False,
+                    canonical_name="Cupcakes",
+                    brand=None,
+                    advertised_price=20.99,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title="Bakery Cupcake Platter",
+                    image_url=None,
+                )
+            ]
+        )
+
+        flyer_giant = FlyerMetadata(
+            id=702,
+            merchant="Giant Food Stores",
+            merchant_id=2,
+            name="Weekly Ad",
+            postal_code="17837",
+            valid_from="2026-10-08T00:00:00",
+            valid_to="2026-10-15T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer_giant)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=70201,
+                    flyer_id=702,
+                    page_number=1,
+                    is_front_page=False,
+                    canonical_name="Cupcakes",
+                    brand=None,
+                    advertised_price=4.99,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title="Cupcakes",
+                    image_url=None,
+                )
+            ]
+        )
+
+        evals_giant = self.analyzer.evaluate_flyer(702)
+        self.assertEqual(len(evals_giant), 1)
+        # Giant's cupcakes should NOT compare against Tom Thumb's $20.99 platter
+        self.assertEqual(evals_giant[0].badge, "FIRST_SEEN")
+        self.assertNotEqual(evals_giant[0].badge, "ALL_TIME_LOW")
+
 
 if __name__ == "__main__":
     unittest.main()

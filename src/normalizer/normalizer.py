@@ -132,6 +132,12 @@ class ProductNormalizer:
 
         for idx, sub_name in enumerate(sub_items):
             size, unit = self.extract_unit_info(sub_name)
+            size_from_desc = False
+            if size is None and getattr(item, "description", None):
+                desc_size, desc_unit = self.extract_unit_info(item.description)
+                if desc_size is not None:
+                    size, unit = desc_size, desc_unit
+                    size_from_desc = True
 
             # Match brand:
             # 1. Look for known item_brands or store brands within sub_name
@@ -214,6 +220,9 @@ class ProductNormalizer:
 
             # Clean sub_name for canonical representation
             canonical = sub_name
+            if size_from_desc and size and unit:
+                size_str = int(size) if size.is_integer() else size
+                canonical = f"{canonical} {size_str} {unit}"
 
             # Standardize Cheap Chicken Monday deli promotion
             if re.search(r"\bcheap\s+chicken\b", canonical, re.IGNORECASE):
