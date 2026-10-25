@@ -624,7 +624,7 @@ class DealAnalyzer:
         b_min = min(ep.price for ep in baseline_episodes)
         b_max = max(ep.price for ep in baseline_episodes)
         b_avg = sum(ep.price for ep in baseline_episodes) / len(baseline_episodes)
-        diff_vs_avg = ((current_price - b_avg) / b_avg) * 100.0
+        diff_vs_avg = ((current_price - b_avg) / b_avg) * 100.0 if b_avg > 0 else 0.0
 
         sorted_past = sorted(past_obs, key=lambda o: self._parse_date(o.get("valid_from") or o.get("recorded_at")))
         last_obs = sorted_past[-1]

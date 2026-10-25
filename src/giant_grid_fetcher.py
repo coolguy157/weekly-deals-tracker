@@ -7,6 +7,7 @@ Extracts product catalog records, regular shelf prices, and solves Buy X Get Y /
 import os
 import sys
 import re
+import time
 import json
 import logging
 from typing import List, Tuple, Optional, Dict, Any
@@ -52,11 +53,46 @@ class GiantGridFetcher:
 
         self.normalizer = ProductNormalizer()
 
+    def _wait_for_captcha(self, page, timeout_sec: int = 120) -> bool:
+        """Check if DataDome CAPTCHA is present; if so, wait for user to solve it."""
+        def is_captcha_present() -> bool:
+            try:
+                for f in page.frames:
+                    if "captcha" in f.url or "captcha-delivery" in f.url:
+                        return True
+                el = page.query_selector("iframe[src*='captcha'], iframe[src*='captcha-delivery']")
+                if el and el.is_visible():
+                    return True
+            except Exception:
+                pass
+            return False
+
+        if not is_captcha_present():
+            return True
+
+        logger.warning("=" * 60)
+        logger.warning("DataDome CAPTCHA detected on Giant Food Stores.")
+        logger.warning("Please solve the puzzle in the Chrome browser window.")
+        logger.warning("=" * 60)
+        print("\n--- [GiantGrid] DataDome CAPTCHA detected. Please solve the puzzle in the open Chrome browser window... ---")
+
+        start_time = time.time()
+        while time.time() - start_time < timeout_sec:
+            time.sleep(1.5)
+            if not is_captcha_present():
+                print("--- [GiantGrid] CAPTCHA resolved! Continuing sync... ---\n")
+                time.sleep(1.5)
+                return True
+
+        logger.warning("Timed out waiting for DataDome CAPTCHA to be solved.")
+        return False
+
     def fetch_circular_deals(
         self,
         grid_url: str = "https://giantfoodstores.com/savings/weekly-ad/grid-view",
         zip_code: str = "17837",
         store_id_override: Optional[str] = None,
+        disambiguate_all: bool = True,
     ) -> Tuple[FlyerMetadata, List[NormalizedDeal]]:
         """
         Launch persistent browser context, extract weekly circular items and resolve
@@ -98,6 +134,7 @@ class GiantGridFetcher:
             logger.info(f"Navigating to Giant Grid View ({grid_url})...")
             page.goto(grid_url, wait_until="domcontentloaded", timeout=30000)
             page.wait_for_timeout(3000)
+            self._wait_for_captcha(page)
 
             # Scroll through page to load all lazy-loaded paginated batches (typically 6 batches = ~354 items)
             for _ in range(12):
@@ -171,11 +208,97 @@ class GiantGridFetcher:
             except Exception as e:
                 logger.warning(f"Could not load Flipp page map: {e}")
 
+            # In-page details API enrichment: resolve individual product SKUs, exact brands, sizes, and shelf prices
+            details_cache: Dict[int, List[Dict[str, Any]]] = {}
+            targets: List[Tuple[int, Any]] = []
+            for item in ads_list:
+                cid = item.get("circularId")
+                aid = int(item.get("id") or 0)
+                if not cid or not aid:
+                    continue
+                if disambiguate_all:
+                    targets.append((aid, cid))
+                else:
+                    s_txt = (item.get("salesText") or "").strip()
+                    nm = (item.get("name") or "").strip()
+                    ds = (item.get("description") or "").strip()
+                    dp = item.get("price")
+                    p_inf = PromoExtractor.extract_promo(s_txt, [nm, ds])
+                    is_multi = bool(
+                        re.search(r"\b(?:or|varieties|select|assorted|mix\s*&\s*match)\b", f"{nm} {ds}", re.IGNORECASE) or
+                        (p_inf and p_inf.promo_type in ("must_buy", "quantity_threshold", "mix_and_match"))
+                    )
+                    if (dp is None or dp == "") or (p_inf and p_inf.promo_type in ("bogo", "percent_off", "dollar_off")) or is_multi:
+                        targets.append((aid, cid))
+
+            if targets:
+                logger.info(f"Disambiguating {len(targets)} circular items via in-page details API...")
+                print(f"\n--- [GiantGrid] Disambiguating {len(targets)} circular items via in-page details API (spread-paced) ---")
+                batch_size = 5
+                for b_idx in range(0, len(targets), batch_size):
+                    chunk = targets[b_idx : b_idx + batch_size]
+                    batch_payload = [
+                        {
+                            "ad_id": aid,
+                            "url": f"https://giantfoodstores.com/api/v1.0/weekly/circular/users/2/{store_id}/ad/{cid}/details",
+                            "body": {
+                                "query": {"start": 0, "size": 30, "loyaltyCardNumber": ""},
+                                "includeAdInfo": False,
+                                "enablePersonalization": True,
+                                "preview": False,
+                            },
+                        }
+                        for aid, cid in chunk
+                    ]
+
+                    for _attempt in range(2):
+                        batch_res = page.evaluate(
+                            """async (batch) => {
+                            const promises = batch.map(async (item) => {
+                                try {
+                                    const resp = await fetch(item.url, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json'
+                                        },
+                                        body: JSON.stringify(item.body)
+                                    });
+                                    if (resp.status === 200) {
+                                        const data = await resp.json();
+                                        return { ad_id: item.ad_id, products: data.products || [] };
+                                    }
+                                    if (resp.status === 403) {
+                                        return { ad_id: item.ad_id, captcha: true };
+                                    }
+                                } catch (e) {}
+                                return { ad_id: item.ad_id, products: [] };
+                            });
+                            return await Promise.all(promises);
+                        }""",
+                            batch_payload,
+                        )
+
+                        if any(r.get("captcha") for r in (batch_res or [])):
+                            logger.warning("[GiantGrid] DataDome 403 detected during details batch. Awaiting user resolution...")
+                            self._wait_for_captcha(page)
+                            continue
+
+                        for r in (batch_res or []):
+                            aid = r.get("ad_id")
+                            if aid:
+                                details_cache[aid] = r.get("products") or []
+                        break
+
+                    time.sleep(0.18)
+                    if (b_idx // batch_size + 1) % 15 == 0 or (b_idx + batch_size) >= len(targets):
+                        done = min(b_idx + batch_size, len(targets))
+                        print(f"  [GiantGrid] Details progress: {done}/{len(targets)} circular items processed...")
+
             normalized_deals: List[NormalizedDeal] = []
 
             for idx, item in enumerate(ads_list):
                 ad_id = int(item.get("id") or (idx + 1))
-                circular_id = item.get("circularId")
                 name = (item.get("name") or "").strip()
                 desc = (item.get("description") or "").strip()
                 sales_text = (item.get("salesText") or "").strip()
@@ -212,47 +335,9 @@ class GiantGridFetcher:
                 # Extract promotional information via centralized PromoExtractor
                 promo_info = PromoExtractor.extract_promo(sales_text, [name, desc])
 
-                # Check if this item requires in-page details API disambiguation
-                # (umbrella promotions, multi-variety deals, BOGOs, percent off, dollar off, or unpriced)
-                is_umbrella_or_multi = bool(
-                    re.search(r"\b(?:or|varieties|select|assorted|mix\s*&\s*match)\b", f"{name} {desc}", re.IGNORECASE) or
-                    (promo_info and promo_info.promo_type in ("must_buy", "quantity_threshold", "mix_and_match"))
-                )
-                should_disambiguate = bool(
-                    circular_id and (
-                        (direct_price is None or direct_price == "") or
-                        (promo_info and promo_info.promo_type in ("bogo", "percent_off", "dollar_off")) or
-                        is_umbrella_or_multi
-                    )
-                )
-
-                if should_disambiguate:
-                    # Query in-page details API for specific product list & regular prices
-                    details_url = f"https://giantfoodstores.com/api/v1.0/weekly/circular/users/2/{store_id}/ad/{circular_id}/details"
-                    payload = {
-                        "query": {"start": 0, "size": 30, "loyaltyCardNumber": ""},
-                        "includeAdInfo": False,
-                        "enablePersonalization": True,
-                        "preview": False,
-                    }
-
-                    det_res = page.evaluate(
-                        """async ([url, body]) => {
-                        try {
-                            const resp = await fetch(url, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                                body: JSON.stringify(body)
-                            });
-                            if (resp.status === 200) return await resp.json();
-                        } catch(e) {}
-                        return null;
-                    }""",
-                        [details_url, payload],
-                    )
-
-                    products = det_res.get("products", []) if det_res else []
-                    if products:
+                # Check if we have disambiguated products from details API
+                products = details_cache.get(ad_id, [])
+                if products:
                         for p_idx, prod in enumerate(products):
                             raw_pname = (prod.get("name") or name).strip()
                             prod_name = clean_sales_notes(normalize_text(raw_pname)) or normalize_text(raw_pname)
