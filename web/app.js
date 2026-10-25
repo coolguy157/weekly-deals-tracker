@@ -336,6 +336,16 @@
     const brands = Array.from(new Set(items.map(it => it.brand).filter(Boolean))).sort();
     const names = items.map(it => it.name || '');
 
+    // Common pack packaging
+    let pkg = '';
+    const packSizes = ['12 pk', '6 pk', '8 pk', '15 ct', 'Family Size', 'Party Size', '1 Liter', '2 Liter'];
+    for (const p of packSizes) {
+      if (names.every(n => n.toLowerCase().includes(p.toLowerCase()))) {
+        pkg = ` (${p})`;
+        break;
+      }
+    }
+
     // Multi-brand specialized categories
     if (brands.includes('Duncan Hines') && brands.includes('PAM')) {
       return 'Duncan Hines & PAM • Cake Mixes, Frosting & Baking Spray';
@@ -415,16 +425,6 @@
       const stem = kw.toLowerCase().replace(/s$/, '');
       if (names.every(n => n.toLowerCase().includes(kw.toLowerCase()) || n.toLowerCase().includes(stem))) {
         matchedKeyword = kw;
-        break;
-      }
-    }
-
-    // Common pack packaging
-    let pkg = '';
-    const packSizes = ['12 pk', '6 pk', '8 pk', '15 ct', 'Family Size', 'Party Size', '1 Liter', '2 Liter'];
-    for (const p of packSizes) {
-      if (names.every(n => n.toLowerCase().includes(p.toLowerCase()))) {
-        pkg = ` (${p})`;
         break;
       }
     }
