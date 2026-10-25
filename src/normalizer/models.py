@@ -29,3 +29,4 @@ class NormalizedDeal:
     qualifying_qty: int = 1
     base_price: Optional[float] = None
     coupon_discount: Optional[float] = None
+    ad_title: Optional[str] = None

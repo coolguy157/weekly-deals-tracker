@@ -44,6 +44,7 @@ def cmd_export(args: argparse.Namespace) -> None:
             "deal_id": e.deal_id,
             "product_id": e.product_id,
             "ad_id": e.ad_id,
+            "ad_title": getattr(e, "ad_title", None),
             "raw_deal_id": e.raw_deal_id,
             "name": e.canonical_name,
             "brand": e.brand,

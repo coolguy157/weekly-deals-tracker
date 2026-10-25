@@ -337,69 +337,73 @@ class GiantGridFetcher:
 
                 # Check if we have disambiguated products from details API
                 products = details_cache.get(ad_id, [])
+                clean_parent_name = clean_sales_notes(normalize_text(name)) or normalize_text(name)
+                parent_cat = infer_category(clean_parent_name) or category_name
+
                 if products:
-                        for p_idx, prod in enumerate(products):
-                            raw_pname = (prod.get("name") or name).strip()
-                            prod_name = clean_sales_notes(normalize_text(raw_pname)) or normalize_text(raw_pname)
-                            prod_brand = prod.get("brand")
-                            reg_price = prod.get("regularPrice") or prod.get("price") or 0.0
-                            size_str = prod.get("size", "")
-                            
-                            # Parse unit size via centralized UnitNormalizer
-                            unit_size, unit_type = extract_unit_info(size_str) if size_str else (None, None)
+                    for p_idx, prod in enumerate(products):
+                        raw_pname = (prod.get("name") or name).strip()
+                        prod_name = clean_sales_notes(normalize_text(raw_pname)) or normalize_text(raw_pname)
+                        prod_brand = prod.get("brand")
+                        reg_price = prod.get("regularPrice") or prod.get("price") or 0.0
+                        size_str = prod.get("size", "")
+                        
+                        # Parse unit size via centralized UnitNormalizer
+                        unit_size, unit_type = extract_unit_info(size_str) if size_str else (None, None)
 
-                            # Calculate effective price via centralized PromoExtractor
-                            effective_price = None
-                            if promo_info:
-                                effective_price = PromoExtractor.calculate_effective_price(promo_info, base_price=reg_price)
-                            
-                            if effective_price is None:
-                                if direct_price is not None and direct_price != "":
-                                    effective_price = float(direct_price)
-                                elif prod.get("price") and prod.get("price") != reg_price:
-                                    effective_price = float(prod.get("price"))
-                                elif reg_price > 0 and promo_info and promo_info.promo_type == "bogo":
-                                    buy_qty = promo_info.buy_qty or 1
-                                    free_qty = promo_info.free_qty or 1
-                                    total_qty = promo_info.qualifying_qty or (buy_qty + free_qty)
-                                    effective_price = round((buy_qty * reg_price) / total_qty, 2)
-                                elif reg_price > 0:
-                                    effective_price = float(reg_price)
+                        # Calculate effective price via centralized PromoExtractor
+                        effective_price = None
+                        if promo_info:
+                            effective_price = PromoExtractor.calculate_effective_price(promo_info, base_price=reg_price)
+                        
+                        if effective_price is None:
+                            if direct_price is not None and direct_price != "":
+                                effective_price = float(direct_price)
+                            elif prod.get("price") and prod.get("price") != reg_price:
+                                effective_price = float(prod.get("price"))
+                            elif reg_price > 0 and promo_info and promo_info.promo_type == "bogo":
+                                buy_qty = promo_info.buy_qty or 1
+                                free_qty = promo_info.free_qty or 1
+                                total_qty = promo_info.qualifying_qty or (buy_qty + free_qty)
+                                effective_price = round((buy_qty * reg_price) / total_qty, 2)
+                            elif reg_price > 0:
+                                effective_price = float(reg_price)
 
-                            unit_price = round(effective_price / unit_size, 4) if (effective_price and unit_size and unit_size > 0) else None
+                        unit_price = round(effective_price / unit_size, 4) if (effective_price and unit_size and unit_size > 0) else None
 
-                            prod_img = prod.get("image", {}).get("large") or image_url
-                            deal_id = int(f"{ad_id}{p_idx}")
-                            p_type = promo_info.promo_type if promo_info else "standard"
-                            p_detail = promo_info.promo_detail if promo_info else sales_text
-                            q_qty = promo_info.qualifying_qty if promo_info else 1
+                        prod_img = prod.get("image", {}).get("large") or image_url
+                        deal_id = int(f"{ad_id}{p_idx}")
+                        p_type = promo_info.promo_type if promo_info else "standard"
+                        p_detail = promo_info.promo_detail if promo_info else sales_text
+                        q_qty = promo_info.qualifying_qty if promo_info else 1
 
-                            cat = infer_category(prod_name) or category_name or prod.get("rootCatName")
+                        cat = parent_cat or infer_category(prod_name) or prod.get("rootCatName")
 
-                            normalized_deals.append(
-                                NormalizedDeal(
-                                    raw_deal_id=deal_id,
-                                    flyer_id=flyer_id,
-                                    page_number=page_num,
-                                    is_front_page=is_front,
-                                    canonical_name=prod_name,
-                                    brand=prod_brand,
-                                    advertised_price=effective_price,
-                                    unit_size=unit_size,
-                                    unit_type=unit_type,
-                                    unit_price=unit_price,
-                                    raw_title=f"{prod_name} - {sales_text}",
-                                    image_url=prod_img,
-                                    promo_type=p_type,
-                                    is_trusted=True,
-                                    source_type="giant_grid_api",
-                                    category=cat,
-                                    promo_detail=p_detail,
-                                    qualifying_qty=q_qty,
-                                    base_price=reg_price if reg_price > 0 else None,
-                                )
+                        normalized_deals.append(
+                            NormalizedDeal(
+                                raw_deal_id=deal_id,
+                                flyer_id=flyer_id,
+                                page_number=page_num,
+                                is_front_page=is_front,
+                                canonical_name=prod_name,
+                                brand=prod_brand,
+                                advertised_price=effective_price,
+                                unit_size=unit_size,
+                                unit_type=unit_type,
+                                unit_price=unit_price,
+                                raw_title=f"{prod_name} - {sales_text}",
+                                image_url=prod_img,
+                                promo_type=p_type,
+                                is_trusted=True,
+                                source_type="giant_grid_api",
+                                category=cat,
+                                promo_detail=p_detail,
+                                qualifying_qty=q_qty,
+                                base_price=reg_price if reg_price > 0 else None,
+                                ad_title=clean_parent_name,
                             )
-                        continue
+                        )
+                    continue
 
                 # Standard or priced bundle deals: Route through ProductNormalizer for disaggregation,
                 # unit detection, coordinate expansion, and category inference.
@@ -434,6 +438,7 @@ class GiantGridFetcher:
                 for norm_item in norm_items:
                     norm_item.source_type = "giant_grid_api"
                     norm_item.is_trusted = True
+                    norm_item.ad_title = clean_item_name
                     if not norm_item.category and category_name:
                         norm_item.category = category_name
                     normalized_deals.append(norm_item)

@@ -343,6 +343,12 @@
       return 'Weekly Meal Deal';
     }
 
+    // Prefer explicit parent canonical ad title if present
+    const adTitle = items.find(it => it.ad_title)?.ad_title;
+    if (adTitle && adTitle.trim() && !/^(?:select|assorted|various|mix|match)/i.test(adTitle.trim())) {
+      return adTitle.trim();
+    }
+
     const brands = Array.from(new Set(items.map(it => it.brand).filter(Boolean))).sort();
     const names = items.map(it => it.name || '');
 

@@ -15,11 +15,11 @@ COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\bstring\s+cheese\b", re.IGNORECASE), "String Cheese"),
     (re.compile(r"\bcheese\b", re.IGNORECASE), "Cheese"),
     (re.compile(r"\beggs?\b", re.IGNORECASE), "Eggs"),
-    (re.compile(r"\bbutter\b", re.IGNORECASE), "Butter"),
+    (re.compile(r"\b(?:ice\s+cream|frozen\s+dairy\s+dessert|gelato|sorbet)\b", re.IGNORECASE), "Ice Cream"),
+    (re.compile(r"(?<!peanut\s)(?<!apple\s)(?<!cookie\s)(?<!cocoa\s)(?<!body\s)\bbutter\b", re.IGNORECASE), "Butter"),
     (re.compile(r"\bmilk\b", re.IGNORECASE), "Milk"),
     (re.compile(r"\byogurt\b", re.IGNORECASE), "Yogurt"),
     (re.compile(r"\bsour\s+cream\b", re.IGNORECASE), "Sour Cream"),
-    (re.compile(r"\bice\s+cream\b", re.IGNORECASE), "Ice Cream"),
     # Meats & Poultry
     (re.compile(r"\bbacon\b", re.IGNORECASE), "Bacon"),
     (re.compile(r"\bsausage\b", re.IGNORECASE), "Sausage"),
@@ -39,7 +39,7 @@ COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\b(?:pork\s+)?(?:spare\s+)?ribs?\b", re.IGNORECASE), "Ribs"),
     (re.compile(r"\bsteaks?\b", re.IGNORECASE), "Steak"),
     (re.compile(r"\broasts?\b", re.IGNORECASE), "Roast"),
-    (re.compile(r"\bturkey\b", re.IGNORECASE), "Turkey"),
+    (re.compile(r"\bturkey\b(?!\s+hill\b)", re.IGNORECASE), "Turkey"),
     (re.compile(r"\bsalmon\b", re.IGNORECASE), "Salmon"),
     (re.compile(r"\bshrimp\b", re.IGNORECASE), "Shrimp"),
     # Produce

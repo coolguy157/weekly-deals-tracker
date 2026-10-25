@@ -47,6 +47,7 @@ class DealEvaluation:
     base_price: Optional[float] = None
     raw_deal_id: Optional[int] = None
     ad_id: Optional[str] = None
+    ad_title: Optional[str] = None
     raw_title: Optional[str] = None
     image_url: Optional[str] = None
 
@@ -365,6 +366,7 @@ class DealAnalyzer:
             base_price=base_price,
             raw_deal_id=raw_deal_id,
             ad_id=ad_id,
+            ad_title=deal_record.get("ad_title"),
             raw_title=raw_title,
             image_url=image_url,
         )
@@ -417,6 +419,7 @@ class DealAnalyzer:
             base_price=base_price,
             raw_deal_id=raw_deal_id,
             ad_id=ad_id,
+            ad_title=deal_record.get("ad_title"),
             raw_title=raw_title,
             image_url=image_url,
         )
@@ -469,6 +472,7 @@ class DealAnalyzer:
             base_price=adv_p,
             raw_deal_id=raw_deal_id,
             ad_id=ad_id,
+            ad_title=deal_record.get("ad_title"),
             raw_title=raw_title,
             image_url=image_url,
         )
@@ -511,6 +515,7 @@ class DealAnalyzer:
             base_price=base_price,
             raw_deal_id=raw_deal_id,
             ad_id=ad_id,
+            ad_title=deal_record.get("ad_title"),
             raw_title=raw_title,
             image_url=image_url,
         )
@@ -551,6 +556,7 @@ class DealAnalyzer:
             base_price=base_price,
             raw_deal_id=raw_deal_id,
             ad_id=ad_id,
+            ad_title=deal_record.get("ad_title"),
             raw_title=raw_title,
             image_url=image_url,
         )
@@ -599,6 +605,7 @@ class DealAnalyzer:
             base_price=base_price,
             raw_deal_id=raw_deal_id,
             ad_id=ad_id,
+            ad_title=deal_record.get("ad_title"),
             raw_title=raw_title,
             image_url=image_url,
         )
@@ -702,6 +709,7 @@ class DealAnalyzer:
             base_price=base_price,
             raw_deal_id=raw_deal_id,
             ad_id=ad_id,
+            ad_title=deal_record.get("ad_title"),
             raw_title=raw_title,
             image_url=image_url,
         )

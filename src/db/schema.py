@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS deal_observations (
     qualifying_qty INTEGER DEFAULT 1,
     base_price REAL,
     coupon_discount REAL,
+    ad_title TEXT,
     raw_title TEXT NOT NULL,
     image_url TEXT,
     is_trusted BOOLEAN DEFAULT 1,
@@ -128,3 +129,5 @@ def apply_migrations(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE deal_observations ADD COLUMN base_price REAL")
     if "coupon_discount" not in obs_cols:
         conn.execute("ALTER TABLE deal_observations ADD COLUMN coupon_discount REAL")
+    if "ad_title" not in obs_cols:
+        conn.execute("ALTER TABLE deal_observations ADD COLUMN ad_title TEXT")

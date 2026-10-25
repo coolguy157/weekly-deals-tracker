@@ -157,9 +157,9 @@ class FlyersMixin:
             INSERT OR REPLACE INTO deal_observations
             (flyer_id, product_id, raw_deal_id, page_number, is_front_page,
              advertised_price, unit_price, promo_type, promo_detail, qualifying_qty,
-             base_price, coupon_discount, raw_title, image_url,
+             base_price, coupon_discount, ad_title, raw_title, image_url,
              is_trusted, source_type, recorded_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP))
             """,
             (
                 deal.flyer_id,
@@ -174,6 +174,7 @@ class FlyersMixin:
                 getattr(deal, "qualifying_qty", 1),
                 getattr(deal, "base_price", None),
                 getattr(deal, "coupon_discount", None),
+                getattr(deal, "ad_title", None),
                 deal.raw_title,
                 deal.image_url,
                 (1 if is_trusted else 0) if is_trusted is not None else (1 if getattr(deal, "is_trusted", True) else 0),
@@ -228,7 +229,7 @@ class FlyersMixin:
             SELECT 
                 d.id, d.flyer_id, d.product_id, d.raw_deal_id, d.page_number, d.is_front_page,
                 d.advertised_price, d.unit_price, d.promo_type, d.promo_detail, d.qualifying_qty,
-                d.base_price, d.coupon_discount, d.raw_title, d.image_url, d.is_trusted, d.source_type, d.recorded_at,
+                d.base_price, d.coupon_discount, d.ad_title, d.raw_title, d.image_url, d.is_trusted, d.source_type, d.recorded_at,
                 p.canonical_name, p.brand, p.category, p.unit_size, p.unit_type, p.last_shelf_price, p.upc,
                 f.valid_from, f.valid_to, f.merchant, f.postal_code
             FROM deal_observations d
