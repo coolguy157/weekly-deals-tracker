@@ -356,8 +356,48 @@
       return 'Fresh & Frozen Seafood Fillets';
     }
 
+    // Check if all items share an identical product name once brand prefixes are removed
+    const strippedNames = items.map(it => {
+      let n = (it.name || '').trim();
+      const b = (it.brand || '').trim();
+      if (b && n.toLowerCase().startsWith(b.toLowerCase())) {
+        n = n.slice(b.length).trim().replace(/^[-–—:,]\s*/, '');
+      }
+      return n;
+    });
+
+    if (strippedNames.length > 0 && strippedNames.every(sn => sn.length > 0 && sn.toLowerCase() === strippedNames[0].toLowerCase())) {
+      if (brands.length === 1) {
+        return `${brands[0]} ${strippedNames[0]}${pkg}`;
+      }
+      return `${strippedNames[0]}${pkg}`;
+    }
+
+    // Check if stripped names share a common suffix (e.g. "Salad Kits", "Water", "Soup")
+    const commonSuffix = strippedNames.reduce((acc, curr) => {
+      if (!acc) return curr;
+      let matched = '';
+      const words = acc.split(' ');
+      for (let i = 0; i < words.length; i++) {
+        const candidate = words.slice(i).join(' ');
+        if (curr.toLowerCase().endsWith(candidate.toLowerCase())) {
+          matched = candidate;
+          break;
+        }
+      }
+      return matched;
+    }, '');
+
+    if (commonSuffix && commonSuffix.length >= 4 && !/^(?:pack|items?|mix|selection)$/i.test(commonSuffix)) {
+      if (brands.length === 1) {
+        return `${brands[0]} ${commonSuffix}${pkg}`;
+      }
+      return `${commonSuffix}${pkg}`;
+    }
+
     // Common grocery product types
     const keywords = [
+      'Salad Blends or Kits', 'Salad Kits', 'Salad Blends', 'Salad Kit', 'Salad',
       'Soda', 'Potato Chips', 'Tortilla Chips', 'Chips', 'Cookies', 'Cereal',
       'Sausage', 'Bratwurst', 'Brats', 'Shampoo', 'Lotion', 'Bread', 'Dressing',
       'Broth', 'Crackers', 'Water', 'Tea', 'Juice', 'Vitamins', 'Candy', 'Dip',
@@ -367,7 +407,8 @@
 
     let matchedKeyword = null;
     for (const kw of keywords) {
-      if (names.every(n => n.toLowerCase().includes(kw.toLowerCase()))) {
+      const stem = kw.toLowerCase().replace(/s$/, '');
+      if (names.every(n => n.toLowerCase().includes(kw.toLowerCase()) || n.toLowerCase().includes(stem))) {
         matchedKeyword = kw;
         break;
       }
@@ -406,10 +447,8 @@
           }
         }
         return `${brands[0]} ${matchedKeyword}${pkg}`;
-      } else if (brands.length > 0 && brands.length <= 3) {
-        return `${brands.join(', ')} • ${matchedKeyword}${pkg}`;
-      } else if (brands.length > 3) {
-        return `${brands.slice(0, 2).join(', ')} & more • ${matchedKeyword}${pkg}`;
+      } else if (brands.length > 0) {
+        return `${matchedKeyword}${pkg}`;
       } else {
         return `${matchedKeyword} Selection${pkg}`;
       }
