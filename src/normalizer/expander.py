@@ -50,15 +50,6 @@ def expand_chunk(chunk: str) -> List[str]:
     if not chunk:
         return []
 
-    # Guard: Single party trays, platters, or boards with an internal variant option
-    # (e.g. "Octagon Fruit or Vegetable Tray") should NOT be severed into truncated halves ("Octagon Fruit" and "Vegetable Tray").
-    if re.search(
-        r"\b(?:Fruit|Vegetable|Meat|Cheese|Cookie|Pastry|Sandwich)\s+or\s+(?:Fruit|Vegetable|Meat|Cheese|Cookie|Pastry|Sandwich)\s+(?:Trays?|Platters?|Bowls?|Baskets?|Boards?)\b",
-        chunk,
-        re.IGNORECASE,
-    ):
-        return [chunk]
-
     # 1. Check color/variety noun: "O Organics Red or Green Grapes" or "Yellow or Zucchini Squash"
     color_match = COLOR_OR_NOUN_PATTERN.match(chunk)
     if color_match:
@@ -121,7 +112,19 @@ def expand_chunk(chunk: str) -> List[str]:
         item2 = f"{common_prefix} {opt2} {suffix}".strip()
         return prior_items + [item1, item2]
 
-    # 4. Standard split if no coordination matched
+    # 4. Standard split if no coordination matched.
+    # Guard: Do not split on 'or' if the first split lacks a head noun while the final split has one,
+    # which indicates a single coordinated noun phrase (e.g. "Fruit or Vegetable Tray", "Wheat or White Bread").
+    if re.search(r"\s+or\s+", chunk, re.IGNORECASE):
+        parts = re.split(r"\s+or\s+", chunk, flags=re.IGNORECASE)
+        last_words = parts[-1].strip().split()
+        last_w = last_words[-1].lower() if last_words else ""
+        last_has_head = last_w in KNOWN_HEAD_NOUN_WORDS or (last_w.endswith("s") and last_w[:-1] in KNOWN_HEAD_NOUN_WORDS)
+        first_words = [w.lower().strip(" ,.-") for w in parts[0].split() if w]
+        first_has_head = any(w in KNOWN_HEAD_NOUN_WORDS or (w.endswith("s") and w[:-1] in KNOWN_HEAD_NOUN_WORDS) for w in first_words)
+        if not first_has_head and last_has_head:
+            return [chunk]
+
     splits = [s.strip() for s in SPLIT_PATTERN.split(chunk) if len(s.strip()) >= 3]
     if len(splits) > 1:
         all_expanded = []
@@ -315,6 +318,14 @@ def pre_expand_deal_string(name: str) -> str:
                         adj = " ".join(rem_w[:-1])
                         v2 = f"{adj} {v2}".strip()
                 break
+
+        # Generalized modifier balancing: if v1 has a leading descriptor not in brands (e.g. "Octagon Fruit" vs "Vegetable")
+        if not p_brand and len(v1.split()) > len(v2.split()):
+            v1_words = v1.split()
+            v2_words = v2.split()
+            lead_len = len(v1_words) - len(v2_words)
+            p_brand = " ".join(v1_words[:lead_len])
+            v1 = " ".join(v1_words[lead_len:])
 
         p_str = f"{p_brand} " if p_brand else ""
         return f"{p_str}{v1} {noun}{s_str} or {p_str}{v2} {noun}{s_str}"

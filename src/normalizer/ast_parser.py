@@ -198,17 +198,25 @@ class DealASTParser:
             return None
 
         mod_tokens = tokens[:hn_idx]
-        start_idx = 1 if mod_tokens[0].type == TokenType.BRAND else 0
 
-        # Guard: modifiers cannot contain other head nouns, unit specs, or brands!
-        if any(t.type in (TokenType.HEAD_NOUN, TokenType.UNIT_SPEC, TokenType.BRAND) for t in mod_tokens[start_idx:]):
+        # Guard: modifiers cannot contain unit specs
+        if any(t.type == TokenType.UNIT_SPEC for t in mod_tokens):
             return None
 
-        suffix_str = " ".join(t.value for t in tokens[hn_idx + 1:])
-        s_str = f" {suffix_str}" if suffix_str else ""
-        head_str = tokens[hn_idx].value
+        # Check for leading brand prefix or leading descriptor
+        start_idx = 0
+        if mod_tokens[0].type == TokenType.BRAND:
+            start_idx = 1
+        elif len(mod_tokens) > 3 and any(t.type == TokenType.COORD for t in mod_tokens):
+            # Check if there is an uncoordinated leading descriptor before the first modifier
+            # e.g. "Octagon Fruit or Vegetable" -> "Octagon" is prefix, "Fruit" and "Vegetable" are modifiers
+            c_idx = next(i for i, t in enumerate(mod_tokens) if t.type == TokenType.COORD)
+            right_len = len(mod_tokens) - 1 - c_idx
+            left_len = c_idx
+            if left_len > right_len and right_len > 0:
+                start_idx = left_len - right_len
 
-        prefix_tokens = [mod_tokens[0].value] if start_idx == 1 else []
+        prefix_tokens = [mod_tokens[i].value for i in range(start_idx)]
         prefix_str = (" ".join(prefix_tokens) + " ") if prefix_tokens else ""
 
         modifiers = []
@@ -223,7 +231,10 @@ class DealASTParser:
         if cur_mod:
             modifiers.append(" ".join(cur_mod))
 
+        suffix_str = " ".join(t.value for t in tokens[hn_idx + 1:])
+        s_str = f" {suffix_str}" if suffix_str else ""
+        head_str = tokens[hn_idx].value
+
         if len(modifiers) >= 2:
             return [f"{prefix_str}{m} {head_str}{s_str}" for m in modifiers]
-
         return None
