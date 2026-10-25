@@ -63,10 +63,19 @@
   const clearListBtn = document.getElementById('clear-list-btn');
   const toast = document.getElementById('toast');
 
+  function getShoppingListStorageKey() {
+    if (flyerMeta && flyerMeta.merchant) {
+      const cleanMerchant = flyerMeta.merchant.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+      return `${cleanMerchant}_shopping_list`;
+    }
+    return 'giant_lewisburg_shopping_list';
+  }
+
   // Load Saved Shopping List from LocalStorage
   function loadSavedShoppingList() {
     try {
-      const saved = localStorage.getItem('giant_lewisburg_shopping_list');
+      const key = getShoppingListStorageKey();
+      const saved = localStorage.getItem(key) || localStorage.getItem('giant_lewisburg_shopping_list');
       if (saved) {
         shoppingList = JSON.parse(saved);
         updateShoppingListUI();
@@ -78,7 +87,8 @@
 
   function saveShoppingList() {
     try {
-      localStorage.setItem('giant_lewisburg_shopping_list', JSON.stringify(shoppingList));
+      const key = getShoppingListStorageKey();
+      localStorage.setItem(key, JSON.stringify(shoppingList));
     } catch (e) {
       console.warn('Could not save shopping list', e);
     }
@@ -636,6 +646,7 @@
   // Initialize UI with fetched data
   function initData() {
     loadingState.style.display = 'none';
+    loadSavedShoppingList();
 
     // Validity Date Display
     if (flyerMeta && flyerMeta.valid_from && flyerMeta.valid_to) {
