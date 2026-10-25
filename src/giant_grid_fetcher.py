@@ -204,11 +204,17 @@ class GiantGridFetcher:
                 # Extract promotional information via centralized PromoExtractor
                 promo_info = PromoExtractor.extract_promo(sales_text, [name, desc])
 
-                # Check if this item requires in-page details API disambiguation (BOGOs, percent off, dollar off, or unpriced)
+                # Check if this item requires in-page details API disambiguation
+                # (umbrella promotions, multi-variety deals, BOGOs, percent off, dollar off, or unpriced)
+                is_umbrella_or_multi = bool(
+                    re.search(r"\b(?:or|varieties|select|assorted|mix\s*&\s*match)\b", f"{name} {desc}", re.IGNORECASE) or
+                    (promo_info and promo_info.promo_type in ("must_buy", "quantity_threshold", "mix_and_match"))
+                )
                 should_disambiguate = bool(
                     circular_id and (
                         (direct_price is None or direct_price == "") or
-                        (promo_info and promo_info.promo_type in ("bogo", "percent_off", "dollar_off"))
+                        (promo_info and promo_info.promo_type in ("bogo", "percent_off", "dollar_off")) or
+                        is_umbrella_or_multi
                     )
                 )
 
@@ -216,7 +222,7 @@ class GiantGridFetcher:
                     # Query in-page details API for specific product list & regular prices
                     details_url = f"https://giantfoodstores.com/api/v1.0/weekly/circular/users/2/{store_id}/ad/{circular_id}/details"
                     payload = {
-                        "query": {"start": 0, "size": 15, "loyaltyCardNumber": ""},
+                        "query": {"start": 0, "size": 30, "loyaltyCardNumber": ""},
                         "includeAdInfo": False,
                         "enablePersonalization": True,
                         "preview": False,

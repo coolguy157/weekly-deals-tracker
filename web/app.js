@@ -503,12 +503,9 @@
       }
     }
 
-    const isCutStyleGroup = / or /i.test(title) && items.length >= 2 && items.length <= 4 && items.every(it => /shredded|chunk|sliced|whole|diced|crushed|ground|cut|block|halves|spears|fillet|filet|bone-in|boneless/i.test(it.name));
-
     return {
       groupId,
       isMulti,
-      isCutStyleGroup,
       isMealDeal,
       anchorItem,
       items,
@@ -966,8 +963,8 @@
       const topItems = g.items.slice(0, 4);
       const remaining = g.items.length - topItems.length;
       previewChipsHtml = `
-        <div class="group-varieties-preview" title="${g.isCutStyleGroup ? 'Promotion covers all in-store varieties across these formats' : 'Items included in this ad promotion'}">
-          ${topItems.map(it => `<span class="variety-chip">${escapeHtml(it.name.split(' - ')[0])}${g.isCutStyleGroup ? ' (All Varieties)' : ''}</span>`).join(' ')}
+        <div class="group-varieties-preview" title="Items included in this ad promotion">
+          ${topItems.map(it => `<span class="variety-chip">${escapeHtml(it.name.split(' - ')[0])}</span>`).join(' ')}
           ${remaining > 0 ? `<span class="variety-chip more">+${remaining} more varieties</span>` : ''}
         </div>
       `;
@@ -979,7 +976,7 @@
       expandedSectionHtml = `
         <div class="group-expanded-container">
           <div class="group-expanded-title">
-            <span>${g.isCutStyleGroup ? `Formats & Cuts (${g.items.length} – Covers All In-Store Varieties):` : `Varieties & Items (${g.items.length}):`}</span>
+            <span>Varieties & Items (${g.items.length}):</span>
             <span style="font-size:0.7rem; color:var(--primary-700); cursor:pointer;" onclick="window.__toggleGroupExpand('${g.groupId}')">▲ Collapse</span>
           </div>
           <div class="group-items-list">
@@ -1052,7 +1049,7 @@
           <div class="card-top">
             <div class="badge-row">
               ${badgeHtml}
-              <span class="deal-badge group-count" title="${g.isCutStyleGroup ? 'Promotion covers all in-store varieties (e.g. Cheddar, Mozzarella, etc.) across these formats' : 'Items included in this ad promotion'}">📦 ${g.items.length} ${g.isCutStyleGroup ? 'Formats (All Varieties)' : 'Varieties'}</span>
+              <span class="deal-badge group-count">📦 ${g.items.length} ${g.items.length === 1 ? 'Item' : 'Varieties'}</span>
             </div>
             <span class="page-indicator">Pg ${g.page || 1}</span>
           </div>
@@ -1196,7 +1193,7 @@
             <td>
               <div style="display:flex; align-items:center; gap:8px;">
                 <button class="btn-table-expand" onclick="window.__toggleGroupExpand('${g.groupId}')">
-                  ${isExpanded ? '▲' : '▼'} ${g.items.length} ${g.isCutStyleGroup ? 'formats (all varieties)' : 'items'}
+                  ${isExpanded ? '▲' : '▼'} ${g.items.length} items
                 </button>
                 <strong>${escapeHtml(g.title)}</strong>
               </div>
