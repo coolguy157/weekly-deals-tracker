@@ -8,7 +8,7 @@
     "valid_to": "2026-10-30T23:59:59-04:00",
     "scraped_at": "2026-10-24 19:01:57"
   },
-  "updated_at": "2026-10-24T21:41:33.239167",
+  "updated_at": "2026-10-24T21:58:03.983581",
   "total_deals": 886,
   "deals": [
     {
@@ -6754,7 +6754,7 @@
       "historical_avg": 5.0,
       "diff_pct_vs_avg": 0.0,
       "badge": "BEAT_AVERAGE",
-      "analysis": "\ud83d\udd25 First seen (71% below Water category avg of $0.73/pk) \u2022 [2 FOR $10.00]",
+      "analysis": "\ud83d\udd25 First seen (70% below Water category avg of $0.71/pk) \u2022 [2 FOR $10.00]",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $10.00",
       "raw_title": "Arizona Tea or Juice 12 Pack or Dasani Water 24 Pack - 2/ $10.00",
@@ -21854,7 +21854,7 @@
       "historical_avg": 3.99,
       "diff_pct_vs_avg": 100.5,
       "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+100.5% vs avg $3.99) \u2022 [2 FOR $8.00] \u2022 \ud83d\udd25 68% below Water category avg",
+      "analysis": "\u26a0\ufe0f Higher than typical promo average (+100.5% vs avg $3.99) \u2022 [2 FOR $8.00] \u2022 \ud83d\udd25 67% below Water category avg",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $8.00",
       "raw_title": "Acadia Spring or Purified Water 35 Pack - 2/ $8.00 When you buy 2",
