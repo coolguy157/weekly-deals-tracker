@@ -147,7 +147,7 @@ class PromoExtractor:
     # 9. Meal Deal / Buy Main Item Get Sides Free Patterns
     # "buy this Our Brand Boneless Beef Chuck Roast get these FREE* ... SAVE at least $8.27* with this week's meal deal"
     MEAL_DEAL_PATTERN = re.compile(
-        r"(?:BUY\s+THIS\s+(.*?)\s+GET\s+THESE\s+FREE.*?(?:SAVE\s+(?:AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?))?.*?(?:MEAL\s+DEAL)?|MEAL\s+DEAL)",
+        r"(?:BUY\s+THIS\s+(.*?)\s+GET\s+(?:THESE|THIS)\s+FREE.*?(?:SAVE\s+(?:AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?))?.*?(?:MEAL\s+DEAL)?|MEAL\s+DEAL)",
         re.IGNORECASE,
     )
 
@@ -540,12 +540,6 @@ class PromoExtractor:
                     discount_pct = promo.coupon_discount / promo.spend_threshold
                     return max(0.0, round(base_price * (1.0 - discount_pct) + 1e-9, 2))
                 return base_price
-            if promo.est_net_price is not None:
-                return promo.est_net_price
-            if promo.spend_threshold is not None and promo.coupon_discount is not None:
-                if promo.coupon_discount < promo.spend_threshold:
-                    return max(0.0, round(promo.spend_threshold - promo.coupon_discount + 1e-9, 2))
-                return None
             return None
 
         return None

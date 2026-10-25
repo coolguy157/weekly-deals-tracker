@@ -455,7 +455,21 @@
     const isMealDeal = groupId.startsWith('meal_deal_') || promoType === 'meal_deal' || title.toLowerCase().includes('meal deal');
     let anchorItem = null;
     if (isMealDeal && items.length > 0) {
-      anchorItem = items.reduce((prev, curr) => ((curr.price || 0) > (prev.price || 0) ? curr : prev), items[0]);
+      // Prioritize items with a positive purchase price (e.g. Ground Beef @ $5.99)
+      const pricedItems = items.filter(it => (it.price || 0) > 0);
+      if (pricedItems.length > 0) {
+        anchorItem = pricedItems.reduce((prev, curr) => ((curr.price || 0) > (prev.price || 0) ? curr : prev), pricedItems[0]);
+      } else {
+        // If all items have 0 or null price, resolve the item mentioned in "buy this X"
+        const fullPromo = items.map(it => it.raw_title || it.promo_detail || '').join(' ');
+        const buyMatch = fullPromo.match(/buy this\s+([^,]+?)\s+get\s+(?:these|this)\s+free/i);
+        if (buyMatch) {
+          const buyTarget = buyMatch[1].trim().toLowerCase();
+          const targetItem = items.find(it => it.name.toLowerCase().includes(buyTarget) || buyTarget.includes(it.name.toLowerCase()));
+          if (targetItem) anchorItem = targetItem;
+        }
+      }
+      if (!anchorItem) anchorItem = items[0];
     }
 
     let representativeDeal = anchorItem;
@@ -914,7 +928,8 @@
     let promoDetailHtml = '';
     if (g.isMealDeal && g.anchorItem) {
       const anchorClean = escapeHtml(g.anchorItem.name.split(' - ')[0]);
-      promoDetailHtml = `<div class="meal-deal-qualifier-note">✨ Buy <strong>${anchorClean}</strong> (${formatMoney(g.anchorItem.price)}), get bundled items <strong>FREE</strong></div>`;
+      const priceTag = (g.anchorItem.price != null && g.anchorItem.price > 0) ? ` (${formatMoney(g.anchorItem.price)}${g.anchorItem.unit_price ? `/${g.anchorItem.unit_type || 'lb'}` : ''})` : '';
+      promoDetailHtml = `<div class="meal-deal-qualifier-note">✨ Buy <strong>${anchorClean}</strong>${priceTag}, get bundled items <strong>FREE</strong></div>`;
     } else if (g.promoDetail) {
       promoDetailHtml = `<div class="promo-detail-note">🏷️ ${escapeHtml(g.promoDetail)}</div>`;
     }
@@ -1149,7 +1164,8 @@
           unitDisplay = `$${g.minUnitPrice.toFixed(2)} – $${g.maxUnitPrice.toFixed(2)}/${g.primaryUnitType || 'unit'}`;
         }
 
-        const promoText = g.isMealDeal && g.anchorItem ? `✨ Buy ${escapeHtml(g.anchorItem.name.split(' - ')[0])}, Get Bundled Items FREE` : g.promoDetail;
+        const tablePriceTag = (g.anchorItem && g.anchorItem.price != null && g.anchorItem.price > 0) ? ` (${formatMoney(g.anchorItem.price)}${g.anchorItem.unit_price ? `/${g.anchorItem.unit_type || 'lb'}` : ''})` : '';
+        const promoText = g.isMealDeal && g.anchorItem ? `✨ Buy ${escapeHtml(g.anchorItem.name.split(' - ')[0])}${tablePriceTag}, Get Bundled Items FREE` : g.promoDetail;
 
         const parentRow = `
           <tr class="table-group-header-row">

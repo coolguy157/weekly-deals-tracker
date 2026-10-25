@@ -708,6 +708,43 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertEqual(evals_giant[0].badge, "FIRST_SEEN")
         self.assertNotEqual(evals_giant[0].badge, "ALL_TIME_LOW")
 
+    def test_spend_save_proportional_price_not_net_spend(self):
+        flyer = FlyerMetadata(
+            id=801,
+            merchant="Giant Food Stores",
+            merchant_id=2,
+            name="Weekly Ad",
+            postal_code="17837",
+            valid_from="2026-10-08T00:00:00",
+            valid_to="2026-10-15T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=80101,
+                    flyer_id=801,
+                    page_number=8,
+                    is_front_page=False,
+                    canonical_name="Gerber Natural Toddler Fruit & Veggie Favorites Variety Pack",
+                    brand="Gerber",
+                    advertised_price=7.99,
+                    unit_size=9.0,
+                    unit_type="ct",
+                    unit_price=0.8878,
+                    raw_title="Gerber Natural Toddler Fruit & Veggie Favorites Variety Pack - 9 ct - SAVE $25 When you spend $75 on participating products*",
+                    image_url=None,
+                    promo_type="spend_save",
+                    promo_detail="SAVE $25.00 When you spend $75.00 (Net Spend: $50.00)",
+                )
+            ]
+        )
+        evals = self.analyzer.evaluate_flyer(801)
+        self.assertEqual(len(evals), 1)
+        # Should be 33.3% off $7.99 -> $5.33, NEVER the $50 basket net spend!
+        self.assertEqual(evals[0].current_price, 5.33)
+        self.assertEqual(evals[0].badge, "SPEND_SAVE")
+
 
 if __name__ == "__main__":
     unittest.main()

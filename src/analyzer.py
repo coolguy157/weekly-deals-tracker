@@ -365,24 +365,37 @@ class DealAnalyzer:
         if promo_type == "spend_save" and promo_info:
             save_a = promo_info.coupon_discount or 0.0
             spend_a = promo_info.spend_threshold or 0.0
-            net_p = promo_info.est_net_price or round(max(0.0, spend_a - save_a), 2)
             pct = int((save_a / spend_a) * 100) if (save_a and spend_a) else 0
+
+            # Proportional effective item price:
+            # If item has an advertised price, apply the proportional basket discount (e.g. 33% off)
+            adv_p = deal_record.get("advertised_price")
+            if adv_p is not None and adv_p > 0:
+                discount_pct = (save_a / spend_a) if (spend_a > 0 and save_a > 0) else 0.0
+                effective_item_price = max(0.0, round(adv_p * (1.0 - discount_pct) + 1e-9, 2))
+                u_size = deal_record.get("unit_size")
+                item_unit_price = round(effective_item_price / u_size, 4) if (u_size and u_size > 0) else unit_price
+                price_to_use = effective_item_price
+            else:
+                price_to_use = None
+                item_unit_price = None
+
             return DealEvaluation(
                 deal_id=deal_record.get("id", 0),
                 product_id=product_id,
                 canonical_name=canonical_name,
                 brand=deal_record.get("brand"),
-                current_price=net_p,
-                unit_price=unit_price,
+                current_price=price_to_use,
+                unit_price=item_unit_price,
                 page_number=deal_record.get("page_number", 1),
                 is_front_page=bool(deal_record.get("is_front_page", 1)),
-                historical_min=net_p,
-                historical_avg=net_p,
-                historical_max=net_p,
+                historical_min=price_to_use,
+                historical_avg=price_to_use,
+                historical_max=price_to_use,
                 past_observations_count=len(past_obs),
                 diff_pct_vs_avg=0.0,
                 badge="SPEND_SAVE",
-                summary_reason=f"🏷️ Save ${save_a:.2f} when you spend ${spend_a:.2f} (Net Spend: ${net_p:.2f}, {pct}% savings)",
+                summary_reason=f"🏷️ Save ${save_a:.2f} when you spend ${spend_a:.2f} ({pct}% off participating items)",
                 unit_size=deal_record.get("unit_size"),
                 unit_type=unit_type,
                 category=category,
@@ -391,7 +404,7 @@ class DealAnalyzer:
                 promo_type=promo_type,
                 promo_detail=promo_detail,
                 qualifying_qty=qualifying_qty,
-                base_price=base_price,
+                base_price=adv_p,
                 raw_deal_id=raw_deal_id,
                 ad_id=ad_id,
                 raw_title=raw_title,
