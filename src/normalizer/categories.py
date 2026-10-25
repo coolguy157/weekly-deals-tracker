@@ -63,6 +63,7 @@ COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\bpasta\b", re.IGNORECASE), "Pasta"),
     (re.compile(r"\bcoffee\b", re.IGNORECASE), "Coffee"),
     (re.compile(r"\bchips\b", re.IGNORECASE), "Chips"),
+    (re.compile(r"\bcrackers?\b|\bcheez-?it\b|\bgoldfish\b|\btriscuit\b|\bwheat\s+thins?\b|\britz\b", re.IGNORECASE), "Crackers"),
     (re.compile(r"\bpopcorn\b", re.IGNORECASE), "Popcorn"),
     (re.compile(r"\bsalsa\b", re.IGNORECASE), "Salsa"),
     (re.compile(r"\bpizzas?\b", re.IGNORECASE), "Pizza"),

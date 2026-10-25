@@ -396,7 +396,17 @@
     }
 
     if (brands.length === 1) {
-      return `${brands[0]} Assorted Varieties${pkg} (${items.length} Items)`;
+      const b = brands[0];
+      if (items.length >= 2 && items.length <= 4 && names.every(n => n.toLowerCase().startsWith(b.toLowerCase()))) {
+        const subParts = names.map(n => n.slice(b.length).trim().replace(/^[-–—:]\s*/, ''));
+        if (subParts.every(sp => sp.length > 0)) {
+          if (subParts.length === 2) {
+            return `${b} ${subParts[0]} or ${subParts[1]}`;
+          }
+          return `${b} ${subParts.slice(0, -1).join(', ')} or ${subParts[subParts.length - 1]}`;
+        }
+      }
+      return `${b} Assorted Varieties${pkg} (${items.length} Items)`;
     } else if (brands.length > 0 && brands.length <= 3) {
       return `${brands.join(', ')} Selection${pkg} (${items.length} Items)`;
     } else if (brands.length > 3) {
