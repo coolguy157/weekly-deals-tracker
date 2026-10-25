@@ -1455,6 +1455,77 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[2].brand, "Duncan Hines")
 
 
+    def test_lucerne_eggs_standardization(self):
+        # 1. Eggs without "Large" modifier (18 ct)
+        item1 = FlyerItem(
+            id=101,
+            flyer_id=1,
+            name="Philadelphia Cream Cheese 8 oz, Lucerne Eggs 18 ct, Pillsbury Dough 8-16.3 oz",
+            price=1.97,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Lucerne",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals1 = self.normalizer.disaggregate_and_normalize(item1)
+        egg_deal1 = next(d for d in deals1 if "egg" in d.canonical_name.lower())
+        self.assertEqual(egg_deal1.canonical_name, "Lucerne Large Eggs 18 ct")
+        self.assertEqual(egg_deal1.brand, "Lucerne")
+        self.assertEqual(egg_deal1.unit_size, 18.0)
+        self.assertEqual(egg_deal1.unit_type, "ct")
+        self.assertAlmostEqual(egg_deal1.unit_price, 0.1094, places=4)
+
+        # 2. Eggs without count specified defaults to 12 ct
+        item2 = FlyerItem(
+            id=102,
+            flyer_id=2,
+            name="Lucerne Large Eggs",
+            price=0.97,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Lucerne",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals2 = self.normalizer.disaggregate_and_normalize(item2)
+        self.assertEqual(len(deals2), 1)
+        self.assertEqual(deals2[0].canonical_name, "Lucerne Large Eggs 12 ct")
+        self.assertEqual(deals2[0].brand, "Lucerne")
+        self.assertEqual(deals2[0].unit_size, 12.0)
+        self.assertEqual(deals2[0].unit_type, "ct")
+        self.assertAlmostEqual(deals2[0].unit_price, 0.0808, places=4)
+
+        # 3. Bulk 60 count standardization
+        item3 = FlyerItem(
+            id=103,
+            flyer_id=3,
+            name="Lucerne Large Eggs 60 Count",
+            price=5.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Lucerne",
+            page_number=1,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals3 = self.normalizer.disaggregate_and_normalize(item3)
+        self.assertEqual(deals3[0].canonical_name, "Lucerne Large Eggs 60 ct")
+        self.assertEqual(deals3[0].unit_size, 60.0)
+        self.assertEqual(deals3[0].unit_type, "ct")
+
+
 if __name__ == "__main__":
     unittest.main()
 

@@ -92,10 +92,28 @@ def apply_brand_specific_rules(
     elif brand == "Josh":
         brand = "Josh Cellars"
 
-    # Lucerne Eggs
-    if brand == "Lucerne" and ("egg" in canonical.lower() or "eggs" in canonical.lower()):
-        if not canonical.lower().startswith("lucerne"):
-            canonical = f"Lucerne {canonical}"
+    # Lucerne Eggs standardization
+    if (brand == "Lucerne" or canonical.lower().startswith("lucerne")) and re.search(r"\beggs?\b", canonical, re.IGNORECASE):
+        # Exclude non-shell egg products (e.g., egg bites, egg salad, liquid egg whites, egg noodles)
+        if not re.search(r"\b(white|whites|salad|bites|liquid|noodles)\b", canonical, re.IGNORECASE):
+            if not canonical.lower().startswith("lucerne"):
+                canonical = f"Lucerne {canonical}"
+            brand = "Lucerne"
+
+            # Standardize "Eggs" -> "Large Eggs" if grade/size omitted (Tom Thumb Lucerne shell eggs are Large Eggs)
+            if not re.search(r"\b(large|extra\s+large|jumbo|medium)\b", canonical, re.IGNORECASE):
+                canonical = re.sub(r"\beggs?\b", "Large Eggs", canonical, flags=re.IGNORECASE)
+
+            # Standardize count unit suffix (e.g. "60 Count" -> "60 ct")
+            canonical = re.sub(r"\b(\d+)\s*(?:count|ct)\b", r"\1 ct", canonical, flags=re.IGNORECASE)
+
+            # In weekly circulars, standalone "Lucerne Large Eggs" without count is the standard 1-dozen (12 ct) carton
+            if size is None and not re.search(r"\b\d+\s*ct\b", canonical, re.IGNORECASE):
+                size = 12.0
+                unit = "ct"
+                canonical = f"{canonical} 12 ct"
+                if item_price and size > 0:
+                    unit_price = round(item_price / size, 4)
 
     # Lucerne Cheese: unify standard 6-8 oz / 8 oz pack sizing
     if brand == "Lucerne" and "cheese" in canonical.lower():
