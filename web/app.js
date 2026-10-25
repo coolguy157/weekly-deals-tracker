@@ -385,6 +385,26 @@
 
     if (matchedKeyword) {
       if (brands.length === 1) {
+        const b = brands[0];
+        if (items.length >= 2 && items.length <= 4) {
+          const kwRegex = new RegExp(`\\s+${matchedKeyword}$`, 'i');
+          const subParts = names.map(n => {
+            let s = n;
+            if (s.toLowerCase().startsWith(b.toLowerCase())) {
+              s = s.slice(b.length).trim().replace(/^[-–—:]\s*/, '');
+            }
+            return s;
+          });
+          if (subParts.every(sp => kwRegex.test(sp))) {
+            const modifiers = subParts.map(sp => sp.replace(kwRegex, '').trim()).filter(Boolean);
+            if (modifiers.length === items.length && new Set(modifiers).size === items.length) {
+              const joinedMods = modifiers.length === 2
+                ? `${modifiers[0]} or ${modifiers[1]}`
+                : `${modifiers.slice(0, -1).join(', ')} or ${modifiers[modifiers.length - 1]}`;
+              return `${b} ${joinedMods} ${matchedKeyword}${pkg}`;
+            }
+          }
+        }
         return `${brands[0]} ${matchedKeyword}${pkg}`;
       } else if (brands.length > 0 && brands.length <= 3) {
         return `${brands.join(', ')} • ${matchedKeyword}${pkg}`;
@@ -483,9 +503,12 @@
       }
     }
 
+    const isCutStyleGroup = / or /i.test(title) && items.length >= 2 && items.length <= 4 && items.every(it => /shredded|chunk|sliced|whole|diced|crushed|ground|cut|block|halves|spears|fillet|filet|bone-in|boneless/i.test(it.name));
+
     return {
       groupId,
       isMulti,
+      isCutStyleGroup,
       isMealDeal,
       anchorItem,
       items,
@@ -943,8 +966,8 @@
       const topItems = g.items.slice(0, 4);
       const remaining = g.items.length - topItems.length;
       previewChipsHtml = `
-        <div class="group-varieties-preview" title="Items included in this ad promotion">
-          ${topItems.map(it => `<span class="variety-chip">${escapeHtml(it.name.split(' - ')[0])}</span>`).join(' ')}
+        <div class="group-varieties-preview" title="${g.isCutStyleGroup ? 'Promotion covers all in-store varieties across these formats' : 'Items included in this ad promotion'}">
+          ${topItems.map(it => `<span class="variety-chip">${escapeHtml(it.name.split(' - ')[0])}${g.isCutStyleGroup ? ' (All Varieties)' : ''}</span>`).join(' ')}
           ${remaining > 0 ? `<span class="variety-chip more">+${remaining} more varieties</span>` : ''}
         </div>
       `;
@@ -956,7 +979,7 @@
       expandedSectionHtml = `
         <div class="group-expanded-container">
           <div class="group-expanded-title">
-            <span>Varieties & Items (${g.items.length}):</span>
+            <span>${g.isCutStyleGroup ? `Formats & Cuts (${g.items.length} – Covers All In-Store Varieties):` : `Varieties & Items (${g.items.length}):`}</span>
             <span style="font-size:0.7rem; color:var(--primary-700); cursor:pointer;" onclick="window.__toggleGroupExpand('${g.groupId}')">▲ Collapse</span>
           </div>
           <div class="group-items-list">
@@ -1029,7 +1052,7 @@
           <div class="card-top">
             <div class="badge-row">
               ${badgeHtml}
-              <span class="deal-badge group-count">📦 ${g.items.length} Varieties</span>
+              <span class="deal-badge group-count" title="${g.isCutStyleGroup ? 'Promotion covers all in-store varieties (e.g. Cheddar, Mozzarella, etc.) across these formats' : 'Items included in this ad promotion'}">📦 ${g.items.length} ${g.isCutStyleGroup ? 'Formats (All Varieties)' : 'Varieties'}</span>
             </div>
             <span class="page-indicator">Pg ${g.page || 1}</span>
           </div>
@@ -1173,7 +1196,7 @@
             <td>
               <div style="display:flex; align-items:center; gap:8px;">
                 <button class="btn-table-expand" onclick="window.__toggleGroupExpand('${g.groupId}')">
-                  ${isExpanded ? '▲' : '▼'} ${g.items.length} items
+                  ${isExpanded ? '▲' : '▼'} ${g.items.length} ${g.isCutStyleGroup ? 'formats (all varieties)' : 'items'}
                 </button>
                 <strong>${escapeHtml(g.title)}</strong>
               </div>
