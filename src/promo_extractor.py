@@ -136,11 +136,11 @@ class PromoExtractor:
     # 8. Dollar Off / Off-Shelf Discount Patterns
     # "$1.00 Off", "$2.00 Off", "50¢ Off", "2 Off/lb.", "SAVE up to $3.79"
     DOLLAR_OFF_PATTERN = re.compile(
-        r"\b(?:SAVE\s+(?:UP\s+TO\s+)?|.*?\$|\b)(\d+(?:\.\d{2})?)\s*(?:OFF(?:\/LB\.?)?)\b",
+        r"\b(?:SAVE\s+(?:UP\s+TO\s+)?|.*?\$|\b)(\d+(?:\.\d{2})?)\s*OFF(?:\s*(?:\/|\bper\b)\s*(lb|pound|ea|each|pkg|oz))?\.?\b",
         re.IGNORECASE,
     )
     CENTS_OFF_PATTERN = re.compile(
-        r"\b(\d+)\s*¢\s*OFF\b",
+        r"\b(\d+)\s*¢\s*OFF(?:\s*(?:\/|\bper\b)\s*(lb|pound|ea|each|pkg|oz))?\.?\b",
         re.IGNORECASE,
     )
 
@@ -440,9 +440,18 @@ class PromoExtractor:
         m_do = cls.DOLLAR_OFF_PATTERN.search(cleaned_text)
         if m_do:
             off_val = float(m_do.group(1))
+            unit_grp = m_do.group(2)
+            unit_suffix = ""
+            if unit_grp:
+                u_norm = "per lb" if unit_grp.lower() in ("lb", "pound") else ("each" if unit_grp.lower() in ("ea", "each") else f"per {unit_grp.lower()}")
+                unit_suffix = f" {u_norm}"
+            elif re.search(r"\b(?:/\s*lb|per\s*lb)\b", cleaned_text, re.IGNORECASE):
+                unit_suffix = " per lb"
+            elif re.search(r"\b(?:/\s*ea|per\s*ea)\b", cleaned_text, re.IGNORECASE):
+                unit_suffix = " each"
             return PromoInfo(
                 promo_type="dollar_off",
-                promo_detail=f"${off_val:.2f} OFF",
+                promo_detail=f"${off_val:.2f} OFF{unit_suffix}",
                 coupon_discount=off_val,
                 qualifying_qty=1,
             )
@@ -450,9 +459,18 @@ class PromoExtractor:
         m_co = cls.CENTS_OFF_PATTERN.search(cleaned_text)
         if m_co:
             cents_val = float(m_co.group(1)) / 100.0
+            unit_grp = m_co.group(2)
+            unit_suffix = ""
+            if unit_grp:
+                u_norm = "per lb" if unit_grp.lower() in ("lb", "pound") else ("each" if unit_grp.lower() in ("ea", "each") else f"per {unit_grp.lower()}")
+                unit_suffix = f" {u_norm}"
+            elif re.search(r"\b(?:/\s*lb|per\s*lb)\b", cleaned_text, re.IGNORECASE):
+                unit_suffix = " per lb"
+            elif re.search(r"\b(?:/\s*ea|per\s*ea)\b", cleaned_text, re.IGNORECASE):
+                unit_suffix = " each"
             return PromoInfo(
                 promo_type="dollar_off",
-                promo_detail=f"{int(m_co.group(1))}¢ OFF",
+                promo_detail=f"{int(m_co.group(1))}¢ OFF{unit_suffix}",
                 coupon_discount=cents_val,
                 qualifying_qty=1,
             )

@@ -212,8 +212,23 @@ class TestPromoExtractor(unittest.TestCase):
         self.assertIsNotNone(p1)
         self.assertEqual(p1.promo_type, "dollar_off")
         self.assertEqual(p1.coupon_discount, 1.00)
+        self.assertEqual(p1.promo_detail, "$1.00 OFF")
         eff = PromoExtractor.calculate_effective_price(p1, base_price=4.99)
         self.assertEqual(eff, 3.99)
+
+        # $2.00 Off/lb.
+        p2 = PromoExtractor.extract_promo("Nature's Promise Farm Raised Tilapia Fillets Fresh - $2.00 Off/lb.")
+        self.assertIsNotNone(p2)
+        self.assertEqual(p2.promo_type, "dollar_off")
+        self.assertEqual(p2.coupon_discount, 2.00)
+        self.assertEqual(p2.promo_detail, "$2.00 OFF per lb")
+
+        # $1.00 Off/ea.
+        p3 = PromoExtractor.extract_promo("Fresh Strawberries 1 lb - $1.00 Off/ea.")
+        self.assertIsNotNone(p3)
+        self.assertEqual(p3.promo_type, "dollar_off")
+        self.assertEqual(p3.coupon_discount, 1.00)
+        self.assertEqual(p3.promo_detail, "$1.00 OFF each")
 
     def test_meal_deal_patterns(self):
         # Weekly Meal Deal: buy this roast get these free potatoes, seasoning, broth (save at least $8.27)

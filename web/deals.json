@@ -8,7 +8,7 @@
     "valid_to": "2026-10-30T23:59:59-04:00",
     "scraped_at": "2026-10-24 19:01:57"
   },
-  "updated_at": "2026-10-24T23:00:04.094268",
+  "updated_at": "2026-10-25T00:32:30.157928",
   "total_deals": 841,
   "deals": [
     {
@@ -781,7 +781,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 12.5% below past low of $7.99",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "Nature's Promise Farm Raised Tilapia Fillets Fresh - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/U8/U8R6U.png",
       "is_category_best": false
@@ -806,7 +806,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 12.5% below past low of $7.99",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "North Atlantic Fish Company Garlic Parmesan Shrimp 31-40 ct per lb Fresh - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/5Y/5Y5YY.png",
       "is_category_best": false
@@ -831,7 +831,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 10.0% below past low of $9.99 \u2022 \ud83d\udd25 21% below Steak category avg",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "Our Brand Swordfish Steak - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/QA/QA67S.png",
       "is_category_best": false
@@ -856,7 +856,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 8.3% below past low of $11.99",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "North Atlantic Fish Company Blackened Tuna Steaks Previously Frozen - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/PC/PC3VR.png",
       "is_category_best": false
@@ -881,7 +881,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 8.3% below past low of $11.99",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "Our Brand Farm Raised Skin-On Salmon Fillet Fresh - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/4M/4MDLV.png",
       "is_category_best": false
@@ -906,7 +906,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 8.3% below past low of $11.99",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "Our Brand Wild Caught Yellowfin Tuna Steaks Previously Frozen - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/OH/OHNTG.png",
       "is_category_best": false
@@ -931,7 +931,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 7.7% below past low of $12.98",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "Our Brand Stuffed Salmon Fresh - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/82/82O4I.png",
       "is_category_best": false
@@ -956,7 +956,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 7.4% below past low of $13.49",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "Our Brand Wild Caught Cod Fillet Previously Frozen - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/PO/POITJ.png",
       "is_category_best": false
@@ -981,7 +981,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 5.6% below past low of $17.99",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "Our Brand Skinless Haddock Fillet - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/7Q/7QFTL.png",
       "is_category_best": false
@@ -1006,7 +1006,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 5.3% below past low of $18.99 \u2022 \u26a0\ufe0f Above Salmon category avg (+57%)",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "North Atlantic Fish Company Wild Caught Sockeye Salmon Fillet Prev. Frozen - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/N6/N62FZ.png",
       "is_category_best": false
@@ -1031,7 +1031,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 5.3% below past low of $18.99",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "Our Brand Sockeye Fillet - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/YT/YTLOW.png",
       "is_category_best": false
@@ -1056,7 +1056,7 @@
       "badge": "NEW_ALL_TIME_LOW",
       "analysis": "\ud83c\udf1f New All-Time Low! 3.2% below past low of $31.48 \u2022 \u26a0\ufe0f Above Salmon category avg (+167%)",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "North Atlantic Fish Company Atlantic Salmon Fillet Family Pack Fresh - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/RT/RTMBP.png",
       "is_category_best": false
@@ -6654,7 +6654,7 @@
       "historical_avg": 5.0,
       "diff_pct_vs_avg": 0.0,
       "badge": "BEAT_AVERAGE",
-      "analysis": "\ud83d\udd25 First seen (66% below Water category avg of $0.62/pk) \u2022 [2 FOR $10.00]",
+      "analysis": "\ud83d\udd25 First seen (64% below Water category avg of $0.59/pk) \u2022 [2 FOR $10.00]",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $10.00",
       "raw_title": "Arizona Tea or Juice 12 Pack or Dasani Water 24 Pack - 2/ $10.00",
@@ -15129,7 +15129,7 @@
       "historical_avg": 4.5,
       "diff_pct_vs_avg": 0.0,
       "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $9.00] \u2022 \u26a0\ufe0f Above Water category avg (+20%)",
+      "analysis": "First time tracked in circular database \u2022 [2 FOR $9.00] \u2022 \u26a0\ufe0f Above Water category avg (+27%)",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $9.00",
       "raw_title": "Propel Fitness Water 6 Pack or Pure Life 24 Pack - 2/ $9.00",
@@ -20729,7 +20729,7 @@
       "historical_avg": 3.99,
       "diff_pct_vs_avg": 100.5,
       "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+100.5% vs avg $3.99) \u2022 [2 FOR $8.00] \u2022 \ud83d\udd25 63% below Water category avg",
+      "analysis": "\u26a0\ufe0f Higher than typical promo average (+100.5% vs avg $3.99) \u2022 [2 FOR $8.00] \u2022 \ud83d\udd25 61% below Water category avg",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $8.00",
       "raw_title": "Acadia Spring or Purified Water 35 Pack - 2/ $8.00 When you buy 2",
@@ -20956,7 +20956,7 @@
       "badge": "PRICE_HIKE",
       "analysis": "\u26a0\ufe0f Higher than typical promo average (+78.2% vs avg $7.29) \u2022 \u26a0\ufe0f Above Salmon category avg (+111%)",
       "promo_type": "dollar_off",
-      "promo_detail": "$2.00 OFF",
+      "promo_detail": "$2.00 OFF per lb",
       "raw_title": "Nature's Promise Farm Raised Atlantic Salmon Portions - 2 ct Fresh - $2.00 Off/lb.",
       "image_url": "https://i5.peapod.com/c/O0/O0O7Y.png",
       "is_category_best": false
