@@ -475,7 +475,7 @@ class DealAnalyzer:
             first_reason = f"First time tracked in circular database{promo_note}{cat_note}"
             if cat_min_unit is not None and cat_avg_unit is not None and unit_price is not None:
                 if unit_price <= (cat_min_unit + 0.005):
-                    first_badge = "ALL_TIME_LOW"
+                    first_badge = "NEW_ALL_TIME_LOW"
                     first_reason = f"🌟 First seen & Best {category} price! ${unit_price:.2f}/{unit_type} (lowest across all brands){promo_note}"
                 elif unit_price <= (cat_avg_unit * 0.85):
                     first_badge = "BEAT_AVERAGE"
@@ -554,18 +554,18 @@ class DealAnalyzer:
         elif is_contiguous_continuation:
             # Multi-week promotion continuation
             if current_price <= h_min and has_price_variation:
-                badge = "ALL_TIME_LOW"
+                badge = "MATCHES_ATL"
                 reason = f"🌟 Multi-week sale at All-Time Low (${h_min:.2f}){promo_note}{cat_note}"
             else:
                 badge = "CYCLE_REFRESH"
                 reason = f"🔄 Ongoing multi-week promotion (${current_price:.2f}){promo_note}{cat_note}"
         elif current_price < (h_min - 0.005):
-            badge = "ALL_TIME_LOW"
+            badge = "NEW_ALL_TIME_LOW"
             diff_min = ((current_price - h_min) / h_min) * 100.0
             reason = f"🌟 New All-Time Low! {abs(diff_min):.1f}% below past low of ${h_min:.2f}{promo_note}{cat_note}"
         elif abs(current_price - h_min) <= 0.005:
             if has_price_variation:
-                badge = "ALL_TIME_LOW"
+                badge = "MATCHES_ATL"
                 reason = f"🌟 Matches All-Time Low (${h_min:.2f}){promo_note}{cat_note}"
             else:
                 badge = "CYCLE_REFRESH"
@@ -643,7 +643,9 @@ class DealAnalyzer:
         # Prioritize 5-Point / Points Freebies, All-Time Lows, High-Yield Points Deals, Points Rewards, and Beat Average deals first
         priority_order = {
             "POINTS_FREEBIE": 0,
-            "ALL_TIME_LOW": 1,
+            "NEW_ALL_TIME_LOW": 1,
+            "MATCHES_ATL": 1.1,
+            "ALL_TIME_LOW": 1.2,
             "POINTS_DEAL": 2,
             "POINTS_REWARD": 3,
             "SPEND_SAVE": 4,

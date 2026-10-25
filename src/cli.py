@@ -76,7 +76,7 @@ def cmd_deals(args: argparse.Namespace) -> None:
         ]
 
     if args.atl_only:
-        evaluations = [e for e in evaluations if e.badge == "ALL_TIME_LOW"]
+        evaluations = [e for e in evaluations if e.badge in ("ALL_TIME_LOW", "NEW_ALL_TIME_LOW", "MATCHES_ATL")]
 
     if getattr(args, "cat_best_only", False):
         evaluations = [e for e in evaluations if getattr(e, "is_category_best", False)]

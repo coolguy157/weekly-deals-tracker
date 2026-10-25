@@ -105,7 +105,7 @@ class TestDealAnalyzer(unittest.TestCase):
         evaluations = self.analyzer.evaluate_flyer(103)
         self.assertEqual(len(evaluations), 1)
         ev = evaluations[0]
-        self.assertEqual(ev.badge, "ALL_TIME_LOW")
+        self.assertEqual(ev.badge, "NEW_ALL_TIME_LOW")
         self.assertEqual(ev.current_price, 2.99)
         self.assertEqual(ev.historical_min, 3.49)
         self.assertIn("New All-Time Low", ev.summary_reason)
@@ -379,7 +379,7 @@ class TestDealAnalyzer(unittest.TestCase):
         evals_w5 = self.analyzer.evaluate_flyer(305)
         yogurt_w5 = next(e for e in evals_w5 if "Yoplait" in e.canonical_name)
         # Because history has variation ($0.37 and $0.69), returning to $0.37 is a genuine Matches All-Time Low!
-        self.assertEqual(yogurt_w5.badge, "ALL_TIME_LOW")
+        self.assertEqual(yogurt_w5.badge, "MATCHES_ATL")
         self.assertIn("Matches All-Time Low", yogurt_w5.summary_reason)
 
     def test_tier3_cross_brand_commodity_benchmark(self):

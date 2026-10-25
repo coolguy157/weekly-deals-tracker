@@ -8,6 +8,8 @@ from typing import List, Optional, Dict, Any
 def format_badge_fixed(badge: str, width: int = 16) -> str:
     """Format deal badge with ANSI terminal color and fixed-width padding."""
     raw_labels = {
+        "NEW_ALL_TIME_LOW": "[🔥 NEW ATL]",
+        "MATCHES_ATL": "[⭐ MATCH ATL]",
         "ALL_TIME_LOW": "[* ALL-TIME LOW]",
         "POINTS_FREEBIE": "[🪙 FREEBIE]",
         "POINTS_DEAL": "[🪙 POINTS DEAL]",
@@ -26,6 +28,8 @@ def format_badge_fixed(badge: str, width: int = 16) -> str:
     padded = f"{raw:<{width}}"
 
     color_map = {
+        "NEW_ALL_TIME_LOW": "\033[91m",
+        "MATCHES_ATL": "\033[93m",
         "ALL_TIME_LOW": "\033[92m",
         "POINTS_FREEBIE": "\033[95m",
         "POINTS_DEAL": "\033[95m",
@@ -96,7 +100,7 @@ def format_compact_note(ev: Any) -> str:
             tags.append(f"⚠️ +{pct}% cat avg")
 
     # Historical price note
-    if ev.badge == "ALL_TIME_LOW":
+    if ev.badge in ("ALL_TIME_LOW", "NEW_ALL_TIME_LOW", "MATCHES_ATL"):
         if ev.historical_min and ev.current_price and ev.current_price < (ev.historical_min - 0.005):
             pct = round(((ev.historical_min - ev.current_price) / ev.historical_min) * 100)
             tags.append(f"🌟 -{pct}% ATL (was ${ev.historical_min:.2f})")
@@ -184,7 +188,7 @@ def render_smart_digest(
     """Render default 3-tier digest: Front Page + Inside Price Hikes & All-Time Lows / Category Bests."""
     front_page_deals = [e for e in evaluations if e.is_front_page]
     inside_hikes = [e for e in evaluations if not e.is_front_page and e.badge == "PRICE_HIKE"]
-    inside_atls = [e for e in evaluations if not e.is_front_page and (e.badge == "ALL_TIME_LOW" or getattr(e, "is_category_best", False))]
+    inside_atls = [e for e in evaluations if not e.is_front_page and (e.badge in ("ALL_TIME_LOW", "NEW_ALL_TIME_LOW", "MATCHES_ATL") or getattr(e, "is_category_best", False))]
 
     print(f"\n{'='*78}")
     print(f" 🛒 WEEKLY DEALS DIGEST (Flyer ID: {flyer_id})")
