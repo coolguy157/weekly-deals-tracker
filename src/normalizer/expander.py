@@ -210,60 +210,124 @@ def pre_expand_deal_string(name: str) -> str:
         flags=re.IGNORECASE,
     )
 
-    produce_nouns = r"Squash|Potato(?:es)?|Apple(?:s)?|Grape(?:s)?|Pear(?:s)?|Melon(?:s)?|Pepper(?:s)?|Onion(?:s)?|Tomato(?:es)?|Orange(?:s)?|Citrus|Peach(?:es)?|Plum(?:s)?|Berries|Berry"
-    variety_pat = r"(?:(?!or\b|and\b)[A-Za-z0-9']+(?:\s+(?!or\b|and\b)[A-Za-z0-9']+)*)"
-    known_produce_brands = {
-        "NatureSweet", "Driscoll's", "Sunkist", "Halo", "Cuties", "Dole",
-        "Chiquita", "Del Monte", "Bolthouse", "Bolthouse Farms", "Fresh Express", "Taylor Farms",
-    }
+    # -------------------------------------------------------------------------
+    # Generalized Right-Distribution: Shared Head Noun over Coordinated Modifiers
+    # [Prefix] M1, M2 or M3 <HeadNoun> [Size] -> Prefix M1 HeadNoun or ...
+    # [Prefix] M1 or M2 <HeadNoun> [Size] -> Prefix M1 HeadNoun or ...
+    # Replaces specialized helpers (_expand_cheese_list*, _expand_suffix_*, _expand_sausage_*, etc.)
+    # -------------------------------------------------------------------------
+    _COMMON_HEAD_NOUNS = (
+        r"Cheese|Cheddar|Mozzarella|Swiss|Provolone|Parmesan\s+Cheese|"
+        r"Squash|Potato(?:es)?|Apple(?:s)?|Grape(?:s)?|Pear(?:s)?|Melon(?:s)?|"
+        r"Pepper(?:s)?|Onion(?:s)?|Tomato(?:es)?|Orange(?:s)?|Citrus|Peach(?:es)?|Plum(?:s)?|"
+        r"Berries|Berry|Parfaits?|Tortillas?|Pizza\s+Crusts?|Crusts?|"
+        r"Bread|Buns|Rolls|Butter|Yogurt|Milk|Eggs|"
+        r"Sausage\s+(?:Links|Patties|Rolls)|Bacon"
+    )
+    _SIZE_SUFFIX = r"(?:\s+((?:(?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:oz|ounce|lb|pound|ct|count|pk|pack|qt|pt|gal)\.?))?"
+    _ALL_PREFIX_BRANDS = [
+        "Signature SELECT", "Signature Farms", "Lucerne", "O Organics", "Open Nature",
+        "Waterfront BISTRO", "Primo Taglio", "Nature's Promise", "Our Brand", "Giant",
+        "Martin's", "Taste of Inspirations", "Tillamook", "NatureSweet", "Driscoll's",
+        "Dole", "Banquet", "Perdue", "Tyson", "Oscar Mayer", "Hormel", "Jimmy Dean",
+    ]
 
-    # Expand produce suffix lists: "Acorn, Butternut or Spaghetti Squash" -> "Acorn Squash or Butternut Squash or Spaghetti Squash"
-    def _expand_suffix_list(m):
-        v1 = m.group(1).strip()
-        v2 = m.group(2).strip()
-        v3 = m.group(3).strip()
-        noun = m.group(4).strip()
-        return f"{v1} {noun} or {v2} {noun} or {v3} {noun}"
+    # Pre-pass: Coordinated 2-word prep adjectives over compound commodity noun phrases
+    # e.g. "Sliced or Whole White Mushrooms", "Our Brand Whole or Sliced Baby Bella Mushrooms", "Yogurt or Oatmeal parfaits"
+    def _expand_coord_prep_produce(m):
+        prefix = m.group(1).strip()
+        p_str = f"{prefix} " if prefix else ""
+        v1, v2, noun = m.group(2).strip(), m.group(3).strip(), m.group(4).strip()
+        return f"{p_str}{v1} {noun} or {p_str}{v2} {noun}"
 
     cleaned_name = re.sub(
-        rf"\b({variety_pat}),\s*({variety_pat})\s+or\s+({variety_pat})\s+({produce_nouns})\b",
-        _expand_suffix_list,
+        r"\b((?:(?!or\b|and\b)[A-Za-z0-9'\-]+\s+)??)([A-Za-z]+)\s+or\s+([A-Za-z]+)\s+((?:Baby\s+Bella\s+|White\s+|Portabella\s+|Button\s+)?(?:parfaits?|mushrooms?|crusts?|tortillas?))\b",
+        _expand_coord_prep_produce,
         cleaned_name,
         flags=re.IGNORECASE,
     )
 
-    # Expand 2-variety produce suffix pairs: "Fuji or Granny Smith Apples" -> "Fuji Apples or Granny Smith Apples"
-    known_produce_nouns = set("pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry".split())
+    # Generalized 3-item shared head noun expansion
+    known_head_noun_words = set(
+        "pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry cheese mushrooms parfait parfaits tortillas crust crusts bread buns rolls butter yogurt milk eggs bacon".split()
+    )
 
-    def _expand_suffix_pair(m):
-        v1 = m.group(1).strip()
-        v2 = m.group(2).strip()
-        noun = m.group(3).strip()
+    def _expand_shared_head_noun_trio(m):
+        prefix = m.group(1).strip()
+        v1, v2, v3, noun = m.group(2).strip(), m.group(3).strip(), m.group(4).strip(), m.group(5).strip()
+        size = m.group(6).strip() if m.group(6) else ""
+        s_str = f" {size}" if size else ""
+
+        if UNIT_PATTERN.search(v1) or UNIT_PATTERN.search(v2) or UNIT_PATTERN.search(v3):
+            return m.group(0)
+        if prefix:
+            p_last = prefix.strip().split()[-1].lower()
+            if p_last in known_head_noun_words or (p_last.endswith("s") and p_last[:-1] in known_head_noun_words):
+                return m.group(0)
+        for v in (v1, v2, v3):
+            v_last = v.split()[-1].lower() if v else ""
+            if v_last in known_head_noun_words or (v_last.endswith("s") and v_last[:-1] in known_head_noun_words):
+                return m.group(0)
+
+        p_brand = prefix
+        for b in _ALL_PREFIX_BRANDS:
+            if v1.lower().startswith(b.lower() + " "):
+                p_brand = b
+                v1 = v1[len(b):].strip()
+                break
+        p_str = f"{p_brand} " if p_brand else ""
+        return f"{p_str}{v1} {noun}{s_str} or {p_str}{v2} {noun}{s_str} or {p_str}{v3} {noun}{s_str}"
+
+    var_token_3 = r"(?:(?!or\b|and\b)[A-Za-z0-9'\-]+(?:\s+(?!or\b|and\b)[A-Za-z0-9'\-]+)?)"
+    cleaned_name = re.sub(
+        rf"\b((?:(?!or\b|and\b)[A-Za-z0-9'\-]+\s+)??)({var_token_3}),\s*({var_token_3})\s+or\s+({var_token_3})\s+({_COMMON_HEAD_NOUNS}){_SIZE_SUFFIX}\b",
+        _expand_shared_head_noun_trio,
+        cleaned_name,
+        flags=re.IGNORECASE,
+    )
+
+    # Generalized 2-item shared head noun expansion
+    def _expand_shared_head_noun_pair(m):
+        prefix = m.group(1).strip()
+        v1, v2, noun = m.group(2).strip(), m.group(3).strip(), m.group(4).strip()
+        size = m.group(5).strip() if m.group(5) else ""
+        s_str = f" {size}" if size else ""
+
+        if UNIT_PATTERN.search(v1) or UNIT_PATTERN.search(v2):
+            return m.group(0)
+        if prefix:
+            p_last = prefix.strip().split()[-1].lower()
+            if p_last in known_head_noun_words or (p_last.endswith("s") and p_last[:-1] in known_head_noun_words):
+                return m.group(0)
+
         v1_last = v1.split()[-1].lower() if v1 else ""
-        if v1_last in known_produce_nouns or (v1_last.endswith("s") and v1_last[:-1] in known_produce_nouns):
+        if v1_last in known_head_noun_words or (v1_last.endswith("s") and v1_last[:-1] in known_head_noun_words):
             return m.group(0)
         v2_last = v2.split()[-1].lower() if v2 else ""
-        if v2_last in known_produce_nouns or (v2_last.endswith("s") and v2_last[:-1] in known_produce_nouns):
+        if v2_last in known_head_noun_words or (v2_last.endswith("s") and v2_last[:-1] in known_head_noun_words):
             return m.group(0)
 
-        # If v1 starts with a known brand or store brand and v2 does not, propagate brand prefix to v2
-        all_produce_brands = list(known_produce_brands) + ["Our Brand", "Signature SELECT", "Signature Farms", "O Organics", "Open Nature", "Giant", "Martin's"]
-        for b in all_produce_brands:
-            if v1.lower().startswith(b.lower()) and not v2.lower().startswith(b.lower()):
-                remainder = v1[len(b):].strip()
-                rem_words = remainder.split()
-                if len(rem_words) > 1:
-                    adj = " ".join(rem_words[:-1])
-                    v2 = f"{b} {adj} {v2}"
-                else:
-                    v2 = f"{b} {v2}"
+        # Propagate brand/prefix to v2 if v1 starts with brand and v2 does not
+        p_brand = prefix
+        for b in _ALL_PREFIX_BRANDS:
+            if (prefix.lower().startswith(b.lower()) or v1.lower().startswith(b.lower())) and not v2.lower().startswith(b.lower()):
+                p_brand = b
+                if v1.lower().startswith(b.lower()):
+                    rem = v1[len(b):].strip()
+                    rem_w = rem.split()
+                    v1 = " ".join(rem_w)
+                    if len(rem_w) > 1:
+                        adj = " ".join(rem_w[:-1])
+                        v2 = f"{adj} {v2}".strip()
                 break
 
-        return f"{v1} {noun} or {v2} {noun}"
+        p_str = f"{p_brand} " if p_brand else ""
+        return f"{p_str}{v1} {noun}{s_str} or {p_str}{v2} {noun}{s_str}"
 
+    var_token_2 = r"(?:(?!or\b|and\b)[A-Za-z0-9'\-]+(?:\s+(?!or\b|and\b)[A-Za-z0-9'\-]+)?)"
     cleaned_name = re.sub(
-        rf"\b({variety_pat})\s+or\s+({variety_pat})\s+({produce_nouns})\b",
-        _expand_suffix_pair,
+        rf"\b((?:(?!or\b|and\b)[A-Za-z0-9'\-]+\s+)??)({var_token_2})\s+or\s+({var_token_2})\s+({_COMMON_HEAD_NOUNS}){_SIZE_SUFFIX}\b",
+        _expand_shared_head_noun_pair,
         cleaned_name,
         flags=re.IGNORECASE,
     )
@@ -272,54 +336,6 @@ def pre_expand_deal_string(name: str) -> str:
     cleaned_name = re.sub(
         r"\b([A-Za-z0-9'\s]+?\b)\s+((?:\d+(?:\.\d+)?|\.\d+)\s*(?:lb|oz|ct|count|pk|pack|qt|pt|gal)\.?)\s+or\s+((?:\d+(?:\.\d+)?|\.\d+)\s*(?:lb|oz|ct|count|pk|pack|qt|pt|gal)\.?)\b",
         r"\1 \2 or \1 \3",
-        cleaned_name,
-        flags=re.IGNORECASE,
-    )
-
-    # Expand 2-word coordinated adjective/noun prefixes with optional brand/prefix:
-    # e.g. "Our Brand Whole or Sliced Baby Bella Mushrooms" -> "Our Brand Whole Baby Bella Mushrooms or Our Brand Sliced Baby Bella Mushrooms"
-    # or "Sliced or Whole White Mushrooms", "Yogurt or Oatmeal parfaits"
-    def _expand_coord_prep_produce(m):
-        prefix = m.group(1).strip()
-        p_str = f"{prefix} " if prefix else ""
-        v1 = m.group(2).strip()
-        v2 = m.group(3).strip()
-        noun = m.group(4).strip()
-        return f"{p_str}{v1} {noun} or {p_str}{v2} {noun}"
-
-    cleaned_name = re.sub(
-        r"\b((?:[A-Za-z0-9'\s]+\s+)?)([A-Za-z]+)\s+or\s+([A-Za-z]+)\s+((?:Baby\s+Bella\s+|White\s+|Portabella\s+|Button\s+)?(?:parfaits?|mushrooms?|crusts?|tortillas?|tomatoes?|carrots?))\b",
-        _expand_coord_prep_produce,
-        cleaned_name,
-        flags=re.IGNORECASE,
-    )
-
-    # Expand sausage cut coordination: "Banquet Sausage Links or Patties"
-    def _expand_sausage_cuts(m):
-        prefix = m.group(1).strip()
-        c1 = m.group(2).strip()
-        c2 = m.group(3).strip()
-        return f"{prefix} {c1} or {prefix} {c2}"
-
-    cleaned_name = re.sub(
-        r"\b((?:[A-Za-z0-9'\s]+\s+)?Sausage)\s+(Links|Patties|Rolls)\s+or\s+(Links|Patties|Rolls)\b",
-        _expand_sausage_cuts,
-        cleaned_name,
-        flags=re.IGNORECASE,
-    )
-
-    # Expand potato cut/variety coordination: "Our Brand Microwavable Russet or Sweet Potato"
-    def _expand_potato_pair(m):
-        prefix = m.group(1).strip()
-        p_str = f"{prefix} " if prefix else ""
-        v1 = m.group(2).strip()
-        v2 = m.group(3).strip()
-        noun = m.group(4).strip()
-        return f"{p_str}{v1} {noun} or {p_str}{v2} {noun}"
-
-    cleaned_name = re.sub(
-        r"\b((?:[A-Za-z0-9'\s]+\s+)?)(Russet|Sweet|Baking|Gold|Red|Yellow)\s+or\s+(Russet|Sweet|Baking|Gold|Red|Yellow)\s+(Potatoes?)\b",
-        _expand_potato_pair,
         cleaned_name,
         flags=re.IGNORECASE,
     )
@@ -347,38 +363,6 @@ def pre_expand_deal_string(name: str) -> str:
     cleaned_name = re.sub(
         r"\b((?:[A-Za-z0-9'\s]+\s+)?)(Chunk|Shredded|Sliced|String|Block)\s+Cheese\s+(Chunk|Shredded|Sliced|String|Block)\s+Cheese\s+((?:(?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:oz|ounce|lb|pound|ct|count|pk|pack))\b",
         r"\1\2 Cheese \4 or \1\3 Cheese \4",
-        cleaned_name,
-        flags=re.IGNORECASE,
-    )
-
-    # Expand coordinated 3-item cheese lists: "Lucerne Chunk, Shredded or Sliced Cheese 24-32 oz" or without size
-    def _expand_cheese_list3(m):
-        prefix = m.group(1).strip()
-        p_str = f"{prefix} " if prefix else ""
-        v1, v2, v3 = m.group(2).strip(), m.group(3).strip(), m.group(4).strip()
-        size = m.group(5).strip() if m.group(5) else ""
-        s_str = f" {size}" if size else ""
-        return f"{p_str}{v1} Cheese{s_str} or {p_str}{v2} Cheese{s_str} or {p_str}{v3} Cheese{s_str}"
-
-    cleaned_name = re.sub(
-        r"\b((?:[A-Za-z0-9'\s]+\s+)?)(Chunk|Shredded|Sliced|String|Block),\s*(Chunk|Shredded|Sliced|String|Block)\s+or\s+(Chunk|Shredded|Sliced|String|Block)\s+Cheese(?:\s+((?:(?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:oz|ounce|lb|pound|ct|count|pk|pack)))?\b",
-        _expand_cheese_list3,
-        cleaned_name,
-        flags=re.IGNORECASE,
-    )
-
-    # Expand coordinated 2-item cheese lists: "Lucerne Shredded or Sliced Cheese 24-32 oz" or "Our Brand Shredded or Chunk Cheese"
-    def _expand_cheese_list2(m):
-        prefix = m.group(1).strip()
-        p_str = f"{prefix} " if prefix else ""
-        v1, v2 = m.group(2).strip(), m.group(3).strip()
-        size = m.group(4).strip() if m.group(4) else ""
-        s_str = f" {size}" if size else ""
-        return f"{p_str}{v1} Cheese{s_str} or {p_str}{v2} Cheese{s_str}"
-
-    cleaned_name = re.sub(
-        r"\b((?:[A-Za-z0-9'\s]+\s+)?)(Chunk|Shredded|Sliced|String|Block)\s+or\s+(Chunk|Shredded|Sliced|String|Block)\s+Cheese(?:\s+((?:(?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:oz|ounce|lb|pound|ct|count|pk|pack)))?\b",
-        _expand_cheese_list2,
         cleaned_name,
         flags=re.IGNORECASE,
     )
