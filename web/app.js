@@ -331,7 +331,10 @@
     if (brands.includes("Martin's Snacks") && brands.includes("Nature's Own")) {
       return "Martin's Snacks & Nature's Own • Chips, Popcorn & Bread";
     }
-    if (brands.includes('Fresh Seafood') || brands.includes('Hannaford') || names.some(n => /fillet|swai|cod|whiting/i.test(n))) {
+    const hasSeafood = brands.includes('Fresh Seafood') || brands.includes('Hannaford') ||
+      names.some(n => /fish|seafood|salmon|shrimp|tilapia|swordfish|tuna|haddock|swai|cod|whiting|flounder/i.test(n)) ||
+      (names.some(n => /fillet|filet/i.test(n)) && !names.some(n => /pork|beef|chicken|turkey|steak|chop|loin/i.test(n)));
+    if (hasSeafood) {
       return 'Fresh & Frozen Seafood Fillets';
     }
 

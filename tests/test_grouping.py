@@ -53,7 +53,13 @@ def synthesize_group_title(items):
         return "Floral • Carnations & Mums (Colors May Vary)"
     if "Martin's Snacks" in brands and "Nature's Own" in brands:
         return "Martin's Snacks & Nature's Own • Chips, Popcorn & Bread"
-    if "Fresh Seafood" in brands or "Hannaford" in brands or any(re.search(r"fillet|swai|cod|whiting", n, re.I) for n in names):
+    has_seafood = (
+        "Fresh Seafood" in brands
+        or "Hannaford" in brands
+        or any(re.search(r"fish|seafood|salmon|shrimp|tilapia|swordfish|tuna|haddock|swai|cod|whiting|flounder", n, re.I) for n in names)
+        or (any(re.search(r"fillet|filet", n, re.I) for n in names) and not any(re.search(r"pork|beef|chicken|turkey|steak|chop|loin", n, re.I) for n in names))
+    )
+    if has_seafood:
         return "Fresh & Frozen Seafood Fillets"
 
     # Common grocery product types
@@ -195,6 +201,27 @@ class TestGroupingLogic(unittest.TestCase):
         ]
         title = synthesize_group_title(baking_items)
         self.assertEqual(title, "Duncan Hines & PAM • Cake Mixes, Frosting & Baking Spray")
+
+    def test_pork_loin_fillet_not_labeled_as_seafood(self):
+        pork_items = [
+            {"name": "St. Louis Style Pork Spareribs Frozen", "brand": "USDA Meat", "price": 6.86},
+            {"name": "Our Brand Teriyaki Seasoned Marinated Pork Tenderloin", "brand": "Our Brand", "price": 4.37},
+            {"name": "Taste of Inspirations Garlic Truffle Flavored Pork Tenderloin", "brand": "Taste of Inspirations", "price": 4.37},
+            {"name": "Our Brand Hickory & Brown Sugar BBQ Marinated Pork Tenderloin", "brand": "Our Brand", "price": 4.83},
+            {"name": "Our Brand Garlic Rosemary & Thyme Marinated Pork Loin Fillet", "brand": "Our Brand", "price": 5.62},
+            {"name": "Our Brand Tri-Colored Pepper Marinated Pork Loin Fillet", "brand": "Our Brand", "price": 7.49},
+        ]
+        title = synthesize_group_title(pork_items)
+        self.assertNotIn("Seafood", title)
+        self.assertIn("Pork", title)
+
+        seafood_items = [
+            {"name": "Nature's Promise Farm Raised Tilapia Fillets Fresh", "brand": "Nature's Promise", "price": 6.99},
+            {"name": "Our Brand Farm Raised Skin-On Salmon Fillet Fresh", "brand": "Our Brand", "price": 10.99},
+            {"name": "Our Brand Wild Caught Cod Fillet Previously Frozen", "brand": "Our Brand", "price": 12.49},
+        ]
+        seafood_title = synthesize_group_title(seafood_items)
+        self.assertEqual(seafood_title, "Fresh & Frozen Seafood Fillets")
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ SPLIT_PATTERN = re.compile(r"\s+or\s+|\s*,\s*(?=[A-Z0-9])", re.IGNORECASE)
 
 # Coordinated meat/poultry cut patterns where a shared prefix/suffix applies to both
 COORD_PATTERN = re.compile(
-    r"^(.*?)\b(Breasts|Thighs|Drumsticks|Wings|Pork Chops|Pork Loin Chops|Pork Spare Ribs|Whole Chickens)\s+or\s+(Breasts|Thighs|Drumsticks|Wings|Pork Chops|Pork Loin Chops|Pork Spare Ribs|Whole Chickens)\b(.*)$",
+    r"^(.*?)\b(Breasts|Thighs|Drumsticks|Wings|Tenders|Tenderloins|Pork Chops|Pork Loin Chops|Pork Spare Ribs|Whole Chickens)\s+or\s+(Breasts|Thighs|Drumsticks|Wings|Tenders|Tenderloins|Pork Chops|Pork Loin Chops|Pork Spare Ribs|Whole Chickens)\b(.*)$",
     re.IGNORECASE,
 )
 

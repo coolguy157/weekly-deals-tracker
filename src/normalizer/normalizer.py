@@ -42,6 +42,30 @@ class ProductNormalizer:
     PACKAGING_SALES_PATTERNS = PACKAGING_SALES_PATTERNS
     DISCARD_CHUNK_PATTERN = DISCARD_CHUNK_PATTERN
     COMMODITY_PATTERNS = COMMODITY_PATTERNS
+    NATIONAL_BRANDS = [
+        "McCormick", "Kraft", "Pillsbury", "Ro-Tel", "Libby's", "Bush's", "Mission",
+        "Fage", "Horizon", "Daisy", "Philadelphia", "Lays", "Lay's", "Cheetos", "Ruffles",
+        "Doritos", "Tostitos", "Smartfood", "Frito Lay", "Utz", "Planters",
+        "Coca-Cola", "Pepsi", "Gatorade", "Propel", "Budweiser", "Bud",
+        "Shiner", "Corona", "Modelo", "Dos Equis", "Decoy", "Conundrum",
+        "Kendall-Jackson", "Josh Cellars", "Josh", "La Crema", "Meiomi", "Kim Crawford",
+        "Chateau Ste. Michelle", "Bogle", "Robert Mondavi", "Barefoot", "Woodbridge",
+        "Sutter Home", "Yellow Tail", "Cupcake", "Stella Rosa", "14 Hands", "Headsnapper",
+        "Andre", "Firefly Ridge", "Menage A Trois", "Ménage à Trois", "Chloe", "Nobilo", "Rold Gold",
+        "Miss Vickie's", "Soleil", "Snapple", "Poppi", "Ozarka", "Sunny Delight",
+        "Premier Protein", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
+        "Tina's", "Yoplait", "Chobani", "Dannon", "Oikos", "Tillamook",
+        "Quaker", "Cap'n Crunch", "Life", "Campbell's", "Chef Boyardee", "Barilla",
+        "Dole", "Bolthouse", "Bolthouse Farms", "NatureSweet", "Fresh Express", "Taylor Farms",
+        "Earthbound Farm", "Organic Girl", "Green Giant", "Birds Eye",
+        "Driscoll's", "Sunkist", "Halo", "Cuties", "Chiquita", "Del Monte",
+        "Stouffer's", "Lean Cuisine", "Perdue", "Tyson", "Oscar Mayer",
+        "Hormel", "Eckrich", "Johnsonville", "Smithfield", "Farmland", "Aidells", "Hatfield", "Butterball", "Jennie-O",
+        "Sugardale", "Jimmy Dean", "Hillshire Farm", "Applegate", "Hebrew National", "Ball Park", "Nathan's",
+        "General Mills", "Kellogg's", "Post", "Sargento", "Cabot", "Hidden Valley", "Ken's",
+        "Ken's Steak House", "Marzetti", "Newman's Own", "Wish-Bone", "Heinz", "French's",
+        "Hellmann's", "Best Foods",
+    ]
 
     def infer_category(self, text: str) -> Optional[str]:
         return infer_category(text)
@@ -80,12 +104,18 @@ class ProductNormalizer:
         # If brand field contains multiple brands joined by '|', split and normalize them
         item_brands = [self.normalize_text(b) for b in (item.brand or "").split("|") if self.normalize_text(b)]
 
-        # Check if deal starts with a known store brand
-        initial_store_brand = None
+        # Check if deal starts with a known store brand or national brand
+        initial_brand = None
         for sb in self.STORE_BRANDS:
             if raw_name.lower().startswith(sb.lower()):
-                initial_store_brand = sb
+                initial_brand = sb
                 break
+        if not initial_brand:
+            for nb in self.NATIONAL_BRANDS:
+                if raw_name.lower().startswith(nb.lower()):
+                    initial_brand = nb
+                    break
+        initial_store_brand = initial_brand if initial_brand in self.STORE_BRANDS else None
 
         # Remove comma between coupled descriptive adjectives (e.g. "Boneless, Skinless" -> "Boneless Skinless")
         pre_split_name = re.sub(
@@ -136,6 +166,10 @@ class ProductNormalizer:
 
         normalized_deals: List[NormalizedDeal] = []
 
+        # Mix & Match "5 for $5" collage detection across the entire item
+        staples_5for5 = ("kraft", "maruchan", "michelina", "idahoan", "bowl", "crest", "banquet", "snack pack", "chef boyardee", "ragu")
+        is_5_for_5 = bool(item.price == 5.0 and sum(1 for s in staples_5for5 if s in item.name.lower()) >= 4)
+
         for idx, sub_name in enumerate(sub_items):
             size, unit = self.extract_unit_info(sub_name)
             size_from_desc = False
@@ -144,6 +178,10 @@ class ProductNormalizer:
                 if desc_size is not None:
                     size, unit = desc_size, desc_unit
                     size_from_desc = True
+            if size is None and getattr(item, "post_price_text", None):
+                post_size, post_unit = self.extract_unit_info(item.post_price_text)
+                if post_size is not None:
+                    size, unit = post_size, post_unit
 
             # Match brand:
             # 1. Look for known item_brands or store brands within sub_name
@@ -161,42 +199,20 @@ class ProductNormalizer:
 
             # Check common national brand keywords if not found
             if not brand:
-                for nb in [
-                    "McCormick", "Kraft", "Pillsbury", "Ro-Tel", "Libby's", "Bush's", "Mission",
-                    "Fage", "Horizon", "Daisy", "Philadelphia", "Lays", "Lay's", "Cheetos", "Ruffles",
-                    "Doritos", "Tostitos", "Smartfood", "Frito Lay", "Utz", "Planters",
-                    "Coca-Cola", "Pepsi", "Gatorade", "Propel", "Budweiser", "Bud",
-                    "Shiner", "Corona", "Modelo", "Dos Equis", "Decoy", "Conundrum",
-                    "Kendall-Jackson", "Josh Cellars", "Josh", "La Crema", "Meiomi", "Kim Crawford",
-                    "Chateau Ste. Michelle", "Bogle", "Robert Mondavi", "Barefoot", "Woodbridge",
-                    "Sutter Home", "Yellow Tail", "Cupcake", "Stella Rosa", "14 Hands", "Headsnapper",
-                    "Andre", "Firefly Ridge", "Menage A Trois", "Ménage à Trois", "Chloe", "Nobilo", "Rold Gold",
-                    "Miss Vickie's", "Soleil", "Snapple", "Poppi", "Ozarka", "Sunny Delight",
-                    "Premier Protein", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
-                    "Tina's", "Yoplait", "Chobani", "Dannon", "Oikos", "Tillamook",
-                    "Quaker", "Cap'n Crunch", "Life", "Campbell's", "Chef Boyardee", "Barilla",
-                    "Dole", "Bolthouse", "Bolthouse Farms", "NatureSweet", "Fresh Express", "Taylor Farms",
-                    "Earthbound Farm", "Organic Girl", "Green Giant", "Birds Eye",
-                    "Driscoll's", "Sunkist", "Halo", "Cuties", "Chiquita", "Del Monte",
-                    "Stouffer's", "Lean Cuisine", "Perdue", "Tyson", "Oscar Mayer",
-                    "Sugardale", "Jimmy Dean", "Hillshire Farm", "Applegate", "Hebrew National", "Ball Park", "Nathan's",
-                    "General Mills", "Kellogg's", "Post", "Sargento", "Cabot", "Hidden Valley", "Ken's",
-                    "Ken's Steak House", "Marzetti", "Newman's Own", "Wish-Bone", "Heinz", "French's",
-                    "Hellmann's", "Best Foods",
-                ]:
+                for nb in self.NATIONAL_BRANDS:
                     if re.search(r"\b" + re.escape(nb) + r"\b", sub_name, re.IGNORECASE):
                         brand = nb
                         break
 
-            # 2. Inherit initial store brand if deal started with it and no other explicit brand in sub_name
-            if not brand and initial_store_brand:
+            # 2. Inherit initial brand if deal started with it and no other explicit brand in sub_name
+            if not brand and initial_brand and not is_5_for_5:
                 other_brand_in_sub = any(
                     re.search(r"\b" + re.escape(b) + r"\b", sub_name, re.IGNORECASE)
                     for b in item_brands
-                    if b.lower() != initial_store_brand.lower()
+                    if b.lower() != initial_brand.lower()
                 )
                 if not other_brand_in_sub:
-                    brand = initial_store_brand
+                    brand = initial_brand
 
             # 3. If still not found and only 1 item_brand available, assign it
             if not brand and len(item_brands) == 1:
@@ -229,6 +245,25 @@ class ProductNormalizer:
             if size_from_desc and size and unit:
                 size_str = int(size) if size.is_integer() else size
                 canonical = f"{canonical} {size_str} {unit}"
+            if not is_5_for_5 and brand and brand.lower() not in canonical.lower() and not initial_store_brand:
+                canonical = f"{brand} {canonical}"
+
+            if is_5_for_5:
+                collage_canonical_map = {
+                    "kraft": ("Kraft Macaroni & Cheese", "Kraft"),
+                    "maruchan": ("Maruchan Yakisoba or Ramen", "Maruchan"),
+                    "michelina's": ("Michelina's Entree", "Michelina's"),
+                    "idahoan": ("Idahoan Mashed Potatoes", "Idahoan"),
+                    "bowl": ("Maruchan Ramen Bowl", "Maruchan"),
+                    "crest": ("Crest Toothpaste", "Crest"),
+                    "banquet": ("Banquet Pot Pies", "Banquet"),
+                    "snack pack": ("Snack Pack Pudding", "Snack Pack"),
+                    "chef boyardee": ("Chef Boyardee Canned Pasta", "Chef Boyardee"),
+                    "ragu": ("Ragu Pasta Sauce", "Ragu"),
+                }
+                c_key = sub_name.lower().strip()
+                if c_key in collage_canonical_map:
+                    canonical, brand = collage_canonical_map[c_key]
 
             # Standardize Cheap Chicken Monday deli promotion
             if re.search(r"\bcheap\s+chicken\b", canonical, re.IGNORECASE):
@@ -274,27 +309,6 @@ class ProductNormalizer:
 
             canonical = self.clean_sales_notes(canonical)
             canonical = " ".join(canonical.split()).strip(" ,.-")
-
-            # Mix & Match "5 for $5" collage detection:
-            is_5_for_5 = False
-            staples_5for5 = ("kraft", "maruchan", "michelina", "idahoan", "bowl", "crest", "banquet", "snack pack", "chef boyardee", "ragu")
-            if item.price == 5.0 and sum(1 for s in staples_5for5 if s in item.name.lower()) >= 4:
-                is_5_for_5 = True
-                collage_canonical_map = {
-                    "kraft": ("Kraft Macaroni & Cheese", "Kraft"),
-                    "maruchan": ("Maruchan Yakisoba or Ramen", "Maruchan"),
-                    "michelina's": ("Michelina's Entree", "Michelina's"),
-                    "idahoan": ("Idahoan Mashed Potatoes", "Idahoan"),
-                    "bowl": ("Maruchan Ramen Bowl", "Maruchan"),
-                    "crest": ("Crest Toothpaste", "Crest"),
-                    "banquet": ("Banquet Pot Pies", "Banquet"),
-                    "snack pack": ("Snack Pack Pudding", "Snack Pack"),
-                    "chef boyardee": ("Chef Boyardee Canned Pasta", "Chef Boyardee"),
-                    "ragu": ("Ragu Pasta Sauce", "Ragu"),
-                }
-                c_key = canonical.lower().strip()
-                if c_key in collage_canonical_map:
-                    canonical, brand = collage_canonical_map[c_key]
 
             # Disambiguate Lay's Baked
             if canonical.lower().startswith("baked ") and any("lay" in b.lower() for b in item_brands + [brand or "", item.name]):
@@ -364,7 +378,7 @@ class ProductNormalizer:
                 )
                 if (
                     brand in deli_brands
-                    or re.search(r"\b(?:per\s+lb|sold\s+by\s+the\s+lb|/lb|\$?\d+(?:\.\d+)?\s*/?\s*lb)\b", full_item_text, re.IGNORECASE)
+                    or re.search(r"(?:per\s+lb|sold\s+by\s+the\s+lb|/\s*lb|\$?\d+(?:\.\d+)?\s*/?\s*lb\b)", full_item_text, re.IGNORECASE)
                     or is_fresh_meat_cut
                 ):
                     size = 1.0

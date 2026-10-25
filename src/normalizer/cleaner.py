@@ -7,6 +7,7 @@ from typing import List, Set
 import re
 
 CLEAN_SYMBOLS = re.compile(r"[®™©]")
+UNICODE_DASHES = re.compile(r"[\u2010\u2011\u2012\u2013\u2014]")
 
 STORE_BRANDS: List[str] = [
     "Signature SELECT",
@@ -82,8 +83,10 @@ DISCARD_CHUNK_PATTERN = re.compile(
 
 
 def normalize_text(text: str) -> str:
-    """Strip special symbols and extra whitespace."""
-    cleaned = CLEAN_SYMBOLS.sub("", text)
+    """Strip special symbols, normalize unicode dashes, and extra whitespace."""
+    cleaned = UNICODE_DASHES.sub("-", text)
+    cleaned = cleaned.replace("\u00a0", " ")
+    cleaned = CLEAN_SYMBOLS.sub("", cleaned)
     return " ".join(cleaned.split()).strip()
 
 

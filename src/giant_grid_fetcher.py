@@ -12,10 +12,12 @@ import logging
 from typing import List, Tuple, Optional, Dict, Any
 from playwright.sync_api import sync_playwright
 
-from .fetcher import FlyerMetadata
+from .fetcher import FlyerMetadata, FlyerItem
 from .normalizer.models import NormalizedDeal
 from .normalizer.units import extract_unit_info
-from .normalizer.categories import infer_department
+from .normalizer.categories import infer_category, infer_department
+from .normalizer.cleaner import normalize_text
+from .normalizer.normalizer import ProductNormalizer
 from .promo_extractor import PromoExtractor, PromoInfo
 
 logger = logging.getLogger(__name__)
@@ -43,6 +45,8 @@ class GiantGridFetcher:
             self.headless = True
         else:
             self.headless = headless
+
+        self.normalizer = ProductNormalizer()
 
     def fetch_circular_deals(
         self,
@@ -236,7 +240,8 @@ class GiantGridFetcher:
                     products = det_res.get("products", []) if det_res else []
                     if products:
                         for p_idx, prod in enumerate(products):
-                            prod_name = (prod.get("name") or name).strip()
+                            raw_pname = (prod.get("name") or name).strip()
+                            prod_name = normalize_text(raw_pname)
                             prod_brand = prod.get("brand")
                             reg_price = prod.get("regularPrice") or prod.get("price") or 0.0
                             size_str = prod.get("size", "")
@@ -270,6 +275,8 @@ class GiantGridFetcher:
                             p_detail = promo_info.promo_detail if promo_info else sales_text
                             q_qty = promo_info.qualifying_qty if promo_info else 1
 
+                            cat = infer_category(prod_name) or category_name or prod.get("rootCatName")
+
                             normalized_deals.append(
                                 NormalizedDeal(
                                     raw_deal_id=deal_id,
@@ -287,7 +294,7 @@ class GiantGridFetcher:
                                     promo_type=p_type,
                                     is_trusted=True,
                                     source_type="giant_grid_api",
-                                    category=category_name or prod.get("rootCatName"),
+                                    category=cat,
                                     promo_detail=p_detail,
                                     qualifying_qty=q_qty,
                                     base_price=reg_price if reg_price > 0 else None,
@@ -295,64 +302,42 @@ class GiantGridFetcher:
                             )
                         continue
 
-                # Standard or priced bundle deals
+                # Standard or priced bundle deals: Route through ProductNormalizer for disaggregation,
+                # unit detection, coordinate expansion, and category inference.
+                clean_item_name = normalize_text(name)
                 adv_price = float(direct_price) if (direct_price is not None and direct_price != "") else None
-                
-                # Check for X for $Y or other mechanics
                 if promo_info:
                     eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=adv_price)
                     if eff_price is not None:
                         adv_price = eff_price
-                    promo_type = promo_info.promo_type
-                    qualifying_qty = promo_info.qualifying_qty
-                    promo_detail = promo_info.promo_detail
-                else:
-                    promo_type = "standard"
-                    qualifying_qty = 1
-                    promo_detail = sales_text
+                if adv_price is None and sales_text:
+                    m = re.search(r"\$(\d+(?:\.\d{2})?)", sales_text)
+                    if m:
+                        adv_price = float(m.group(1))
 
-                # Parse unit size and count from name or description
-                size_candidate = f"{name} {desc}".strip()
-                unit_size, unit_type = extract_unit_info(size_candidate)
-                unit_price = round(adv_price / unit_size, 4) if (adv_price and unit_size and unit_size > 0) else None
-
-                # Disambiguate canonical name if pack size was in description but missing from name
-                canonical_name = name
-                if unit_size and unit_type and not extract_unit_info(name)[0]:
-                    size_label = int(unit_size) if unit_size.is_integer() else unit_size
-                    canonical_name = f"{name} {size_label} {unit_type}"
-
-                brand = item.get("brand")
-                if not brand:
-                    from .normalizer.normalizer import ProductNormalizer
-                    for sb in ProductNormalizer.STORE_BRANDS:
-                        if sb.lower() in name.lower():
-                            brand = sb
-                            break
-
-                normalized_deals.append(
-                    NormalizedDeal(
-                        raw_deal_id=ad_id,
-                        flyer_id=flyer_id,
-                        page_number=page_num,
-                        is_front_page=is_front,
-                        canonical_name=canonical_name,
-                        brand=brand,
-                        advertised_price=adv_price,
-                        unit_size=unit_size,
-                        unit_type=unit_type,
-                        unit_price=unit_price,
-                        raw_title=f"{name} - {sales_text}",
-                        image_url=image_url,
-                        promo_type=promo_type,
-                        is_trusted=True,
-                        source_type="giant_grid_api",
-                        category=category_name,
-                        promo_detail=promo_detail,
-                        qualifying_qty=qualifying_qty,
-                        base_price=None,
-                    )
+                flyer_item = FlyerItem(
+                    id=ad_id,
+                    flyer_id=flyer_id,
+                    name=clean_item_name,
+                    price=adv_price,
+                    original_price=None,
+                    pre_price_text=sales_text,
+                    post_price_text=desc,
+                    description=desc,
+                    brand=item.get("brand"),
+                    page_number=page_num,
+                    is_front_page=is_front,
+                    cutout_image_url=image_url,
+                    clean_image_url=image_url,
                 )
+
+                norm_items = self.normalizer.disaggregate_and_normalize(flyer_item)
+                for norm_item in norm_items:
+                    norm_item.source_type = "giant_grid_api"
+                    norm_item.is_trusted = True
+                    if not norm_item.category and category_name:
+                        norm_item.category = category_name
+                    normalized_deals.append(norm_item)
 
             context.close()
             return flyer_meta, normalized_deals
