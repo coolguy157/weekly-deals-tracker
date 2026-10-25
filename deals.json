@@ -8,11 +8,11 @@
     "valid_to": "2026-10-30T23:59:59-04:00",
     "scraped_at": "2026-10-24 19:01:57"
   },
-  "updated_at": "2026-10-25T01:05:24.004322",
-  "total_deals": 841,
+  "updated_at": "2026-10-25T01:22:48.369280",
+  "total_deals": 840,
   "deals": [
     {
-      "deal_id": 290798,
+      "deal_id": 295173,
       "product_id": 31908,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -37,7 +37,7 @@
       "is_category_best": true
     },
     {
-      "deal_id": 290768,
+      "deal_id": 295143,
       "product_id": 8703,
       "ad_id": "1047823617",
       "raw_deal_id": 1047823617,
@@ -62,7 +62,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290837,
+      "deal_id": 295212,
       "product_id": 8715,
       "ad_id": "1047824243",
       "raw_deal_id": 1047824243,
@@ -112,7 +112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 287134,
+      "deal_id": 291509,
       "product_id": 2985,
       "ad_id": "1047825771",
       "raw_deal_id": 1047825771,
@@ -137,7 +137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290808,
+      "deal_id": 295183,
       "product_id": 795,
       "ad_id": "1049887854",
       "raw_deal_id": 1049887854,
@@ -337,7 +337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291010,
+      "deal_id": 295385,
       "product_id": 33177,
       "ad_id": "1047825756",
       "raw_deal_id": 1047825756,
@@ -362,7 +362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291011,
+      "deal_id": 295386,
       "product_id": 33585,
       "ad_id": "1047825756",
       "raw_deal_id": 1047825756,
@@ -412,7 +412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290998,
+      "deal_id": 295373,
       "product_id": 21671,
       "ad_id": "1047825604",
       "raw_deal_id": 1047825604,
@@ -437,7 +437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290999,
+      "deal_id": 295374,
       "product_id": 32525,
       "ad_id": "1047825604",
       "raw_deal_id": 1047825604,
@@ -487,7 +487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290811,
+      "deal_id": 295186,
       "product_id": 29893,
       "ad_id": "1049887797",
       "raw_deal_id": 1049887797,
@@ -512,7 +512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290812,
+      "deal_id": 295187,
       "product_id": 32381,
       "ad_id": "1049887797",
       "raw_deal_id": 1049887797,
@@ -537,7 +537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290813,
+      "deal_id": 295188,
       "product_id": 32382,
       "ad_id": "1049887797",
       "raw_deal_id": 1049887797,
@@ -637,7 +637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290859,
+      "deal_id": 295234,
       "product_id": 3295,
       "ad_id": "1047824510",
       "raw_deal_id": 1047824510,
@@ -1062,7 +1062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 287135,
+      "deal_id": 291510,
       "product_id": 219,
       "ad_id": "1047825880",
       "raw_deal_id": 1047825880,
@@ -1087,7 +1087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290795,
+      "deal_id": 295170,
       "product_id": 23659,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -1112,7 +1112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290993,
+      "deal_id": 295368,
       "product_id": 9079,
       "ad_id": "1047825473",
       "raw_deal_id": 1047825473,
@@ -1137,7 +1137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290990,
+      "deal_id": 295365,
       "product_id": 23771,
       "ad_id": "1047825506",
       "raw_deal_id": 1047825506,
@@ -1212,7 +1212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291024,
+      "deal_id": 295399,
       "product_id": 23718,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -1237,7 +1237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291025,
+      "deal_id": 295400,
       "product_id": 31342,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -1262,7 +1262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291027,
+      "deal_id": 295402,
       "product_id": 31343,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -1287,7 +1287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291028,
+      "deal_id": 295403,
       "product_id": 31345,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -1312,7 +1312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290829,
+      "deal_id": 295204,
       "product_id": 33878,
       "ad_id": "1047824268",
       "raw_deal_id": 1047824268,
@@ -1337,7 +1337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290830,
+      "deal_id": 295205,
       "product_id": 33877,
       "ad_id": "1047824268",
       "raw_deal_id": 1047824268,
@@ -1362,7 +1362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290740,
+      "deal_id": 295115,
       "product_id": 23828,
       "ad_id": "1047823100",
       "raw_deal_id": 1047823100,
@@ -1387,7 +1387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290741,
+      "deal_id": 295116,
       "product_id": 30480,
       "ad_id": "1047823100",
       "raw_deal_id": 1047823100,
@@ -1412,7 +1412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290742,
+      "deal_id": 295117,
       "product_id": 30481,
       "ad_id": "1047823100",
       "raw_deal_id": 1047823100,
@@ -1437,7 +1437,7 @@
       "is_category_best": true
     },
     {
-      "deal_id": 290828,
+      "deal_id": 295203,
       "product_id": 2983,
       "ad_id": "1047824090",
       "raw_deal_id": 1047824090,
@@ -1637,7 +1637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290833,
+      "deal_id": 295208,
       "product_id": 24054,
       "ad_id": "1047824188",
       "raw_deal_id": 1047824188,
@@ -1687,7 +1687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290862,
+      "deal_id": 295237,
       "product_id": 30063,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1712,7 +1712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290865,
+      "deal_id": 295240,
       "product_id": 31984,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1737,7 +1737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290866,
+      "deal_id": 295241,
       "product_id": 31982,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1762,7 +1762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290867,
+      "deal_id": 295242,
       "product_id": 31983,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1787,7 +1787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290868,
+      "deal_id": 295243,
       "product_id": 31985,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1912,7 +1912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290934,
+      "deal_id": 295309,
       "product_id": 28613,
       "ad_id": "1047825013",
       "raw_deal_id": 10478250131,
@@ -1937,7 +1937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290935,
+      "deal_id": 295310,
       "product_id": 28617,
       "ad_id": "1047825013",
       "raw_deal_id": 10478250135,
@@ -2337,7 +2337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290927,
+      "deal_id": 295302,
       "product_id": 28604,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250775,
@@ -2362,7 +2362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290926,
+      "deal_id": 295301,
       "product_id": 28603,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250774,
@@ -2387,7 +2387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290925,
+      "deal_id": 295300,
       "product_id": 28602,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250773,
@@ -2412,7 +2412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290929,
+      "deal_id": 295304,
       "product_id": 28606,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250777,
@@ -2437,7 +2437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290930,
+      "deal_id": 295305,
       "product_id": 28607,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250778,
@@ -2512,7 +2512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290923,
+      "deal_id": 295298,
       "product_id": 28600,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250771,
@@ -2587,7 +2587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290773,
+      "deal_id": 295148,
       "product_id": 28415,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238800,
@@ -2612,7 +2612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290774,
+      "deal_id": 295149,
       "product_id": 28417,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238802,
@@ -2637,7 +2637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290775,
+      "deal_id": 295150,
       "product_id": 28419,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238804,
@@ -2662,7 +2662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290776,
+      "deal_id": 295151,
       "product_id": 28421,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238806,
@@ -2687,7 +2687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290777,
+      "deal_id": 295152,
       "product_id": 28422,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238807,
@@ -2712,7 +2712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290778,
+      "deal_id": 295153,
       "product_id": 28423,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238808,
@@ -2737,7 +2737,7 @@
       "is_category_best": true
     },
     {
-      "deal_id": 290779,
+      "deal_id": 295154,
       "product_id": 28425,
       "ad_id": "1047823880",
       "raw_deal_id": 104782388010,
@@ -2762,7 +2762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290780,
+      "deal_id": 295155,
       "product_id": 28427,
       "ad_id": "1047823880",
       "raw_deal_id": 104782388012,
@@ -2812,7 +2812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290928,
+      "deal_id": 295303,
       "product_id": 28605,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250776,
@@ -2837,7 +2837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290931,
+      "deal_id": 295306,
       "product_id": 28608,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250779,
@@ -2862,7 +2862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290924,
+      "deal_id": 295299,
       "product_id": 28601,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250772,
@@ -2887,7 +2887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290916,
+      "deal_id": 295291,
       "product_id": 28581,
       "ad_id": "1047824879",
       "raw_deal_id": 10478248790,
@@ -2912,7 +2912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290920,
+      "deal_id": 295295,
       "product_id": 28581,
       "ad_id": "1047825051",
       "raw_deal_id": 10478250510,
@@ -3162,7 +3162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290932,
+      "deal_id": 295307,
       "product_id": 28610,
       "ad_id": "1047825077",
       "raw_deal_id": 104782507711,
@@ -3187,7 +3187,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290933,
+      "deal_id": 295308,
       "product_id": 28611,
       "ad_id": "1047825077",
       "raw_deal_id": 104782507712,
@@ -3237,7 +3237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290894,
+      "deal_id": 295269,
       "product_id": 28555,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248401,
@@ -3262,7 +3262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290895,
+      "deal_id": 295270,
       "product_id": 28556,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248402,
@@ -3287,7 +3287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290900,
+      "deal_id": 295275,
       "product_id": 28558,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248407,
@@ -3312,7 +3312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290902,
+      "deal_id": 295277,
       "product_id": 28559,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248409,
@@ -3337,7 +3337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290903,
+      "deal_id": 295278,
       "product_id": 28560,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484010,
@@ -3362,7 +3362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290904,
+      "deal_id": 295279,
       "product_id": 28561,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484011,
@@ -3537,7 +3537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290893,
+      "deal_id": 295268,
       "product_id": 28554,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248400,
@@ -3562,7 +3562,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290896,
+      "deal_id": 295271,
       "product_id": 28557,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248403,
@@ -3587,7 +3587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290905,
+      "deal_id": 295280,
       "product_id": 28562,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484012,
@@ -3637,7 +3637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290918,
+      "deal_id": 295293,
       "product_id": 28584,
       "ad_id": "1047824879",
       "raw_deal_id": 10478248793,
@@ -3662,7 +3662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290922,
+      "deal_id": 295297,
       "product_id": 28584,
       "ad_id": "1047825051",
       "raw_deal_id": 10478250513,
@@ -3762,7 +3762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290908,
+      "deal_id": 295283,
       "product_id": 28565,
       "ad_id": "1047824866",
       "raw_deal_id": 10478248660,
@@ -3887,7 +3887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290915,
+      "deal_id": 295290,
       "product_id": 28580,
       "ad_id": "1047824812",
       "raw_deal_id": 10478248121,
@@ -3937,7 +3937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290914,
+      "deal_id": 295289,
       "product_id": 28579,
       "ad_id": "1047824812",
       "raw_deal_id": 10478248120,
@@ -3962,7 +3962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290917,
+      "deal_id": 295292,
       "product_id": 28583,
       "ad_id": "1047824879",
       "raw_deal_id": 10478248792,
@@ -3987,7 +3987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290921,
+      "deal_id": 295296,
       "product_id": 28583,
       "ad_id": "1047825051",
       "raw_deal_id": 10478250512,
@@ -4012,7 +4012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290888,
+      "deal_id": 295263,
       "product_id": 28542,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247684,
@@ -4037,7 +4037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290889,
+      "deal_id": 295264,
       "product_id": 28543,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247685,
@@ -4062,7 +4062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290890,
+      "deal_id": 295265,
       "product_id": 28544,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247686,
@@ -4087,7 +4087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290891,
+      "deal_id": 295266,
       "product_id": 28545,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247687,
@@ -4112,7 +4112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290892,
+      "deal_id": 295267,
       "product_id": 28546,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247688,
@@ -4137,7 +4137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290963,
+      "deal_id": 295338,
       "product_id": 28542,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250424,
@@ -4162,7 +4162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290964,
+      "deal_id": 295339,
       "product_id": 28543,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250425,
@@ -4187,7 +4187,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290965,
+      "deal_id": 295340,
       "product_id": 28544,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250426,
@@ -4212,7 +4212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290966,
+      "deal_id": 295341,
       "product_id": 28545,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250427,
@@ -4237,7 +4237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290967,
+      "deal_id": 295342,
       "product_id": 28546,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250428,
@@ -4312,7 +4312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290909,
+      "deal_id": 295284,
       "product_id": 28567,
       "ad_id": "1047824678",
       "raw_deal_id": 10478246781,
@@ -4337,7 +4337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290910,
+      "deal_id": 295285,
       "product_id": 28568,
       "ad_id": "1047824678",
       "raw_deal_id": 10478246782,
@@ -4362,7 +4362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290911,
+      "deal_id": 295286,
       "product_id": 28573,
       "ad_id": "1047824678",
       "raw_deal_id": 10478246787,
@@ -4387,7 +4387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290912,
+      "deal_id": 295287,
       "product_id": 28574,
       "ad_id": "1047824678",
       "raw_deal_id": 10478246788,
@@ -4412,7 +4412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290913,
+      "deal_id": 295288,
       "product_id": 28576,
       "ad_id": "1047824678",
       "raw_deal_id": 104782467810,
@@ -4437,7 +4437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290936,
+      "deal_id": 295311,
       "product_id": 28567,
       "ad_id": "1047824997",
       "raw_deal_id": 10478249971,
@@ -4462,7 +4462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290937,
+      "deal_id": 295312,
       "product_id": 28568,
       "ad_id": "1047824997",
       "raw_deal_id": 10478249972,
@@ -4487,7 +4487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290938,
+      "deal_id": 295313,
       "product_id": 28573,
       "ad_id": "1047824997",
       "raw_deal_id": 10478249977,
@@ -4512,7 +4512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290939,
+      "deal_id": 295314,
       "product_id": 28574,
       "ad_id": "1047824997",
       "raw_deal_id": 10478249978,
@@ -4537,7 +4537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290940,
+      "deal_id": 295315,
       "product_id": 28576,
       "ad_id": "1047824997",
       "raw_deal_id": 104782499710,
@@ -4562,7 +4562,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290869,
+      "deal_id": 295244,
       "product_id": 24151,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248970,
@@ -4587,7 +4587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290870,
+      "deal_id": 295245,
       "product_id": 24150,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248971,
@@ -4612,7 +4612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290871,
+      "deal_id": 295246,
       "product_id": 24158,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248972,
@@ -4637,7 +4637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290872,
+      "deal_id": 295247,
       "product_id": 24159,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248973,
@@ -4662,7 +4662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290873,
+      "deal_id": 295248,
       "product_id": 24160,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248974,
@@ -4687,7 +4687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290874,
+      "deal_id": 295249,
       "product_id": 24154,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248975,
@@ -4712,7 +4712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290875,
+      "deal_id": 295250,
       "product_id": 28530,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248976,
@@ -4737,7 +4737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290876,
+      "deal_id": 295251,
       "product_id": 28531,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248977,
@@ -4762,7 +4762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290880,
+      "deal_id": 295255,
       "product_id": 28534,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489711,
@@ -4787,7 +4787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290941,
+      "deal_id": 295316,
       "product_id": 24151,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250270,
@@ -4812,7 +4812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290942,
+      "deal_id": 295317,
       "product_id": 24150,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250271,
@@ -4837,7 +4837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290943,
+      "deal_id": 295318,
       "product_id": 24158,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250272,
@@ -4862,7 +4862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290944,
+      "deal_id": 295319,
       "product_id": 24159,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250273,
@@ -4887,7 +4887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290945,
+      "deal_id": 295320,
       "product_id": 24160,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250274,
@@ -4912,7 +4912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290946,
+      "deal_id": 295321,
       "product_id": 24154,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250275,
@@ -4937,7 +4937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290947,
+      "deal_id": 295322,
       "product_id": 28530,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250276,
@@ -4962,7 +4962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290948,
+      "deal_id": 295323,
       "product_id": 28531,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250277,
@@ -4987,7 +4987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290952,
+      "deal_id": 295327,
       "product_id": 28534,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502711,
@@ -5012,7 +5012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290907,
+      "deal_id": 295282,
       "product_id": 28564,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484014,
@@ -5037,7 +5037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290884,
+      "deal_id": 295259,
       "product_id": 28538,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247680,
@@ -5062,7 +5062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290885,
+      "deal_id": 295260,
       "product_id": 28539,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247681,
@@ -5087,7 +5087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290886,
+      "deal_id": 295261,
       "product_id": 28540,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247682,
@@ -5112,7 +5112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290887,
+      "deal_id": 295262,
       "product_id": 28541,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247683,
@@ -5137,7 +5137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290959,
+      "deal_id": 295334,
       "product_id": 28538,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250420,
@@ -5162,7 +5162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290960,
+      "deal_id": 295335,
       "product_id": 28539,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250421,
@@ -5187,7 +5187,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290961,
+      "deal_id": 295336,
       "product_id": 28540,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250422,
@@ -5212,7 +5212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290962,
+      "deal_id": 295337,
       "product_id": 28541,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250423,
@@ -5237,7 +5237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290897,
+      "deal_id": 295272,
       "product_id": 28555,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248404,
@@ -5262,7 +5262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290898,
+      "deal_id": 295273,
       "product_id": 28556,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248405,
@@ -5287,7 +5287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290899,
+      "deal_id": 295274,
       "product_id": 28558,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248406,
@@ -5312,7 +5312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290901,
+      "deal_id": 295276,
       "product_id": 28559,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248408,
@@ -5337,7 +5337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290906,
+      "deal_id": 295281,
       "product_id": 28563,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484013,
@@ -5412,7 +5412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290881,
+      "deal_id": 295256,
       "product_id": 28535,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489712,
@@ -5437,7 +5437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290882,
+      "deal_id": 295257,
       "product_id": 28536,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489713,
@@ -5462,7 +5462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290883,
+      "deal_id": 295258,
       "product_id": 28537,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489714,
@@ -5487,7 +5487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290953,
+      "deal_id": 295328,
       "product_id": 28535,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502712,
@@ -5512,7 +5512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290954,
+      "deal_id": 295329,
       "product_id": 28536,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502713,
@@ -5537,7 +5537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290955,
+      "deal_id": 295330,
       "product_id": 28537,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502714,
@@ -5962,7 +5962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290877,
+      "deal_id": 295252,
       "product_id": 24162,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248978,
@@ -5987,7 +5987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290878,
+      "deal_id": 295253,
       "product_id": 28532,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248979,
@@ -6012,7 +6012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290879,
+      "deal_id": 295254,
       "product_id": 28533,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489710,
@@ -6037,7 +6037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290949,
+      "deal_id": 295324,
       "product_id": 24162,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250278,
@@ -6062,7 +6062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290950,
+      "deal_id": 295325,
       "product_id": 28532,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250279,
@@ -6087,7 +6087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290951,
+      "deal_id": 295326,
       "product_id": 28533,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502710,
@@ -6112,7 +6112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290956,
+      "deal_id": 295331,
       "product_id": 32015,
       "ad_id": "1047825092",
       "raw_deal_id": 1047825092,
@@ -6137,7 +6137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290957,
+      "deal_id": 295332,
       "product_id": 32016,
       "ad_id": "1047825092",
       "raw_deal_id": 1047825092,
@@ -6162,7 +6162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290958,
+      "deal_id": 295333,
       "product_id": 32017,
       "ad_id": "1047825092",
       "raw_deal_id": 1047825092,
@@ -6512,7 +6512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290766,
+      "deal_id": 295141,
       "product_id": 29626,
       "ad_id": "1047823680",
       "raw_deal_id": 1047823680,
@@ -6537,7 +6537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290767,
+      "deal_id": 295142,
       "product_id": 29627,
       "ad_id": "1047823680",
       "raw_deal_id": 1047823680,
@@ -6587,7 +6587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291029,
+      "deal_id": 295404,
       "product_id": 23812,
       "ad_id": "1047826206",
       "raw_deal_id": 1047826206,
@@ -6637,7 +6637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290839,
+      "deal_id": 295214,
       "product_id": 32655,
       "ad_id": "1047824496",
       "raw_deal_id": 1047824496,
@@ -6654,7 +6654,7 @@
       "historical_avg": 5.0,
       "diff_pct_vs_avg": 0.0,
       "badge": "BEAT_AVERAGE",
-      "analysis": "\ud83d\udd25 First seen (64% below Water category avg of $0.59/pk) \u2022 [2 FOR $10.00]",
+      "analysis": "\ud83d\udd25 First seen (66% below Water category avg of $0.62/pk) \u2022 [2 FOR $10.00]",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $10.00",
       "raw_title": "Arizona Tea or Juice 12 Pack or Dasani Water 24 Pack - 2/ $10.00",
@@ -6662,7 +6662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290792,
+      "deal_id": 295167,
       "product_id": 23656,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -6787,7 +6787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290807,
+      "deal_id": 295182,
       "product_id": 1021,
       "ad_id": "1049887854",
       "raw_deal_id": 1049887854,
@@ -6837,7 +6837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290748,
+      "deal_id": 295123,
       "product_id": 2979,
       "ad_id": "1047823165",
       "raw_deal_id": 1047823165,
@@ -6862,7 +6862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290749,
+      "deal_id": 295124,
       "product_id": 33910,
       "ad_id": "1047823165",
       "raw_deal_id": 1047823165,
@@ -6962,7 +6962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291005,
+      "deal_id": 295380,
       "product_id": 3317,
       "ad_id": "1047825857",
       "raw_deal_id": 1047825857,
@@ -6987,7 +6987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291006,
+      "deal_id": 295381,
       "product_id": 217,
       "ad_id": "1047825857",
       "raw_deal_id": 1047825857,
@@ -7987,7 +7987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 287137,
+      "deal_id": 291512,
       "product_id": 4407,
       "ad_id": "1047826185",
       "raw_deal_id": 1047826185,
@@ -8062,7 +8062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290988,
+      "deal_id": 295363,
       "product_id": 33881,
       "ad_id": "1047825344",
       "raw_deal_id": 1047825344,
@@ -8087,7 +8087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290989,
+      "deal_id": 295364,
       "product_id": 33882,
       "ad_id": "1047825344",
       "raw_deal_id": 1047825344,
@@ -8112,7 +8112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291035,
+      "deal_id": 295410,
       "product_id": 29617,
       "ad_id": "1047826370",
       "raw_deal_id": 1047826370,
@@ -8137,7 +8137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291036,
+      "deal_id": 295411,
       "product_id": 32979,
       "ad_id": "1047826370",
       "raw_deal_id": 1047826370,
@@ -8162,7 +8162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291038,
+      "deal_id": 295413,
       "product_id": 29619,
       "ad_id": "1047826370",
       "raw_deal_id": 1047826370,
@@ -8262,7 +8262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291009,
+      "deal_id": 295384,
       "product_id": 33886,
       "ad_id": "1047825951",
       "raw_deal_id": 1047825951,
@@ -8412,7 +8412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291030,
+      "deal_id": 295405,
       "product_id": 29702,
       "ad_id": "1047826206",
       "raw_deal_id": 1047826206,
@@ -8662,7 +8662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290760,
+      "deal_id": 295135,
       "product_id": 16564,
       "ad_id": "1047823437",
       "raw_deal_id": 1047823437,
@@ -8862,7 +8862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290981,
+      "deal_id": 295356,
       "product_id": 16455,
       "ad_id": "1047825449",
       "raw_deal_id": 1047825449,
@@ -8887,7 +8887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290982,
+      "deal_id": 295357,
       "product_id": 29304,
       "ad_id": "1047825449",
       "raw_deal_id": 1047825449,
@@ -8912,7 +8912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290984,
+      "deal_id": 295359,
       "product_id": 33880,
       "ad_id": "1047825449",
       "raw_deal_id": 1047825449,
@@ -8937,7 +8937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290759,
+      "deal_id": 295134,
       "product_id": 9005,
       "ad_id": "1047823380",
       "raw_deal_id": 1047823380,
@@ -9062,7 +9062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290991,
+      "deal_id": 295366,
       "product_id": 33321,
       "ad_id": "1047825410",
       "raw_deal_id": 10478254106,
@@ -9087,7 +9087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290992,
+      "deal_id": 295367,
       "product_id": 33621,
       "ad_id": "1047825410",
       "raw_deal_id": 10478254106,
@@ -9187,7 +9187,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291013,
+      "deal_id": 295388,
       "product_id": 23740,
       "ad_id": "1047825936",
       "raw_deal_id": 1047825936,
@@ -9212,7 +9212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291014,
+      "deal_id": 295389,
       "product_id": 23741,
       "ad_id": "1047825936",
       "raw_deal_id": 1047825936,
@@ -9237,7 +9237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291015,
+      "deal_id": 295390,
       "product_id": 23742,
       "ad_id": "1047825936",
       "raw_deal_id": 1047825936,
@@ -9262,7 +9262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291016,
+      "deal_id": 295391,
       "product_id": 23743,
       "ad_id": "1047825936",
       "raw_deal_id": 1047825936,
@@ -9287,7 +9287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291017,
+      "deal_id": 295392,
       "product_id": 23744,
       "ad_id": "1047825936",
       "raw_deal_id": 1047825936,
@@ -9312,7 +9312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291000,
+      "deal_id": 295375,
       "product_id": 23862,
       "ad_id": "1047825699",
       "raw_deal_id": 1047825699,
@@ -9337,7 +9337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291001,
+      "deal_id": 295376,
       "product_id": 31468,
       "ad_id": "1047825699",
       "raw_deal_id": 1047825699,
@@ -9437,7 +9437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290787,
+      "deal_id": 295162,
       "product_id": 23847,
       "ad_id": "1047823911",
       "raw_deal_id": 1047823911,
@@ -9462,7 +9462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290788,
+      "deal_id": 295163,
       "product_id": 23848,
       "ad_id": "1047823911",
       "raw_deal_id": 1047823911,
@@ -9487,7 +9487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290809,
+      "deal_id": 295184,
       "product_id": 29654,
       "ad_id": "1049887843",
       "raw_deal_id": 1049887843,
@@ -10012,7 +10012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290970,
+      "deal_id": 295345,
       "product_id": 2558,
       "ad_id": "1047824952",
       "raw_deal_id": 1047824952,
@@ -10037,7 +10037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290971,
+      "deal_id": 295346,
       "product_id": 29795,
       "ad_id": "1047824952",
       "raw_deal_id": 1047824952,
@@ -10062,7 +10062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290972,
+      "deal_id": 295347,
       "product_id": 29796,
       "ad_id": "1047824952",
       "raw_deal_id": 1047824952,
@@ -10087,7 +10087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290973,
+      "deal_id": 295348,
       "product_id": 29797,
       "ad_id": "1047824952",
       "raw_deal_id": 1047824952,
@@ -10112,7 +10112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291020,
+      "deal_id": 295395,
       "product_id": 8874,
       "ad_id": "1047825987",
       "raw_deal_id": 1047825987,
@@ -10137,7 +10137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290919,
+      "deal_id": 295294,
       "product_id": 16669,
       "ad_id": "1047824625",
       "raw_deal_id": 1047824625,
@@ -10212,7 +10212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290803,
+      "deal_id": 295178,
       "product_id": 30005,
       "ad_id": "1047823902",
       "raw_deal_id": 1047823902,
@@ -10237,7 +10237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290805,
+      "deal_id": 295180,
       "product_id": 30006,
       "ad_id": "1047823902",
       "raw_deal_id": 1047823902,
@@ -10262,7 +10262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290806,
+      "deal_id": 295181,
       "product_id": 30007,
       "ad_id": "1047823902",
       "raw_deal_id": 1047823902,
@@ -10412,7 +10412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290793,
+      "deal_id": 295168,
       "product_id": 31904,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -10437,7 +10437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290794,
+      "deal_id": 295169,
       "product_id": 31905,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -10462,7 +10462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290796,
+      "deal_id": 295171,
       "product_id": 31906,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -10487,7 +10487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290797,
+      "deal_id": 295172,
       "product_id": 31907,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -10512,7 +10512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290769,
+      "deal_id": 295144,
       "product_id": 31834,
       "ad_id": "1047823617",
       "raw_deal_id": 1047823617,
@@ -10537,7 +10537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290770,
+      "deal_id": 295145,
       "product_id": 32639,
       "ad_id": "1047823617",
       "raw_deal_id": 1047823617,
@@ -10587,7 +10587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290968,
+      "deal_id": 295343,
       "product_id": 28626,
       "ad_id": "1047824963",
       "raw_deal_id": 1047824963,
@@ -10637,7 +10637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290834,
+      "deal_id": 295209,
       "product_id": 31938,
       "ad_id": "1047824050",
       "raw_deal_id": 1047824050,
@@ -10662,7 +10662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290835,
+      "deal_id": 295210,
       "product_id": 33961,
       "ad_id": "1047824050",
       "raw_deal_id": 1047824050,
@@ -10687,7 +10687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290836,
+      "deal_id": 295211,
       "product_id": 33962,
       "ad_id": "1047824050",
       "raw_deal_id": 1047824050,
@@ -11262,7 +11262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290987,
+      "deal_id": 295362,
       "product_id": 28722,
       "ad_id": "1047825421",
       "raw_deal_id": 1047825421,
@@ -11312,7 +11312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291012,
+      "deal_id": 295387,
       "product_id": 28773,
       "ad_id": "1047825827",
       "raw_deal_id": 1047825827,
@@ -11362,7 +11362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291026,
+      "deal_id": 295401,
       "product_id": 32682,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -11862,7 +11862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290750,
+      "deal_id": 295125,
       "product_id": 31808,
       "ad_id": "1047823206",
       "raw_deal_id": 1047823206,
@@ -11887,7 +11887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290751,
+      "deal_id": 295126,
       "product_id": 31809,
       "ad_id": "1047823206",
       "raw_deal_id": 1047823206,
@@ -12162,7 +12162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291022,
+      "deal_id": 295397,
       "product_id": 32210,
       "ad_id": "1047826139",
       "raw_deal_id": 1047826139,
@@ -12187,7 +12187,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291023,
+      "deal_id": 295398,
       "product_id": 32681,
       "ad_id": "1047826139",
       "raw_deal_id": 1047826139,
@@ -12412,7 +12412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291002,
+      "deal_id": 295377,
       "product_id": 33966,
       "ad_id": "1047825674",
       "raw_deal_id": 1047825674,
@@ -12437,7 +12437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291003,
+      "deal_id": 295378,
       "product_id": 32165,
       "ad_id": "1047825674",
       "raw_deal_id": 1047825674,
@@ -12462,7 +12462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290763,
+      "deal_id": 295138,
       "product_id": 33959,
       "ad_id": "1047823416",
       "raw_deal_id": 1047823416,
@@ -12487,7 +12487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290764,
+      "deal_id": 295139,
       "product_id": 33960,
       "ad_id": "1047823416",
       "raw_deal_id": 1047823416,
@@ -12512,7 +12512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290765,
+      "deal_id": 295140,
       "product_id": 5124,
       "ad_id": "1047823416",
       "raw_deal_id": 1047823416,
@@ -12637,7 +12637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290856,
+      "deal_id": 295231,
       "product_id": 23809,
       "ad_id": "1047824543",
       "raw_deal_id": 1047824543,
@@ -12662,7 +12662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290857,
+      "deal_id": 295232,
       "product_id": 31427,
       "ad_id": "1047824543",
       "raw_deal_id": 1047824543,
@@ -12687,7 +12687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290858,
+      "deal_id": 295233,
       "product_id": 32664,
       "ad_id": "1047824543",
       "raw_deal_id": 1047824543,
@@ -12712,7 +12712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290860,
+      "deal_id": 295235,
       "product_id": 33964,
       "ad_id": "1047824516",
       "raw_deal_id": 1047824516,
@@ -12737,7 +12737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290861,
+      "deal_id": 295236,
       "product_id": 31052,
       "ad_id": "1047824516",
       "raw_deal_id": 1047824516,
@@ -13037,7 +13037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291037,
+      "deal_id": 295412,
       "product_id": 33438,
       "ad_id": "1047826370",
       "raw_deal_id": 1047826370,
@@ -13737,7 +13737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291007,
+      "deal_id": 295382,
       "product_id": 33967,
       "ad_id": "1047825951",
       "raw_deal_id": 1047825951,
@@ -13762,7 +13762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291008,
+      "deal_id": 295383,
       "product_id": 32884,
       "ad_id": "1047825951",
       "raw_deal_id": 1047825951,
@@ -13887,7 +13887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290853,
+      "deal_id": 295228,
       "product_id": 31965,
       "ad_id": "1047824552",
       "raw_deal_id": 1047824552,
@@ -13912,7 +13912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290854,
+      "deal_id": 295229,
       "product_id": 31966,
       "ad_id": "1047824552",
       "raw_deal_id": 1047824552,
@@ -13937,7 +13937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290855,
+      "deal_id": 295230,
       "product_id": 32663,
       "ad_id": "1047824552",
       "raw_deal_id": 1047824552,
@@ -14312,7 +14312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290831,
+      "deal_id": 295206,
       "product_id": 31432,
       "ad_id": "1047824188",
       "raw_deal_id": 1047824188,
@@ -14337,7 +14337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290832,
+      "deal_id": 295207,
       "product_id": 31937,
       "ad_id": "1047824188",
       "raw_deal_id": 1047824188,
@@ -14362,7 +14362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290844,
+      "deal_id": 295219,
       "product_id": 31953,
       "ad_id": "1047824386",
       "raw_deal_id": 1047824386,
@@ -14387,7 +14387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290845,
+      "deal_id": 295220,
       "product_id": 31954,
       "ad_id": "1047824386",
       "raw_deal_id": 1047824386,
@@ -14412,7 +14412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290846,
+      "deal_id": 295221,
       "product_id": 31955,
       "ad_id": "1047824386",
       "raw_deal_id": 1047824386,
@@ -14612,7 +14612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291032,
+      "deal_id": 295407,
       "product_id": 32220,
       "ad_id": "1047826329",
       "raw_deal_id": 1047826329,
@@ -14637,7 +14637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291033,
+      "deal_id": 295408,
       "product_id": 32221,
       "ad_id": "1047826329",
       "raw_deal_id": 1047826329,
@@ -14662,7 +14662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291034,
+      "deal_id": 295409,
       "product_id": 32687,
       "ad_id": "1047826329",
       "raw_deal_id": 1047826329,
@@ -15112,7 +15112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290849,
+      "deal_id": 295224,
       "product_id": 31958,
       "ad_id": "1047824362",
       "raw_deal_id": 1047824362,
@@ -15129,7 +15129,7 @@
       "historical_avg": 4.5,
       "diff_pct_vs_avg": 0.0,
       "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $9.00] \u2022 \u26a0\ufe0f Above Water category avg (+27%)",
+      "analysis": "First time tracked in circular database \u2022 [2 FOR $9.00] \u2022 \u26a0\ufe0f Above Water category avg (+20%)",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $9.00",
       "raw_title": "Propel Fitness Water 6 Pack or Pure Life 24 Pack - 2/ $9.00",
@@ -15137,7 +15137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290850,
+      "deal_id": 295225,
       "product_id": 32660,
       "ad_id": "1047824362",
       "raw_deal_id": 1047824362,
@@ -15262,7 +15262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290983,
+      "deal_id": 295358,
       "product_id": 33965,
       "ad_id": "1047825449",
       "raw_deal_id": 1047825449,
@@ -15287,7 +15287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290745,
+      "deal_id": 295120,
       "product_id": 31804,
       "ad_id": "1047823159",
       "raw_deal_id": 1047823159,
@@ -15312,7 +15312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290746,
+      "deal_id": 295121,
       "product_id": 31805,
       "ad_id": "1047823159",
       "raw_deal_id": 1047823159,
@@ -15337,7 +15337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290747,
+      "deal_id": 295122,
       "product_id": 31806,
       "ad_id": "1047823159",
       "raw_deal_id": 1047823159,
@@ -15362,7 +15362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290985,
+      "deal_id": 295360,
       "product_id": 32125,
       "ad_id": "1047825386",
       "raw_deal_id": 1047825386,
@@ -15387,7 +15387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290986,
+      "deal_id": 295361,
       "product_id": 32126,
       "ad_id": "1047825386",
       "raw_deal_id": 1047825386,
@@ -15462,7 +15462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291031,
+      "deal_id": 295406,
       "product_id": 23856,
       "ad_id": "1047826042",
       "raw_deal_id": 1047826042,
@@ -15512,7 +15512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290838,
+      "deal_id": 295213,
       "product_id": 33963,
       "ad_id": "1047824496",
       "raw_deal_id": 1047824496,
@@ -15612,7 +15612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290757,
+      "deal_id": 295132,
       "product_id": 33622,
       "ad_id": "1047823458",
       "raw_deal_id": 1047823458,
@@ -15637,7 +15637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290758,
+      "deal_id": 295133,
       "product_id": 33623,
       "ad_id": "1047823458",
       "raw_deal_id": 1047823458,
@@ -15662,7 +15662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290842,
+      "deal_id": 295217,
       "product_id": 31951,
       "ad_id": "1047824444",
       "raw_deal_id": 1047824444,
@@ -15687,7 +15687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290843,
+      "deal_id": 295218,
       "product_id": 32658,
       "ad_id": "1047824444",
       "raw_deal_id": 1047824444,
@@ -15912,7 +15912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290840,
+      "deal_id": 295215,
       "product_id": 31949,
       "ad_id": "1047824459",
       "raw_deal_id": 1047824459,
@@ -15937,7 +15937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290841,
+      "deal_id": 295216,
       "product_id": 31950,
       "ad_id": "1047824459",
       "raw_deal_id": 1047824459,
@@ -15987,7 +15987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290771,
+      "deal_id": 295146,
       "product_id": 31842,
       "ad_id": "1047823807",
       "raw_deal_id": 1047823807,
@@ -16012,7 +16012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290772,
+      "deal_id": 295147,
       "product_id": 32883,
       "ad_id": "1047823807",
       "raw_deal_id": 1047823807,
@@ -16162,7 +16162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290799,
+      "deal_id": 295174,
       "product_id": 137,
       "ad_id": "1047823786",
       "raw_deal_id": 1047823786,
@@ -16187,7 +16187,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290800,
+      "deal_id": 295175,
       "product_id": 32642,
       "ad_id": "1047823786",
       "raw_deal_id": 1047823786,
@@ -16212,7 +16212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290801,
+      "deal_id": 295176,
       "product_id": 32643,
       "ad_id": "1047823786",
       "raw_deal_id": 1047823786,
@@ -16237,7 +16237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290802,
+      "deal_id": 295177,
       "product_id": 32644,
       "ad_id": "1047823786",
       "raw_deal_id": 1047823786,
@@ -16262,7 +16262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290847,
+      "deal_id": 295222,
       "product_id": 31956,
       "ad_id": "1047824372",
       "raw_deal_id": 1047824372,
@@ -16287,7 +16287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290848,
+      "deal_id": 295223,
       "product_id": 31957,
       "ad_id": "1047824372",
       "raw_deal_id": 1047824372,
@@ -16337,7 +16337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290994,
+      "deal_id": 295369,
       "product_id": 32677,
       "ad_id": "1047825665",
       "raw_deal_id": 1047825665,
@@ -16362,7 +16362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290996,
+      "deal_id": 295371,
       "product_id": 32678,
       "ad_id": "1047825665",
       "raw_deal_id": 1047825665,
@@ -16387,7 +16387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290997,
+      "deal_id": 295372,
       "product_id": 31803,
       "ad_id": "1047825665",
       "raw_deal_id": 1047825665,
@@ -16437,7 +16437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291019,
+      "deal_id": 295394,
       "product_id": 28776,
       "ad_id": "1047825912",
       "raw_deal_id": 1047825912,
@@ -16612,7 +16612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290743,
+      "deal_id": 295118,
       "product_id": 31802,
       "ad_id": "1047823293",
       "raw_deal_id": 1047823293,
@@ -16637,7 +16637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290744,
+      "deal_id": 295119,
       "product_id": 31803,
       "ad_id": "1047823293",
       "raw_deal_id": 1047823293,
@@ -16837,7 +16837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290781,
+      "deal_id": 295156,
       "product_id": 31884,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -16862,7 +16862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290782,
+      "deal_id": 295157,
       "product_id": 31885,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -16887,7 +16887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290783,
+      "deal_id": 295158,
       "product_id": 31886,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -16912,7 +16912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290784,
+      "deal_id": 295159,
       "product_id": 31887,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -16937,7 +16937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290785,
+      "deal_id": 295160,
       "product_id": 33349,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -16962,7 +16962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290786,
+      "deal_id": 295161,
       "product_id": 31889,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -17012,36 +17012,11 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290754,
-      "product_id": 31813,
+      "deal_id": 295130,
+      "product_id": 34179,
       "ad_id": "1047823449",
       "raw_deal_id": 1047823449,
-      "name": "Octagon Fruit",
-      "brand": null,
-      "category": "Other",
-      "price": 9.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 2,
-      "is_front_page": false,
-      "historical_min": 9.99,
-      "historical_avg": 9.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Octagon Fruit or Vegetable Tray - $9.99 /ea.",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299735/4761a444-c86c-11f1-a1dc-bab235e9b5ea/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 290755,
-      "product_id": 31814,
-      "ad_id": "1047823449",
-      "raw_deal_id": 1047823449,
-      "name": "Vegetable Tray",
+      "name": "Octagon Fruit or Vegetable Tray",
       "brand": null,
       "category": "Other",
       "price": 9.99,
@@ -17087,7 +17062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290975,
+      "deal_id": 295350,
       "product_id": 28713,
       "ad_id": "1047825286",
       "raw_deal_id": 10478252861,
@@ -17112,7 +17087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290977,
+      "deal_id": 295352,
       "product_id": 28715,
       "ad_id": "1047825286",
       "raw_deal_id": 10478252863,
@@ -17237,7 +17212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290974,
+      "deal_id": 295349,
       "product_id": 28712,
       "ad_id": "1047825286",
       "raw_deal_id": 10478252860,
@@ -17262,7 +17237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290976,
+      "deal_id": 295351,
       "product_id": 28714,
       "ad_id": "1047825286",
       "raw_deal_id": 10478252862,
@@ -17712,7 +17687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291018,
+      "deal_id": 295393,
       "product_id": 28775,
       "ad_id": "1047826005",
       "raw_deal_id": 1047826005,
@@ -17737,7 +17712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291021,
+      "deal_id": 295396,
       "product_id": 28777,
       "ad_id": "1047825903",
       "raw_deal_id": 1047825903,
@@ -19262,7 +19237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290814,
+      "deal_id": 295189,
       "product_id": 31928,
       "ad_id": "1047824282",
       "raw_deal_id": 1047824282,
@@ -19287,7 +19262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290815,
+      "deal_id": 295190,
       "product_id": 23807,
       "ad_id": "1047824282",
       "raw_deal_id": 1047824282,
@@ -19312,7 +19287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290816,
+      "deal_id": 295191,
       "product_id": 23873,
       "ad_id": "1047824282",
       "raw_deal_id": 1047824282,
@@ -19337,7 +19312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290817,
+      "deal_id": 295192,
       "product_id": 23874,
       "ad_id": "1047824282",
       "raw_deal_id": 1047824282,
@@ -19362,7 +19337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290818,
+      "deal_id": 295193,
       "product_id": 23806,
       "ad_id": "1047824294",
       "raw_deal_id": 1047824294,
@@ -19387,7 +19362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290819,
+      "deal_id": 295194,
       "product_id": 31929,
       "ad_id": "1047824294",
       "raw_deal_id": 1047824294,
@@ -19412,7 +19387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290820,
+      "deal_id": 295195,
       "product_id": 23807,
       "ad_id": "1047824294",
       "raw_deal_id": 1047824294,
@@ -19437,7 +19412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290821,
+      "deal_id": 295196,
       "product_id": 23873,
       "ad_id": "1047824294",
       "raw_deal_id": 1047824294,
@@ -19462,7 +19437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290822,
+      "deal_id": 295197,
       "product_id": 23874,
       "ad_id": "1047824294",
       "raw_deal_id": 1047824294,
@@ -19487,7 +19462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290824,
+      "deal_id": 295199,
       "product_id": 31930,
       "ad_id": "1047824307",
       "raw_deal_id": 1047824307,
@@ -19512,7 +19487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290825,
+      "deal_id": 295200,
       "product_id": 31931,
       "ad_id": "1047824307",
       "raw_deal_id": 1047824307,
@@ -19537,7 +19512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290826,
+      "deal_id": 295201,
       "product_id": 23873,
       "ad_id": "1047824307",
       "raw_deal_id": 1047824307,
@@ -19562,7 +19537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290827,
+      "deal_id": 295202,
       "product_id": 31489,
       "ad_id": "1047824307",
       "raw_deal_id": 1047824307,
@@ -19587,7 +19562,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290810,
+      "deal_id": 295185,
       "product_id": 23680,
       "ad_id": "1049887843",
       "raw_deal_id": 1049887843,
@@ -19812,7 +19787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 287136,
+      "deal_id": 291511,
       "product_id": 4311,
       "ad_id": "1047826227",
       "raw_deal_id": 1047826227,
@@ -19837,7 +19812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290851,
+      "deal_id": 295226,
       "product_id": 3367,
       "ad_id": "1047824425",
       "raw_deal_id": 1047824425,
@@ -19887,7 +19862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290789,
+      "deal_id": 295164,
       "product_id": 4258,
       "ad_id": "1047823798",
       "raw_deal_id": 1047823798,
@@ -19962,7 +19937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290852,
+      "deal_id": 295227,
       "product_id": 2944,
       "ad_id": "1047824337",
       "raw_deal_id": 1047824337,
@@ -20012,7 +19987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290756,
+      "deal_id": 295131,
       "product_id": 23794,
       "ad_id": "1047823458",
       "raw_deal_id": 1047823458,
@@ -20337,7 +20312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290978,
+      "deal_id": 295353,
       "product_id": 8859,
       "ad_id": "1047825165",
       "raw_deal_id": 10478251650,
@@ -20362,7 +20337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290979,
+      "deal_id": 295354,
       "product_id": 8862,
       "ad_id": "1047825165",
       "raw_deal_id": 10478251653,
@@ -20387,7 +20362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290980,
+      "deal_id": 295355,
       "product_id": 8863,
       "ad_id": "1047825165",
       "raw_deal_id": 10478251654,
@@ -20412,7 +20387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290995,
+      "deal_id": 295370,
       "product_id": 5437,
       "ad_id": "1047825665",
       "raw_deal_id": 1047825665,
@@ -20687,7 +20662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290752,
+      "deal_id": 295127,
       "product_id": 30621,
       "ad_id": "1047823248",
       "raw_deal_id": 1047823248,
@@ -20712,7 +20687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290753,
+      "deal_id": 295128,
       "product_id": 29673,
       "ad_id": "1047823248",
       "raw_deal_id": 1047823248,
@@ -20729,7 +20704,7 @@
       "historical_avg": 3.99,
       "diff_pct_vs_avg": 100.5,
       "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+100.5% vs avg $3.99) \u2022 [2 FOR $8.00] \u2022 \ud83d\udd25 61% below Water category avg",
+      "analysis": "\u26a0\ufe0f Higher than typical promo average (+100.5% vs avg $3.99) \u2022 [2 FOR $8.00] \u2022 \ud83d\udd25 63% below Water category avg",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $8.00",
       "raw_title": "Acadia Spring or Purified Water 35 Pack - 2/ $8.00 When you buy 2",
@@ -20737,7 +20712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290969,
+      "deal_id": 295344,
       "product_id": 2486,
       "ad_id": "1047824921",
       "raw_deal_id": 1047824921,
@@ -20812,7 +20787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290790,
+      "deal_id": 295165,
       "product_id": 30563,
       "ad_id": "1047823762",
       "raw_deal_id": 1047823762,
@@ -20837,7 +20812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290791,
+      "deal_id": 295166,
       "product_id": 32503,
       "ad_id": "1047823762",
       "raw_deal_id": 1047823762,
@@ -20862,7 +20837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290804,
+      "deal_id": 295179,
       "product_id": 29665,
       "ad_id": "1047823902",
       "raw_deal_id": 1047823902,
@@ -20887,7 +20862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290761,
+      "deal_id": 295136,
       "product_id": 33887,
       "ad_id": "1047823492",
       "raw_deal_id": 1047823492,
@@ -20912,7 +20887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 290762,
+      "deal_id": 295137,
       "product_id": 23747,
       "ad_id": "1047823492",
       "raw_deal_id": 1047823492,
@@ -21012,7 +20987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 291004,
+      "deal_id": 295379,
       "product_id": 28750,
       "ad_id": "1047825732",
       "raw_deal_id": 1047825732,
