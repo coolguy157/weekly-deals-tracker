@@ -8,11 +8,11 @@
     "valid_to": "2026-10-30T23:59:59-04:00",
     "scraped_at": "2026-10-24 19:01:57"
   },
-  "updated_at": "2026-10-24T22:14:11.867622",
-  "total_deals": 886,
+  "updated_at": "2026-10-24T22:49:38.975039",
+  "total_deals": 841,
   "deals": [
     {
-      "deal_id": 285305,
+      "deal_id": 290798,
       "product_id": 31908,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -37,7 +37,7 @@
       "is_category_best": true
     },
     {
-      "deal_id": 285197,
+      "deal_id": 290768,
       "product_id": 8703,
       "ad_id": "1047823617",
       "raw_deal_id": 1047823617,
@@ -62,7 +62,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285495,
+      "deal_id": 290837,
       "product_id": 8715,
       "ad_id": "1047824243",
       "raw_deal_id": 1047824243,
@@ -112,7 +112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 267581,
+      "deal_id": 287134,
       "product_id": 2985,
       "ad_id": "1047825771",
       "raw_deal_id": 1047825771,
@@ -137,7 +137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285365,
+      "deal_id": 290808,
       "product_id": 795,
       "ad_id": "1049887854",
       "raw_deal_id": 1049887854,
@@ -154,36 +154,11 @@
       "historical_avg": 1.97,
       "diff_pct_vs_avg": -25.4,
       "badge": "NEW_ALL_TIME_LOW",
-      "analysis": "\ud83c\udf1f New All-Time Low! 25.4% below past low of $1.97 \u2022 \ud83d\udd25 43% below Apples category avg",
+      "analysis": "\ud83c\udf1f New All-Time Low! 25.4% below past low of $1.97 \u2022 \ud83d\udd25 45% below Apples category avg",
       "promo_type": "standard",
       "promo_detail": null,
       "raw_title": "Granny Smith or Honeycrisp Apples - $1.47 /lb.",
       "image_url": "https://f.wishabi.net/page_items/438651370/1792703981/large.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285493,
-      "product_id": 31939,
-      "ad_id": "1047824050",
-      "raw_deal_id": 1047824050,
-      "name": "Brownie Mix",
-      "brand": null,
-      "category": "Other",
-      "price": 1.5,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 3.0,
-      "historical_avg": 3.0,
-      "diff_pct_vs_avg": -50.0,
-      "badge": "NEW_ALL_TIME_LOW",
-      "analysis": "\ud83c\udf1f New All-Time Low! 50.0% below past low of $3.00 \u2022 [2 FOR $3.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $3.00",
-      "raw_title": "Duncan Hines Cake or Brownie Mix or Frosting - 2/ $3.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299749/4df3bc20-c86c-11f1-af76-d6c9d54efe5a/medium",
       "is_category_best": false
     },
     {
@@ -362,7 +337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285877,
+      "deal_id": 291010,
       "product_id": 33177,
       "ad_id": "1047825756",
       "raw_deal_id": 1047825756,
@@ -387,7 +362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285878,
+      "deal_id": 291011,
       "product_id": 33585,
       "ad_id": "1047825756",
       "raw_deal_id": 1047825756,
@@ -437,32 +412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285848,
-      "product_id": 32525,
-      "ad_id": "1047825604",
-      "raw_deal_id": 1047825604,
-      "name": "De Cecco Gnocchi",
-      "brand": "De Cecco",
-      "category": "Other",
-      "price": 2.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 12,
-      "is_front_page": false,
-      "historical_min": 5.0,
-      "historical_avg": 5.0,
-      "diff_pct_vs_avg": -60.0,
-      "badge": "NEW_ALL_TIME_LOW",
-      "analysis": "\ud83c\udf1f New All-Time Low! 60.0% below past low of $5.00 \u2022 [2 FOR $4.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $4.00",
-      "raw_title": "De Cecco Pasta or Gnocchi - 2/ $4.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299777/5d14f44e-c86c-11f1-b6ec-86d4a62556f5/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285849,
+      "deal_id": 290998,
       "product_id": 21671,
       "ad_id": "1047825604",
       "raw_deal_id": 1047825604,
@@ -487,12 +437,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285850,
-      "product_id": 30657,
+      "deal_id": 290999,
+      "product_id": 32525,
       "ad_id": "1047825604",
       "raw_deal_id": 1047825604,
-      "name": "Gnocchi",
-      "brand": null,
+      "name": "De Cecco Gnocchi",
+      "brand": "De Cecco",
       "category": "Other",
       "price": 2.0,
       "unit_price": null,
@@ -537,57 +487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285475,
-      "product_id": 30557,
-      "ad_id": "1047824268",
-      "raw_deal_id": 1047824268,
-      "name": "Our Brand Confectioners'",
-      "brand": "Our Brand",
-      "category": "Other",
-      "price": 2.39,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 3.0,
-      "historical_avg": 3.0,
-      "diff_pct_vs_avg": -20.3,
-      "badge": "NEW_ALL_TIME_LOW",
-      "analysis": "\ud83c\udf1f New All-Time Low! 20.3% below past low of $3.00",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Our Brand Confectioners' or Brown Sugar - $2.39",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299749/5348bb76-c86c-11f1-af76-d6c9d54efe5a/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285476,
-      "product_id": 28928,
-      "ad_id": "1047824268",
-      "raw_deal_id": 1047824268,
-      "name": "Brown Sugar",
-      "brand": "Signature SELECT",
-      "category": "Other",
-      "price": 2.39,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 3.0,
-      "historical_avg": 3.0,
-      "diff_pct_vs_avg": -20.3,
-      "badge": "NEW_ALL_TIME_LOW",
-      "analysis": "\ud83c\udf1f New All-Time Low! 20.3% below past low of $3.00",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Our Brand Confectioners' or Brown Sugar - $2.39",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299749/5348bb76-c86c-11f1-af76-d6c9d54efe5a/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285376,
+      "deal_id": 290811,
       "product_id": 29893,
       "ad_id": "1049887797",
       "raw_deal_id": 1049887797,
@@ -612,7 +512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285377,
+      "deal_id": 290812,
       "product_id": 32381,
       "ad_id": "1049887797",
       "raw_deal_id": 1049887797,
@@ -637,7 +537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285378,
+      "deal_id": 290813,
       "product_id": 32382,
       "ad_id": "1049887797",
       "raw_deal_id": 1049887797,
@@ -737,7 +637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285556,
+      "deal_id": 290859,
       "product_id": 3295,
       "ad_id": "1047824510",
       "raw_deal_id": 1047824510,
@@ -929,7 +829,7 @@
       "historical_avg": 9.99,
       "diff_pct_vs_avg": -10.0,
       "badge": "NEW_ALL_TIME_LOW",
-      "analysis": "\ud83c\udf1f New All-Time Low! 10.0% below past low of $9.99 \u2022 \ud83d\udd25 20% below Steak category avg",
+      "analysis": "\ud83c\udf1f New All-Time Low! 10.0% below past low of $9.99 \u2022 \ud83d\udd25 21% below Steak category avg",
       "promo_type": "dollar_off",
       "promo_detail": "$2.00 OFF",
       "raw_title": "Our Brand Swordfish Steak - $2.00 Off/lb.",
@@ -1104,7 +1004,7 @@
       "historical_avg": 18.99,
       "diff_pct_vs_avg": -5.3,
       "badge": "NEW_ALL_TIME_LOW",
-      "analysis": "\ud83c\udf1f New All-Time Low! 5.3% below past low of $18.99 \u2022 \u26a0\ufe0f Above Salmon category avg (+63%)",
+      "analysis": "\ud83c\udf1f New All-Time Low! 5.3% below past low of $18.99 \u2022 \u26a0\ufe0f Above Salmon category avg (+57%)",
       "promo_type": "dollar_off",
       "promo_detail": "$2.00 OFF",
       "raw_title": "North Atlantic Fish Company Wild Caught Sockeye Salmon Fillet Prev. Frozen - $2.00 Off/lb.",
@@ -1154,7 +1054,7 @@
       "historical_avg": 31.48,
       "diff_pct_vs_avg": -3.2,
       "badge": "NEW_ALL_TIME_LOW",
-      "analysis": "\ud83c\udf1f New All-Time Low! 3.2% below past low of $31.48 \u2022 \u26a0\ufe0f Above Salmon category avg (+176%)",
+      "analysis": "\ud83c\udf1f New All-Time Low! 3.2% below past low of $31.48 \u2022 \u26a0\ufe0f Above Salmon category avg (+167%)",
       "promo_type": "dollar_off",
       "promo_detail": "$2.00 OFF",
       "raw_title": "North Atlantic Fish Company Atlantic Salmon Fillet Family Pack Fresh - $2.00 Off/lb.",
@@ -1162,7 +1062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 267582,
+      "deal_id": 287135,
       "product_id": 219,
       "ad_id": "1047825880",
       "raw_deal_id": 1047825880,
@@ -1187,7 +1087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285302,
+      "deal_id": 290795,
       "product_id": 23659,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -1212,7 +1112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285808,
+      "deal_id": 290993,
       "product_id": 9079,
       "ad_id": "1047825473",
       "raw_deal_id": 1047825473,
@@ -1237,7 +1137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285803,
+      "deal_id": 290990,
       "product_id": 23771,
       "ad_id": "1047825506",
       "raw_deal_id": 1047825506,
@@ -1312,7 +1212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285953,
+      "deal_id": 291024,
       "product_id": 23718,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -1337,7 +1237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285954,
+      "deal_id": 291025,
       "product_id": 31342,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -1362,7 +1262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285956,
+      "deal_id": 291027,
       "product_id": 31343,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -1387,7 +1287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285957,
+      "deal_id": 291028,
       "product_id": 31345,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -1412,7 +1312,57 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285117,
+      "deal_id": 290829,
+      "product_id": 33878,
+      "ad_id": "1047824268",
+      "raw_deal_id": 1047824268,
+      "name": "Our Brand Confectioners' Sugar",
+      "brand": "Our Brand",
+      "category": "Other",
+      "price": 2.39,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 6,
+      "is_front_page": false,
+      "historical_min": 2.39,
+      "historical_avg": 2.7,
+      "diff_pct_vs_avg": -11.3,
+      "badge": "MATCHES_ATL",
+      "analysis": "\ud83c\udf1f Matches All-Time Low ($2.39)",
+      "promo_type": "standard",
+      "promo_detail": null,
+      "raw_title": "Our Brand Confectioners' or Brown Sugar - $2.39",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299749/5348bb76-c86c-11f1-af76-d6c9d54efe5a/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 290830,
+      "product_id": 33877,
+      "ad_id": "1047824268",
+      "raw_deal_id": 1047824268,
+      "name": "Our Brand Brown Sugar",
+      "brand": "Our Brand",
+      "category": "Other",
+      "price": 2.39,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 6,
+      "is_front_page": false,
+      "historical_min": 2.39,
+      "historical_avg": 2.7,
+      "diff_pct_vs_avg": -11.3,
+      "badge": "MATCHES_ATL",
+      "analysis": "\ud83c\udf1f Matches All-Time Low ($2.39)",
+      "promo_type": "standard",
+      "promo_detail": null,
+      "raw_title": "Our Brand Confectioners' or Brown Sugar - $2.39",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299749/5348bb76-c86c-11f1-af76-d6c9d54efe5a/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 290740,
       "product_id": 23828,
       "ad_id": "1047823100",
       "raw_deal_id": 1047823100,
@@ -1429,7 +1379,7 @@
       "historical_avg": 3.49,
       "diff_pct_vs_avg": -28.7,
       "badge": "MATCHES_ATL",
-      "analysis": "\ud83c\udf1f Matches All-Time Low ($2.49) \u2022 [DIGITAL COUPON $2.49] \u2022 \ud83d\udd25 45% below Boneless Chicken Breasts category avg",
+      "analysis": "\ud83c\udf1f Matches All-Time Low ($2.49) \u2022 [DIGITAL COUPON $2.49] \u2022 \ud83d\udd25 44% below Boneless Chicken Breasts category avg",
       "promo_type": "digital_coupon",
       "promo_detail": "DIGITAL COUPON $2.49",
       "raw_title": "Perdue Fresh Boneless Chicken Breasts, Thin\u2011Sliced Breasts or Tenders - $2.49 /lb. DIGITAL COUPON",
@@ -1437,7 +1387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285118,
+      "deal_id": 290741,
       "product_id": 30480,
       "ad_id": "1047823100",
       "raw_deal_id": 1047823100,
@@ -1454,7 +1404,7 @@
       "historical_avg": 3.49,
       "diff_pct_vs_avg": -28.7,
       "badge": "MATCHES_ATL",
-      "analysis": "\ud83c\udf1f Matches All-Time Low ($2.49) \u2022 [DIGITAL COUPON $2.49] \u2022 \ud83d\udd25 45% below Boneless Chicken Breasts category avg",
+      "analysis": "\ud83c\udf1f Matches All-Time Low ($2.49) \u2022 [DIGITAL COUPON $2.49] \u2022 \ud83d\udd25 44% below Boneless Chicken Breasts category avg",
       "promo_type": "digital_coupon",
       "promo_detail": "DIGITAL COUPON $2.49",
       "raw_title": "Perdue Fresh Boneless Chicken Breasts, Thin\u2011Sliced Breasts or Tenders - $2.49 /lb. DIGITAL COUPON",
@@ -1462,7 +1412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285119,
+      "deal_id": 290742,
       "product_id": 30481,
       "ad_id": "1047823100",
       "raw_deal_id": 1047823100,
@@ -1487,7 +1437,7 @@
       "is_category_best": true
     },
     {
-      "deal_id": 285472,
+      "deal_id": 290828,
       "product_id": 2983,
       "ad_id": "1047824090",
       "raw_deal_id": 1047824090,
@@ -1509,31 +1459,6 @@
       "promo_detail": "2 FOR $5.00",
       "raw_title": "Our Brand All-Purpose Flour - 2/ $5.00 every day",
       "image_url": "https://f.wishabi.net/page_pdf_images/24299749/5408ac42-c86c-11f1-af76-d6c9d54efe5a/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285802,
-      "product_id": 32441,
-      "ad_id": "1047825344",
-      "raw_deal_id": 1047825344,
-      "name": "Mellowcreme Pumpkins Candy",
-      "brand": null,
-      "category": "Other",
-      "price": 3.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 3.0,
-      "historical_avg": 4.0,
-      "diff_pct_vs_avg": -25.0,
-      "badge": "MATCHES_ATL",
-      "analysis": "\ud83c\udf1f Matches All-Time Low ($3.00) \u2022 [2 FOR $6.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $6.00",
-      "raw_title": "Brach's Candy Corn or Mellowcreme Pumpkins Candy - 2/ $6.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/59d4d402-c86c-11f1-b770-feb74192e0ba/medium",
       "is_category_best": false
     },
     {
@@ -1712,7 +1637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285485,
+      "deal_id": 290833,
       "product_id": 24054,
       "ad_id": "1047824188",
       "raw_deal_id": 1047824188,
@@ -1762,7 +1687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285589,
+      "deal_id": 290862,
       "product_id": 30063,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1787,7 +1712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285592,
+      "deal_id": 290865,
       "product_id": 31984,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1812,7 +1737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285593,
+      "deal_id": 290866,
       "product_id": 31982,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1837,7 +1762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285594,
+      "deal_id": 290867,
       "product_id": 31983,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1862,7 +1787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285595,
+      "deal_id": 290868,
       "product_id": 31985,
       "ad_id": "1047824562",
       "raw_deal_id": 1047824562,
@@ -1962,7 +1887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285204,
+      "deal_id": 290773,
       "product_id": 28415,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238800,
@@ -1987,7 +1912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285205,
+      "deal_id": 290774,
       "product_id": 28417,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238802,
@@ -2012,7 +1937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285206,
+      "deal_id": 290775,
       "product_id": 28419,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238804,
@@ -2037,7 +1962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285207,
+      "deal_id": 290776,
       "product_id": 28421,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238806,
@@ -2062,7 +1987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285208,
+      "deal_id": 290777,
       "product_id": 28422,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238807,
@@ -2087,7 +2012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285209,
+      "deal_id": 290778,
       "product_id": 28423,
       "ad_id": "1047823880",
       "raw_deal_id": 10478238808,
@@ -2112,7 +2037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285210,
+      "deal_id": 290779,
       "product_id": 28425,
       "ad_id": "1047823880",
       "raw_deal_id": 104782388010,
@@ -2137,7 +2062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285211,
+      "deal_id": 290780,
       "product_id": 28427,
       "ad_id": "1047823880",
       "raw_deal_id": 104782388012,
@@ -2512,7 +2437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285621,
+      "deal_id": 290894,
       "product_id": 28555,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248401,
@@ -2537,7 +2462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285622,
+      "deal_id": 290895,
       "product_id": 28556,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248402,
@@ -2562,7 +2487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285627,
+      "deal_id": 290900,
       "product_id": 28558,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248407,
@@ -2587,7 +2512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285629,
+      "deal_id": 290902,
       "product_id": 28559,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248409,
@@ -2612,7 +2537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285630,
+      "deal_id": 290903,
       "product_id": 28560,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484010,
@@ -2637,7 +2562,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285631,
+      "deal_id": 290904,
       "product_id": 28561,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484011,
@@ -2787,7 +2712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285620,
+      "deal_id": 290893,
       "product_id": 28554,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248400,
@@ -2812,7 +2737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285623,
+      "deal_id": 290896,
       "product_id": 28557,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248403,
@@ -2837,7 +2762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285632,
+      "deal_id": 290905,
       "product_id": 28562,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484012,
@@ -2862,7 +2787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285635,
+      "deal_id": 290908,
       "product_id": 28565,
       "ad_id": "1047824866",
       "raw_deal_id": 10478248660,
@@ -2937,7 +2862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285642,
+      "deal_id": 290915,
       "product_id": 28580,
       "ad_id": "1047824812",
       "raw_deal_id": 10478248121,
@@ -2962,7 +2887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285641,
+      "deal_id": 290914,
       "product_id": 28579,
       "ad_id": "1047824812",
       "raw_deal_id": 10478248120,
@@ -2987,7 +2912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285615,
+      "deal_id": 290888,
       "product_id": 28542,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247684,
@@ -3012,7 +2937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285616,
+      "deal_id": 290889,
       "product_id": 28543,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247685,
@@ -3037,7 +2962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285617,
+      "deal_id": 290890,
       "product_id": 28544,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247686,
@@ -3062,7 +2987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285618,
+      "deal_id": 290891,
       "product_id": 28545,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247687,
@@ -3087,7 +3012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285619,
+      "deal_id": 290892,
       "product_id": 28546,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247688,
@@ -3112,7 +3037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285696,
+      "deal_id": 290963,
       "product_id": 28542,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250424,
@@ -3137,7 +3062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285697,
+      "deal_id": 290964,
       "product_id": 28543,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250425,
@@ -3162,7 +3087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285698,
+      "deal_id": 290965,
       "product_id": 28544,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250426,
@@ -3187,7 +3112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285699,
+      "deal_id": 290966,
       "product_id": 28545,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250427,
@@ -3212,7 +3137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285700,
+      "deal_id": 290967,
       "product_id": 28546,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250428,
@@ -3287,7 +3212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285636,
+      "deal_id": 290909,
       "product_id": 28567,
       "ad_id": "1047824678",
       "raw_deal_id": 10478246781,
@@ -3312,7 +3237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285637,
+      "deal_id": 290910,
       "product_id": 28568,
       "ad_id": "1047824678",
       "raw_deal_id": 10478246782,
@@ -3337,7 +3262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285638,
+      "deal_id": 290911,
       "product_id": 28573,
       "ad_id": "1047824678",
       "raw_deal_id": 10478246787,
@@ -3362,7 +3287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285639,
+      "deal_id": 290912,
       "product_id": 28574,
       "ad_id": "1047824678",
       "raw_deal_id": 10478246788,
@@ -3387,7 +3312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285640,
+      "deal_id": 290913,
       "product_id": 28576,
       "ad_id": "1047824678",
       "raw_deal_id": 104782467810,
@@ -3412,7 +3337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285634,
+      "deal_id": 290907,
       "product_id": 28564,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484014,
@@ -3437,7 +3362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285611,
+      "deal_id": 290884,
       "product_id": 28538,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247680,
@@ -3462,7 +3387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285612,
+      "deal_id": 290885,
       "product_id": 28539,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247681,
@@ -3487,7 +3412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285613,
+      "deal_id": 290886,
       "product_id": 28540,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247682,
@@ -3512,7 +3437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285614,
+      "deal_id": 290887,
       "product_id": 28541,
       "ad_id": "1047824768",
       "raw_deal_id": 10478247683,
@@ -3537,7 +3462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285692,
+      "deal_id": 290959,
       "product_id": 28538,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250420,
@@ -3562,7 +3487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285693,
+      "deal_id": 290960,
       "product_id": 28539,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250421,
@@ -3587,7 +3512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285694,
+      "deal_id": 290961,
       "product_id": 28540,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250422,
@@ -3612,7 +3537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285695,
+      "deal_id": 290962,
       "product_id": 28541,
       "ad_id": "1047825042",
       "raw_deal_id": 10478250423,
@@ -3637,7 +3562,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285624,
+      "deal_id": 290897,
       "product_id": 28555,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248404,
@@ -3662,7 +3587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285625,
+      "deal_id": 290898,
       "product_id": 28556,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248405,
@@ -3687,7 +3612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285626,
+      "deal_id": 290899,
       "product_id": 28558,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248406,
@@ -3712,7 +3637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285628,
+      "deal_id": 290901,
       "product_id": 28559,
       "ad_id": "1047824840",
       "raw_deal_id": 10478248408,
@@ -3737,7 +3662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285633,
+      "deal_id": 290906,
       "product_id": 28563,
       "ad_id": "1047824840",
       "raw_deal_id": 104782484013,
@@ -3987,7 +3912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285689,
+      "deal_id": 290956,
       "product_id": 32015,
       "ad_id": "1047825092",
       "raw_deal_id": 1047825092,
@@ -4012,7 +3937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285690,
+      "deal_id": 290957,
       "product_id": 32016,
       "ad_id": "1047825092",
       "raw_deal_id": 1047825092,
@@ -4037,7 +3962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285691,
+      "deal_id": 290958,
       "product_id": 32017,
       "ad_id": "1047825092",
       "raw_deal_id": 1047825092,
@@ -4162,7 +4087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285661,
+      "deal_id": 290934,
       "product_id": 28613,
       "ad_id": "1047825013",
       "raw_deal_id": 10478250131,
@@ -4187,7 +4112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285662,
+      "deal_id": 290935,
       "product_id": 28617,
       "ad_id": "1047825013",
       "raw_deal_id": 10478250135,
@@ -4587,7 +4512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285654,
+      "deal_id": 290927,
       "product_id": 28604,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250775,
@@ -4612,7 +4537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285653,
+      "deal_id": 290926,
       "product_id": 28603,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250774,
@@ -4637,7 +4562,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285652,
+      "deal_id": 290925,
       "product_id": 28602,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250773,
@@ -4662,7 +4587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285656,
+      "deal_id": 290929,
       "product_id": 28606,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250777,
@@ -4687,7 +4612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285657,
+      "deal_id": 290930,
       "product_id": 28607,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250778,
@@ -4712,7 +4637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285650,
+      "deal_id": 290923,
       "product_id": 28600,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250771,
@@ -4812,7 +4737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285655,
+      "deal_id": 290928,
       "product_id": 28605,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250776,
@@ -4837,7 +4762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285658,
+      "deal_id": 290931,
       "product_id": 28608,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250779,
@@ -4862,7 +4787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285651,
+      "deal_id": 290924,
       "product_id": 28601,
       "ad_id": "1047825077",
       "raw_deal_id": 10478250772,
@@ -4887,7 +4812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285643,
+      "deal_id": 290916,
       "product_id": 28581,
       "ad_id": "1047824879",
       "raw_deal_id": 10478248790,
@@ -4912,7 +4837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285647,
+      "deal_id": 290920,
       "product_id": 28581,
       "ad_id": "1047825051",
       "raw_deal_id": 10478250510,
@@ -4937,7 +4862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285659,
+      "deal_id": 290932,
       "product_id": 28610,
       "ad_id": "1047825077",
       "raw_deal_id": 104782507711,
@@ -4962,7 +4887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285660,
+      "deal_id": 290933,
       "product_id": 28611,
       "ad_id": "1047825077",
       "raw_deal_id": 104782507712,
@@ -5012,7 +4937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285645,
+      "deal_id": 290918,
       "product_id": 28584,
       "ad_id": "1047824879",
       "raw_deal_id": 10478248793,
@@ -5037,7 +4962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285649,
+      "deal_id": 290922,
       "product_id": 28584,
       "ad_id": "1047825051",
       "raw_deal_id": 10478250513,
@@ -5112,7 +5037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285644,
+      "deal_id": 290917,
       "product_id": 28583,
       "ad_id": "1047824879",
       "raw_deal_id": 10478248792,
@@ -5137,7 +5062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285648,
+      "deal_id": 290921,
       "product_id": 28583,
       "ad_id": "1047825051",
       "raw_deal_id": 10478250512,
@@ -5162,7 +5087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285663,
+      "deal_id": 290936,
       "product_id": 28567,
       "ad_id": "1047824997",
       "raw_deal_id": 10478249971,
@@ -5187,7 +5112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285664,
+      "deal_id": 290937,
       "product_id": 28568,
       "ad_id": "1047824997",
       "raw_deal_id": 10478249972,
@@ -5212,7 +5137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285665,
+      "deal_id": 290938,
       "product_id": 28573,
       "ad_id": "1047824997",
       "raw_deal_id": 10478249977,
@@ -5237,7 +5162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285666,
+      "deal_id": 290939,
       "product_id": 28574,
       "ad_id": "1047824997",
       "raw_deal_id": 10478249978,
@@ -5262,7 +5187,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285667,
+      "deal_id": 290940,
       "product_id": 28576,
       "ad_id": "1047824997",
       "raw_deal_id": 104782499710,
@@ -5287,7 +5212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285596,
+      "deal_id": 290869,
       "product_id": 24151,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248970,
@@ -5312,7 +5237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285597,
+      "deal_id": 290870,
       "product_id": 24150,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248971,
@@ -5337,7 +5262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285598,
+      "deal_id": 290871,
       "product_id": 24158,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248972,
@@ -5362,7 +5287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285599,
+      "deal_id": 290872,
       "product_id": 24159,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248973,
@@ -5387,7 +5312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285600,
+      "deal_id": 290873,
       "product_id": 24160,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248974,
@@ -5412,7 +5337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285601,
+      "deal_id": 290874,
       "product_id": 24154,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248975,
@@ -5437,7 +5362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285602,
+      "deal_id": 290875,
       "product_id": 28530,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248976,
@@ -5462,7 +5387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285603,
+      "deal_id": 290876,
       "product_id": 28531,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248977,
@@ -5487,7 +5412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285607,
+      "deal_id": 290880,
       "product_id": 28534,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489711,
@@ -5512,7 +5437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285668,
+      "deal_id": 290941,
       "product_id": 24151,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250270,
@@ -5537,7 +5462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285669,
+      "deal_id": 290942,
       "product_id": 24150,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250271,
@@ -5562,7 +5487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285670,
+      "deal_id": 290943,
       "product_id": 24158,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250272,
@@ -5587,7 +5512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285671,
+      "deal_id": 290944,
       "product_id": 24159,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250273,
@@ -5612,7 +5537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285672,
+      "deal_id": 290945,
       "product_id": 24160,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250274,
@@ -5637,7 +5562,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285673,
+      "deal_id": 290946,
       "product_id": 24154,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250275,
@@ -5662,7 +5587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285674,
+      "deal_id": 290947,
       "product_id": 28530,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250276,
@@ -5687,7 +5612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285675,
+      "deal_id": 290948,
       "product_id": 28531,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250277,
@@ -5712,7 +5637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285679,
+      "deal_id": 290952,
       "product_id": 28534,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502711,
@@ -5762,7 +5687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285608,
+      "deal_id": 290881,
       "product_id": 28535,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489712,
@@ -5787,7 +5712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285609,
+      "deal_id": 290882,
       "product_id": 28536,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489713,
@@ -5812,7 +5737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285610,
+      "deal_id": 290883,
       "product_id": 28537,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489714,
@@ -5837,7 +5762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285680,
+      "deal_id": 290953,
       "product_id": 28535,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502712,
@@ -5862,7 +5787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285681,
+      "deal_id": 290954,
       "product_id": 28536,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502713,
@@ -5887,7 +5812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285682,
+      "deal_id": 290955,
       "product_id": 28537,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502714,
@@ -6112,7 +6037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285604,
+      "deal_id": 290877,
       "product_id": 24162,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248978,
@@ -6137,7 +6062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285605,
+      "deal_id": 290878,
       "product_id": 28532,
       "ad_id": "1047824897",
       "raw_deal_id": 10478248979,
@@ -6162,7 +6087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285606,
+      "deal_id": 290879,
       "product_id": 28533,
       "ad_id": "1047824897",
       "raw_deal_id": 104782489710,
@@ -6187,7 +6112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285676,
+      "deal_id": 290949,
       "product_id": 24162,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250278,
@@ -6212,7 +6137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285677,
+      "deal_id": 290950,
       "product_id": 28532,
       "ad_id": "1047825027",
       "raw_deal_id": 10478250279,
@@ -6237,7 +6162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285678,
+      "deal_id": 290951,
       "product_id": 28533,
       "ad_id": "1047825027",
       "raw_deal_id": 104782502710,
@@ -6587,7 +6512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285189,
+      "deal_id": 290766,
       "product_id": 29626,
       "ad_id": "1047823680",
       "raw_deal_id": 1047823680,
@@ -6612,7 +6537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285190,
+      "deal_id": 290767,
       "product_id": 29627,
       "ad_id": "1047823680",
       "raw_deal_id": 1047823680,
@@ -6662,32 +6587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285560,
-      "product_id": 31052,
-      "ad_id": "1047824516",
-      "raw_deal_id": 1047824516,
-      "name": "Tastykake Mini Muffins",
-      "brand": "Tastykake",
-      "category": "Other",
-      "price": 3.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 7,
-      "is_front_page": false,
-      "historical_min": 1.0,
-      "historical_avg": 3.83,
-      "diff_pct_vs_avg": -21.7,
-      "badge": "BEAT_AVERAGE",
-      "analysis": "\ud83d\udd25 21.7% below historical average of $3.83 \u2022 [2 FOR $6.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $6.00",
-      "raw_title": "Tastykake Donuts or Mini Muffins - 2/ $6.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299754/5bcc8b92-c86c-11f1-91d3-bea698c1d4e8/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285960,
+      "deal_id": 291029,
       "product_id": 23812,
       "ad_id": "1047826206",
       "raw_deal_id": 1047826206,
@@ -6737,7 +6637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285510,
+      "deal_id": 290839,
       "product_id": 32655,
       "ad_id": "1047824496",
       "raw_deal_id": 1047824496,
@@ -6754,7 +6654,7 @@
       "historical_avg": 5.0,
       "diff_pct_vs_avg": 0.0,
       "badge": "BEAT_AVERAGE",
-      "analysis": "\ud83d\udd25 First seen (70% below Water category avg of $0.71/pk) \u2022 [2 FOR $10.00]",
+      "analysis": "\ud83d\udd25 First seen (66% below Water category avg of $0.62/pk) \u2022 [2 FOR $10.00]",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $10.00",
       "raw_title": "Arizona Tea or Juice 12 Pack or Dasani Water 24 Pack - 2/ $10.00",
@@ -6762,32 +6662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285728,
-      "product_id": 30685,
-      "ad_id": "1047824952",
-      "raw_deal_id": 1047824952,
-      "name": "Mouthwash",
-      "brand": null,
-      "category": "Other",
-      "price": 8.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 9,
-      "is_front_page": false,
-      "historical_min": 3.99,
-      "historical_avg": 12.0,
-      "diff_pct_vs_avg": -25.1,
-      "badge": "BEAT_AVERAGE",
-      "analysis": "\ud83d\udd25 25.1% below historical average of $12.00",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Crest Toothpaste or Mouthwash or Oral-B Toothbrush or Glide Floss - $8.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299763/568e99cc-c86c-11f1-b7d7-a6a890166f37/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285299,
+      "deal_id": 290792,
       "product_id": 23656,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -6879,7 +6754,7 @@
       "historical_avg": 1.39,
       "diff_pct_vs_avg": 0.0,
       "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($1.39) \u2022 \u26a0\ufe0f Above Onions category avg (+25%)",
+      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($1.39) \u2022 \u26a0\ufe0f Above Onions category avg (+18%)",
       "promo_type": "standard",
       "promo_detail": null,
       "raw_title": "Fresh Sweet Onions - $1.39 /lb.",
@@ -6912,7 +6787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285364,
+      "deal_id": 290807,
       "product_id": 1021,
       "ad_id": "1049887854",
       "raw_deal_id": 1049887854,
@@ -6929,7 +6804,7 @@
       "historical_avg": 1.49,
       "diff_pct_vs_avg": -1.3,
       "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $0.99 - $1.49) \u2022 \ud83d\udd25 43% below Apples category avg",
+      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $0.99 - $1.49) \u2022 \ud83d\udd25 45% below Apples category avg",
       "promo_type": "standard",
       "promo_detail": null,
       "raw_title": "Granny Smith or Honeycrisp Apples - $1.47 /lb.",
@@ -6962,7 +6837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285137,
+      "deal_id": 290748,
       "product_id": 2979,
       "ad_id": "1047823165",
       "raw_deal_id": 1047823165,
@@ -6987,11 +6862,11 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285138,
-      "product_id": 33582,
+      "deal_id": 290749,
+      "product_id": 33910,
       "ad_id": "1047823165",
       "raw_deal_id": 1047823165,
-      "name": "Our Chunk Cheese",
+      "name": "Our Brand Chunk Cheese",
       "brand": "Our Brand",
       "category": "Chunk Cheese",
       "price": 1.77,
@@ -7087,7 +6962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285864,
+      "deal_id": 291005,
       "product_id": 3317,
       "ad_id": "1047825857",
       "raw_deal_id": 1047825857,
@@ -7104,7 +6979,7 @@
       "historical_avg": 1.99,
       "diff_pct_vs_avg": 0.0,
       "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($1.99) \u2022 \ud83d\udd25 22% below Apples category avg",
+      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($1.99) \u2022 \ud83d\udd25 26% below Apples category avg",
       "promo_type": "standard",
       "promo_detail": null,
       "raw_title": "Cosmic Crisp Apples or Bartlett Pears - $1.99 /lb. every day",
@@ -7112,7 +6987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285865,
+      "deal_id": 291006,
       "product_id": 217,
       "ad_id": "1047825857",
       "raw_deal_id": 1047825857,
@@ -7159,81 +7034,6 @@
       "promo_detail": "BUY 1 GET 1 FREE",
       "raw_title": "Smart Living Peeler - BUY 1 \u2022 GET 1 FREE! of equal or lesser value, SAVE at least $2.59",
       "image_url": "https://i5.peapod.com/c/GH/GHVFB.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285919,
-      "product_id": 23719,
-      "ad_id": "1047826237",
-      "raw_deal_id": 1047826237,
-      "name": "Tortillas",
-      "brand": "Old El Paso",
-      "category": "Tortillas",
-      "price": 2.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 14,
-      "is_front_page": false,
-      "historical_min": 2.0,
-      "historical_avg": 2.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($2.00) \u2022 [2 FOR $4.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $4.00",
-      "raw_title": "Old El Paso Taco Shells, Tortillas, Microwavable Rice, Refried Beans or Enchilada Sauce - 2/ $4.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299791/5fdd5dd8-c86c-11f1-a79a-3229697e6497/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285921,
-      "product_id": 23720,
-      "ad_id": "1047826237",
-      "raw_deal_id": 1047826237,
-      "name": "Refried Beans",
-      "brand": "Old El Paso",
-      "category": "Other",
-      "price": 2.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 14,
-      "is_front_page": false,
-      "historical_min": 2.0,
-      "historical_avg": 2.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($2.00) \u2022 [2 FOR $4.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $4.00",
-      "raw_title": "Old El Paso Taco Shells, Tortillas, Microwavable Rice, Refried Beans or Enchilada Sauce - 2/ $4.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299791/5fdd5dd8-c86c-11f1-a79a-3229697e6497/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285922,
-      "product_id": 23722,
-      "ad_id": "1047826237",
-      "raw_deal_id": 1047826237,
-      "name": "Enchilada Sauce",
-      "brand": "Old El Paso",
-      "category": "Other",
-      "price": 2.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 14,
-      "is_front_page": false,
-      "historical_min": 2.0,
-      "historical_avg": 2.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($2.00) \u2022 [2 FOR $4.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $4.00",
-      "raw_title": "Old El Paso Taco Shells, Tortillas, Microwavable Rice, Refried Beans or Enchilada Sauce - 2/ $4.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299791/5fdd5dd8-c86c-11f1-a79a-3229697e6497/medium",
       "is_category_best": false
     },
     {
@@ -7687,12 +7487,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 163561,
+      "deal_id": 287100,
       "product_id": 29723,
       "ad_id": "1047826154",
       "raw_deal_id": 1047826154,
       "name": "Skippy Peanut Butter",
-      "brand": null,
+      "brand": "Skippy",
       "category": "Butter",
       "price": 2.5,
       "unit_price": null,
@@ -7904,7 +7704,7 @@
       "historical_avg": 2.88,
       "diff_pct_vs_avg": 0.0,
       "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($2.88) \u2022 [DIGITAL COUPON $2.88] \u2022 \u26a0\ufe0f Above Grapes category avg (+38%)",
+      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($2.88) \u2022 [DIGITAL COUPON $2.88] \u2022 \u26a0\ufe0f Above Grapes category avg (+40%)",
       "promo_type": "digital_coupon",
       "promo_detail": "DIGITAL COUPON $2.88",
       "raw_title": "Fresh Red Seedless Grapes - $2.88 /lb. DIGITAL COUPON",
@@ -8187,7 +7987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 267584,
+      "deal_id": 287137,
       "product_id": 4407,
       "ad_id": "1047826185",
       "raw_deal_id": 1047826185,
@@ -8262,11 +8062,11 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285801,
-      "product_id": 30075,
+      "deal_id": 290988,
+      "product_id": 33881,
       "ad_id": "1047825344",
       "raw_deal_id": 1047825344,
-      "name": "Brach's Candy Corn",
+      "name": "Brach's Candy Corn Pumpkins",
       "brand": null,
       "category": "Other",
       "price": 3.0,
@@ -8287,7 +8087,32 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285984,
+      "deal_id": 290989,
+      "product_id": 33882,
+      "ad_id": "1047825344",
+      "raw_deal_id": 1047825344,
+      "name": "Brach's Mellowcreme Pumpkins Candy",
+      "brand": null,
+      "category": "Other",
+      "price": 3.0,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 11,
+      "is_front_page": false,
+      "historical_min": 3.0,
+      "historical_avg": 3.0,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "CYCLE_REFRESH",
+      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $3.00) \u2022 [2 FOR $6.00]",
+      "promo_type": "must_buy",
+      "promo_detail": "2 FOR $6.00",
+      "raw_title": "Brach's Candy Corn or Mellowcreme Pumpkins Candy - 2/ $6.00",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/59d4d402-c86c-11f1-b770-feb74192e0ba/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 291035,
       "product_id": 29617,
       "ad_id": "1047826370",
       "raw_deal_id": 1047826370,
@@ -8312,7 +8137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285985,
+      "deal_id": 291036,
       "product_id": 32979,
       "ad_id": "1047826370",
       "raw_deal_id": 1047826370,
@@ -8337,7 +8162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285987,
+      "deal_id": 291038,
       "product_id": 29619,
       "ad_id": "1047826370",
       "raw_deal_id": 1047826370,
@@ -8437,11 +8262,11 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285874,
-      "product_id": 32870,
+      "deal_id": 291009,
+      "product_id": 33886,
       "ad_id": "1047825951",
       "raw_deal_id": 1047825951,
-      "name": "Dole Chopped Salad Kit",
+      "name": "Dole Premium Chopped Salad Kit",
       "brand": "Dole",
       "category": "Salad",
       "price": 3.49,
@@ -8454,7 +8279,7 @@
       "historical_avg": 3.49,
       "diff_pct_vs_avg": 0.0,
       "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($3.49)",
+      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $3.49)",
       "promo_type": "standard",
       "promo_detail": null,
       "raw_title": "Dole or Taste of Inspirations Premium or Chopped Salad Kit - $3.49 /ea. every day",
@@ -8587,7 +8412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285961,
+      "deal_id": 291030,
       "product_id": 29702,
       "ad_id": "1047826206",
       "raw_deal_id": 1047826206,
@@ -8837,7 +8662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285173,
+      "deal_id": 290760,
       "product_id": 16564,
       "ad_id": "1047823437",
       "raw_deal_id": 1047823437,
@@ -9037,212 +8862,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285778,
-      "product_id": 31218,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Snickers Hershey's",
-      "brand": "Snickers",
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($4.88)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285779,
-      "product_id": 31326,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Snickers Ferrero",
-      "brand": "Snickers",
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($4.88)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285781,
-      "product_id": 31329,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Snickers Snack Size Candy",
-      "brand": "Snickers",
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($4.88)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285782,
-      "product_id": 31330,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Ferrero Hershey's",
-      "brand": "Ferrero",
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($4.88)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285785,
-      "product_id": 31333,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Ferrero Snack Size Candy",
-      "brand": "Ferrero",
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($4.88)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285786,
-      "product_id": 31220,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Mars Hershey's",
-      "brand": "Mars",
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($4.88)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285787,
-      "product_id": 31334,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Mars Ferrero",
-      "brand": "Mars",
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($4.88)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285789,
-      "product_id": 31336,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Mars Snack Size Candy",
-      "brand": "Mars",
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($4.88)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285790,
+      "deal_id": 290981,
       "product_id": 16455,
       "ad_id": "1047825449",
       "raw_deal_id": 1047825449,
       "name": "Hershey's",
-      "brand": "Snickers",
+      "brand": "Hershey's",
       "category": "Other",
       "price": 4.88,
       "unit_price": null,
@@ -9262,12 +8887,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285791,
-      "product_id": 109,
+      "deal_id": 290982,
+      "product_id": 29304,
       "ad_id": "1047825449",
       "raw_deal_id": 1047825449,
-      "name": "Ferrero",
-      "brand": "Ferrero",
+      "name": "Hershey's Ferrero",
+      "brand": "Hershey's",
       "category": "Other",
       "price": 4.88,
       "unit_price": null,
@@ -9287,12 +8912,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285792,
-      "product_id": 31335,
+      "deal_id": 290984,
+      "product_id": 33880,
       "ad_id": "1047825449",
       "raw_deal_id": 1047825449,
-      "name": "Mars Minis",
-      "brand": "Mars",
+      "name": "Hershey's Snack Size Candy",
+      "brand": "Hershey's",
       "category": "Other",
       "price": 4.88,
       "unit_price": null,
@@ -9312,32 +8937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285793,
-      "product_id": 23698,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Snack Size Candy",
-      "brand": null,
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($4.88)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285172,
+      "deal_id": 290759,
       "product_id": 9005,
       "ad_id": "1047823380",
       "raw_deal_id": 1047823380,
@@ -9462,7 +9062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285806,
+      "deal_id": 290991,
       "product_id": 33321,
       "ad_id": "1047825410",
       "raw_deal_id": 10478254106,
@@ -9487,7 +9087,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285807,
+      "deal_id": 290992,
       "product_id": 33621,
       "ad_id": "1047825410",
       "raw_deal_id": 10478254106,
@@ -9587,32 +9187,132 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285854,
-      "product_id": 31468,
-      "ad_id": "1047825699",
-      "raw_deal_id": 1047825699,
-      "name": "Nabisco Crackers",
-      "brand": "Nabisco",
-      "category": "Crackers",
-      "price": 6.29,
+      "deal_id": 291013,
+      "product_id": 23740,
+      "ad_id": "1047825936",
+      "raw_deal_id": 1047825936,
+      "name": "Our Brand Green Beans",
+      "brand": "Our Brand",
+      "category": "Other",
+      "price": 5.99,
       "unit_price": null,
       "unit_size": null,
       "unit_type": null,
-      "page": 12,
+      "page": 13,
       "is_front_page": false,
-      "historical_min": 6.29,
-      "historical_avg": 6.29,
+      "historical_min": 5.99,
+      "historical_avg": 5.99,
       "diff_pct_vs_avg": 0.0,
       "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($6.29)",
+      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($5.99)",
       "promo_type": "standard",
       "promo_detail": null,
-      "raw_title": "Nabisco Party Size Cookies or Crackers - $6.29 every day",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299777/5de442bc-c86c-11f1-b6ec-86d4a62556f5/medium",
+      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
       "is_category_best": false
     },
     {
-      "deal_id": 285855,
+      "deal_id": 291014,
+      "product_id": 23741,
+      "ad_id": "1047825936",
+      "raw_deal_id": 1047825936,
+      "name": "Brussels Sprouts",
+      "brand": "Our Brand",
+      "category": "Other",
+      "price": 5.99,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 13,
+      "is_front_page": false,
+      "historical_min": 5.99,
+      "historical_avg": 5.99,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "CYCLE_REFRESH",
+      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($5.99)",
+      "promo_type": "standard",
+      "promo_detail": null,
+      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 291015,
+      "product_id": 23742,
+      "ad_id": "1047825936",
+      "raw_deal_id": 1047825936,
+      "name": "Broccoli",
+      "brand": "Our Brand",
+      "category": "Other",
+      "price": 5.99,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 13,
+      "is_front_page": false,
+      "historical_min": 5.99,
+      "historical_avg": 5.99,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "CYCLE_REFRESH",
+      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($5.99)",
+      "promo_type": "standard",
+      "promo_detail": null,
+      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 291016,
+      "product_id": 23743,
+      "ad_id": "1047825936",
+      "raw_deal_id": 1047825936,
+      "name": "Cauliflower Florets",
+      "brand": "Our Brand",
+      "category": "Other",
+      "price": 5.99,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 13,
+      "is_front_page": false,
+      "historical_min": 5.99,
+      "historical_avg": 5.99,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "CYCLE_REFRESH",
+      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($5.99)",
+      "promo_type": "standard",
+      "promo_detail": null,
+      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 291017,
+      "product_id": 23744,
+      "ad_id": "1047825936",
+      "raw_deal_id": 1047825936,
+      "name": "Vegetable Medley",
+      "brand": "Our Brand",
+      "category": "Other",
+      "price": 5.99,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 13,
+      "is_front_page": false,
+      "historical_min": 5.99,
+      "historical_avg": 5.99,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "CYCLE_REFRESH",
+      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($5.99)",
+      "promo_type": "standard",
+      "promo_detail": null,
+      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 291000,
       "product_id": 23862,
       "ad_id": "1047825699",
       "raw_deal_id": 1047825699,
@@ -9637,12 +9337,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285856,
-      "product_id": 32882,
+      "deal_id": 291001,
+      "product_id": 31468,
       "ad_id": "1047825699",
       "raw_deal_id": 1047825699,
-      "name": "Crackers",
-      "brand": null,
+      "name": "Nabisco Crackers",
+      "brand": "Nabisco",
       "category": "Crackers",
       "price": 6.29,
       "unit_price": null,
@@ -9737,7 +9437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285250,
+      "deal_id": 290787,
       "product_id": 23847,
       "ad_id": "1047823911",
       "raw_deal_id": 1047823911,
@@ -9762,7 +9462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285251,
+      "deal_id": 290788,
       "product_id": 23848,
       "ad_id": "1047823911",
       "raw_deal_id": 1047823911,
@@ -9787,7 +9487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285368,
+      "deal_id": 290809,
       "product_id": 29654,
       "ad_id": "1049887843",
       "raw_deal_id": 1049887843,
@@ -10312,82 +10012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285716,
-      "product_id": 29795,
-      "ad_id": "1047824952",
-      "raw_deal_id": 1047824952,
-      "name": "Crest Mouthwash",
-      "brand": "Crest",
-      "category": "Other",
-      "price": 8.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 9,
-      "is_front_page": false,
-      "historical_min": 3.99,
-      "historical_avg": 9.66,
-      "diff_pct_vs_avg": -7.0,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $3.99 - $9.66)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Crest Toothpaste or Mouthwash or Oral-B Toothbrush or Glide Floss - $8.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299763/568e99cc-c86c-11f1-b7d7-a6a890166f37/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285717,
-      "product_id": 29796,
-      "ad_id": "1047824952",
-      "raw_deal_id": 1047824952,
-      "name": "Crest Oral-B Toothbrush",
-      "brand": "Crest",
-      "category": "Other",
-      "price": 8.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 9,
-      "is_front_page": false,
-      "historical_min": 3.99,
-      "historical_avg": 9.5,
-      "diff_pct_vs_avg": -5.3,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($8.99)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Crest Toothpaste or Mouthwash or Oral-B Toothbrush or Glide Floss - $8.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299763/568e99cc-c86c-11f1-b7d7-a6a890166f37/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285718,
-      "product_id": 29797,
-      "ad_id": "1047824952",
-      "raw_deal_id": 1047824952,
-      "name": "Crest Glide Floss",
-      "brand": "Crest",
-      "category": "Other",
-      "price": 8.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 9,
-      "is_front_page": false,
-      "historical_min": 3.99,
-      "historical_avg": 9.5,
-      "diff_pct_vs_avg": -5.3,
-      "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($8.99)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Crest Toothpaste or Mouthwash or Oral-B Toothbrush or Glide Floss - $8.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299763/568e99cc-c86c-11f1-b7d7-a6a890166f37/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285727,
+      "deal_id": 290970,
       "product_id": 2558,
       "ad_id": "1047824952",
       "raw_deal_id": 1047824952,
@@ -10412,12 +10037,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285729,
-      "product_id": 30686,
+      "deal_id": 290971,
+      "product_id": 29795,
       "ad_id": "1047824952",
       "raw_deal_id": 1047824952,
-      "name": "Oral-B Toothbrush",
-      "brand": null,
+      "name": "Crest Mouthwash",
+      "brand": "Crest",
       "category": "Other",
       "price": 8.99,
       "unit_price": null,
@@ -10426,8 +10051,33 @@
       "page": 9,
       "is_front_page": false,
       "historical_min": 3.99,
-      "historical_avg": 10.99,
-      "diff_pct_vs_avg": -18.2,
+      "historical_avg": 9.66,
+      "diff_pct_vs_avg": -7.0,
+      "badge": "CYCLE_REFRESH",
+      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $3.99 - $9.66)",
+      "promo_type": "standard",
+      "promo_detail": null,
+      "raw_title": "Crest Toothpaste or Mouthwash or Oral-B Toothbrush or Glide Floss - $8.99",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299763/568e99cc-c86c-11f1-b7d7-a6a890166f37/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 290972,
+      "product_id": 29796,
+      "ad_id": "1047824952",
+      "raw_deal_id": 1047824952,
+      "name": "Crest Oral-B Toothbrush",
+      "brand": "Crest",
+      "category": "Other",
+      "price": 8.99,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 9,
+      "is_front_page": false,
+      "historical_min": 3.99,
+      "historical_avg": 9.5,
+      "diff_pct_vs_avg": -5.3,
       "badge": "CYCLE_REFRESH",
       "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($8.99)",
       "promo_type": "standard",
@@ -10437,12 +10087,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285730,
-      "product_id": 30687,
+      "deal_id": 290973,
+      "product_id": 29797,
       "ad_id": "1047824952",
       "raw_deal_id": 1047824952,
-      "name": "Glide Floss",
-      "brand": null,
+      "name": "Crest Glide Floss",
+      "brand": "Crest",
       "category": "Other",
       "price": 8.99,
       "unit_price": null,
@@ -10451,8 +10101,8 @@
       "page": 9,
       "is_front_page": false,
       "historical_min": 3.99,
-      "historical_avg": 10.99,
-      "diff_pct_vs_avg": -18.2,
+      "historical_avg": 9.5,
+      "diff_pct_vs_avg": -5.3,
       "badge": "CYCLE_REFRESH",
       "analysis": "\ud83d\udd04 Ongoing multi-week promotion ($8.99)",
       "promo_type": "standard",
@@ -10462,7 +10112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285907,
+      "deal_id": 291020,
       "product_id": 8874,
       "ad_id": "1047825987",
       "raw_deal_id": 1047825987,
@@ -10487,7 +10137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285646,
+      "deal_id": 290919,
       "product_id": 16669,
       "ad_id": "1047824625",
       "raw_deal_id": 1047824625,
@@ -10562,7 +10212,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285358,
+      "deal_id": 290803,
       "product_id": 30005,
       "ad_id": "1047823902",
       "raw_deal_id": 1047823902,
@@ -10579,7 +10229,7 @@
       "historical_avg": 10.99,
       "diff_pct_vs_avg": 0.0,
       "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $10.99) \u2022 [MUST BUY 2] \u2022 \ud83d\udd25 53% below Soda category avg",
+      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $10.99) \u2022 [MUST BUY 2] \u2022 \ud83d\udd25 51% below Soda category avg",
       "promo_type": "must_buy",
       "promo_detail": "MUST BUY 2",
       "raw_title": "Coca-Cola 24 Pack, vitaminwater or Gold Peak Tea 12 Pack or smartwater 6 Pack - $10.99 /ea. When you buy 2",
@@ -10587,7 +10237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285360,
+      "deal_id": 290805,
       "product_id": 30006,
       "ad_id": "1047823902",
       "raw_deal_id": 1047823902,
@@ -10612,7 +10262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285361,
+      "deal_id": 290806,
       "product_id": 30007,
       "ad_id": "1047823902",
       "raw_deal_id": 1047823902,
@@ -10629,7 +10279,7 @@
       "historical_avg": 10.99,
       "diff_pct_vs_avg": 0.0,
       "badge": "CYCLE_REFRESH",
-      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $10.99) \u2022 [MUST BUY 2] \u2022 \u26a0\ufe0f Above Soda category avg (+86%)",
+      "analysis": "\ud83d\udd04 Standard promo cycle (typical: $10.99) \u2022 [MUST BUY 2] \u2022 \u26a0\ufe0f Above Soda category avg (+93%)",
       "promo_type": "must_buy",
       "promo_detail": "MUST BUY 2",
       "raw_title": "Coca-Cola 24 Pack, vitaminwater or Gold Peak Tea 12 Pack or smartwater 6 Pack - $10.99 /ea. When you buy 2",
@@ -10762,7 +10412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285300,
+      "deal_id": 290793,
       "product_id": 31904,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -10787,7 +10437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285301,
+      "deal_id": 290794,
       "product_id": 31905,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -10812,7 +10462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285303,
+      "deal_id": 290796,
       "product_id": 31906,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -10837,7 +10487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285304,
+      "deal_id": 290797,
       "product_id": 31907,
       "ad_id": "1047823891",
       "raw_deal_id": 1047823891,
@@ -10862,7 +10512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285198,
+      "deal_id": 290769,
       "product_id": 31834,
       "ad_id": "1047823617",
       "raw_deal_id": 1047823617,
@@ -10887,7 +10537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285199,
+      "deal_id": 290770,
       "product_id": 32639,
       "ad_id": "1047823617",
       "raw_deal_id": 1047823617,
@@ -10937,7 +10587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285701,
+      "deal_id": 290968,
       "product_id": 28626,
       "ad_id": "1047824963",
       "raw_deal_id": 1047824963,
@@ -10987,12 +10637,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285492,
+      "deal_id": 290834,
       "product_id": 31938,
       "ad_id": "1047824050",
       "raw_deal_id": 1047824050,
       "name": "Duncan Hines Cake",
-      "brand": null,
+      "brand": "Duncan Hines",
       "category": "Other",
       "price": 1.5,
       "unit_price": null,
@@ -11012,12 +10662,37 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285494,
-      "product_id": 32651,
+      "deal_id": 290835,
+      "product_id": 33961,
       "ad_id": "1047824050",
       "raw_deal_id": 1047824050,
-      "name": "Frosting",
-      "brand": null,
+      "name": "Duncan Hines Brownie Mix",
+      "brand": "Duncan Hines",
+      "category": "Other",
+      "price": 1.5,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 6,
+      "is_front_page": false,
+      "historical_min": 1.5,
+      "historical_avg": 1.5,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "FIRST_SEEN",
+      "analysis": "First time tracked in circular database \u2022 [2 FOR $3.00]",
+      "promo_type": "must_buy",
+      "promo_detail": "2 FOR $3.00",
+      "raw_title": "Duncan Hines Cake or Brownie Mix or Frosting - 2/ $3.00",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299749/4df3bc20-c86c-11f1-af76-d6c9d54efe5a/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 290836,
+      "product_id": 33962,
+      "ad_id": "1047824050",
+      "raw_deal_id": 1047824050,
+      "name": "Duncan Hines Frosting",
+      "brand": "Duncan Hines",
       "category": "Other",
       "price": 1.5,
       "unit_price": null,
@@ -11587,7 +11262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285798,
+      "deal_id": 290987,
       "product_id": 28722,
       "ad_id": "1047825421",
       "raw_deal_id": 1047825421,
@@ -11637,7 +11312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285879,
+      "deal_id": 291012,
       "product_id": 28773,
       "ad_id": "1047825827",
       "raw_deal_id": 1047825827,
@@ -11687,32 +11362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285920,
-      "product_id": 32212,
-      "ad_id": "1047826237",
-      "raw_deal_id": 1047826237,
-      "name": "Microwavable Rice",
-      "brand": null,
-      "category": "Other",
-      "price": 2.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 14,
-      "is_front_page": false,
-      "historical_min": 2.0,
-      "historical_avg": 2.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $4.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $4.00",
-      "raw_title": "Old El Paso Taco Shells, Tortillas, Microwavable Rice, Refried Beans or Enchilada Sauce - 2/ $4.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299791/5fdd5dd8-c86c-11f1-a79a-3229697e6497/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285955,
+      "deal_id": 291026,
       "product_id": 32682,
       "ad_id": "1047826237",
       "raw_deal_id": 1047826237,
@@ -11887,56 +11537,6 @@
       "is_category_best": false
     },
     {
-      "deal_id": 227547,
-      "product_id": 33385,
-      "ad_id": "1047825226",
-      "raw_deal_id": 10478252266,
-      "name": "Nabisco Chips Ahoy! Chocolate Chip Cookies with Hershey's",
-      "brand": "Nabisco Chips Ahoy!",
-      "category": "Chips",
-      "price": 2.15,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 10,
-      "is_front_page": false,
-      "historical_min": 2.15,
-      "historical_avg": 2.15,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [BUY 1 GET 1 FREE]",
-      "promo_type": "bogo",
-      "promo_detail": "BUY 1 GET 1 FREE",
-      "raw_title": "Nabisco Chips Ahoy! Chocolate Chip Cookies with Hershey's - BUY 1 GET 1 FREE! of equal or lesser value, SAVE at least $4.29",
-      "image_url": "https://i5.peapod.com/c/8F/8FEDK.png",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 227549,
-      "product_id": 33386,
-      "ad_id": "1047825226",
-      "raw_deal_id": 10478252267,
-      "name": "Nabisco Chips Ahoy! Chewy Hershey's Fudge Filled Cookies",
-      "brand": "Nabisco Chips Ahoy!",
-      "category": "Chips",
-      "price": 2.15,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 10,
-      "is_front_page": false,
-      "historical_min": 2.15,
-      "historical_avg": 2.15,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [BUY 1 GET 1 FREE]",
-      "promo_type": "bogo",
-      "promo_detail": "BUY 1 GET 1 FREE",
-      "raw_title": "Nabisco Chips Ahoy! Chewy Hershey's Fudge Filled Cookies - BUY 1 GET 1 FREE! of equal or lesser value, SAVE at least $4.29",
-      "image_url": "https://i5.peapod.com/c/W8/W8LDS.png",
-      "is_category_best": false
-    },
-    {
       "deal_id": 227551,
       "product_id": 33387,
       "ad_id": "1047825226",
@@ -11962,12 +11562,62 @@
       "is_category_best": false
     },
     {
-      "deal_id": 227553,
+      "deal_id": 287102,
+      "product_id": 33385,
+      "ad_id": "1047825226",
+      "raw_deal_id": 10478252266,
+      "name": "Nabisco Chips Ahoy! Chocolate Chip Cookies with Hershey's",
+      "brand": "Hershey's",
+      "category": "Chips",
+      "price": 2.15,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 10,
+      "is_front_page": false,
+      "historical_min": 2.15,
+      "historical_avg": 2.15,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "FIRST_SEEN",
+      "analysis": "First time tracked in circular database \u2022 [BUY 1 GET 1 FREE]",
+      "promo_type": "bogo",
+      "promo_detail": "BUY 1 GET 1 FREE",
+      "raw_title": "Nabisco Chips Ahoy! Chocolate Chip Cookies with Hershey's - BUY 1 GET 1 FREE! of equal or lesser value, SAVE at least $4.29",
+      "image_url": "https://i5.peapod.com/c/8F/8FEDK.png",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 287103,
+      "product_id": 33386,
+      "ad_id": "1047825226",
+      "raw_deal_id": 10478252267,
+      "name": "Nabisco Chips Ahoy! Chewy Hershey's Fudge Filled Cookies",
+      "brand": "Hershey's",
+      "category": "Chips",
+      "price": 2.15,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 10,
+      "is_front_page": false,
+      "historical_min": 2.15,
+      "historical_avg": 2.15,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "FIRST_SEEN",
+      "analysis": "First time tracked in circular database \u2022 [BUY 1 GET 1 FREE]",
+      "promo_type": "bogo",
+      "promo_detail": "BUY 1 GET 1 FREE",
+      "raw_title": "Nabisco Chips Ahoy! Chewy Hershey's Fudge Filled Cookies - BUY 1 GET 1 FREE! of equal or lesser value, SAVE at least $4.29",
+      "image_url": "https://i5.peapod.com/c/W8/W8LDS.png",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 287104,
       "product_id": 33388,
       "ad_id": "1047825226",
       "raw_deal_id": 10478252269,
       "name": "Nabisco Chips Ahoy! Chewy Hershey's Cookies 'n' Cream Chocolate Chip",
-      "brand": "Nabisco Chips Ahoy!",
+      "brand": "Hershey's",
       "category": "Chips",
       "price": 2.15,
       "unit_price": null,
@@ -12212,7 +11862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285141,
+      "deal_id": 290750,
       "product_id": 31808,
       "ad_id": "1047823206",
       "raw_deal_id": 1047823206,
@@ -12237,7 +11887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285142,
+      "deal_id": 290751,
       "product_id": 31809,
       "ad_id": "1047823206",
       "raw_deal_id": 1047823206,
@@ -12512,7 +12162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285911,
+      "deal_id": 291022,
       "product_id": 32210,
       "ad_id": "1047826139",
       "raw_deal_id": 1047826139,
@@ -12537,7 +12187,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285912,
+      "deal_id": 291023,
       "product_id": 32681,
       "ad_id": "1047826139",
       "raw_deal_id": 1047826139,
@@ -12762,11 +12412,11 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285859,
-      "product_id": 32164,
+      "deal_id": 291002,
+      "product_id": 33966,
       "ad_id": "1047825674",
       "raw_deal_id": 1047825674,
-      "name": "Nabisco Minis",
+      "name": "Nabisco Minis Cookies",
       "brand": null,
       "category": "Other",
       "price": 2.99,
@@ -12787,7 +12437,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285860,
+      "deal_id": 291003,
       "product_id": 32165,
       "ad_id": "1047825674",
       "raw_deal_id": 1047825674,
@@ -12812,12 +12462,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285184,
-      "product_id": 31823,
+      "deal_id": 290763,
+      "product_id": 33959,
       "ad_id": "1047823416",
       "raw_deal_id": 1047823416,
-      "name": "Betty Crocker Supreme",
-      "brand": null,
+      "name": "Betty Crocker Supreme Brownie",
+      "brand": "Betty Crocker",
       "category": "Other",
       "price": 3.0,
       "unit_price": null,
@@ -12837,12 +12487,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285185,
-      "product_id": 31824,
+      "deal_id": 290764,
+      "product_id": 33960,
       "ad_id": "1047823416",
       "raw_deal_id": 1047823416,
-      "name": "Delights Brownie",
-      "brand": null,
+      "name": "Betty Crocker Delights Brownie",
+      "brand": "Betty Crocker",
       "category": "Other",
       "price": 3.0,
       "unit_price": null,
@@ -12862,12 +12512,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285186,
-      "product_id": 32638,
+      "deal_id": 290765,
+      "product_id": 5124,
       "ad_id": "1047823416",
       "raw_deal_id": 1047823416,
-      "name": "Cake Mix",
-      "brand": null,
+      "name": "Betty Crocker Cake Mix",
+      "brand": "Betty Crocker",
       "category": "Other",
       "price": 3.0,
       "unit_price": null,
@@ -12912,12 +12562,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 162624,
+      "deal_id": 287098,
       "product_id": 32652,
       "ad_id": "1047824077",
       "raw_deal_id": 1047824077,
       "name": "Betty Crocker Cookie Mix",
-      "brand": null,
+      "brand": "Betty Crocker",
       "category": "Other",
       "price": 3.0,
       "unit_price": null,
@@ -12987,7 +12637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285553,
+      "deal_id": 290856,
       "product_id": 23809,
       "ad_id": "1047824543",
       "raw_deal_id": 1047824543,
@@ -13012,7 +12662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285554,
+      "deal_id": 290857,
       "product_id": 31427,
       "ad_id": "1047824543",
       "raw_deal_id": 1047824543,
@@ -13037,7 +12687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285555,
+      "deal_id": 290858,
       "product_id": 32664,
       "ad_id": "1047824543",
       "raw_deal_id": 1047824543,
@@ -13062,11 +12712,36 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285559,
-      "product_id": 31980,
+      "deal_id": 290860,
+      "product_id": 33964,
       "ad_id": "1047824516",
       "raw_deal_id": 1047824516,
-      "name": "Tastykake Donuts",
+      "name": "Tastykake Donuts Muffins",
+      "brand": "Tastykake",
+      "category": "Other",
+      "price": 3.0,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 7,
+      "is_front_page": false,
+      "historical_min": 3.0,
+      "historical_avg": 3.0,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "FIRST_SEEN",
+      "analysis": "First time tracked in circular database \u2022 [2 FOR $6.00]",
+      "promo_type": "must_buy",
+      "promo_detail": "2 FOR $6.00",
+      "raw_title": "Tastykake Donuts or Mini Muffins - 2/ $6.00",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299754/5bcc8b92-c86c-11f1-91d3-bea698c1d4e8/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 290861,
+      "product_id": 31052,
+      "ad_id": "1047824516",
+      "raw_deal_id": 1047824516,
+      "name": "Tastykake Mini Muffins",
       "brand": "Tastykake",
       "category": "Other",
       "price": 3.0,
@@ -13362,7 +13037,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285986,
+      "deal_id": 291037,
       "product_id": 33438,
       "ad_id": "1047826370",
       "raw_deal_id": 1047826370,
@@ -14062,13 +13737,13 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285872,
-      "product_id": 32168,
+      "deal_id": 291007,
+      "product_id": 33967,
       "ad_id": "1047825951",
       "raw_deal_id": 1047825951,
-      "name": "Dole",
+      "name": "Dole Salad Kit",
       "brand": "Dole",
-      "category": "Other",
+      "category": "Salad",
       "price": 3.49,
       "unit_price": null,
       "unit_size": null,
@@ -14087,7 +13762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285873,
+      "deal_id": 291008,
       "product_id": 32884,
       "ad_id": "1047825951",
       "raw_deal_id": 1047825951,
@@ -14162,12 +13837,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 162625,
+      "deal_id": 287099,
       "product_id": 32653,
       "ad_id": "1047824129",
       "raw_deal_id": 1047824129,
       "name": "PAM Cooking Spray",
-      "brand": null,
+      "brand": "PAM",
       "category": "Other",
       "price": 3.5,
       "unit_price": null,
@@ -14212,7 +13887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285544,
+      "deal_id": 290853,
       "product_id": 31965,
       "ad_id": "1047824552",
       "raw_deal_id": 1047824552,
@@ -14237,7 +13912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285545,
+      "deal_id": 290854,
       "product_id": 31966,
       "ad_id": "1047824552",
       "raw_deal_id": 1047824552,
@@ -14262,7 +13937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285546,
+      "deal_id": 290855,
       "product_id": 32663,
       "ad_id": "1047824552",
       "raw_deal_id": 1047824552,
@@ -14537,12 +14212,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 144311,
+      "deal_id": 287095,
       "product_id": 31943,
       "ad_id": "1047824173",
       "raw_deal_id": 1047824173,
       "name": "Duncan Hines Comstock Pie Filling & Topping",
-      "brand": null,
+      "brand": "Duncan Hines",
       "category": "Other",
       "price": 3.89,
       "unit_price": null,
@@ -14637,7 +14312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285483,
+      "deal_id": 290831,
       "product_id": 31432,
       "ad_id": "1047824188",
       "raw_deal_id": 1047824188,
@@ -14662,7 +14337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285484,
+      "deal_id": 290832,
       "product_id": 31937,
       "ad_id": "1047824188",
       "raw_deal_id": 1047824188,
@@ -14687,7 +14362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285525,
+      "deal_id": 290844,
       "product_id": 31953,
       "ad_id": "1047824386",
       "raw_deal_id": 1047824386,
@@ -14712,7 +14387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285526,
+      "deal_id": 290845,
       "product_id": 31954,
       "ad_id": "1047824386",
       "raw_deal_id": 1047824386,
@@ -14737,7 +14412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285527,
+      "deal_id": 290846,
       "product_id": 31955,
       "ad_id": "1047824386",
       "raw_deal_id": 1047824386,
@@ -14937,7 +14612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285969,
+      "deal_id": 291032,
       "product_id": 32220,
       "ad_id": "1047826329",
       "raw_deal_id": 1047826329,
@@ -14962,7 +14637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285970,
+      "deal_id": 291033,
       "product_id": 32221,
       "ad_id": "1047826329",
       "raw_deal_id": 1047826329,
@@ -14987,7 +14662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285971,
+      "deal_id": 291034,
       "product_id": 32687,
       "ad_id": "1047826329",
       "raw_deal_id": 1047826329,
@@ -15437,7 +15112,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285534,
+      "deal_id": 290849,
       "product_id": 31958,
       "ad_id": "1047824362",
       "raw_deal_id": 1047824362,
@@ -15454,7 +15129,7 @@
       "historical_avg": 4.5,
       "diff_pct_vs_avg": 0.0,
       "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $9.00]",
+      "analysis": "First time tracked in circular database \u2022 [2 FOR $9.00] \u2022 \u26a0\ufe0f Above Water category avg (+20%)",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $9.00",
       "raw_title": "Propel Fitness Water 6 Pack or Pure Life 24 Pack - 2/ $9.00",
@@ -15462,7 +15137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285535,
+      "deal_id": 290850,
       "product_id": 32660,
       "ad_id": "1047824362",
       "raw_deal_id": 1047824362,
@@ -15537,12 +15212,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 144062,
+      "deal_id": 287094,
       "product_id": 31839,
       "ad_id": "1047823733",
       "raw_deal_id": 1047823733,
       "name": "Ghirardelli Premium Baking Chocolate",
-      "brand": null,
+      "brand": "Ghirardelli",
       "category": "Other",
       "price": 4.69,
       "unit_price": null,
@@ -15587,12 +15262,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285780,
-      "product_id": 32675,
+      "deal_id": 290983,
+      "product_id": 33965,
       "ad_id": "1047825449",
       "raw_deal_id": 1047825449,
-      "name": "Snickers Mars Minis",
-      "brand": "Snickers",
+      "name": "Hershey's Mars Minis",
+      "brand": "Hershey's",
       "category": "Other",
       "price": 4.88,
       "unit_price": null,
@@ -15612,32 +15287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285784,
-      "product_id": 32676,
-      "ad_id": "1047825449",
-      "raw_deal_id": 1047825449,
-      "name": "Ferrero Mars Minis",
-      "brand": "Ferrero",
-      "category": "Other",
-      "price": 4.88,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 11,
-      "is_front_page": false,
-      "historical_min": 4.88,
-      "historical_avg": 4.88,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Hershey's, Ferrero or Mars Minis or Snack Size Candy - $4.88",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299776/5c8ebfb4-c86c-11f1-b770-feb74192e0ba/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285132,
+      "deal_id": 290745,
       "product_id": 31804,
       "ad_id": "1047823159",
       "raw_deal_id": 1047823159,
@@ -15662,7 +15312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285133,
+      "deal_id": 290746,
       "product_id": 31805,
       "ad_id": "1047823159",
       "raw_deal_id": 1047823159,
@@ -15687,7 +15337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285134,
+      "deal_id": 290747,
       "product_id": 31806,
       "ad_id": "1047823159",
       "raw_deal_id": 1047823159,
@@ -15712,7 +15362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285796,
+      "deal_id": 290985,
       "product_id": 32125,
       "ad_id": "1047825386",
       "raw_deal_id": 1047825386,
@@ -15737,7 +15387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285797,
+      "deal_id": 290986,
       "product_id": 32126,
       "ad_id": "1047825386",
       "raw_deal_id": 1047825386,
@@ -15812,7 +15462,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285962,
+      "deal_id": 291031,
       "product_id": 23856,
       "ad_id": "1047826042",
       "raw_deal_id": 1047826042,
@@ -15862,87 +15512,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285499,
-      "product_id": 31946,
+      "deal_id": 290838,
+      "product_id": 33963,
       "ad_id": "1047824496",
       "raw_deal_id": 1047824496,
-      "name": "Arizona Tea 12 Pack",
+      "name": "Arizona Tea or Juice 12 Pack",
       "brand": null,
-      "category": "Other",
-      "price": 5.0,
-      "unit_price": 0.4167,
-      "unit_size": 12.0,
-      "unit_type": "pk",
-      "page": 7,
-      "is_front_page": false,
-      "historical_min": 5.0,
-      "historical_avg": 5.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $10.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $10.00",
-      "raw_title": "Arizona Tea or Juice 12 Pack or Dasani Water 24 Pack - 2/ $10.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299754/5d862362-c86c-11f1-91d3-bea698c1d4e8/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285500,
-      "product_id": 31947,
-      "ad_id": "1047824496",
-      "raw_deal_id": 1047824496,
-      "name": "Juice 12 Pack",
-      "brand": null,
-      "category": "Other",
-      "price": 5.0,
-      "unit_price": 0.4167,
-      "unit_size": 12.0,
-      "unit_type": "pk",
-      "page": 7,
-      "is_front_page": false,
-      "historical_min": 5.0,
-      "historical_avg": 5.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $10.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $10.00",
-      "raw_title": "Arizona Tea or Juice 12 Pack or Dasani Water 24 Pack - 2/ $10.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299754/5d862362-c86c-11f1-91d3-bea698c1d4e8/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285508,
-      "product_id": 32656,
-      "ad_id": "1047824496",
-      "raw_deal_id": 1047824496,
-      "name": "Dasani Arizona Tea 12 Pack",
-      "brand": "Dasani",
-      "category": "Other",
-      "price": 5.0,
-      "unit_price": 0.4167,
-      "unit_size": 12.0,
-      "unit_type": "pk",
-      "page": 7,
-      "is_front_page": false,
-      "historical_min": 5.0,
-      "historical_avg": 5.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $10.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $10.00",
-      "raw_title": "Arizona Tea or Juice 12 Pack or Dasani Water 24 Pack - 2/ $10.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299754/5d862362-c86c-11f1-91d3-bea698c1d4e8/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285509,
-      "product_id": 32657,
-      "ad_id": "1047824496",
-      "raw_deal_id": 1047824496,
-      "name": "Dasani Juice 12 Pack",
-      "brand": "Dasani",
       "category": "Other",
       "price": 5.0,
       "unit_price": 0.4167,
@@ -16037,7 +15612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285164,
+      "deal_id": 290757,
       "product_id": 33622,
       "ad_id": "1047823458",
       "raw_deal_id": 1047823458,
@@ -16062,7 +15637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285165,
+      "deal_id": 290758,
       "product_id": 33623,
       "ad_id": "1047823458",
       "raw_deal_id": 1047823458,
@@ -16087,82 +15662,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285168,
-      "product_id": 33625,
-      "ad_id": "1047823458",
-      "raw_deal_id": 1047823458,
-      "name": "Snyder's of Hanover of Late July Tortilla Chips",
-      "brand": "Snyder's of Hanover",
-      "category": "Tortillas",
-      "price": 5.5,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 2,
-      "is_front_page": false,
-      "historical_min": 5.5,
-      "historical_avg": 5.5,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $11.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $11.00",
-      "raw_title": "Cape Cod Potato Chips, Snyder's of Hanover Pretzels or Late July Tortilla Chips - 2/ $11.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299735/4b58fdfe-c86c-11f1-a1dc-bab235e9b5ea/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285170,
-      "product_id": 33624,
-      "ad_id": "1047823458",
-      "raw_deal_id": 1047823458,
-      "name": "Snyder's of Hanover Pretzels Tortilla",
-      "brand": "Snyder's of Hanover",
-      "category": "Tortillas",
-      "price": 5.5,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 2,
-      "is_front_page": false,
-      "historical_min": 5.5,
-      "historical_avg": 5.5,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $11.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $11.00",
-      "raw_title": "Cape Cod Potato Chips, Snyder's of Hanover Pretzels or Late July Tortilla Chips - 2/ $11.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299735/4b58fdfe-c86c-11f1-a1dc-bab235e9b5ea/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285171,
-      "product_id": 33626,
-      "ad_id": "1047823458",
-      "raw_deal_id": 1047823458,
-      "name": "of Late July Tortilla Chips",
-      "brand": null,
-      "category": "Tortillas",
-      "price": 5.5,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 2,
-      "is_front_page": false,
-      "historical_min": 5.5,
-      "historical_avg": 5.5,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database \u2022 [2 FOR $11.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $11.00",
-      "raw_title": "Cape Cod Potato Chips, Snyder's of Hanover Pretzels or Late July Tortilla Chips - 2/ $11.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299735/4b58fdfe-c86c-11f1-a1dc-bab235e9b5ea/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285517,
+      "deal_id": 290842,
       "product_id": 31951,
       "ad_id": "1047824444",
       "raw_deal_id": 1047824444,
@@ -16187,7 +15687,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285518,
+      "deal_id": 290843,
       "product_id": 32658,
       "ad_id": "1047824444",
       "raw_deal_id": 1047824444,
@@ -16312,7 +15812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285513,
+      "deal_id": 290840,
       "product_id": 31949,
       "ad_id": "1047824459",
       "raw_deal_id": 1047824459,
@@ -16337,7 +15837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285514,
+      "deal_id": 290841,
       "product_id": 31950,
       "ad_id": "1047824459",
       "raw_deal_id": 1047824459,
@@ -16387,7 +15887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285202,
+      "deal_id": 290771,
       "product_id": 31842,
       "ad_id": "1047823807",
       "raw_deal_id": 1047823807,
@@ -16412,7 +15912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285203,
+      "deal_id": 290772,
       "product_id": 32883,
       "ad_id": "1047823807",
       "raw_deal_id": 1047823807,
@@ -16562,157 +16062,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285331,
-      "product_id": 32642,
-      "ad_id": "1047823786",
-      "raw_deal_id": 1047823786,
-      "name": "Folgers Green Mountain",
-      "brand": "Folgers",
-      "category": "Other",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 4,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Folgers, Green Mountain, Lavazza or Seattle's Best Coffee - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299744/4f9e1a84-c86c-11f1-a79a-3229697e6497/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285332,
-      "product_id": 32643,
-      "ad_id": "1047823786",
-      "raw_deal_id": 1047823786,
-      "name": "Folgers Lavazza",
-      "brand": "Folgers",
-      "category": "Other",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 4,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Folgers, Green Mountain, Lavazza or Seattle's Best Coffee - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299744/4f9e1a84-c86c-11f1-a79a-3229697e6497/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285333,
-      "product_id": 32644,
-      "ad_id": "1047823786",
-      "raw_deal_id": 1047823786,
-      "name": "Folgers Seattle's Best Coffee",
-      "brand": "Folgers",
-      "category": "Coffee",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 4,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Folgers, Green Mountain, Lavazza or Seattle's Best Coffee - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299744/4f9e1a84-c86c-11f1-a79a-3229697e6497/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285334,
-      "product_id": 32645,
-      "ad_id": "1047823786",
-      "raw_deal_id": 1047823786,
-      "name": "Green Mountain Folgers",
-      "brand": "Green Mountain",
-      "category": "Other",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 4,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Folgers, Green Mountain, Lavazza or Seattle's Best Coffee - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299744/4f9e1a84-c86c-11f1-a79a-3229697e6497/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285336,
-      "product_id": 32646,
-      "ad_id": "1047823786",
-      "raw_deal_id": 1047823786,
-      "name": "Green Mountain Lavazza",
-      "brand": "Green Mountain",
-      "category": "Other",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 4,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Folgers, Green Mountain, Lavazza or Seattle's Best Coffee - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299744/4f9e1a84-c86c-11f1-a79a-3229697e6497/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285337,
-      "product_id": 32647,
-      "ad_id": "1047823786",
-      "raw_deal_id": 1047823786,
-      "name": "Green Mountain Seattle's Best Coffee",
-      "brand": "Green Mountain",
-      "category": "Coffee",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 4,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Folgers, Green Mountain, Lavazza or Seattle's Best Coffee - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299744/4f9e1a84-c86c-11f1-a79a-3229697e6497/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285342,
+      "deal_id": 290799,
       "product_id": 137,
       "ad_id": "1047823786",
       "raw_deal_id": 1047823786,
@@ -16737,12 +16087,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285344,
-      "product_id": 31909,
+      "deal_id": 290800,
+      "product_id": 32642,
       "ad_id": "1047823786",
       "raw_deal_id": 1047823786,
-      "name": "Lavazza",
-      "brand": null,
+      "name": "Folgers Green Mountain",
+      "brand": "Folgers",
       "category": "Other",
       "price": 6.99,
       "unit_price": null,
@@ -16762,12 +16112,37 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285345,
-      "product_id": 31910,
+      "deal_id": 290801,
+      "product_id": 32643,
       "ad_id": "1047823786",
       "raw_deal_id": 1047823786,
-      "name": "Seattle's Best Coffee",
-      "brand": null,
+      "name": "Folgers Lavazza",
+      "brand": "Folgers",
+      "category": "Other",
+      "price": 6.99,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 4,
+      "is_front_page": false,
+      "historical_min": 6.99,
+      "historical_avg": 6.99,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "FIRST_SEEN",
+      "analysis": "First time tracked in circular database",
+      "promo_type": "standard",
+      "promo_detail": null,
+      "raw_title": "Folgers, Green Mountain, Lavazza or Seattle's Best Coffee - $6.99",
+      "image_url": "https://f.wishabi.net/page_pdf_images/24299744/4f9e1a84-c86c-11f1-a79a-3229697e6497/medium",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 290802,
+      "product_id": 32644,
+      "ad_id": "1047823786",
+      "raw_deal_id": 1047823786,
+      "name": "Folgers Seattle's Best Coffee",
+      "brand": "Folgers",
       "category": "Coffee",
       "price": 6.99,
       "unit_price": null,
@@ -16787,7 +16162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285530,
+      "deal_id": 290847,
       "product_id": 31956,
       "ad_id": "1047824372",
       "raw_deal_id": 1047824372,
@@ -16812,7 +16187,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285531,
+      "deal_id": 290848,
       "product_id": 31957,
       "ad_id": "1047824372",
       "raw_deal_id": 1047824372,
@@ -16862,7 +16237,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285821,
+      "deal_id": 290994,
       "product_id": 32677,
       "ad_id": "1047825665",
       "raw_deal_id": 1047825665,
@@ -16887,7 +16262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285823,
+      "deal_id": 290996,
       "product_id": 32678,
       "ad_id": "1047825665",
       "raw_deal_id": 1047825665,
@@ -16912,132 +16287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285825,
-      "product_id": 32152,
-      "ad_id": "1047825665",
-      "raw_deal_id": 1047825665,
-      "name": "Cape Cod",
-      "brand": null,
-      "category": "Other",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 12,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Cape Cod, Pepperidge Farm Cookies, Snyder's of Hanover or Goldfish Snacks Multipack - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299777/5a9f520e-c86c-11f1-b6ec-86d4a62556f5/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285827,
-      "product_id": 32153,
-      "ad_id": "1047825665",
-      "raw_deal_id": 1047825665,
-      "name": "Snyder's of Hanover",
-      "brand": null,
-      "category": "Other",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 12,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Cape Cod, Pepperidge Farm Cookies, Snyder's of Hanover or Goldfish Snacks Multipack - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299777/5a9f520e-c86c-11f1-b6ec-86d4a62556f5/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285841,
-      "product_id": 32719,
-      "ad_id": "1047825665",
-      "raw_deal_id": 1047825665,
-      "name": "Goldfish Cape Cod",
-      "brand": "Goldfish",
-      "category": "Crackers",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 12,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Cape Cod, Pepperidge Farm Cookies, Snyder's of Hanover or Goldfish Snacks Multipack - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299777/5a9f520e-c86c-11f1-b6ec-86d4a62556f5/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285842,
-      "product_id": 32720,
-      "ad_id": "1047825665",
-      "raw_deal_id": 1047825665,
-      "name": "Goldfish Pepperidge Farm Cookies",
-      "brand": "Goldfish",
-      "category": "Crackers",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 12,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Cape Cod, Pepperidge Farm Cookies, Snyder's of Hanover or Goldfish Snacks Multipack - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299777/5a9f520e-c86c-11f1-b6ec-86d4a62556f5/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285843,
-      "product_id": 32721,
-      "ad_id": "1047825665",
-      "raw_deal_id": 1047825665,
-      "name": "Goldfish Snyder's of Hanover",
-      "brand": "Goldfish",
-      "category": "Crackers",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 12,
-      "is_front_page": false,
-      "historical_min": 6.99,
-      "historical_avg": 6.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Cape Cod, Pepperidge Farm Cookies, Snyder's of Hanover or Goldfish Snacks Multipack - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299777/5a9f520e-c86c-11f1-b6ec-86d4a62556f5/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285844,
+      "deal_id": 290997,
       "product_id": 31803,
       "ad_id": "1047825665",
       "raw_deal_id": 1047825665,
@@ -17087,7 +16337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285906,
+      "deal_id": 291019,
       "product_id": 28776,
       "ad_id": "1047825912",
       "raw_deal_id": 1047825912,
@@ -17262,7 +16512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285120,
+      "deal_id": 290743,
       "product_id": 31802,
       "ad_id": "1047823293",
       "raw_deal_id": 1047823293,
@@ -17287,32 +16537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285124,
-      "product_id": 32718,
-      "ad_id": "1047823293",
-      "raw_deal_id": 1047823293,
-      "name": "Goldfish Herr's",
-      "brand": "Goldfish",
-      "category": "Crackers",
-      "price": 7.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 1,
-      "is_front_page": true,
-      "historical_min": 7.99,
-      "historical_avg": 7.99,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "FIRST_SEEN",
-      "analysis": "First time tracked in circular database",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Herr's or Goldfish Snacks Multipack - $7.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299719/43391bae-c86c-11f1-824e-12ab57b474fe/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285125,
+      "deal_id": 290744,
       "product_id": 31803,
       "ad_id": "1047823293",
       "raw_deal_id": 1047823293,
@@ -17512,7 +16737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285242,
+      "deal_id": 290781,
       "product_id": 31884,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -17537,7 +16762,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285243,
+      "deal_id": 290782,
       "product_id": 31885,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -17562,7 +16787,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285244,
+      "deal_id": 290783,
       "product_id": 31886,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -17587,7 +16812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285245,
+      "deal_id": 290784,
       "product_id": 31887,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -17612,7 +16837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285246,
+      "deal_id": 290785,
       "product_id": 33349,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -17637,7 +16862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285247,
+      "deal_id": 290786,
       "product_id": 31889,
       "ad_id": "1047823848",
       "raw_deal_id": 1047823848,
@@ -17687,7 +16912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285149,
+      "deal_id": 290754,
       "product_id": 31813,
       "ad_id": "1047823449",
       "raw_deal_id": 1047823449,
@@ -17712,7 +16937,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285150,
+      "deal_id": 290755,
       "product_id": 31814,
       "ad_id": "1047823449",
       "raw_deal_id": 1047823449,
@@ -17737,12 +16962,12 @@
       "is_category_best": false
     },
     {
-      "deal_id": 144807,
+      "deal_id": 287096,
       "product_id": 32127,
       "ad_id": "1047825357",
       "raw_deal_id": 1047825357,
       "name": "Hershey's Assorted Halloween Candy",
-      "brand": null,
+      "brand": "Hershey's",
       "category": "Other",
       "price": 9.99,
       "unit_price": null,
@@ -17762,7 +16987,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285732,
+      "deal_id": 290975,
       "product_id": 28713,
       "ad_id": "1047825286",
       "raw_deal_id": 10478252861,
@@ -17787,7 +17012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285734,
+      "deal_id": 290977,
       "product_id": 28715,
       "ad_id": "1047825286",
       "raw_deal_id": 10478252863,
@@ -17912,7 +17137,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285731,
+      "deal_id": 290974,
       "product_id": 28712,
       "ad_id": "1047825286",
       "raw_deal_id": 10478252860,
@@ -17937,7 +17162,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285733,
+      "deal_id": 290976,
       "product_id": 28714,
       "ad_id": "1047825286",
       "raw_deal_id": 10478252862,
@@ -18387,7 +17612,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285905,
+      "deal_id": 291018,
       "product_id": 28775,
       "ad_id": "1047826005",
       "raw_deal_id": 1047826005,
@@ -18412,7 +17637,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285908,
+      "deal_id": 291021,
       "product_id": 28777,
       "ad_id": "1047825903",
       "raw_deal_id": 1047825903,
@@ -20037,7 +19262,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285383,
+      "deal_id": 290814,
       "product_id": 31928,
       "ad_id": "1047824282",
       "raw_deal_id": 1047824282,
@@ -20062,7 +19287,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285384,
+      "deal_id": 290815,
       "product_id": 23807,
       "ad_id": "1047824282",
       "raw_deal_id": 1047824282,
@@ -20087,82 +19312,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285386,
-      "product_id": 23874,
-      "ad_id": "1047824282",
-      "raw_deal_id": 1047824282,
-      "name": "Tofurky Roast",
-      "brand": "Stouffer's",
-      "category": "Roast",
-      "price": 4.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 4.0,
-      "historical_avg": 4.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "POINTS_REDEMPTION",
-      "analysis": "\ud83e\ude99 Points Redemption: 400 CHOICE points",
-      "promo_type": "points_redemption",
-      "promo_detail": "FREE with 400 CHOICE points",
-      "raw_title": "TURKEY - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs. or select hams up to 14 lbs. or Stouffer's Party Size Entr\u00e9e or Tofurky Roast",
-      "image_url": "https://f.wishabi.net/page_items/437423594/1792058152/large.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285403,
-      "product_id": 32648,
-      "ad_id": "1047824282",
-      "raw_deal_id": 1047824282,
-      "name": "Stouffer's TURKEY - FREE TURKEY with 400 CHOICE points",
-      "brand": "Stouffer's",
-      "category": "Turkey",
-      "price": 4.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 4.0,
-      "historical_avg": 4.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "POINTS_REDEMPTION",
-      "analysis": "\ud83e\ude99 Points Redemption: 400 CHOICE points",
-      "promo_type": "points_redemption",
-      "promo_detail": "FREE with 400 CHOICE points",
-      "raw_title": "TURKEY - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs. or select hams up to 14 lbs. or Stouffer's Party Size Entr\u00e9e or Tofurky Roast",
-      "image_url": "https://f.wishabi.net/page_items/437423594/1792058152/large.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285404,
-      "product_id": 31931,
-      "ad_id": "1047824282",
-      "raw_deal_id": 1047824282,
-      "name": "Stouffer's select hams up to 14 lbs",
-      "brand": "Stouffer's",
-      "category": "Other",
-      "price": 4.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 4.0,
-      "historical_avg": 4.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "POINTS_REDEMPTION",
-      "analysis": "\ud83e\ude99 Points Redemption: 400 CHOICE points",
-      "promo_type": "points_redemption",
-      "promo_detail": "FREE with 400 CHOICE points",
-      "raw_title": "TURKEY - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs. or select hams up to 14 lbs. or Stouffer's Party Size Entr\u00e9e or Tofurky Roast",
-      "image_url": "https://f.wishabi.net/page_items/437423594/1792058152/large.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285405,
+      "deal_id": 290816,
       "product_id": 23873,
       "ad_id": "1047824282",
       "raw_deal_id": 1047824282,
@@ -20187,11 +19337,11 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285406,
-      "product_id": 31489,
+      "deal_id": 290817,
+      "product_id": 23874,
       "ad_id": "1047824282",
       "raw_deal_id": 1047824282,
-      "name": "Stouffer's Tofurky Roast",
+      "name": "Tofurky Roast",
       "brand": "Stouffer's",
       "category": "Roast",
       "price": 4.0,
@@ -20212,7 +19362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285417,
+      "deal_id": 290818,
       "product_id": 23806,
       "ad_id": "1047824294",
       "raw_deal_id": 1047824294,
@@ -20237,7 +19387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285418,
+      "deal_id": 290819,
       "product_id": 31929,
       "ad_id": "1047824294",
       "raw_deal_id": 1047824294,
@@ -20262,7 +19412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285419,
+      "deal_id": 290820,
       "product_id": 23807,
       "ad_id": "1047824294",
       "raw_deal_id": 1047824294,
@@ -20287,7 +19437,32 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285421,
+      "deal_id": 290821,
+      "product_id": 23873,
+      "ad_id": "1047824294",
+      "raw_deal_id": 1047824294,
+      "name": "Stouffer's Party Size Entr\u00e9e",
+      "brand": "Stouffer's",
+      "category": "Other",
+      "price": 4.0,
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
+      "page": 6,
+      "is_front_page": false,
+      "historical_min": 4.0,
+      "historical_avg": 4.0,
+      "diff_pct_vs_avg": 0.0,
+      "badge": "POINTS_REDEMPTION",
+      "analysis": "\ud83e\ude99 Points Redemption: 400 CHOICE points",
+      "promo_type": "points_redemption",
+      "promo_detail": "FREE with 400 CHOICE points",
+      "raw_title": "any other turkey up to 20 lbs. or select hams up to 14 lbs. - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs. or select hams up to 14 lbs. or Stouffer's Party Size Entr\u00e9e or Tofurky Roast",
+      "image_url": "https://f.wishabi.net/page_items/437423595/1792058153/large.jpg",
+      "is_category_best": false
+    },
+    {
+      "deal_id": 290822,
       "product_id": 23874,
       "ad_id": "1047824294",
       "raw_deal_id": 1047824294,
@@ -20312,132 +19487,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285447,
-      "product_id": 32649,
-      "ad_id": "1047824294",
-      "raw_deal_id": 1047824294,
-      "name": "Stouffer's any other turkey up to 20 lbs",
-      "brand": "Stouffer's",
-      "category": "Turkey",
-      "price": 4.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 4.0,
-      "historical_avg": 4.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "POINTS_REDEMPTION",
-      "analysis": "\ud83e\ude99 Points Redemption: 400 CHOICE points",
-      "promo_type": "points_redemption",
-      "promo_detail": "FREE with 400 CHOICE points",
-      "raw_title": "any other turkey up to 20 lbs. or select hams up to 14 lbs. - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs. or select hams up to 14 lbs. or Stouffer's Party Size Entr\u00e9e or Tofurky Roast",
-      "image_url": "https://f.wishabi.net/page_items/437423595/1792058153/large.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285448,
-      "product_id": 32650,
-      "ad_id": "1047824294",
-      "raw_deal_id": 1047824294,
-      "name": "Stouffer's select hams up to 14 lbs. - FREE TURKEY with 400 CHOICE points",
-      "brand": "Stouffer's",
-      "category": "Turkey",
-      "price": 4.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 4.0,
-      "historical_avg": 4.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "POINTS_REDEMPTION",
-      "analysis": "\ud83e\ude99 Points Redemption: 400 CHOICE points",
-      "promo_type": "points_redemption",
-      "promo_detail": "FREE with 400 CHOICE points",
-      "raw_title": "any other turkey up to 20 lbs. or select hams up to 14 lbs. - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs. or select hams up to 14 lbs. or Stouffer's Party Size Entr\u00e9e or Tofurky Roast",
-      "image_url": "https://f.wishabi.net/page_items/437423595/1792058153/large.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285449,
-      "product_id": 31931,
-      "ad_id": "1047824294",
-      "raw_deal_id": 1047824294,
-      "name": "Stouffer's select hams up to 14 lbs",
-      "brand": "Stouffer's",
-      "category": "Other",
-      "price": 4.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 4.0,
-      "historical_avg": 4.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "POINTS_REDEMPTION",
-      "analysis": "\ud83e\ude99 Points Redemption: 400 CHOICE points",
-      "promo_type": "points_redemption",
-      "promo_detail": "FREE with 400 CHOICE points",
-      "raw_title": "any other turkey up to 20 lbs. or select hams up to 14 lbs. - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs. or select hams up to 14 lbs. or Stouffer's Party Size Entr\u00e9e or Tofurky Roast",
-      "image_url": "https://f.wishabi.net/page_items/437423595/1792058153/large.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285450,
-      "product_id": 23873,
-      "ad_id": "1047824294",
-      "raw_deal_id": 1047824294,
-      "name": "Stouffer's Party Size Entr\u00e9e",
-      "brand": "Stouffer's",
-      "category": "Other",
-      "price": 4.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 4.0,
-      "historical_avg": 4.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "POINTS_REDEMPTION",
-      "analysis": "\ud83e\ude99 Points Redemption: 400 CHOICE points",
-      "promo_type": "points_redemption",
-      "promo_detail": "FREE with 400 CHOICE points",
-      "raw_title": "any other turkey up to 20 lbs. or select hams up to 14 lbs. - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs. or select hams up to 14 lbs. or Stouffer's Party Size Entr\u00e9e or Tofurky Roast",
-      "image_url": "https://f.wishabi.net/page_items/437423595/1792058153/large.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285451,
-      "product_id": 31489,
-      "ad_id": "1047824294",
-      "raw_deal_id": 1047824294,
-      "name": "Stouffer's Tofurky Roast",
-      "brand": "Stouffer's",
-      "category": "Roast",
-      "price": 4.0,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 6,
-      "is_front_page": false,
-      "historical_min": 4.0,
-      "historical_avg": 4.0,
-      "diff_pct_vs_avg": 0.0,
-      "badge": "POINTS_REDEMPTION",
-      "analysis": "\ud83e\ude99 Points Redemption: 400 CHOICE points",
-      "promo_type": "points_redemption",
-      "promo_detail": "FREE with 400 CHOICE points",
-      "raw_title": "any other turkey up to 20 lbs. or select hams up to 14 lbs. - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs. or select hams up to 14 lbs. or Stouffer's Party Size Entr\u00e9e or Tofurky Roast",
-      "image_url": "https://f.wishabi.net/page_items/437423595/1792058153/large.jpg",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285468,
+      "deal_id": 290824,
       "product_id": 31930,
       "ad_id": "1047824307",
       "raw_deal_id": 1047824307,
@@ -20462,7 +19512,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285469,
+      "deal_id": 290825,
       "product_id": 31931,
       "ad_id": "1047824307",
       "raw_deal_id": 1047824307,
@@ -20487,7 +19537,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285470,
+      "deal_id": 290826,
       "product_id": 23873,
       "ad_id": "1047824307",
       "raw_deal_id": 1047824307,
@@ -20512,7 +19562,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285471,
+      "deal_id": 290827,
       "product_id": 31489,
       "ad_id": "1047824307",
       "raw_deal_id": 1047824307,
@@ -20537,7 +19587,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285369,
+      "deal_id": 290810,
       "product_id": 23680,
       "ad_id": "1049887843",
       "raw_deal_id": 1049887843,
@@ -20762,7 +19812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 267583,
+      "deal_id": 287136,
       "product_id": 4311,
       "ad_id": "1047826227",
       "raw_deal_id": 1047826227,
@@ -20787,7 +19837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285536,
+      "deal_id": 290851,
       "product_id": 3367,
       "ad_id": "1047824425",
       "raw_deal_id": 1047824425,
@@ -20837,7 +19887,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285252,
+      "deal_id": 290789,
       "product_id": 4258,
       "ad_id": "1047823798",
       "raw_deal_id": 1047823798,
@@ -20912,7 +19962,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285537,
+      "deal_id": 290852,
       "product_id": 2944,
       "ad_id": "1047824337",
       "raw_deal_id": 1047824337,
@@ -20962,32 +20012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285166,
-      "product_id": 31415,
-      "ad_id": "1047823458",
-      "raw_deal_id": 1047823458,
-      "name": "Snyder's of Hanover Cape Cod Potato Chips",
-      "brand": "Snyder's of Hanover",
-      "category": "Potatoes",
-      "price": 5.5,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 2,
-      "is_front_page": false,
-      "historical_min": 1.99,
-      "historical_avg": 3.16,
-      "diff_pct_vs_avg": 73.9,
-      "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+73.9% vs avg $3.16) \u2022 [2 FOR $11.00]",
-      "promo_type": "must_buy",
-      "promo_detail": "2 FOR $11.00",
-      "raw_title": "Cape Cod Potato Chips, Snyder's of Hanover Pretzels or Late July Tortilla Chips - 2/ $11.00",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299735/4b58fdfe-c86c-11f1-a1dc-bab235e9b5ea/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285169,
+      "deal_id": 290756,
       "product_id": 23794,
       "ad_id": "1047823458",
       "raw_deal_id": 1047823458,
@@ -21009,156 +20034,6 @@
       "promo_detail": "2 FOR $11.00",
       "raw_title": "Cape Cod Potato Chips, Snyder's of Hanover Pretzels or Late July Tortilla Chips - 2/ $11.00",
       "image_url": "https://f.wishabi.net/page_pdf_images/24299735/4b58fdfe-c86c-11f1-a1dc-bab235e9b5ea/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285900,
-      "product_id": 23740,
-      "ad_id": "1047825936",
-      "raw_deal_id": 1047825936,
-      "name": "Our Brand Green Beans",
-      "brand": "Our Brand",
-      "category": "Other",
-      "price": 5.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 13,
-      "is_front_page": false,
-      "historical_min": 2.49,
-      "historical_avg": 3.66,
-      "diff_pct_vs_avg": 63.8,
-      "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+63.8% vs avg $3.66)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285901,
-      "product_id": 23741,
-      "ad_id": "1047825936",
-      "raw_deal_id": 1047825936,
-      "name": "Brussels Sprouts",
-      "brand": "Our Brand",
-      "category": "Other",
-      "price": 5.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 13,
-      "is_front_page": false,
-      "historical_min": 2.49,
-      "historical_avg": 4.24,
-      "diff_pct_vs_avg": 41.3,
-      "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+41.3% vs avg $4.24)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285902,
-      "product_id": 23742,
-      "ad_id": "1047825936",
-      "raw_deal_id": 1047825936,
-      "name": "Broccoli",
-      "brand": "Our Brand",
-      "category": "Other",
-      "price": 5.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 13,
-      "is_front_page": false,
-      "historical_min": 2.49,
-      "historical_avg": 4.24,
-      "diff_pct_vs_avg": 41.3,
-      "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+41.3% vs avg $4.24)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285903,
-      "product_id": 23743,
-      "ad_id": "1047825936",
-      "raw_deal_id": 1047825936,
-      "name": "Cauliflower Florets",
-      "brand": "Our Brand",
-      "category": "Other",
-      "price": 5.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 13,
-      "is_front_page": false,
-      "historical_min": 2.49,
-      "historical_avg": 4.24,
-      "diff_pct_vs_avg": 41.3,
-      "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+41.3% vs avg $4.24)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285904,
-      "product_id": 23744,
-      "ad_id": "1047825936",
-      "raw_deal_id": 1047825936,
-      "name": "Vegetable Medley",
-      "brand": "Our Brand",
-      "category": "Other",
-      "price": 5.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 13,
-      "is_front_page": false,
-      "historical_min": 2.49,
-      "historical_avg": 4.24,
-      "diff_pct_vs_avg": 41.3,
-      "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+41.3% vs avg $4.24)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Our Brand Green Beans, Brussels Sprouts, Broccoli or Cauliflower Florets or Vegetable Medley - $5.99 /ea.",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299788/5ee7858e-c86c-11f1-b8d8-a2bb0ffd5422/medium",
-      "is_category_best": false
-    },
-    {
-      "deal_id": 285343,
-      "product_id": 1065,
-      "ad_id": "1047823786",
-      "raw_deal_id": 1047823786,
-      "name": "Green Mountain",
-      "brand": "Green Mountain",
-      "category": "Other",
-      "price": 6.99,
-      "unit_price": null,
-      "unit_size": null,
-      "unit_type": null,
-      "page": 4,
-      "is_front_page": false,
-      "historical_min": 5.99,
-      "historical_avg": 5.99,
-      "diff_pct_vs_avg": 16.7,
-      "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+16.7% vs avg $5.99)",
-      "promo_type": "standard",
-      "promo_detail": null,
-      "raw_title": "Folgers, Green Mountain, Lavazza or Seattle's Best Coffee - $6.99",
-      "image_url": "https://f.wishabi.net/page_pdf_images/24299744/4f9e1a84-c86c-11f1-a79a-3229697e6497/medium",
       "is_category_best": false
     },
     {
@@ -21462,7 +20337,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285735,
+      "deal_id": 290978,
       "product_id": 8859,
       "ad_id": "1047825165",
       "raw_deal_id": 10478251650,
@@ -21487,7 +20362,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285736,
+      "deal_id": 290979,
       "product_id": 8862,
       "ad_id": "1047825165",
       "raw_deal_id": 10478251653,
@@ -21512,7 +20387,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285737,
+      "deal_id": 290980,
       "product_id": 8863,
       "ad_id": "1047825165",
       "raw_deal_id": 10478251654,
@@ -21537,7 +20412,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285826,
+      "deal_id": 290995,
       "product_id": 5437,
       "ad_id": "1047825665",
       "raw_deal_id": 1047825665,
@@ -21812,17 +20687,17 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285145,
-      "product_id": 29672,
+      "deal_id": 290752,
+      "product_id": 30621,
       "ad_id": "1047823248",
       "raw_deal_id": 1047823248,
-      "name": "Acadia Spring 35 Pack",
+      "name": "Acadia Spring",
       "brand": "Acadia",
       "category": "Other",
       "price": 8.0,
-      "unit_price": 0.2286,
-      "unit_size": 35.0,
-      "unit_type": "pk",
+      "unit_price": null,
+      "unit_size": null,
+      "unit_type": null,
       "page": 1,
       "is_front_page": true,
       "historical_min": 3.99,
@@ -21837,7 +20712,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285146,
+      "deal_id": 290753,
       "product_id": 29673,
       "ad_id": "1047823248",
       "raw_deal_id": 1047823248,
@@ -21854,7 +20729,7 @@
       "historical_avg": 3.99,
       "diff_pct_vs_avg": 100.5,
       "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+100.5% vs avg $3.99) \u2022 [2 FOR $8.00] \u2022 \ud83d\udd25 67% below Water category avg",
+      "analysis": "\u26a0\ufe0f Higher than typical promo average (+100.5% vs avg $3.99) \u2022 [2 FOR $8.00] \u2022 \ud83d\udd25 63% below Water category avg",
       "promo_type": "must_buy",
       "promo_detail": "2 FOR $8.00",
       "raw_title": "Acadia Spring or Purified Water 35 Pack - 2/ $8.00 When you buy 2",
@@ -21862,7 +20737,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285702,
+      "deal_id": 290969,
       "product_id": 2486,
       "ad_id": "1047824921",
       "raw_deal_id": 1047824921,
@@ -21904,7 +20779,7 @@
       "historical_avg": 8.99,
       "diff_pct_vs_avg": 11.1,
       "badge": "PRICE_HIKE",
-      "analysis": "\u26a0\ufe0f Higher than typical promo average (+11.1% vs avg $8.99) \u2022 [DIGITAL COUPON $9.99] \u2022 \u26a0\ufe0f Above Chicken Tenders category avg (+76%)",
+      "analysis": "\u26a0\ufe0f Higher than typical promo average (+11.1% vs avg $8.99) \u2022 [DIGITAL COUPON $9.99] \u2022 \u26a0\ufe0f Above Chicken Tenders category avg (+74%)",
       "promo_type": "digital_coupon",
       "promo_detail": "DIGITAL COUPON $9.99",
       "raw_title": "Whole Beef Tenderloin - $9.99 /lb. DIGITAL COUPON",
@@ -21937,7 +20812,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285255,
+      "deal_id": 290790,
       "product_id": 30563,
       "ad_id": "1047823762",
       "raw_deal_id": 1047823762,
@@ -21962,7 +20837,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285256,
+      "deal_id": 290791,
       "product_id": 32503,
       "ad_id": "1047823762",
       "raw_deal_id": 1047823762,
@@ -21987,7 +20862,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285359,
+      "deal_id": 290804,
       "product_id": 29665,
       "ad_id": "1047823902",
       "raw_deal_id": 1047823902,
@@ -22012,11 +20887,11 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285176,
-      "product_id": 2737,
+      "deal_id": 290761,
+      "product_id": 33887,
       "ad_id": "1047823492",
       "raw_deal_id": 1047823492,
-      "name": "Large",
+      "name": "Large Pumpkins",
       "brand": null,
       "category": "Other",
       "price": 12.0,
@@ -22037,7 +20912,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285177,
+      "deal_id": 290762,
       "product_id": 23747,
       "ad_id": "1047823492",
       "raw_deal_id": 1047823492,
@@ -22137,7 +21012,7 @@
       "is_category_best": false
     },
     {
-      "deal_id": 285861,
+      "deal_id": 291004,
       "product_id": 28750,
       "ad_id": "1047825732",
       "raw_deal_id": 1047825732,
