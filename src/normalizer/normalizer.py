@@ -11,9 +11,17 @@ from ..promo_extractor import PromoExtractor
 from .models import NormalizedDeal
 from .categories import COMMODITY_PATTERNS, infer_category
 from .units import UNIT_PATTERN, extract_unit_info
+from .vocabulary import STORE_BRANDS, NATIONAL_BRANDS, DEPARTMENT_BANNERS
+from .rules import (
+    COLLAGE_5_FOR_5_MAP,
+    STAPLES_5_FOR_5,
+    apply_store_brand_meat_stripping,
+    apply_poultry_cut_standardization,
+    apply_seasoning_standardization,
+    apply_brand_specific_rules,
+    apply_deli_or_meat_per_lb_fallback,
+)
 from .cleaner import (
-    STORE_BRANDS,
-    DEPARTMENT_BANNERS,
     PACKAGING_SALES_PATTERNS,
     DISCARD_CHUNK_PATTERN,
     normalize_text,
@@ -42,33 +50,7 @@ class ProductNormalizer:
     PACKAGING_SALES_PATTERNS = PACKAGING_SALES_PATTERNS
     DISCARD_CHUNK_PATTERN = DISCARD_CHUNK_PATTERN
     COMMODITY_PATTERNS = COMMODITY_PATTERNS
-    NATIONAL_BRANDS = [
-        "McCormick", "Kraft", "Pillsbury", "Ro-Tel", "Libby's", "Bush's", "Mission",
-        "Fage", "Horizon", "Daisy", "Philadelphia", "Lays", "Lay's", "Cheetos", "Ruffles",
-        "Doritos", "Tostitos", "Smartfood", "Frito Lay", "Utz", "Planters",
-        "Cheez-It", "Cheez It", "Goldfish", "Pringles", "Ritz", "Triscuit", "Wheat Thins", "Club", "Town House",
-        "Coca-Cola", "Pepsi", "Gatorade", "Propel", "Budweiser", "Bud",
-        "Canada Dry", "Schweppes", "Polar",
-        "Shiner", "Corona", "Modelo", "Dos Equis", "Decoy", "Conundrum",
-        "Kendall-Jackson", "Josh Cellars", "Josh", "La Crema", "Meiomi", "Kim Crawford",
-        "Chateau Ste. Michelle", "Bogle", "Robert Mondavi", "Barefoot", "Woodbridge",
-        "Sutter Home", "Yellow Tail", "Cupcake", "Stella Rosa", "14 Hands", "Headsnapper",
-        "Andre", "Firefly Ridge", "Menage A Trois", "Ménage à Trois", "Chloe", "Nobilo", "Rold Gold",
-        "Miss Vickie's", "Soleil", "Snapple", "Poppi", "Ozarka", "Sunny Delight",
-        "Premier Protein", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
-        "Tina's", "Yoplait", "Chobani", "Dannon", "Oikos", "Tillamook", "Turkey Hill",
-        "Banquet", "BelGioioso", "Aleia's", "Sparkle", "Artesano",
-        "Quaker", "Cap'n Crunch", "Life", "Campbell's", "Chef Boyardee", "Barilla",
-        "Dole", "Bolthouse", "Bolthouse Farms", "NatureSweet", "Fresh Express", "Taylor Farms",
-        "Earthbound Farm", "Organic Girl", "Green Giant", "Birds Eye",
-        "Driscoll's", "Sunkist", "Halo", "Cuties", "Chiquita", "Del Monte",
-        "Stouffer's", "Lean Cuisine", "Perdue", "Tyson", "Oscar Mayer",
-        "Hormel", "Eckrich", "Johnsonville", "Smithfield", "Farmland", "Aidells", "Hatfield", "Butterball", "Jennie-O",
-        "Sugardale", "Jimmy Dean", "Hillshire Farm", "Applegate", "Hebrew National", "Ball Park", "Nathan's",
-        "General Mills", "Kellogg's", "Post", "Sargento", "Cabot", "Hidden Valley", "Ken's",
-        "Ken's Steak House", "Marzetti", "Newman's Own", "Wish-Bone", "Heinz", "French's",
-        "Hellmann's", "Best Foods",
-    ]
+    NATIONAL_BRANDS = NATIONAL_BRANDS
 
     def infer_category(self, text: str) -> Optional[str]:
         return infer_category(text)
@@ -170,8 +152,7 @@ class ProductNormalizer:
         normalized_deals: List[NormalizedDeal] = []
 
         # Mix & Match "5 for $5" collage detection across the entire item
-        staples_5for5 = ("kraft", "maruchan", "michelina", "idahoan", "bowl", "crest", "banquet", "snack pack", "chef boyardee", "ragu")
-        is_5_for_5 = bool(item.price == 5.0 and sum(1 for s in staples_5for5 if s in item.name.lower()) >= 4)
+        is_5_for_5 = bool(item.price == 5.0 and sum(1 for s in STAPLES_5_FOR_5 if s in item.name.lower()) >= 4)
 
         for idx, sub_name in enumerate(sub_items):
             size, unit = self.extract_unit_info(sub_name)
@@ -252,141 +233,40 @@ class ProductNormalizer:
                 canonical = f"{brand} {canonical}"
 
             if is_5_for_5:
-                collage_canonical_map = {
-                    "kraft": ("Kraft Macaroni & Cheese", "Kraft"),
-                    "maruchan": ("Maruchan Yakisoba or Ramen", "Maruchan"),
-                    "michelina's": ("Michelina's Entree", "Michelina's"),
-                    "idahoan": ("Idahoan Mashed Potatoes", "Idahoan"),
-                    "bowl": ("Maruchan Ramen Bowl", "Maruchan"),
-                    "crest": ("Crest Toothpaste", "Crest"),
-                    "banquet": ("Banquet Pot Pies", "Banquet"),
-                    "snack pack": ("Snack Pack Pudding", "Snack Pack"),
-                    "chef boyardee": ("Chef Boyardee Canned Pasta", "Chef Boyardee"),
-                    "ragu": ("Ragu Pasta Sauce", "Ragu"),
-                }
                 c_key = sub_name.lower().strip()
-                if c_key in collage_canonical_map:
-                    canonical, brand = collage_canonical_map[c_key]
+                if c_key in COLLAGE_5_FOR_5_MAP:
+                    canonical, brand = COLLAGE_5_FOR_5_MAP[c_key]
 
-            # Standardize Cheap Chicken Monday deli promotion
-            if re.search(r"\bcheap\s+chicken\b", canonical, re.IGNORECASE):
-                canonical = "Cheap Chicken Monday 8 Piece Dark Meat"
-                brand = "Signature Cafe"
-                size = 8.0
-                unit = "ct"
-                if item.price:
-                    unit_price = round(item.price / 8.0, 4)
-
-            # Strip store brand prefix on meat cuts (e.g. "Signature Farms Boneless Chicken Breast" -> "Boneless Chicken Breast")
-            meat_keywords = (
-                "chicken", "beef", "pork", "turkey", "roast", "steak", "steaks",
-                "chop", "chops", "rib", "ribs", "thigh", "thighs", "breast", "breasts",
-                "drumstick", "drumsticks", "wing", "wings", "tenderloin", "brisket",
-                "sausage", "bacon", "loin"
-            )
-            for sb in ["Signature SELECT", "Signature Farms"]:
-                if canonical.lower().startswith(sb.lower()):
-                    remainder = canonical[len(sb):].strip(" ,.-")
-                    if any(k in remainder.lower() for k in meat_keywords):
-                        canonical = remainder
-                    break
-
-            # Strip leading "Fresh " for meat/poultry cuts to match generic ads
-            if canonical.lower().startswith("fresh boneless") or canonical.lower().startswith("fresh whole") or canonical.lower().startswith("fresh diced"):
-                canonical = canonical[6:].strip()
-
-            # Normalize trailing value pack modifiers for chicken cuts
-            if "chicken" in canonical.lower() and canonical.lower().endswith(" value pack"):
-                canonical = canonical[:-11].strip()
-
-            # Standardize bone-in chicken cuts
-            if re.search(r"^(?:Fresh\s+)?Chicken\s+Thighs$", canonical, re.IGNORECASE):
-                canonical = "Bone-In Chicken Thighs"
-            elif re.search(r"^Fresh\s+Chicken\s+Drumsticks$", canonical, re.IGNORECASE):
-                canonical = "Chicken Drumsticks"
-
-            # Standardize seasoning and mix packet canonical names (strip minor packet weight ranges)
-            seasoning_keywords = ("taco seasoning", "seasoning mix", "gravy mix", "fajita seasoning", "chili seasoning", "sloppy joe seasoning")
-            if any(k in canonical.lower() for k in seasoning_keywords):
-                canonical = self.UNIT_PATTERN.sub("", canonical).strip(" ,.-")
-
+            # Apply structured domain transformations
+            canonical = apply_store_brand_meat_stripping(canonical)
+            canonical = apply_poultry_cut_standardization(canonical)
+            canonical = apply_seasoning_standardization(canonical)
             canonical = self.clean_sales_notes(canonical)
             canonical = " ".join(canonical.split()).strip(" ,.-")
 
-            # Disambiguate Lay's Baked
-            if canonical.lower().startswith("baked ") and any("lay" in b.lower() for b in item_brands + [brand or "", item.name]):
-                canonical = f"Lay's {canonical}"
-                brand = "Lay's"
+            # Apply brand-specific rules
+            canonical, brand, size, unit, unit_price = apply_brand_specific_rules(
+                canonical=canonical,
+                brand=brand,
+                size=size,
+                unit=unit,
+                unit_price=unit_price,
+                item_price=item.price,
+                item_brands=item_brands,
+                item_name=item.name,
+            )
 
-            # Standardize Josh / Josh Cellars wine
-            if re.search(r"^Josh(?:\s+Cellars)?(?:\s+Wine)?$", canonical, re.IGNORECASE):
-                canonical = "Josh Cellars Wine"
-                brand = "Josh Cellars"
-            elif re.search(r"\bJosh\s+Cellars\b", canonical, re.IGNORECASE):
-                brand = "Josh Cellars"
-            elif brand == "Josh":
-                brand = "Josh Cellars"
-
-            # Standardize Lucerne Eggs canonical name
-            if brand == "Lucerne" and ("egg" in canonical.lower() or "eggs" in canonical.lower()):
-                if not canonical.lower().startswith("lucerne"):
-                    canonical = f"Lucerne {canonical}"
-
-            # Standardize Lucerne Cheese canonical name and unify standard 6-8 oz / 8 oz pack sizing
-            if brand == "Lucerne" and "cheese" in canonical.lower():
-                if not canonical.lower().startswith("lucerne"):
-                    canonical = f"Lucerne {canonical}"
-                if re.search(r"\b(?:Shredded|Chunk|Sliced|Block\s+)?Cheese\s+8\s*oz\b", canonical, re.IGNORECASE):
-                    canonical = re.sub(r"\b8\s*oz\b", "6-8 oz", canonical, flags=re.IGNORECASE)
-                    size = 7.0
-                    unit = "oz"
-                    if item.price and size > 0:
-                        unit_price = round(item.price / size, 4)
-
-            # Standardize single-serve yogurt cups (e.g. Yoplait, Lucerne 4-6 oz / 6 oz / unsized)
-            if re.search(r"\b(Yoplait|Lucerne)\s+Yogurt\b", canonical, re.IGNORECASE) and not re.search(r"\b(?:32|24|4\s*pack|4\s*pk)\b", canonical, re.IGNORECASE):
-                brand_name = "Yoplait" if "yoplait" in canonical.lower() else "Lucerne"
-                brand = brand_name
-                canonical = f"{brand_name} Yogurt 4-6 oz"
-                size = 5.0
-                unit = "oz"
-                if item.price and size > 0:
-                    unit_price = round(item.price / size, 4)
-
-            # Multi-pack cream cheese weight resolution (e.g. Philadelphia Cream Cheese 2 Pack -> 16 oz)
-            if "cream cheese" in canonical.lower() and (unit in ("pk", "pack", "ct", "count") or "2 pack" in canonical.lower() or "2 pk" in canonical.lower()):
-                if size == 2.0 or (size is None and "2 pack" in canonical.lower()):
-                    size = 16.0  # 2 x 8 oz blocks
-                    unit = "oz"
-                    if item.price and size > 0:
-                        unit_price = round(item.price / size, 4)
-
-            # Standardize fresh Atlantic salmon portions (typically 5 oz skinless portions)
-            if re.search(r"\b(?:Fresh\s+)?(?:Atlantic\s+)?Salmon\s+Portions?\b", canonical, re.IGNORECASE) and not re.search(r"\b\d+\s*oz\b", canonical, re.IGNORECASE):
-                canonical = "Fresh Atlantic Salmon Portions 5 oz Skinless"
-                size = 5.0
-                unit = "oz"
-                if item.price and size > 0:
-                    unit_price = round(item.price / size, 4)
-
-            # Deli counter cheese & meat / fresh butcher meat sold by the pound fallback
-            deli_brands = ("Primo Taglio", "Dietz & Watson", "Dietz Watson", "Boar's Head")
+            # Fallback for butcher meat / deli counter sold by pound
             full_item_text = f"{item.name} {item.description or ''} {item.pre_price_text or ''} {item.post_price_text or ''}"
-            if size is None and item.price:
-                is_portion_or_unit = bool(re.search(r"\b(?:portions?|patt(?:y|ies)|cakes?|skewers?)\b", canonical, re.IGNORECASE))
-                is_fresh_meat_cut = (
-                    not is_portion_or_unit
-                    and any(k in canonical.lower() for k in ("boneless", "skinless", "bone-in", "fresh", "whole", "center cut", "loin chop", "pork chop", "ribeye", "sirloin", "t-bone", "filet mignon", "flank steak", "drumsticks", "tenders", "cutlets"))
-                    and any(k in canonical.lower() for k in ("chicken", "beef", "pork", "turkey", "salmon", "tilapia", "cod", "shrimp"))
-                )
-                if (
-                    brand in deli_brands
-                    or re.search(r"(?:per\s+lb|sold\s+by\s+the\s+lb|/\s*lb|\$?\d+(?:\.\d+)?\s*/?\s*lb\b)", full_item_text, re.IGNORECASE)
-                    or is_fresh_meat_cut
-                ):
-                    size = 1.0
-                    unit = "lb"
-                    unit_price = round(item.price / 1.0, 4)
+            size, unit, unit_price = apply_deli_or_meat_per_lb_fallback(
+                canonical=canonical,
+                brand=brand,
+                size=size,
+                unit=unit,
+                unit_price=unit_price,
+                item_price=item.price,
+                full_item_text=full_item_text,
+            )
 
             # Extract promo mechanics across item text, pre/post price notes, and description
             promo_info = PromoExtractor.extract_promo(

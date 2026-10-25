@@ -6,6 +6,7 @@ Purpose: Export analyzed circular deals to JSON/CSV formats and catalog re-norma
 import argparse
 import csv
 import json
+import os
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -21,7 +22,11 @@ def cmd_export(args: argparse.Namespace) -> None:
     db = DealsDatabase(args.db)
     analyzer = DealAnalyzer(db)
 
-    merchant = _resolve_merchant_filter(args)
+    # Default website export to Giant Food Stores unless explicitly specified
+    if getattr(args, "store", None) or getattr(args, "merchant", None):
+        merchant = _resolve_merchant_filter(args)
+    else:
+        merchant = os.environ.get("TRACKER_EXPORT_MERCHANT", "Giant Food Stores")
     flyer_id = args.flyer_id or db.get_latest_flyer_id(merchant)
     if not flyer_id:
         print("No circular found to export.")

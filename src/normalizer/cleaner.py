@@ -9,38 +9,7 @@ import re
 CLEAN_SYMBOLS = re.compile(r"[®™©]")
 UNICODE_DASHES = re.compile(r"[\u2010\u2011\u2012\u2013\u2014]")
 
-STORE_BRANDS: List[str] = [
-    "Signature SELECT",
-    "Signature Farms",
-    "Lucerne",
-    "Open Nature",
-    "O Organics",
-    "Waterfront BISTRO",
-    "Primo Taglio",
-    "Signature Cafe",
-    "Nature's Promise",
-    "Our Brand",
-    "Giant",
-    "Martin's",
-    "Taste of Inspirations",
-    "Guiding Stars",
-]
-
-DEPARTMENT_BANNERS: Set[str] = {
-    "groceries", "wine", "beer", "produce", "meat", "seafood",
-    "deli", "bakery", "floral", "pharmacy", "general merchandise", "dairy", "freshpass",
-    "from your full service butcher block",
-    "full service butcher block",
-    "butcher block",
-    "service butcher block",
-    "from our service butcher block",
-    "from your butcher block",
-    "from our butcher block",
-    "full service meat counter",
-    "service seafood counter",
-    "from our bakery",
-    "from our deli",
-}
+from .vocabulary import STORE_BRANDS, DEPARTMENT_BANNERS
 
 GENERIC_PLACEHOLDER_NAMES: Set[str] = {
     "assorted products",
