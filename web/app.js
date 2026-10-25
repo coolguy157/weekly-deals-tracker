@@ -349,9 +349,14 @@
     if (brands.includes("Martin's Snacks") && brands.includes("Nature's Own")) {
       return "Martin's Snacks & Nature's Own • Chips, Popcorn & Bread";
     }
-    const hasSeafood = brands.includes('Fresh Seafood') || brands.includes('Hannaford') ||
-      names.some(n => /fish|seafood|salmon|shrimp|tilapia|swordfish|tuna|haddock|swai|cod|whiting|flounder/i.test(n)) ||
-      (names.some(n => /fillet|filet/i.test(n)) && !names.some(n => /pork|beef|chicken|turkey|steak|chop|loin/i.test(n)));
+    if (names.some(n => /potato chips|tortilla chips|pretzels/i.test(n)) && (brands.includes('Cape Cod') || brands.includes("Snyder's of Hanover") || brands.includes('Late July') || brands.includes('Utz') || brands.includes("Herr's"))) {
+      return 'Potato Chips, Pretzels & Tortilla Chips';
+    }
+    const hasSeafood = (brands.includes('Fresh Seafood') || brands.includes('Hannaford') ||
+      names.some(n => /\b(?:fish|seafood|salmon|shrimp|tilapia|swordfish|tuna|haddock|swai|whiting|flounder)\b|(?<!cape\s+)\bcod\b/i.test(n)) ||
+      (names.some(n => /\bfillets?\b|\bfilets?\b/i.test(n)) && !names.some(n => /\b(?:pork|beef|chicken|turkey|steak|chop|loin|chips?|pretzels?|snacks?)\b/i.test(n)))) &&
+      !names.some(n => /\b(?:chips?|pretzels?|snacks?|crackers?|cookies?|candy)\b/i.test(n)) &&
+      !brands.includes('Cape Cod');
     if (hasSeafood) {
       return 'Fresh & Frozen Seafood Fillets';
     }

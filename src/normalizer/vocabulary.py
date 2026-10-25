@@ -42,6 +42,7 @@ NATIONAL_BRANDS = [
     "Carnation", "Baker's", "Hershey's", "Hershey", "Domino", "C&H", "Crisco", "Gold Medal", "King Arthur",
     "Jell-O", "Jello", "PAM", "Fleischmann's", "Arm & Hammer", "Morton", "Smucker's", "Jif", "Skippy",
     "Peter Pan", "Nutella", "Log Cabin", "Mrs. Butterworth's", "Pearl Milling Company",
+    "Cape Cod", "Snyder's of Hanover", "Late July",
 ]
 
 DEPARTMENT_BANNERS = {
@@ -78,12 +79,16 @@ HEAD_NOUN_PATTERNS = [
     r"Sugar|Flour|Frosting|Cakes?|Brownies?|Muffins?|Cookies?",
     r"Sausage\s+(?:Links|Patties|Rolls)|Sausage|Bacon",
     r"Dressing",
+    r"(?:Potato\s+|Tortilla\s+)?Chips?",
+    r"Pretzels?",
+    r"Crackers?",
+    r"Trays?|Platters?",
 ]
 
 COMMON_HEAD_NOUNS_PATTERN = "|".join(HEAD_NOUN_PATTERNS)
 
 KNOWN_HEAD_NOUN_WORDS = set(
-    "pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry cheese mushrooms parfait parfaits tortillas crust crusts bread buns rolls butter yogurt milk eggs bacon chicken breasts thighs drumsticks tenders cutlets wings chops sugar flour frosting cake cakes brownie brownies muffins muffin cookies cookie".split()
+    "pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry cheese mushrooms parfait parfaits tortillas crust crusts bread buns rolls butter yogurt milk eggs bacon chicken breasts thighs drumsticks tenders cutlets wings chops sugar flour frosting cake cakes brownie brownies muffins muffin cookies cookie chips chip pretzels pretzel crackers cracker tray trays platter platters".split()
 )
 
 MEAT_KEYWORDS = (
