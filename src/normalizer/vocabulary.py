@@ -60,7 +60,7 @@ DEPARTMENT_BANNERS = {
 
 COMMON_HEAD_NOUNS_PATTERN = (
     r"Cheese|Cheddar|Mozzarella|Swiss|Provolone|Parmesan\s+Cheese|"
-    r"Squash|Potato(?:es)?|Apple(?:s)?|Grape(?:s)?|Pear(?:s)?|Melon(?:s)?|"
+    r"Squash|Pumpkin(?:s)?|Potato(?:es)?|Apple(?:s)?|Grape(?:s)?|Pear(?:s)?|Melon(?:s)?|"
     r"Pepper(?:s)?|Onion(?:s)?|Tomato(?:es)?|Orange(?:s)?|Citrus|Peach(?:es)?|Plum(?:s)?|"
     r"Berries|Berry|Parfaits?|Tortillas?|Pizza\s+Crusts?|Crusts?|"
     r"Bread|Buns|Rolls|Butter|Yogurt|Milk|Eggs|"

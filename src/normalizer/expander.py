@@ -346,6 +346,8 @@ def pre_expand_deal_string(name: str) -> str:
         b1 = m.group(1).strip()
         b2 = m.group(2).strip()
         size = m.group(3).strip()
+        if not any(b.lower() in (br.lower() for br in ALL_PREFIX_BRANDS) for b in (b1, b2)):
+            return m.group(0)
         if any(w.lower() in FOOD_KEYWORDS for w in b1.split() + b2.split()):
             return m.group(0)
         if len(b1.split()) > 2 or len(b2.split()) > 2:

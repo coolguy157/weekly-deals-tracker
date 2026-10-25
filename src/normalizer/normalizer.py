@@ -11,6 +11,7 @@ from ..promo_extractor import PromoExtractor
 from .models import NormalizedDeal
 from .categories import COMMODITY_PATTERNS, infer_category
 from .units import UNIT_PATTERN, extract_unit_info
+from .ast_parser import DealASTParser
 from .vocabulary import STORE_BRANDS, NATIONAL_BRANDS, DEPARTMENT_BANNERS
 from .rules import (
     COLLAGE_5_FOR_5_MAP,
@@ -52,6 +53,9 @@ class ProductNormalizer:
     COMMODITY_PATTERNS = COMMODITY_PATTERNS
     NATIONAL_BRANDS = NATIONAL_BRANDS
 
+    def __init__(self):
+        self.ast_parser = DealASTParser()
+
     def infer_category(self, text: str) -> Optional[str]:
         return infer_category(text)
 
@@ -83,8 +87,37 @@ class ProductNormalizer:
         if not cleaned_name:
             cleaned_name = raw_name
 
+        # Remove comma between coupled descriptive adjectives (e.g. "Boneless, Skinless" -> "Boneless Skinless")
+        cleaned_name = re.sub(
+            r"\b(Boneless|Bone-In|Fresh|Wild|Raw|Cooked),\s*(Skinless|Center\s*Cut|Never\s*Frozen|Caught|Peeled)\b",
+            r"\1 \2",
+            cleaned_name,
+            flags=re.IGNORECASE,
+        )
+
+        # Remove comma before "Sold in" expressions so bulk rate clause remains attached to preceding item
+        cleaned_name = re.sub(
+            r",\s*(?=Sold in\b)",
+            " ",
+            cleaned_name,
+            flags=re.IGNORECASE,
+        )
+
+        # Remove comma before unit/size/range expressions (e.g. ", 4.75-6 oz." or ", .5 ltr.")
+        cleaned_name = re.sub(
+            r",\s*(?=(?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?\s*(?:ct|count|oz|ounce|lb|pound|pk|pack|ltr|liter|qt|quart|pt|pint|gal|gallon|ml)\b)",
+            " ",
+            cleaned_name,
+            flags=re.IGNORECASE,
+        )
+
         # Pre-expand compound structures (produce suffixes/prefixes, cheese combos, brand pairs)
         cleaned_name = pre_expand_deal_string(cleaned_name)
+
+        # First split into comma-separated chunks, then expand each chunk
+        chunks = [c.strip() for c in re.split(r",\s*", cleaned_name) if len(c.strip()) > 3]
+        if not chunks:
+            chunks = [cleaned_name]
 
         # If brand field contains multiple brands joined by '|', split and normalize them
         item_brands = [self.normalize_text(b) for b in (item.brand or "").split("|") if self.normalize_text(b)]
@@ -102,38 +135,13 @@ class ProductNormalizer:
                     break
         initial_store_brand = initial_brand if initial_brand in self.STORE_BRANDS else None
 
-        # Remove comma between coupled descriptive adjectives (e.g. "Boneless, Skinless" -> "Boneless Skinless")
-        pre_split_name = re.sub(
-            r"\b(Boneless|Bone-In|Fresh|Wild|Raw|Cooked),\s*(Skinless|Center\s*Cut|Never\s*Frozen|Caught|Peeled)\b",
-            r"\1 \2",
-            cleaned_name,
-            flags=re.IGNORECASE,
-        )
-
-        # Remove comma before "Sold in" expressions so bulk rate clause remains attached to preceding item
-        pre_split_name = re.sub(
-            r",\s*(?=Sold in\b)",
-            " ",
-            pre_split_name,
-            flags=re.IGNORECASE,
-        )
-
-        # Remove comma before unit/size/range expressions (e.g. ", 4.75-6 oz." or ", .5 ltr.")
-        pre_split_name = re.sub(
-            r",\s*(?=(?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?\s*(?:ct|count|oz|ounce|lb|pound|pk|pack|ltr|liter|qt|quart|pt|pint|gal|gallon|ml)\b)",
-            " ",
-            pre_split_name,
-            flags=re.IGNORECASE,
-        )
-
-        # First split into comma-separated chunks, then expand each chunk
-        chunks = [c.strip() for c in re.split(r",\s*", pre_split_name) if len(c.strip()) > 3]
-        if not chunks:
-            chunks = [cleaned_name]
-
         sub_items: List[str] = []
         for chunk in chunks:
-            expanded = self._expand_chunk(chunk)
+            ast_chunk_items = self.ast_parser.disaggregate(chunk)
+            if len(ast_chunk_items) > 1:
+                expanded = ast_chunk_items
+            else:
+                expanded = self._expand_chunk(chunk)
             for sub in expanded:
                 sub_clean = sub.replace("__OR__", " or ").strip(" ,.-")
                 if not sub_clean or self.DISCARD_CHUNK_PATTERN.search(sub_clean):
