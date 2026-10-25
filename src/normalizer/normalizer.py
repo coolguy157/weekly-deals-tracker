@@ -19,6 +19,7 @@ from .rules import (
     apply_store_brand_meat_stripping,
     apply_poultry_cut_standardization,
     apply_seasoning_standardization,
+    apply_egg_standardization,
     apply_brand_specific_rules,
     apply_deli_or_meat_per_lb_fallback,
 )
@@ -262,6 +263,16 @@ class ProductNormalizer:
                 item_price=item.price,
                 item_brands=item_brands,
                 item_name=item.name,
+            )
+
+            # Apply commodity egg standardization across all brands
+            canonical, brand, size, unit, unit_price = apply_egg_standardization(
+                canonical=canonical,
+                brand=brand,
+                size=size,
+                unit=unit,
+                unit_price=unit_price,
+                item_price=item.price,
             )
 
             # Fallback for butcher meat / deli counter sold by pound

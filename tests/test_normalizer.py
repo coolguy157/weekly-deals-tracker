@@ -1525,6 +1525,80 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals3[0].unit_size, 60.0)
         self.assertEqual(deals3[0].unit_type, "ct")
 
+    def test_generalized_egg_standardization_other_brands(self):
+        # Vital Farms eggs without count defaults to 12 ct
+        item1 = FlyerItem(
+            id=201,
+            flyer_id=1,
+            name="Vital Farms Pasture Raised Large Eggs",
+            price=5.49,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Vital Farms",
+            page_number=1,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals1 = self.normalizer.disaggregate_and_normalize(item1)
+        self.assertEqual(deals1[0].canonical_name, "Vital Farms Pasture Raised Large Eggs 12 ct")
+        self.assertEqual(deals1[0].unit_size, 12.0)
+        self.assertEqual(deals1[0].unit_type, "ct")
+        self.assertAlmostEqual(deals1[0].unit_price, round(5.49 / 12.0, 4), places=4)
+
+        # Eggland's Best Large Eggs 24 Count standardizes unit suffix to ct
+        item2 = FlyerItem(
+            id=202,
+            flyer_id=2,
+            name="Eggland's Best Large Eggs 24 Count",
+            price=6.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Eggland's Best",
+            page_number=1,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals2 = self.normalizer.disaggregate_and_normalize(item2)
+        self.assertEqual(deals2[0].canonical_name, "Eggland's Best Large Eggs 24 ct")
+        self.assertEqual(deals2[0].unit_size, 24.0)
+        self.assertEqual(deals2[0].unit_type, "ct")
+
+        # Non-shell egg products (e.g., egg bites, noodles, omelets) are not converted
+        item3 = FlyerItem(
+            id=203,
+            flyer_id=3,
+            name="Eggland's Best Three Cheese Omelets 7.8 oz",
+            price=3.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Eggland's Best",
+            page_number=1,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals3 = self.normalizer.disaggregate_and_normalize(item3)
+        self.assertEqual(deals3[0].canonical_name, "Eggland's Best Three Cheese Omelets 7.8 oz")
+        self.assertEqual(deals3[0].unit_size, 7.8)
+        self.assertEqual(deals3[0].unit_type, "oz")
+
+    def test_universal_unit_suffix_standardization(self):
+        from deals_tracker.src.normalizer.cleaner import standardize_unit_tokens
+        self.assertEqual(standardize_unit_tokens("Product 60 Count"), "Product 60 ct")
+        self.assertEqual(standardize_unit_tokens("Product 24 count"), "Product 24 ct")
+        self.assertEqual(standardize_unit_tokens("Product 16 Ounces"), "Product 16 oz")
+        self.assertEqual(standardize_unit_tokens("Product 2 Pounds"), "Product 2 lb")
+        self.assertEqual(standardize_unit_tokens("Product 1 Gallon"), "Product 1 gal")
+        self.assertEqual(standardize_unit_tokens("Product 6-8 Ounces"), "Product 6-8 oz")
+
 
 if __name__ == "__main__":
     unittest.main()

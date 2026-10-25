@@ -3,7 +3,7 @@ cleaner.py
 Text cleaning, punctuation normalization, sales noise removal, and store brand registries.
 """
 
-from typing import List, Set
+from typing import List, Set, Tuple
 import re
 
 CLEAN_SYMBOLS = re.compile(r"[®™©]")
@@ -56,6 +56,24 @@ DISCARD_CHUNK_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+UNIT_STANDARDIZATION_PATTERNS: List[Tuple[re.Pattern, str]] = [
+    (re.compile(r"\b((?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:ct\.?|counts?)\b", re.IGNORECASE), r"\1 ct"),
+    (re.compile(r"\b((?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:oz\.?|ounces?)\b", re.IGNORECASE), r"\1 oz"),
+    (re.compile(r"\b((?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:lbs?\.?|pounds?)\b", re.IGNORECASE), r"\1 lb"),
+    (re.compile(r"\b((?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:gal\.?|gallons?)\b", re.IGNORECASE), r"\1 gal"),
+    (re.compile(r"\b((?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:ltr\.?|liters?)\b", re.IGNORECASE), r"\1 ltr"),
+    (re.compile(r"\b((?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:qt\.?|quarts?)\b", re.IGNORECASE), r"\1 qt"),
+    (re.compile(r"\b((?:\d+(?:\.\d+)?|\.\d+)(?:\s*-\s*(?:\d+(?:\.\d+)?|\.\d+))?)\s*(?:pt\.?|pints?)\b", re.IGNORECASE), r"\1 pt"),
+]
+
+
+def standardize_unit_tokens(text: str) -> str:
+    """Standardize unit representations in product text (e.g. '60 Count' -> '60 ct', '16 Ounce' -> '16 oz')."""
+    cleaned = text
+    for pat, repl in UNIT_STANDARDIZATION_PATTERNS:
+        cleaned = pat.sub(repl, cleaned)
+    return cleaned
+
 
 def normalize_text(text: str) -> str:
     """Strip special symbols, normalize unicode dashes, and extra whitespace."""
@@ -72,4 +90,5 @@ def clean_sales_notes(text: str, preserve_bulk_pkg: bool = False) -> str:
         if preserve_bulk_pkg and "Sold in" in pat.pattern and "for" in pat.pattern:
             continue
         cleaned = pat.sub("", cleaned)
+    cleaned = standardize_unit_tokens(cleaned)
     return " ".join(cleaned.split()).strip(" ,.-")

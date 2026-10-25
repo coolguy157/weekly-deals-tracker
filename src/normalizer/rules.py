@@ -64,6 +64,51 @@ def apply_seasoning_standardization(canonical: str) -> str:
     return canonical
 
 
+NON_SHELL_EGG_PATTERN = re.compile(
+    r"\b(white|whites|salad|bites|liquid|noodles?|rolls?|waffles?|omelets?|quiche|deli|sub|sandwich|sandwiches|wrap|wraps|potato\s+salad|pasta\s+salad|food\s+color|dye|pickled|frittatas?|loaf|dog\s+food|cat\s+food|pet|treats?|skillet|bowl|creamer|butter)\b",
+    re.IGNORECASE,
+)
+EGG_SIZE_GRADE_PATTERN = re.compile(r"\b(large|extra\s+large|jumbo|medium)\b", re.IGNORECASE)
+
+
+def apply_egg_standardization(
+    canonical: str,
+    brand: Optional[str],
+    size: Optional[float],
+    unit: Optional[str],
+    unit_price: Optional[float],
+    item_price: Optional[float],
+) -> Tuple[str, Optional[str], Optional[float], Optional[str], Optional[float]]:
+    """
+    Standardize shell egg products across all brands.
+    - Normalizes 'Brand Eggs' -> 'Brand Large Eggs' when size grade is omitted.
+    - Infers standard 1-dozen (12 ct) carton size when count is omitted in weekly circulars.
+    - Excludes non-shell egg items (noodles, rolls, bites, salad, liquid whites).
+    """
+    # Shell eggs are never measured in ounces, pounds, or volume
+    if unit in ("oz", "lb", "ml", "ltr", "gal", "qt", "pt"):
+        return canonical, brand, size, unit, unit_price
+
+    if re.search(r"\b(?<!['’])eggs?\b(?!['’])", canonical, re.IGNORECASE) and not NON_SHELL_EGG_PATTERN.search(canonical):
+        if (brand == "Lucerne" or "lucerne" in canonical.lower()) and not canonical.lower().startswith("lucerne"):
+            canonical = f"Lucerne {canonical}"
+            brand = "Lucerne"
+
+        # Standardize "Eggs" -> "Large Eggs" if grade/size omitted (standard supermarket table eggs)
+        if not EGG_SIZE_GRADE_PATTERN.search(canonical):
+            canonical = re.sub(r"\b(?<!['’])eggs?\b(?!['’])", "Large Eggs", canonical, flags=re.IGNORECASE)
+
+        # In weekly circulars, standalone shell eggs without count is the standard 1-dozen (12 ct) carton
+        if size is None and not re.search(r"\b\d+\s*ct\b", canonical, re.IGNORECASE):
+            size = 12.0
+            unit = "ct"
+            canonical = f"{canonical} 12 ct"
+            if item_price and size > 0:
+                unit_price = round(item_price / size, 4)
+
+    return canonical, brand, size, unit, unit_price
+
+
 def apply_brand_specific_rules(
     canonical: str,
     brand: Optional[str],
@@ -91,29 +136,6 @@ def apply_brand_specific_rules(
         brand = "Josh Cellars"
     elif brand == "Josh":
         brand = "Josh Cellars"
-
-    # Lucerne Eggs standardization
-    if (brand == "Lucerne" or canonical.lower().startswith("lucerne")) and re.search(r"\beggs?\b", canonical, re.IGNORECASE):
-        # Exclude non-shell egg products (e.g., egg bites, egg salad, liquid egg whites, egg noodles)
-        if not re.search(r"\b(white|whites|salad|bites|liquid|noodles)\b", canonical, re.IGNORECASE):
-            if not canonical.lower().startswith("lucerne"):
-                canonical = f"Lucerne {canonical}"
-            brand = "Lucerne"
-
-            # Standardize "Eggs" -> "Large Eggs" if grade/size omitted (Tom Thumb Lucerne shell eggs are Large Eggs)
-            if not re.search(r"\b(large|extra\s+large|jumbo|medium)\b", canonical, re.IGNORECASE):
-                canonical = re.sub(r"\beggs?\b", "Large Eggs", canonical, flags=re.IGNORECASE)
-
-            # Standardize count unit suffix (e.g. "60 Count" -> "60 ct")
-            canonical = re.sub(r"\b(\d+)\s*(?:count|ct)\b", r"\1 ct", canonical, flags=re.IGNORECASE)
-
-            # In weekly circulars, standalone "Lucerne Large Eggs" without count is the standard 1-dozen (12 ct) carton
-            if size is None and not re.search(r"\b\d+\s*ct\b", canonical, re.IGNORECASE):
-                size = 12.0
-                unit = "ct"
-                canonical = f"{canonical} 12 ct"
-                if item_price and size > 0:
-                    unit_price = round(item_price / size, 4)
 
     # Lucerne Cheese: unify standard 6-8 oz / 8 oz pack sizing
     if brand == "Lucerne" and "cheese" in canonical.lower():
