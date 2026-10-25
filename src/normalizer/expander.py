@@ -50,6 +50,15 @@ def expand_chunk(chunk: str) -> List[str]:
     if not chunk:
         return []
 
+    # Guard: Single party trays, platters, or boards with an internal variant option
+    # (e.g. "Octagon Fruit or Vegetable Tray") should NOT be severed into truncated halves ("Octagon Fruit" and "Vegetable Tray").
+    if re.search(
+        r"\b(?:Fruit|Vegetable|Meat|Cheese|Cookie|Pastry|Sandwich)\s+or\s+(?:Fruit|Vegetable|Meat|Cheese|Cookie|Pastry|Sandwich)\s+(?:Trays?|Platters?|Bowls?|Baskets?|Boards?)\b",
+        chunk,
+        re.IGNORECASE,
+    ):
+        return [chunk]
+
     # 1. Check color/variety noun: "O Organics Red or Green Grapes" or "Yellow or Zucchini Squash"
     color_match = COLOR_OR_NOUN_PATTERN.match(chunk)
     if color_match:

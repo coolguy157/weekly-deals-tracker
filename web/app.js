@@ -473,7 +473,9 @@
     }
 
     const cat = items[0].category || 'Featured';
-    return `${cat} Mix & Match${pkg} (${items.length} Items)`;
+    const isMixMatch = items.some(it => (it.promo_type || '').includes('mix') || (it.promo_detail || '').toLowerCase().includes('mix'));
+    const fallbackLabel = isMixMatch ? 'Mix & Match' : 'Selection';
+    return `${cat} ${fallbackLabel}${pkg} (${items.length} Items)`;
   }
 
   function buildGroupObject(groupId, items) {
