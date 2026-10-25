@@ -523,6 +523,10 @@ body {
   border-left: 4px solid var(--badge-atl-text);
 }
 
+.deal-card.is-match-atl {
+  border-left: 4px solid #ea580c;
+}
+
 .card-top {
   display: flex;
   justify-content: space-between;
@@ -550,10 +554,16 @@ body {
   white-space: nowrap;
 }
 
-.deal-badge.atl {
+.deal-badge.atl, .deal-badge.new-atl {
   background: var(--badge-atl-bg);
   color: var(--badge-atl-text);
   border: 1px solid var(--badge-atl-border);
+}
+
+.deal-badge.match-atl {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fdba74;
 }
 
 .deal-badge.great, .deal-badge.beat {

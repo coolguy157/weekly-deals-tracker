@@ -133,7 +133,21 @@
   }
 
   function isAtlBadge(badge) {
-    return /atl|all[-_]time/i.test(badge || '');
+    return /new_all_time_low|new_atl|matches_atl|match_atl|atl|all[-_]time/i.test(badge || '');
+  }
+  function isNewAtl(d) {
+    if (!d) return false;
+    const badge = typeof d === 'string' ? d : (d.badge || '');
+    if (/new_all_time_low|new_atl/i.test(badge)) return true;
+    const analysis = typeof d === 'object' ? (d.analysis || d.summary_reason || '') : '';
+    return isAtlBadge(badge) && /new all-time low/i.test(analysis);
+  }
+  function isMatchAtl(d) {
+    if (!d) return false;
+    const badge = typeof d === 'string' ? d : (d.badge || '');
+    if (/matches_atl|match_atl/i.test(badge)) return true;
+    const analysis = typeof d === 'object' ? (d.analysis || d.summary_reason || '') : '';
+    return isAtlBadge(badge) && /matches all-time low|multi-week sale at all-time low/i.test(analysis);
   }
   function isGreatBadge(badge) {
     return /great|beat/i.test(badge || '');
@@ -215,7 +229,11 @@
     const rawBadge = (d.badge || '').toUpperCase();
     const badges = [];
 
-    if (/ATL|ALL[-_]TIME/i.test(rawBadge)) {
+    if (isNewAtl(d)) {
+      badges.push('<span class="deal-badge atl new-atl">🔥 NEW ALL-TIME LOW</span>');
+    } else if (isMatchAtl(d)) {
+      badges.push('<span class="deal-badge match-atl">⭐ MATCHES ATL</span>');
+    } else if (/ATL|ALL[-_]TIME/i.test(rawBadge)) {
       badges.push('<span class="deal-badge atl">🔥 ALL-TIME LOW</span>');
     } else if (/POINTS_FREEBIE/i.test(rawBadge)) {
       badges.push('<span class="deal-badge points-freebie">🪙 FREE W/ POINTS</span>');
@@ -406,7 +424,9 @@
     const promoDetail = items.find(it => it.promo_detail)?.promo_detail || items[0].promo_detail || '';
     const promoType = items.find(it => it.promo_type && it.promo_type !== 'standard')?.promo_type || items[0].promo_type || 'standard';
 
-    const hasAtl = items.some(it => isAtlBadge(it.badge));
+    const hasNewAtl = items.some(it => isNewAtl(it));
+    const hasMatchAtl = items.some(it => isMatchAtl(it));
+    const hasAtl = hasNewAtl || hasMatchAtl || items.some(it => isAtlBadge(it.badge));
     const hasGreat = items.some(it => isGreatBadge(it.badge) || isAtlBadge(it.badge) || /beat/i.test(it.badge || ''));
     const hasCatBest = items.some(it => it.is_category_best);
     const hasPointsFreebie = items.some(it => isPointsFreebie(it));
@@ -420,6 +440,17 @@
     let anchorItem = null;
     if (isMealDeal && items.length > 0) {
       anchorItem = items.reduce((prev, curr) => ((curr.price || 0) > (prev.price || 0) ? curr : prev), items[0]);
+    }
+
+    let representativeDeal = anchorItem;
+    if (!representativeDeal) {
+      if (hasNewAtl) {
+        representativeDeal = items.find(it => isNewAtl(it));
+      } else if (hasMatchAtl) {
+        representativeDeal = items.find(it => isMatchAtl(it));
+      } else {
+        representativeDeal = items[0];
+      }
     }
 
     return {
@@ -442,10 +473,12 @@
       promoType,
       hasPointsFreebie,
       hasPointsDeal,
+      hasNewAtl,
+      hasMatchAtl,
       hasAtl,
       hasGreat,
       hasCatBest,
-      representativeDeal: anchorItem || items[0],
+      representativeDeal,
     };
   }
 
@@ -738,8 +771,8 @@
       if (activeSort === 'name_asc') {
         return (a.name || '').localeCompare(b.name || '');
       }
-      const scoreA = (isPointsFreebie(a) ? 200 : isAtlBadge(a.badge) ? 100 : isPointsDeal(a) ? 80 : isGreatBadge(a.badge) ? 50 : 0) + (a.is_front_page ? 20 : 0);
-      const scoreB = (isPointsFreebie(b) ? 200 : isAtlBadge(b.badge) ? 100 : isPointsDeal(b) ? 80 : isGreatBadge(b.badge) ? 50 : 0) + (b.is_front_page ? 20 : 0);
+      const scoreA = (isPointsFreebie(a) ? 200 : isNewAtl(a) ? 120 : isMatchAtl(a) ? 100 : isAtlBadge(a.badge) ? 100 : isPointsDeal(a) ? 80 : isGreatBadge(a.badge) ? 50 : 0) + (a.is_front_page ? 20 : 0);
+      const scoreB = (isPointsFreebie(b) ? 200 : isNewAtl(b) ? 120 : isMatchAtl(b) ? 100 : isAtlBadge(b.badge) ? 100 : isPointsDeal(b) ? 80 : isGreatBadge(b.badge) ? 50 : 0) + (b.is_front_page ? 20 : 0);
       if (scoreA !== scoreB) return scoreB - scoreA;
       return (a.page || 1) - (b.page || 1);
     });
@@ -903,7 +936,14 @@
               const isItemRedeem = isPointsRedemption(item);
               const itemPtsInfo = (isItemFreebie || isItemDeal || isItemRedeem) ? getPointsExtrapolatedInfo(item) : null;
               const itemUnit = itemPtsInfo && itemPtsInfo.pts ? `🪙 ${itemPtsInfo.pts} pts` : formatUnitPrice(item.unit_price, item.unit_type);
-              const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
+              let itemBadge = '';
+              if (isNewAtl(item)) {
+                itemBadge = '<span class="deal-badge atl new-atl" style="font-size:0.65rem; padding:1px 4px;">NEW ATL</span>';
+              } else if (isMatchAtl(item)) {
+                itemBadge = '<span class="deal-badge match-atl" style="font-size:0.65rem; padding:1px 4px;">MATCH ATL</span>';
+              } else if (isAtlBadge(item.badge)) {
+                itemBadge = '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>';
+              }
               const isMain = g.isMealDeal && g.anchorItem && (item.deal_id === g.anchorItem.deal_id || item.name === g.anchorItem.name);
               let itemPriceHtml = `<span class="group-item-price">${formatMoney(item.price)}</span>`;
               let itemRoleBadge = '';
@@ -951,8 +991,9 @@
       `;
     }
 
+    const cardAtlClass = g.hasNewAtl ? 'is-atl' : (g.hasMatchAtl ? 'is-match-atl' : (g.hasAtl ? 'is-atl' : ''));
     return `
-      <div class="deal-card is-group ${g.hasAtl ? 'is-atl' : ''}" data-group-id="${g.groupId}">
+      <div class="deal-card is-group ${cardAtlClass}" data-group-id="${g.groupId}">
         <div>
           <div class="card-top">
             <div class="badge-row">
@@ -1025,8 +1066,10 @@
       historyHtml = `<div class="history-summary">Best price recorded (Avg: <strong>${formatMoney(d.historical_avg)}</strong>)</div>`;
     }
 
+    const cardAtlClass = isNewAtl(d) ? 'is-atl' : (isMatchAtl(d) ? 'is-match-atl' : (isAtl ? 'is-atl' : ''));
+
     return `
-      <div class="deal-card ${isAtl ? 'is-atl' : ''}" data-id="${d.deal_id}">
+      <div class="deal-card ${cardAtlClass}" data-id="${d.deal_id}">
         <div>
           <div class="card-top">
             <div class="badge-row">
@@ -1126,7 +1169,14 @@
           const isItemRedeem = isPointsRedemption(item);
           const itemPtsInfo = (isItemFreebie || isItemDeal || isItemRedeem) ? getPointsExtrapolatedInfo(item) : null;
           const itemUnit = itemPtsInfo && itemPtsInfo.pts ? `🪙 ${itemPtsInfo.pts} pts` : formatUnitPrice(item.unit_price, item.unit_type);
-          const itemBadge = isAtlBadge(item.badge) ? '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>' : '';
+          let itemBadge = '';
+          if (isNewAtl(item)) {
+            itemBadge = '<span class="deal-badge atl new-atl" style="font-size:0.65rem; padding:1px 4px;">NEW ATL</span>';
+          } else if (isMatchAtl(item)) {
+            itemBadge = '<span class="deal-badge match-atl" style="font-size:0.65rem; padding:1px 4px;">MATCH ATL</span>';
+          } else if (isAtlBadge(item.badge)) {
+            itemBadge = '<span class="deal-badge atl" style="font-size:0.65rem; padding:1px 4px;">ATL</span>';
+          }
           const isMain = g.isMealDeal && g.anchorItem && (item.deal_id === g.anchorItem.deal_id || item.name === g.anchorItem.name);
           let priceCell = `<strong>${formatMoney(item.price)}</strong>`;
           let badgeCell = itemBadge;
