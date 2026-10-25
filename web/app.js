@@ -424,12 +424,18 @@
     const minPrice = prices.length ? Math.min(...prices) : null;
     const maxPrice = prices.length ? Math.max(...prices) : null;
 
-    const unitPrices = items.map(it => it.unit_price).filter(p => p != null && !isNaN(p));
-    const minUnitPrice = unitPrices.length ? Math.min(...unitPrices) : null;
-    const maxUnitPrice = unitPrices.length ? Math.max(...unitPrices) : null;
+    // Determine most common unit type in the group
+    const unitTypeCounts = {};
+    items.forEach(it => {
+      if (it.unit_type) unitTypeCounts[it.unit_type] = (unitTypeCounts[it.unit_type] || 0) + 1;
+    });
+    const sortedUnitTypes = Object.keys(unitTypeCounts).sort((a, b) => unitTypeCounts[b] - unitTypeCounts[a]);
+    const primaryUnitType = sortedUnitTypes[0] || null;
 
-    const unitTypes = Array.from(new Set(items.map(it => it.unit_type).filter(Boolean)));
-    const primaryUnitType = unitTypes[0] || null;
+    // Only compute unit price range across items sharing the primary unit type
+    const matchingUnitItems = primaryUnitType ? items.filter(it => it.unit_type === primaryUnitType && it.unit_price != null && !isNaN(it.unit_price)) : [];
+    const minUnitPrice = matchingUnitItems.length ? Math.min(...matchingUnitItems.map(it => it.unit_price)) : null;
+    const maxUnitPrice = matchingUnitItems.length ? Math.max(...matchingUnitItems.map(it => it.unit_price)) : null;
 
     const promoDetail = items.find(it => it.promo_detail)?.promo_detail || items[0].promo_detail || '';
     const promoType = items.find(it => it.promo_type && it.promo_type !== 'standard')?.promo_type || items[0].promo_type || 'standard';

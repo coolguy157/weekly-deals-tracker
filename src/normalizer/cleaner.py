@@ -70,7 +70,7 @@ PACKAGING_SALES_PATTERNS: List[re.Pattern] = [
     re.compile(r",?\s*\b(?:MUST\s+BUY|WHEN\s+YOU\s+BUY)\s+\d+(?:\s+OR\s+MORE)?(?:\s*@\s*\$?\d+(?:\.\d{2})?)?(?:\s*(?:EA|EACH))?\b", re.IGNORECASE),
     re.compile(r",?\s*\b(?:WITH\s+)?(?:DIGITAL\s+COUPON|FOR\s*U\s*COUPON|FOR\s*U|JUST\s*FOR\s*U|MEMBER\s+PRICE|WITH\s+CARD)(?:\s*\$?\d+(?:\.\d{2})?)?\b", re.IGNORECASE),
     re.compile(r",?\s*\b(?:SAVE|\$)\s*\d+(?:\.\d{2})?\s+(?:OFF\s+)?(?:WITH\s+)?(?:DIGITAL\s+COUPON|FOR\s*U)\b", re.IGNORECASE),
-    re.compile(r",?\s*-\s*\$\d+(?:\.\d{2})?(?:\s*/\s*(?:lb|ea|count|oz|pkg))?\.?\s*(?:DIGITAL\s+COUPON|FOR\s*U|WITH\s+CARD|MEMBER\s+PRICE)?\b", re.IGNORECASE),
+    re.compile(r",?\s*-\s*\$\d+(?:\.\d{2})?(?:\s*off)?(?:\s*/\s*(?:lb|ea|count|oz|pkg))?\.?\s*(?:DIGITAL\s+COUPON|FOR\s*U|WITH\s+CARD|MEMBER\s+PRICE)?.*$", re.IGNORECASE),
     re.compile(r",?\s*-\s*\d+\s*(?:/|for)\s*\$?\d+(?:\.\d{2})?.*$", re.IGNORECASE),
     re.compile(r",?\s*(?:-\s*)?\$?\d+(?:\.\d{2})?\s*/\s*(?:lb|ea|count|oz|pkg)\.?\s*(?:DIGITAL\s+COUPON|FOR\s*U|WITH\s+CARD|MEMBER\s+PRICE)\b", re.IGNORECASE),
     re.compile(r",?\s*(?:-\s*)?(?:\d+[-\s]+POINT\s+FREEBIE|FREE\s+(?:.*?\s+)?when\s+you\s+redeem\s+\d+\s+(?:CHOICE\s+)?points?)(?:,?\s*Save\s+(?:at\s+least|up\s+to)?\s*\$?\d+(?:\.\d{2})?)?.*$", re.IGNORECASE),

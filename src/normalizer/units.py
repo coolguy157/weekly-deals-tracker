@@ -27,6 +27,11 @@ UNIT_MAP = {
 
 def extract_unit_info(text: str) -> Tuple[Optional[float], Optional[str]]:
     """Extract numeric size and standardized unit of measure from product text."""
+    # Check for seafood/meat count per pound (e.g., "31-40 ct per lb", "16-20 count/lb", "21-25 count per pound")
+    # This denotes shrimp sizing grade, sold by the pound, NOT a fixed count package.
+    if re.search(r"\b(?:\d+\s*-\s*\d+|\d+)\s*(?:ct|count)\s*(?:per\s+(?:lb|pound)|/\s*(?:lb|pound))\b", text, re.IGNORECASE):
+        return 1.0, "lb"
+
     match = UNIT_PATTERN.search(text)
     if not match:
         return None, None
