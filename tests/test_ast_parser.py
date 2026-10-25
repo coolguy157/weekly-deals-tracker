@@ -78,6 +78,17 @@ class TestASTParser(unittest.TestCase):
             ],
         )
 
+    def test_right_distribution_sugar_varieties(self):
+        text = "Our Brand Confectioners' or Brown Sugar"
+        items = self.parser.disaggregate(text)
+        self.assertEqual(
+            items,
+            [
+                "Our Brand Confectioners' Sugar",
+                "Our Brand Brown Sugar",
+            ],
+        )
+
     def test_complex_bundle_segmentation(self):
         text = "Nature's Promise Greenhouse Grown Dole or Our Brand Salad Blend or Kit, Bolthouse Dressing or NatureSweet Cherub or Golden Cherub Tomatoes"
         items = self.parser.disaggregate(text)

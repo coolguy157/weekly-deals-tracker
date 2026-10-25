@@ -38,6 +38,10 @@ NATIONAL_BRANDS = [
     "General Mills", "Kellogg's", "Post", "Sargento", "Cabot", "Hidden Valley", "Ken's",
     "Ken's Steak House", "Marzetti", "Newman's Own", "Wish-Bone", "Heinz", "French's",
     "Hellmann's", "Best Foods",
+    "Duncan Hines", "Betty Crocker", "Ghirardelli", "Nestle Toll House", "Nestlé Toll House", "Toll House",
+    "Carnation", "Baker's", "Hershey's", "Hershey", "Domino", "C&H", "Crisco", "Gold Medal", "King Arthur",
+    "Jell-O", "Jello", "PAM", "Fleischmann's", "Arm & Hammer", "Morton", "Smucker's", "Jif", "Skippy",
+    "Peter Pan", "Nutella", "Log Cabin", "Mrs. Butterworth's", "Pearl Milling Company",
 ]
 
 DEPARTMENT_BANNERS = {
@@ -58,18 +62,28 @@ DEPARTMENT_BANNERS = {
     "from our deli",
 }
 
-COMMON_HEAD_NOUNS_PATTERN = (
-    r"Cheese|Cheddar|Mozzarella|Swiss|Provolone|Parmesan\s+Cheese|"
-    r"Squash|Pumpkin(?:s)?|Potato(?:es)?|Apple(?:s)?|Grape(?:s)?|Pear(?:s)?|Melon(?:s)?|"
-    r"Pepper(?:s)?|Onion(?:s)?|Tomato(?:es)?|Orange(?:s)?|Citrus|Peach(?:es)?|Plum(?:s)?|"
-    r"Berries|Berry|Parfaits?|Tortillas?|Pizza\s+Crusts?|Crusts?|"
-    r"Bread|Buns|Rolls|Butter|Yogurt|Milk|Eggs|"
-    r"Sausage\s+(?:Links|Patties|Rolls)|Bacon|"
-    r"Chicken|Poultry|Drumsticks|Thighs|Breasts|Tenders|Cutlets|Wings|Pork\s+Chops"
-)
+HEAD_NOUN_PATTERNS = [
+    r"Greenhouse\s+Grown\s+(?:Salad\s+(?:Blends?|Kits?|Bowls?))",
+    r"Salad\s+(?:Blends?|Kits?|Bowls?)(?:\s+or\s+(?:Salad\s+)?(?:Blends?|Kits?|Bowls?))?",
+    r"(?:Baby\s+Bella\s+|White\s+|Portabella\s+|Button\s+)?Mushrooms?",
+    r"(?:Chicken\s+)?Breasts?",
+    r"Whole\s+Chickens?",
+    r"Chicken\s+(?:Thighs|Drumsticks|Wings|Tenders|Cutlets)",
+    r"Pork\s+(?:Chops|Loin\s+Chops|Spare\s+Ribs)",
+    r"Cheese|Cheddar|Mozzarella|Swiss|Provolone|Parmesan\s+Cheese",
+    r"Squash|Pumpkin(?:s)?|Potato(?:es)?|Apple(?:s)?|Grape(?:s)?|Pear(?:s)?|Melon(?:s)?",
+    r"Pepper(?:s)?|Onion(?:s)?|Tomato(?:es)?|Orange(?:s)?|Citrus|Peach(?:es)?|Plum(?:s)?",
+    r"Berries|Berry|Parfaits?|Tortillas?|Pizza\s+Crusts?|Crusts?",
+    r"Bread|Buns|Rolls|Butter|Yogurt|Milk|Eggs",
+    r"Sugar|Flour|Frosting|Cakes?|Brownies?|Muffins?|Cookies?",
+    r"Sausage\s+(?:Links|Patties|Rolls)|Sausage|Bacon",
+    r"Dressing",
+]
+
+COMMON_HEAD_NOUNS_PATTERN = "|".join(HEAD_NOUN_PATTERNS)
 
 KNOWN_HEAD_NOUN_WORDS = set(
-    "pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry cheese mushrooms parfait parfaits tortillas crust crusts bread buns rolls butter yogurt milk eggs bacon chicken breasts thighs drumsticks tenders cutlets wings chops".split()
+    "pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry cheese mushrooms parfait parfaits tortillas crust crusts bread buns rolls butter yogurt milk eggs bacon chicken breasts thighs drumsticks tenders cutlets wings chops sugar flour frosting cake cakes brownie brownies muffins muffin cookies cookie".split()
 )
 
 MEAT_KEYWORDS = (

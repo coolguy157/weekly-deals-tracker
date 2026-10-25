@@ -1406,6 +1406,54 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[1].brand, "Bogle")
         self.assertEqual(deals[1].category, "Wine")
 
+    def test_our_brand_sugar_right_distribution(self):
+        item = FlyerItem(
+            id=5014,
+            flyer_id=1195674,
+            name="Our Brand Confectioners' or Brown Sugar - $2.39",
+            price=2.39,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=6,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 2)
+        self.assertEqual(deals[0].canonical_name, "Our Brand Confectioners' Sugar")
+        self.assertEqual(deals[0].brand, "Our Brand")
+        self.assertEqual(deals[1].canonical_name, "Our Brand Brown Sugar")
+        self.assertEqual(deals[1].brand, "Our Brand")
+
+    def test_duncan_hines_baking_mix_and_frosting_brand_distribution(self):
+        item = FlyerItem(
+            id=5015,
+            flyer_id=1195674,
+            name="Duncan Hines Cake or Brownie Mix or Frosting - 2/ $3.00",
+            price=1.50,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=6,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 3)
+        self.assertEqual(deals[0].canonical_name, "Duncan Hines Cake")
+        self.assertEqual(deals[0].brand, "Duncan Hines")
+        self.assertEqual(deals[1].canonical_name, "Duncan Hines Brownie Mix")
+        self.assertEqual(deals[1].brand, "Duncan Hines")
+        self.assertEqual(deals[2].canonical_name, "Duncan Hines Frosting")
+        self.assertEqual(deals[2].brand, "Duncan Hines")
+
 
 if __name__ == "__main__":
     unittest.main()

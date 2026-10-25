@@ -288,8 +288,13 @@ class FlyersMixin:
 
             disaggregated_obs = 0
             new_obs_total = 0
+            processed_raw_deals = set()
 
             for r in rows:
+                deal_key = (r["flyer_id"], r["raw_deal_id"])
+                if deal_key in processed_raw_deals:
+                    continue
+
                 item = FlyerItem(
                     id=r["raw_deal_id"],
                     flyer_id=r["flyer_id"],
@@ -307,12 +312,16 @@ class FlyersMixin:
                 )
                 deals = normalizer.disaggregate_and_normalize(item)
 
-                if len(deals) > 1 or (len(deals) == 1 and (deals[0].canonical_name != r["canonical_name"] or deals[0].brand != r["brand"] or deals[0].unit_price != r["unit_price"] or deals[0].category != r["category"])):
+                if len(deals) > 1:
                     disaggregated_obs += 1
                     new_obs_total += len(deals)
+                    processed_raw_deals.add(deal_key)
 
-                    # Remove old compound observation
-                    conn.execute("DELETE FROM deal_observations WHERE id = ?", (r["obs_id"],))
+                    # Remove old observations for this compound flyer item
+                    conn.execute(
+                        "DELETE FROM deal_observations WHERE flyer_id = ? AND raw_deal_id = ?",
+                        deal_key,
+                    )
 
                     # Insert disaggregated single-item deals
                     for deal in deals:
@@ -324,6 +333,21 @@ class FlyersMixin:
                             source_type=r["source_type"],
                             recorded_at=r["recorded_at"],
                         )
+                elif len(deals) == 1 and (deals[0].canonical_name != r["canonical_name"] or deals[0].brand != r["brand"] or deals[0].unit_price != r["unit_price"] or deals[0].category != r["category"]):
+                    disaggregated_obs += 1
+                    new_obs_total += 1
+
+                    # Remove old observation
+                    conn.execute("DELETE FROM deal_observations WHERE id = ?", (r["obs_id"],))
+
+                    self._upsert_deal_observation(
+                        conn=conn,
+                        deal=deals[0],
+                        promo_type=r["promo_type"],
+                        is_trusted=bool(r["is_trusted"]),
+                        source_type=r["source_type"],
+                        recorded_at=r["recorded_at"],
+                    )
 
             # Delete orphaned compound products
             del_cur = conn.execute("""

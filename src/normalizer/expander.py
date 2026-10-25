@@ -245,7 +245,12 @@ def pre_expand_deal_string(name: str) -> str:
 
         p_brand = prefix
         for b in ALL_PREFIX_BRANDS:
-            if v1.lower().startswith(b.lower() + " "):
+            full_lead = f"{prefix} {v1}".strip()
+            if full_lead.lower().startswith(b.lower()) and not v2.lower().startswith(b.lower()):
+                p_brand = b
+                v1 = full_lead[len(b):].strip()
+                break
+            elif v1.lower().startswith(b.lower() + " "):
                 p_brand = b
                 v1 = v1[len(b):].strip()
                 break
@@ -284,7 +289,14 @@ def pre_expand_deal_string(name: str) -> str:
         # Propagate brand/prefix to v2 if v1 starts with brand and v2 does not
         p_brand = prefix
         for b in ALL_PREFIX_BRANDS:
-            if (prefix.lower().startswith(b.lower()) or v1.lower().startswith(b.lower())) and not v2.lower().startswith(b.lower()):
+            full_lead = f"{prefix} {v1}".strip()
+            if full_lead.lower().startswith(b.lower()) and not v2.lower().startswith(b.lower()):
+                p_brand = b
+                rem = full_lead[len(b):].strip()
+                rem_w = rem.split()
+                v1 = " ".join(rem_w)
+                break
+            elif (prefix.lower().startswith(b.lower()) or v1.lower().startswith(b.lower())) and not v2.lower().startswith(b.lower()):
                 p_brand = b
                 if v1.lower().startswith(b.lower()):
                     rem = v1[len(b):].strip()

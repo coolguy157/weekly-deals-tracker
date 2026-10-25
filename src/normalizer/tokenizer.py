@@ -9,7 +9,7 @@ from enum import Enum, auto
 from typing import List, Optional
 import re
 
-from .vocabulary import STORE_BRANDS, NATIONAL_BRANDS
+from .vocabulary import STORE_BRANDS, NATIONAL_BRANDS, HEAD_NOUN_PATTERNS
 
 
 class TokenType(Enum):
@@ -39,22 +39,6 @@ BRAND_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
-HEAD_NOUN_PATTERNS = [
-    r"Greenhouse\s+Grown\s+(?:Salad\s+(?:Blends?|Kits?|Bowls?))",
-    r"Salad\s+(?:Blends?|Kits?|Bowls?)(?:\s+or\s+(?:Salad\s+)?(?:Blends?|Kits?|Bowls?))?",
-    r"(?:Baby\s+Bella\s+|White\s+|Portabella\s+|Button\s+)?Mushrooms?",
-    r"(?:Chicken\s+)?Breasts?",
-    r"Whole\s+Chickens?",
-    r"Chicken\s+(?:Thighs|Drumsticks|Wings|Tenders|Cutlets)",
-    r"Pork\s+(?:Chops|Loin\s+Chops|Spare\s+Ribs)",
-    r"Cheese|Cheddar|Mozzarella|Swiss|Provolone|Parmesan\s+Cheese",
-    r"Squash|Pumpkin(?:s)?|Potato(?:es)?|Apple(?:s)?|Grape(?:s)?|Pear(?:s)?|Melon(?:s)?",
-    r"Pepper(?:s)?|Onion(?:s)?|Tomato(?:es)?|Orange(?:s)?|Citrus|Peach(?:es)?|Plum(?:s)?",
-    r"Berries|Berry|Parfaits?|Tortillas?|Pizza\s+Crusts?|Crusts?",
-    r"Bread|Buns|Rolls|Butter|Yogurt|Milk|Eggs",
-    r"Sausage\s+(?:Links|Patties|Rolls)|Sausage|Bacon",
-    r"Dressing",
-]
 HEAD_NOUN_PATTERN = re.compile(
     r"\b(" + "|".join(HEAD_NOUN_PATTERNS) + r")\b",
     re.IGNORECASE,
