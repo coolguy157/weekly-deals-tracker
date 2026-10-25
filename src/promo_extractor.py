@@ -83,13 +83,20 @@ class PromoExtractor:
     )
 
     # 4. Points Redemption Patterns (Buy with points / Free with points)
-    # "FREE ... when you redeem 75 CHOICE points", "5-POINT FREEBIE", "5 POINT FREEBIE", "when you redeem 100 CHOICE points"
+    # "FREE ... when you redeem 75 CHOICE points", "FREE ... with 400 CHOICE points", "5-POINT FREEBIE", "5 POINT FREEBIE"
     REDEEM_POINTS_PATTERN = re.compile(
-        r"(?:REDEEM\s+(\d+)\s+(?:CHOICE\s+)?POINTS|(\d+)[-\s]+POINT\s+FREEBIE)",
+        r"(?:(?:REDEEM|WITH)\s+(\d+)\s+(?:CHOICE\s+)?POINTS|(\d+)[-\s]+POINT\s+FREEBIE)",
         re.IGNORECASE,
     )
     POINTS_SAVE_AMT_PATTERN = re.compile(
         r"SAVE\s+(?:UP\s+TO\s+|AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?)",
+        re.IGNORECASE,
+    )
+
+    # 4b. Free with Purchase / Multi-Buy Freebie
+    # "FREE Our Brand Pizza Crust Mix When you buy 2 participating products*", "FREE ... with purchase of 3"
+    FREE_WITH_BUY_PATTERN = re.compile(
+        r"\bFREE\b.*?\b(?:WHEN\s+YOU\s+BUY|WITH\s+(?:PURCHASE\s+OF)?)\s+(\d+)\b",
         re.IGNORECASE,
     )
 
@@ -319,8 +326,12 @@ class PromoExtractor:
         if m_ss:
             save_amt = float(m_ss.group(1))
             spend_amt = float(m_ss.group(2))
-            net_spend = round(max(0.0, spend_amt - save_amt), 2)
-            detail = f"SAVE ${save_amt:.2f} When you spend ${spend_amt:.2f} (Net Spend: ${net_spend:.2f})"
+            if save_amt >= spend_amt:
+                net_spend = None
+                detail = f"SAVE ${save_amt:.2f} When you spend ${spend_amt:.2f}"
+            else:
+                net_spend = round(spend_amt - save_amt, 2)
+                detail = f"SAVE ${save_amt:.2f} When you spend ${spend_amt:.2f} (Net Spend: ${net_spend:.2f})"
             return PromoInfo(
                 promo_type="spend_save",
                 promo_detail=detail,
@@ -340,6 +351,20 @@ class PromoExtractor:
                 promo_detail=detail,
                 coupon_discount=save_amt,
                 qualifying_qty=buy_qty,
+            )
+
+        # 4b. Free Item with Purchase / Multi-Buy Threshold
+        m_fwb = cls.FREE_WITH_BUY_PATTERN.search(cleaned_text)
+        if m_fwb:
+            buy_q = int(m_fwb.group(1))
+            detail = f"FREE When you buy {buy_q} participating products"
+            return PromoInfo(
+                promo_type="meal_deal",
+                promo_detail=detail,
+                buy_qty=buy_q,
+                free_qty=1,
+                stated_unit_price=0.0,
+                qualifying_qty=buy_q,
             )
 
         # 5. Must Buy Check
@@ -504,11 +529,23 @@ class PromoExtractor:
                 return max(0.0, round(base_price - promo.coupon_discount + 1e-9, 2))
             return None
 
+        if promo.promo_type == "meal_deal":
+            if promo.stated_unit_price is not None:
+                return promo.stated_unit_price
+            return 0.0
+
         if promo.promo_type == "spend_save":
+            if base_price is not None and promo.spend_threshold and promo.coupon_discount:
+                if 0 < promo.coupon_discount < promo.spend_threshold:
+                    discount_pct = promo.coupon_discount / promo.spend_threshold
+                    return max(0.0, round(base_price * (1.0 - discount_pct) + 1e-9, 2))
+                return base_price
             if promo.est_net_price is not None:
                 return promo.est_net_price
             if promo.spend_threshold is not None and promo.coupon_discount is not None:
-                return max(0.0, round(promo.spend_threshold - promo.coupon_discount + 1e-9, 2))
+                if promo.coupon_discount < promo.spend_threshold:
+                    return max(0.0, round(promo.spend_threshold - promo.coupon_discount + 1e-9, 2))
+                return None
             return None
 
         return None

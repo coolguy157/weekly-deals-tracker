@@ -252,6 +252,50 @@ class TestPromoExtractor(unittest.TestCase):
         self.assertEqual(p2.stated_total_price, 10.00)
         self.assertEqual(p2.stated_unit_price, 3.33)
 
+    def test_holiday_turkey_and_free_with_purchase(self):
+        # Turkey points redemption
+        p_turkey = PromoExtractor.extract_promo(
+            "TURKEY - FREE TURKEY with 400 CHOICE points or $1 OFF per lb. any other turkey up to 20 lbs."
+        )
+        self.assertIsNotNone(p_turkey)
+        self.assertEqual(p_turkey.promo_type, "points_redemption")
+        self.assertEqual(p_turkey.points_cost, 400)
+        self.assertEqual(p_turkey.promo_detail, "FREE with 400 CHOICE points")
+
+        # Pizza crust free with purchase of 2
+        p_pizza = PromoExtractor.extract_promo(
+            "Our Brand Pizza Crust Mix - FREE Our Brand Pizza Crust Mix When you buy 2 participating products*"
+        )
+        self.assertIsNotNone(p_pizza)
+        self.assertEqual(p_pizza.promo_type, "meal_deal")
+        self.assertEqual(p_pizza.buy_qty, 2)
+        self.assertEqual(p_pizza.free_qty, 1)
+        self.assertEqual(PromoExtractor.calculate_effective_price(p_pizza), 0.0)
+
+    def test_spend_save_proportional_discount_and_glitch_prevention(self):
+        # Normal Spend $75 Save $25 on individual product with base price $3.99
+        p_ss = PromoExtractor.extract_promo(
+            "Baby Food - SAVE $25 When you spend $75 on participating products*"
+        )
+        self.assertIsNotNone(p_ss)
+        self.assertEqual(p_ss.promo_type, "spend_save")
+        self.assertEqual(p_ss.spend_threshold, 75.0)
+        self.assertEqual(p_ss.coupon_discount, 25.0)
+        # 33.3% off base $3.99 -> $2.66
+        eff = PromoExtractor.calculate_effective_price(p_ss, base_price=3.99)
+        self.assertEqual(eff, 2.66)
+
+        # Glitched threshold where save >= spend (Save $25 When you spend $15)
+        p_glitch = PromoExtractor.extract_promo(
+            "Baby Food - SAVE $25 When you spend $15 on participating products*"
+        )
+        self.assertIsNotNone(p_glitch)
+        self.assertEqual(p_glitch.promo_type, "spend_save")
+        self.assertIsNone(p_glitch.est_net_price)
+        # Should not produce $0.00; falls back to base price $3.99
+        eff_glitch = PromoExtractor.calculate_effective_price(p_glitch, base_price=3.99)
+        self.assertEqual(eff_glitch, 3.99)
+
 
 if __name__ == "__main__":
     unittest.main()

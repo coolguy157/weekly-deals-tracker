@@ -327,8 +327,8 @@ def is_store_sync_needed(store_key: Optional[str] = None, db_path: Optional[str]
         deal_count = row["deal_count"] or 0
         source_type = row["source_type"] or ""
 
-        # Expired or empty
-        if today_str > v_to:
+        # Expired or transition day reached (when today >= v_to and circular started in the past)
+        if today_str > v_to or (today_str >= v_to and v_from < today_str):
             return True, f"Active circular expired on {v_to} (today is {today_str}). New ad needed."
         if deal_count == 0:
             return True, "Current circular in database has 0 deals recorded."

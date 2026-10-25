@@ -52,6 +52,7 @@ git diff --staged --quiet
 if errorlevel 1 (
     echo Staged changes detected in web/deals.json. Committing and pushing to main and gh-pages... >> "%LOGFILE%"
     git commit -m "chore(web): auto-update Giant Lewisburg deals with solved BxGy prices [skip ci]" >> "%LOGFILE%" 2>&1
+    git pull --rebase origin main >> "%LOGFILE%" 2>&1
     git push origin main >> "%LOGFILE%" 2>&1
     
     :: Push web folder directly to gh-pages branch for instant live web app update
