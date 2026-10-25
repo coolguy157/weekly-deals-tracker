@@ -197,14 +197,46 @@ class PromoExtractor:
         cleaned_text = re.sub(r"[•・·\-\*]+", " ", combined_text)
         cleaned_text = re.sub(r"\s+", " ", cleaned_text).strip()
 
-        # 0. Meal Deal / Buy Main Get Sides Free Check
-        if "meal deal" in cleaned_text.lower() or ("buy this" in cleaned_text.lower() and "get these free" in cleaned_text.lower()):
-            m_main = re.search(r"BUY\s+THIS\s+(.*?)\s+GET\s+THESE\s+FREE", cleaned_text, re.IGNORECASE)
+        # Try specialized extractors in prioritized sequence
+        promo = cls._extract_meal_deal(cleaned_text)
+        if promo:
+            return promo
+
+        promo = cls._extract_bogo(cleaned_text)
+        if promo:
+            return promo
+
+        promo = cls._extract_points(cleaned_text, point_value=point_value)
+        if promo:
+            return promo
+
+        promo = cls._extract_spend_save(cleaned_text)
+        if promo:
+            return promo
+
+        promo = cls._extract_must_buy(cleaned_text)
+        if promo:
+            return promo
+
+        promo = cls._extract_coupon(cleaned_text)
+        if promo:
+            return promo
+
+        promo = cls._extract_discount_off(cleaned_text)
+        if promo:
+            return promo
+
+        return None
+
+    @classmethod
+    def _extract_meal_deal(cls, text: str) -> Optional[PromoInfo]:
+        """Match meal deal / buy main item get sides free patterns."""
+        if "meal deal" in text.lower() or ("buy this" in text.lower() and "get these free" in text.lower()):
+            m_main = re.search(r"BUY\s+THIS\s+(.*?)\s+GET\s+THESE\s+FREE", text, re.IGNORECASE)
             main_item = m_main.group(1).strip() if m_main else ""
-            m_save = re.search(r"SAVE\s+(?:UP\s+TO\s+|AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?)", cleaned_text, re.IGNORECASE)
+            m_save = re.search(r"SAVE\s+(?:UP\s+TO\s+|AT\s+LEAST\s+)?\$(\d+(?:\.\d{2})?)", text, re.IGNORECASE)
             save_amt = float(m_save.group(1)) if m_save else None
 
-            # Clean anchor item name if matched
             if main_item:
                 main_item = re.sub(r"(?i)\b(?:Butcher Shop|U\.?S\.?D\.?A\.?|Choice|Fresh|Vacuum Sealed)\b.*", "", main_item).strip()
             detail = "Weekly Meal Deal"
@@ -221,8 +253,24 @@ class PromoExtractor:
                 coupon_discount=save_amt,
             )
 
-        # 1. BOGO Check
-        m_bogo = cls.BOGO_PATTERN.search(cleaned_text)
+        m_fwb = cls.FREE_WITH_BUY_PATTERN.search(text)
+        if m_fwb:
+            buy_q = int(m_fwb.group(1))
+            detail = f"FREE When you buy {buy_q} participating products"
+            return PromoInfo(
+                promo_type="meal_deal",
+                promo_detail=detail,
+                buy_qty=buy_q,
+                free_qty=1,
+                stated_unit_price=0.0,
+                qualifying_qty=buy_q,
+            )
+        return None
+
+    @classmethod
+    def _extract_bogo(cls, text: str) -> Optional[PromoInfo]:
+        """Match BOGO / Buy X Get Y Free or Discounted patterns."""
+        m_bogo = cls.BOGO_PATTERN.search(text)
         if m_bogo:
             buy_qty = cls._word_or_digit_to_int(m_bogo.group(1))
             free_qty = cls._word_or_digit_to_int(m_bogo.group(2))
@@ -236,7 +284,7 @@ class PromoExtractor:
                 qualifying_qty=total_qty,
             )
 
-        m_bogo_disc = cls.BOGO_DISCOUNT_PATTERN.search(cleaned_text)
+        m_bogo_disc = cls.BOGO_DISCOUNT_PATTERN.search(text)
         if m_bogo_disc:
             buy_qty = cls._word_or_digit_to_int(m_bogo_disc.group(1))
             free_qty = cls._word_or_digit_to_int(m_bogo_disc.group(2))
@@ -252,7 +300,7 @@ class PromoExtractor:
                 qualifying_qty=total_qty,
             )
 
-        if cls.GENERIC_BOGO_PATTERN.search(cleaned_text):
+        if cls.GENERIC_BOGO_PATTERN.search(text):
             return PromoInfo(
                 promo_type="bogo",
                 promo_detail="BUY 1 GET 1 FREE",
@@ -260,12 +308,15 @@ class PromoExtractor:
                 free_qty=1,
                 qualifying_qty=2,
             )
+        return None
 
-        # 2. Points Redemption (Buy with points)
-        m_red = cls.REDEEM_POINTS_PATTERN.search(cleaned_text)
+    @classmethod
+    def _extract_points(cls, text: str, point_value: float = DEFAULT_POINT_VALUE) -> Optional[PromoInfo]:
+        """Match CHOICE points redemption or bonus points patterns."""
+        m_red = cls.REDEEM_POINTS_PATTERN.search(text)
         if m_red:
             pts_val = int(m_red.group(1) or m_red.group(2))
-            m_sv = cls.POINTS_SAVE_AMT_PATTERN.search(cleaned_text)
+            m_sv = cls.POINTS_SAVE_AMT_PATTERN.search(text)
             saved = float(m_sv.group(1)) if m_sv else None
             detail = f"FREE with {pts_val} CHOICE points" + (f" (Save ${saved:.2f})" if saved else "")
             return PromoInfo(
@@ -277,8 +328,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        # 3. Extra Points / Points Bonus
-        m_bsp = cls.BONUS_POINTS_SPEND_PATTERN.search(cleaned_text)
+        m_bsp = cls.BONUS_POINTS_SPEND_PATTERN.search(text)
         if m_bsp:
             pts = int(m_bsp.group(1))
             spend = float(m_bsp.group(2))
@@ -295,7 +345,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        m_em = cls.EARN_POINTS_MULT_PATTERN.search(cleaned_text)
+        m_em = cls.EARN_POINTS_MULT_PATTERN.search(text)
         if m_em:
             mult = float(m_em.group(1))
             pct_back = round(mult * point_value * 100, 1)
@@ -307,7 +357,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        m_bq = cls.BONUS_POINTS_BUY_PATTERN.search(cleaned_text)
+        m_bq = cls.BONUS_POINTS_BUY_PATTERN.search(text)
         if m_bq:
             pts = int(m_bq.group(1))
             buy_q = int(m_bq.group(2))
@@ -320,9 +370,12 @@ class PromoExtractor:
                 qualifying_qty=buy_q,
                 est_reward_val=reward_val,
             )
+        return None
 
-        # 4. Spend & Save Threshold
-        m_ss = cls.SPEND_SAVE_PATTERN.search(cleaned_text)
+    @classmethod
+    def _extract_spend_save(cls, text: str) -> Optional[PromoInfo]:
+        """Match Spend & Save threshold patterns."""
+        m_ss = cls.SPEND_SAVE_PATTERN.search(text)
         if m_ss:
             save_amt = float(m_ss.group(1))
             spend_amt = float(m_ss.group(2))
@@ -341,7 +394,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        m_bs = cls.BUY_SAVE_PATTERN.search(cleaned_text)
+        m_bs = cls.BUY_SAVE_PATTERN.search(text)
         if m_bs:
             save_amt = float(m_bs.group(1))
             buy_qty = int(m_bs.group(2))
@@ -352,23 +405,12 @@ class PromoExtractor:
                 coupon_discount=save_amt,
                 qualifying_qty=buy_qty,
             )
+        return None
 
-        # 4b. Free Item with Purchase / Multi-Buy Threshold
-        m_fwb = cls.FREE_WITH_BUY_PATTERN.search(cleaned_text)
-        if m_fwb:
-            buy_q = int(m_fwb.group(1))
-            detail = f"FREE When you buy {buy_q} participating products"
-            return PromoInfo(
-                promo_type="meal_deal",
-                promo_detail=detail,
-                buy_qty=buy_q,
-                free_qty=1,
-                stated_unit_price=0.0,
-                qualifying_qty=buy_q,
-            )
-
-        # 5. Must Buy Check
-        m_mb_price = cls.MUST_BUY_PRICE_PATTERN.search(cleaned_text)
+    @classmethod
+    def _extract_must_buy(cls, text: str) -> Optional[PromoInfo]:
+        """Match Must Buy quantity and bundle (X for $Y) patterns."""
+        m_mb_price = cls.MUST_BUY_PRICE_PATTERN.search(text)
         if m_mb_price:
             qty = int(m_mb_price.group(1))
             unit_price = float(m_mb_price.group(2))
@@ -380,7 +422,7 @@ class PromoExtractor:
                 stated_unit_price=unit_price,
             )
 
-        m_x_for_y = cls.X_FOR_Y_PATTERN.search(cleaned_text)
+        m_x_for_y = cls.X_FOR_Y_PATTERN.search(text)
         if m_x_for_y:
             qty = int(m_x_for_y.group(1))
             total_price = float(m_x_for_y.group(2))
@@ -394,7 +436,7 @@ class PromoExtractor:
                 stated_total_price=total_price,
             )
 
-        m_mb_qty = cls.MUST_BUY_QTY_ONLY_PATTERN.search(cleaned_text)
+        m_mb_qty = cls.MUST_BUY_QTY_ONLY_PATTERN.search(text)
         if m_mb_qty:
             qty = int(m_mb_qty.group(1))
             return PromoInfo(
@@ -402,9 +444,12 @@ class PromoExtractor:
                 promo_detail=f"MUST BUY {qty}",
                 qualifying_qty=qty,
             )
+        return None
 
-        # 6. Digital Coupon Check
-        m_coup_price = cls.COUPON_FINAL_PRICE_PATTERN.search(cleaned_text)
+    @classmethod
+    def _extract_coupon(cls, text: str) -> Optional[PromoInfo]:
+        """Match Digital Coupon or Member Card discount patterns."""
+        m_coup_price = cls.COUPON_FINAL_PRICE_PATTERN.search(text)
         if m_coup_price:
             price_str = m_coup_price.group(1) or m_coup_price.group(2)
             price = float(price_str)
@@ -415,7 +460,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        m_coup_disc = cls.COUPON_DISCOUNT_PATTERN.search(cleaned_text)
+        m_coup_disc = cls.COUPON_DISCOUNT_PATTERN.search(text)
         if m_coup_disc:
             disc = float(m_coup_disc.group(1))
             return PromoInfo(
@@ -424,9 +469,14 @@ class PromoExtractor:
                 coupon_discount=disc,
                 qualifying_qty=1,
             )
+        return None
 
-        # 7. Percentage Off Check (e.g. 25% Off)
-        m_pct = cls.PCT_OFF_PATTERN.search(cleaned_text)
+    @classmethod
+    def _extract_discount_off(cls, text: str) -> Optional[PromoInfo]:
+        """Match percentage off and dollar/cents off patterns."""
+        # Percentage off (exclude if part of a BOGO discount pattern)
+        m_bogo_disc = cls.BOGO_DISCOUNT_PATTERN.search(text)
+        m_pct = cls.PCT_OFF_PATTERN.search(text)
         if m_pct and not m_bogo_disc:
             pct_val = float(m_pct.group(1))
             return PromoInfo(
@@ -436,8 +486,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        # 8. Dollar Off / Off-Shelf Discount Check
-        m_do = cls.DOLLAR_OFF_PATTERN.search(cleaned_text)
+        m_do = cls.DOLLAR_OFF_PATTERN.search(text)
         if m_do:
             off_val = float(m_do.group(1))
             unit_grp = m_do.group(2)
@@ -445,9 +494,9 @@ class PromoExtractor:
             if unit_grp:
                 u_norm = "per lb" if unit_grp.lower() in ("lb", "pound") else ("each" if unit_grp.lower() in ("ea", "each") else f"per {unit_grp.lower()}")
                 unit_suffix = f" {u_norm}"
-            elif re.search(r"\b(?:/\s*lb|per\s*lb)\b", cleaned_text, re.IGNORECASE):
+            elif re.search(r"\b(?:/\s*lb|per\s*lb)\b", text, re.IGNORECASE):
                 unit_suffix = " per lb"
-            elif re.search(r"\b(?:/\s*ea|per\s*ea)\b", cleaned_text, re.IGNORECASE):
+            elif re.search(r"\b(?:/\s*ea|per\s*ea)\b", text, re.IGNORECASE):
                 unit_suffix = " each"
             return PromoInfo(
                 promo_type="dollar_off",
@@ -456,7 +505,7 @@ class PromoExtractor:
                 qualifying_qty=1,
             )
 
-        m_co = cls.CENTS_OFF_PATTERN.search(cleaned_text)
+        m_co = cls.CENTS_OFF_PATTERN.search(text)
         if m_co:
             cents_val = float(m_co.group(1)) / 100.0
             unit_grp = m_co.group(2)
@@ -464,9 +513,9 @@ class PromoExtractor:
             if unit_grp:
                 u_norm = "per lb" if unit_grp.lower() in ("lb", "pound") else ("each" if unit_grp.lower() in ("ea", "each") else f"per {unit_grp.lower()}")
                 unit_suffix = f" {u_norm}"
-            elif re.search(r"\b(?:/\s*lb|per\s*lb)\b", cleaned_text, re.IGNORECASE):
+            elif re.search(r"\b(?:/\s*lb|per\s*lb)\b", text, re.IGNORECASE):
                 unit_suffix = " per lb"
-            elif re.search(r"\b(?:/\s*ea|per\s*ea)\b", cleaned_text, re.IGNORECASE):
+            elif re.search(r"\b(?:/\s*ea|per\s*ea)\b", text, re.IGNORECASE):
                 unit_suffix = " each"
             return PromoInfo(
                 promo_type="dollar_off",
@@ -474,7 +523,6 @@ class PromoExtractor:
                 coupon_discount=cents_val,
                 qualifying_qty=1,
             )
-
         return None
 
     @classmethod

@@ -259,7 +259,7 @@ def main() -> None:
     # export
     p_exp = subparsers.add_parser("export", help="Export evaluated deals to file")
     p_exp.add_argument("--format", choices=["json", "csv"], default="json", help="Export format")
-    p_exp.add_argument("--output", type=str, default="deals_export.json", help="Output file path")
+    p_exp.add_argument("-o", "--output", type=str, default="deals_export.json", help="Output file path")
     p_exp.add_argument("--store", type=str, default=None, help="Preset store alias (default: 'tomthumb')")
     p_exp.add_argument("-m", "--merchant", type=str, default=None, help="Merchant banner")
     p_exp.add_argument("--flyer-id", type=int, default=None, help="Specific flyer ID")

@@ -251,287 +251,370 @@ class DealAnalyzer:
                 diff_cat = int(((unit_price - cat_avg_unit) / cat_avg_unit) * 100.0)
                 cat_note = f" • ⚠️ Above {category} category avg (+{diff_cat}%)"
 
-        # Handle Points Redemption (Free with Points)
+        # Dispatch to specialized promo evaluators if applicable
         if promo_type == "points_redemption" and promo_info:
-            pts = promo_info.points_cost or 0
-            saved = promo_info.points_saved_val or base_price or deal_record.get("advertised_price")
-            yield_val = (saved / pts) if (saved and pts > 0) else None
-            yield_cents = (yield_val * 100) if yield_val else None
-            unit_size = deal_record.get("unit_size")
-
-            # 1. Promo Freebie (e.g. 5-point, 10-point freebie, or outsized >= 10¢/pt)
-            if pts <= 10 or (yield_val is not None and yield_val >= 0.10):
-                badge = "POINTS_FREEBIE"
-                cur_price = 0.0
-                u_price = 0.0
-                val_str = f" (Save ${saved:.2f} • {yield_cents:.1f}¢/pt)" if (saved and pts > 0) else ""
-                summary_reason = f"🪙 FREE with {pts} CHOICE points{val_str}"
-
-            # 2. High-Yield Points Deal (substantially beats the average grocery redemption valuation: >= 1.3x avg_point_val AND >= 3.0¢/pt)
-            elif yield_val is not None and yield_val >= (point_value * 1.3) and yield_val >= 0.03:
-                badge = "POINTS_DEAL"
-                cur_price = round(pts * 0.01, 2)  # standard cash equivalent floor (100 pts = $1)
-                u_price = round(cur_price / unit_size, 4) if (unit_size and unit_size > 0) else None
-                summary_reason = f"🪙 High-Yield Points Deal: {pts} CHOICE points for ${saved:.2f} value ({yield_cents:.1f}¢/pt vs {point_value*100:.1f}¢ avg)"
-
-            # 3. Standard Points Redemption (fair grocery point redemption, standard conversion)
-            else:
-                badge = "POINTS_REDEMPTION"
-                cur_price = round(pts * 0.01, 2) if pts > 0 else (saved or 0.0)
-                u_price = round(cur_price / unit_size, 4) if (unit_size and unit_size > 0) else None
-                val_str = f" for ${saved:.2f} value ({yield_cents:.1f}¢/pt)" if (saved and pts > 0) else ""
-                summary_reason = f"🪙 Points Redemption: {pts} CHOICE points{val_str}"
-
-            return DealEvaluation(
-                deal_id=deal_record.get("id", 0),
-                product_id=product_id,
-                canonical_name=canonical_name,
-                brand=deal_record.get("brand"),
-                current_price=cur_price,
-                unit_price=u_price,
-                page_number=deal_record.get("page_number", 1),
-                is_front_page=bool(deal_record.get("is_front_page", 1)),
-                historical_min=cur_price,
-                historical_avg=cur_price,
-                historical_max=cur_price,
-                past_observations_count=len(past_obs),
-                diff_pct_vs_avg=0.0,
-                badge=badge,
-                summary_reason=summary_reason,
-                unit_size=unit_size,
-                unit_type=unit_type,
-                category=category,
-                category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
-                category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
-                promo_type=promo_type,
-                promo_detail=promo_detail,
-                qualifying_qty=qualifying_qty,
-                base_price=base_price,
-                raw_deal_id=raw_deal_id,
-                ad_id=ad_id,
-                raw_title=raw_title,
-                image_url=image_url,
+            return self._evaluate_points_redemption(
+                deal_record, product_id, canonical_name, base_price, promo_info,
+                point_value, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
+                qualifying_qty, raw_deal_id, ad_id, raw_title, image_url, past_obs,
             )
 
-        # Handle Extra Points / Points Bonus
         if promo_type == "points_bonus" and promo_info:
-            pts = promo_info.points_bonus or 0
-            spend = promo_info.spend_threshold
-            rew = promo_info.est_reward_val or (pts * point_value)
-            net_p = promo_info.est_net_price or (round(spend - rew, 2) if spend else None)
-            if net_p is not None:
-                current_price = net_p
-            if promo_info.points_multiplier:
-                mult = int(promo_info.points_multiplier)
-                pct_back = round(mult * point_value * 100, 1)
-                reason_pts = f"🪙 Earn {mult}X CHOICE Points (~{pct_back}% back in grocery rewards @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
-            elif spend and net_p:
-                reason_pts = f"🪙 Est. Net ${net_p:.2f} after ~${rew:.2f} in CHOICE Points reward (${spend:.0f} spend, {pts} pts @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
-            else:
-                reason_pts = f"🪙 {pts} CHOICE Points (~${rew:.2f} reward value @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
-
-            return DealEvaluation(
-                deal_id=deal_record.get("id", 0),
-                product_id=product_id,
-                canonical_name=canonical_name,
-                brand=deal_record.get("brand"),
-                current_price=current_price,
-                unit_price=unit_price,
-                page_number=deal_record.get("page_number", 1),
-                is_front_page=bool(deal_record.get("is_front_page", 1)),
-                historical_min=current_price,
-                historical_avg=current_price,
-                historical_max=current_price,
-                past_observations_count=len(past_obs),
-                diff_pct_vs_avg=0.0,
-                badge="POINTS_REWARD",
-                summary_reason=reason_pts,
-                unit_size=deal_record.get("unit_size"),
-                unit_type=unit_type,
-                category=category,
-                category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
-                category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
-                promo_type=promo_type,
-                promo_detail=promo_detail,
-                qualifying_qty=qualifying_qty,
-                base_price=base_price,
-                raw_deal_id=raw_deal_id,
-                ad_id=ad_id,
-                raw_title=raw_title,
-                image_url=image_url,
+            return self._evaluate_points_bonus(
+                deal_record, product_id, canonical_name, current_price, promo_info,
+                point_value, unit_price, unit_type, category, cat_min_unit,
+                cat_avg_unit, promo_type, promo_detail, qualifying_qty, base_price,
+                raw_deal_id, ad_id, raw_title, image_url, past_obs,
             )
 
-        # Handle Spend & Save Threshold
         if promo_type == "spend_save" and promo_info:
-            save_a = promo_info.coupon_discount or 0.0
-            spend_a = promo_info.spend_threshold or 0.0
-            pct = int((save_a / spend_a) * 100) if (save_a and spend_a) else 0
-
-            # Proportional effective item price:
-            # If item has an advertised price, apply the proportional basket discount (e.g. 33% off)
-            adv_p = deal_record.get("advertised_price")
-            if adv_p is not None and adv_p > 0:
-                discount_pct = (save_a / spend_a) if (spend_a > 0 and save_a > 0) else 0.0
-                effective_item_price = max(0.0, round(adv_p * (1.0 - discount_pct) + 1e-9, 2))
-                u_size = deal_record.get("unit_size")
-                item_unit_price = round(effective_item_price / u_size, 4) if (u_size and u_size > 0) else unit_price
-                price_to_use = effective_item_price
-            else:
-                price_to_use = None
-                item_unit_price = None
-
-            return DealEvaluation(
-                deal_id=deal_record.get("id", 0),
-                product_id=product_id,
-                canonical_name=canonical_name,
-                brand=deal_record.get("brand"),
-                current_price=price_to_use,
-                unit_price=item_unit_price,
-                page_number=deal_record.get("page_number", 1),
-                is_front_page=bool(deal_record.get("is_front_page", 1)),
-                historical_min=price_to_use,
-                historical_avg=price_to_use,
-                historical_max=price_to_use,
-                past_observations_count=len(past_obs),
-                diff_pct_vs_avg=0.0,
-                badge="SPEND_SAVE",
-                summary_reason=f"🏷️ Save ${save_a:.2f} when you spend ${spend_a:.2f} ({pct}% off participating items)",
-                unit_size=deal_record.get("unit_size"),
-                unit_type=unit_type,
-                category=category,
-                category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
-                category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
-                promo_type=promo_type,
-                promo_detail=promo_detail,
-                qualifying_qty=qualifying_qty,
-                base_price=adv_p,
-                raw_deal_id=raw_deal_id,
-                ad_id=ad_id,
-                raw_title=raw_title,
-                image_url=image_url,
+            return self._evaluate_spend_save(
+                deal_record, product_id, canonical_name, unit_price, unit_type,
+                category, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
+                qualifying_qty, raw_deal_id, ad_id, raw_title, image_url, past_obs,
+                promo_info,
             )
 
-        # Handle Percent Off
         if promo_type == "percent_off" and promo_info:
-            pct = promo_info.discount_pct or 0.0
-            if base_price and base_price > 0:
-                eff_p = round(base_price * (1.0 - pct / 100.0), 2)
-                unit_p = round(eff_p / deal_record.get("unit_size"), 4) if deal_record.get("unit_size") else None
-                return DealEvaluation(
-                    deal_id=deal_record.get("id", 0),
-                    product_id=product_id,
-                    canonical_name=canonical_name,
-                    brand=deal_record.get("brand"),
-                    current_price=eff_p,
-                    unit_price=unit_p,
-                    page_number=deal_record.get("page_number", 1),
-                    is_front_page=bool(deal_record.get("is_front_page", 1)),
-                    historical_min=eff_p,
-                    historical_avg=eff_p,
-                    historical_max=eff_p,
-                    past_observations_count=len(past_obs),
-                    diff_pct_vs_avg=0.0,
-                    badge="PERCENT_OFF",
-                    summary_reason=f"🏷️ {int(pct)}% Off regular ${base_price:.2f} -> Net ${eff_p:.2f}",
-                    unit_size=deal_record.get("unit_size"),
-                    unit_type=unit_type,
-                    category=category,
-                    category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
-                    category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
-                    promo_type=promo_type,
-                    promo_detail=promo_detail,
-                    qualifying_qty=qualifying_qty,
-                    base_price=base_price,
-                    raw_deal_id=raw_deal_id,
-                    ad_id=ad_id,
-                    raw_title=raw_title,
-                    image_url=image_url,
-                )
+            return self._evaluate_percent_off(
+                deal_record, product_id, canonical_name, base_price, promo_info,
+                unit_type, category, cat_min_unit, cat_avg_unit, promo_type,
+                promo_detail, qualifying_qty, raw_deal_id, ad_id, raw_title,
+                image_url, past_obs,
+            )
 
         if current_price is None:
-            unpriced_reason = "Price not listed numerically in circular"
-            if promo_detail:
-                unpriced_reason = f"Promo: {promo_detail} (needs shelf price to compute unit cost)"
-            return DealEvaluation(
-                deal_id=deal_record.get("id", 0),
-                product_id=product_id,
-                canonical_name=canonical_name,
-                brand=deal_record.get("brand"),
-                current_price=None,
-                unit_price=unit_price,
-                page_number=deal_record.get("page_number", 1),
-                is_front_page=bool(deal_record.get("is_front_page", 1)),
-                historical_min=None,
-                historical_avg=None,
-                historical_max=None,
-                past_observations_count=len(past_obs),
-                diff_pct_vs_avg=None,
-                badge="SEE_AD",
-                summary_reason=unpriced_reason,
-                unit_size=deal_record.get("unit_size"),
-                unit_type=unit_type,
-                category=category,
-                category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
-                category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
-                promo_type=promo_type,
-                promo_detail=promo_detail,
-                qualifying_qty=qualifying_qty,
-                base_price=base_price,
-                raw_deal_id=raw_deal_id,
-                ad_id=ad_id,
-                raw_title=raw_title,
-                image_url=image_url,
+            return self._evaluate_unpriced_deal(
+                deal_record, product_id, canonical_name, unit_price, unit_type,
+                category, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
+                qualifying_qty, base_price, raw_deal_id, ad_id, raw_title,
+                image_url, past_obs,
             )
 
         if not past_obs:
-            first_badge = "FIRST_SEEN"
-            first_reason = f"First time tracked in circular database{promo_note}{cat_note}"
-            if cat_min_unit is not None and cat_avg_unit is not None and unit_price is not None:
-                if unit_price <= (cat_min_unit + 0.005):
-                    first_badge = "NEW_ALL_TIME_LOW"
-                    first_reason = f"🌟 First seen & Best {category} price! ${unit_price:.2f}/{unit_type} (lowest across all brands){promo_note}"
-                elif unit_price <= (cat_avg_unit * 0.85):
-                    first_badge = "BEAT_AVERAGE"
-                    diff_cat = abs(int(((unit_price - cat_avg_unit) / cat_avg_unit) * 100.0))
-                    first_reason = f"🔥 First seen ({diff_cat}% below {category} category avg of ${cat_avg_unit:.2f}/{unit_type}){promo_note}"
-
-            return DealEvaluation(
-                deal_id=deal_record.get("id", 0),
-                product_id=product_id,
-                canonical_name=deal_record.get("canonical_name", ""),
-                brand=deal_record.get("brand"),
-                current_price=current_price,
-                unit_price=unit_price,
-                page_number=deal_record.get("page_number", 1),
-                is_front_page=bool(deal_record.get("is_front_page", 1)),
-                historical_min=current_price,
-                historical_avg=current_price,
-                historical_max=current_price,
-                past_observations_count=0,
-                diff_pct_vs_avg=0.0,
-                badge=first_badge,
-                summary_reason=first_reason,
-                unit_size=deal_record.get("unit_size"),
-                unit_type=unit_type,
-                category=category,
-                category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
-                category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
-                promo_type=promo_type,
-                promo_detail=promo_detail,
-                qualifying_qty=qualifying_qty,
-                base_price=base_price,
-                raw_deal_id=raw_deal_id,
-                ad_id=ad_id,
-                raw_title=raw_title,
-                image_url=image_url,
+            return self._evaluate_first_seen_deal(
+                deal_record, product_id, current_price, unit_price, unit_type,
+                category, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
+                qualifying_qty, base_price, raw_deal_id, ad_id, raw_title,
+                image_url, promo_note, cat_note,
             )
 
+        return self._evaluate_historical_deal(
+            deal_record, product_id, canonical_name, current_price, unit_price,
+            unit_type, category, cat_min_unit, cat_avg_unit, promo_type,
+            promo_detail, qualifying_qty, base_price, raw_deal_id, ad_id,
+            raw_title, image_url, promo_note, cat_note, past_obs,
+            current_valid_from,
+        )
+
+    def _evaluate_points_redemption(
+        self, deal_record, product_id, canonical_name, base_price, promo_info,
+        point_value, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
+        qualifying_qty, raw_deal_id, ad_id, raw_title, image_url, past_obs,
+    ) -> DealEvaluation:
+        pts = promo_info.points_cost or 0
+        saved = promo_info.points_saved_val or base_price or deal_record.get("advertised_price")
+        yield_val = (saved / pts) if (saved and pts > 0) else None
+        yield_cents = (yield_val * 100) if yield_val else None
+        unit_size = deal_record.get("unit_size")
+        unit_type = deal_record.get("unit_type")
+        category = deal_record.get("category")
+
+        if pts <= 10 or (yield_val is not None and yield_val >= 0.10):
+            badge = "POINTS_FREEBIE"
+            cur_price = 0.0
+            u_price = 0.0
+            val_str = f" (Save ${saved:.2f} • {yield_cents:.1f}¢/pt)" if (saved and pts > 0) else ""
+            summary_reason = f"🪙 FREE with {pts} CHOICE points{val_str}"
+        elif yield_val is not None and yield_val >= (point_value * 1.3) and yield_val >= 0.03:
+            badge = "POINTS_DEAL"
+            cur_price = round(pts * 0.01, 2)
+            u_price = round(cur_price / unit_size, 4) if (unit_size and unit_size > 0) else None
+            summary_reason = f"🪙 High-Yield Points Deal: {pts} CHOICE points for ${saved:.2f} value ({yield_cents:.1f}¢/pt vs {point_value*100:.1f}¢ avg)"
+        else:
+            badge = "POINTS_REDEMPTION"
+            cur_price = round(pts * 0.01, 2) if pts > 0 else (saved or 0.0)
+            u_price = round(cur_price / unit_size, 4) if (unit_size and unit_size > 0) else None
+            val_str = f" for ${saved:.2f} value ({yield_cents:.1f}¢/pt)" if (saved and pts > 0) else ""
+            summary_reason = f"🪙 Points Redemption: {pts} CHOICE points{val_str}"
+
+        return DealEvaluation(
+            deal_id=deal_record.get("id", 0),
+            product_id=product_id,
+            canonical_name=canonical_name,
+            brand=deal_record.get("brand"),
+            current_price=cur_price,
+            unit_price=u_price,
+            page_number=deal_record.get("page_number", 1),
+            is_front_page=bool(deal_record.get("is_front_page", 1)),
+            historical_min=cur_price,
+            historical_avg=cur_price,
+            historical_max=cur_price,
+            past_observations_count=len(past_obs),
+            diff_pct_vs_avg=0.0,
+            badge=badge,
+            summary_reason=summary_reason,
+            unit_size=unit_size,
+            unit_type=unit_type,
+            category=category,
+            category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
+            category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
+            promo_type=promo_type,
+            promo_detail=promo_detail,
+            qualifying_qty=qualifying_qty,
+            base_price=base_price,
+            raw_deal_id=raw_deal_id,
+            ad_id=ad_id,
+            raw_title=raw_title,
+            image_url=image_url,
+        )
+
+    def _evaluate_points_bonus(
+        self, deal_record, product_id, canonical_name, current_price, promo_info,
+        point_value, unit_price, unit_type, category, cat_min_unit, cat_avg_unit,
+        promo_type, promo_detail, qualifying_qty, base_price, raw_deal_id, ad_id,
+        raw_title, image_url, past_obs,
+    ) -> DealEvaluation:
+        pts = promo_info.points_bonus or 0
+        spend = promo_info.spend_threshold
+        rew = promo_info.est_reward_val or (pts * point_value)
+        net_p = promo_info.est_net_price or (round(spend - rew, 2) if spend else None)
+        if net_p is not None:
+            current_price = net_p
+        if promo_info.points_multiplier:
+            mult = int(promo_info.points_multiplier)
+            pct_back = round(mult * point_value * 100, 1)
+            reason_pts = f"🪙 Earn {mult}X CHOICE Points (~{pct_back}% back in grocery rewards @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
+        elif spend and net_p:
+            reason_pts = f"🪙 Est. Net ${net_p:.2f} after ~${rew:.2f} in CHOICE Points reward (${spend:.0f} spend, {pts} pts @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
+        else:
+            reason_pts = f"🪙 {pts} CHOICE Points (~${rew:.2f} reward value @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
+
+        return DealEvaluation(
+            deal_id=deal_record.get("id", 0),
+            product_id=product_id,
+            canonical_name=canonical_name,
+            brand=deal_record.get("brand"),
+            current_price=current_price,
+            unit_price=unit_price,
+            page_number=deal_record.get("page_number", 1),
+            is_front_page=bool(deal_record.get("is_front_page", 1)),
+            historical_min=current_price,
+            historical_avg=current_price,
+            historical_max=current_price,
+            past_observations_count=len(past_obs),
+            diff_pct_vs_avg=0.0,
+            badge="POINTS_REWARD",
+            summary_reason=reason_pts,
+            unit_size=deal_record.get("unit_size"),
+            unit_type=unit_type,
+            category=category,
+            category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
+            category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
+            promo_type=promo_type,
+            promo_detail=promo_detail,
+            qualifying_qty=qualifying_qty,
+            base_price=base_price,
+            raw_deal_id=raw_deal_id,
+            ad_id=ad_id,
+            raw_title=raw_title,
+            image_url=image_url,
+        )
+
+    def _evaluate_spend_save(
+        self, deal_record, product_id, canonical_name, unit_price, unit_type,
+        category, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
+        qualifying_qty, raw_deal_id, ad_id, raw_title, image_url, past_obs,
+        promo_info,
+    ) -> DealEvaluation:
+        save_a = promo_info.coupon_discount or 0.0
+        spend_a = promo_info.spend_threshold or 0.0
+        pct = int((save_a / spend_a) * 100) if (save_a and spend_a) else 0
+
+        adv_p = deal_record.get("advertised_price")
+        if adv_p is not None and adv_p > 0:
+            discount_pct = (save_a / spend_a) if (spend_a > 0 and save_a > 0) else 0.0
+            effective_item_price = max(0.0, round(adv_p * (1.0 - discount_pct) + 1e-9, 2))
+            u_size = deal_record.get("unit_size")
+            item_unit_price = round(effective_item_price / u_size, 4) if (u_size and u_size > 0) else unit_price
+            price_to_use = effective_item_price
+        else:
+            price_to_use = None
+            item_unit_price = None
+
+        return DealEvaluation(
+            deal_id=deal_record.get("id", 0),
+            product_id=product_id,
+            canonical_name=canonical_name,
+            brand=deal_record.get("brand"),
+            current_price=price_to_use,
+            unit_price=item_unit_price,
+            page_number=deal_record.get("page_number", 1),
+            is_front_page=bool(deal_record.get("is_front_page", 1)),
+            historical_min=price_to_use,
+            historical_avg=price_to_use,
+            historical_max=price_to_use,
+            past_observations_count=len(past_obs),
+            diff_pct_vs_avg=0.0,
+            badge="SPEND_SAVE",
+            summary_reason=f"🏷️ Save ${save_a:.2f} when you spend ${spend_a:.2f} ({pct}% off participating items)",
+            unit_size=deal_record.get("unit_size"),
+            unit_type=unit_type,
+            category=category,
+            category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
+            category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
+            promo_type=promo_type,
+            promo_detail=promo_detail,
+            qualifying_qty=qualifying_qty,
+            base_price=adv_p,
+            raw_deal_id=raw_deal_id,
+            ad_id=ad_id,
+            raw_title=raw_title,
+            image_url=image_url,
+        )
+
+    def _evaluate_percent_off(
+        self, deal_record, product_id, canonical_name, base_price, promo_info,
+        unit_type, category, cat_min_unit, cat_avg_unit, promo_type,
+        promo_detail, qualifying_qty, raw_deal_id, ad_id, raw_title,
+        image_url, past_obs,
+    ) -> DealEvaluation:
+        pct = promo_info.discount_pct or 0.0
+        eff_p = round(base_price * (1.0 - pct / 100.0), 2) if (base_price and base_price > 0) else None
+        unit_p = round(eff_p / deal_record.get("unit_size"), 4) if (eff_p and deal_record.get("unit_size")) else None
+        reason = f"🏷️ {int(pct)}% Off regular ${base_price:.2f} -> Net ${eff_p:.2f}" if (base_price and eff_p) else f"🏷️ {int(pct)}% Off"
+
+        return DealEvaluation(
+            deal_id=deal_record.get("id", 0),
+            product_id=product_id,
+            canonical_name=canonical_name,
+            brand=deal_record.get("brand"),
+            current_price=eff_p,
+            unit_price=unit_p,
+            page_number=deal_record.get("page_number", 1),
+            is_front_page=bool(deal_record.get("is_front_page", 1)),
+            historical_min=eff_p,
+            historical_avg=eff_p,
+            historical_max=eff_p,
+            past_observations_count=len(past_obs),
+            diff_pct_vs_avg=0.0,
+            badge="PERCENT_OFF",
+            summary_reason=reason,
+            unit_size=deal_record.get("unit_size"),
+            unit_type=unit_type,
+            category=category,
+            category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
+            category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
+            promo_type=promo_type,
+            promo_detail=promo_detail,
+            qualifying_qty=qualifying_qty,
+            base_price=base_price,
+            raw_deal_id=raw_deal_id,
+            ad_id=ad_id,
+            raw_title=raw_title,
+            image_url=image_url,
+        )
+
+    def _evaluate_unpriced_deal(
+        self, deal_record, product_id, canonical_name, unit_price, unit_type,
+        category, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
+        qualifying_qty, base_price, raw_deal_id, ad_id, raw_title,
+        image_url, past_obs,
+    ) -> DealEvaluation:
+        unpriced_reason = "Price not listed numerically in circular"
+        if promo_detail:
+            unpriced_reason = f"Promo: {promo_detail} (needs shelf price to compute unit cost)"
+        return DealEvaluation(
+            deal_id=deal_record.get("id", 0),
+            product_id=product_id,
+            canonical_name=canonical_name,
+            brand=deal_record.get("brand"),
+            current_price=None,
+            unit_price=unit_price,
+            page_number=deal_record.get("page_number", 1),
+            is_front_page=bool(deal_record.get("is_front_page", 1)),
+            historical_min=None,
+            historical_avg=None,
+            historical_max=None,
+            past_observations_count=len(past_obs),
+            diff_pct_vs_avg=None,
+            badge="SEE_AD",
+            summary_reason=unpriced_reason,
+            unit_size=deal_record.get("unit_size"),
+            unit_type=unit_type,
+            category=category,
+            category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
+            category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
+            promo_type=promo_type,
+            promo_detail=promo_detail,
+            qualifying_qty=qualifying_qty,
+            base_price=base_price,
+            raw_deal_id=raw_deal_id,
+            ad_id=ad_id,
+            raw_title=raw_title,
+            image_url=image_url,
+        )
+
+    def _evaluate_first_seen_deal(
+        self, deal_record, product_id, current_price, unit_price, unit_type,
+        category, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
+        qualifying_qty, base_price, raw_deal_id, ad_id, raw_title,
+        image_url, promo_note, cat_note,
+    ) -> DealEvaluation:
+        first_badge = "FIRST_SEEN"
+        first_reason = f"First time tracked in circular database{promo_note}{cat_note}"
+        if cat_min_unit is not None and cat_avg_unit is not None and unit_price is not None:
+            if unit_price <= (cat_min_unit + 0.005):
+                first_badge = "NEW_ALL_TIME_LOW"
+                first_reason = f"🌟 First seen & Best {category} price! ${unit_price:.2f}/{unit_type} (lowest across all brands){promo_note}"
+            elif unit_price <= (cat_avg_unit * 0.85):
+                first_badge = "BEAT_AVERAGE"
+                diff_cat = abs(int(((unit_price - cat_avg_unit) / cat_avg_unit) * 100.0))
+                first_reason = f"🔥 First seen ({diff_cat}% below {category} category avg of ${cat_avg_unit:.2f}/{unit_type}){promo_note}"
+
+        return DealEvaluation(
+            deal_id=deal_record.get("id", 0),
+            product_id=product_id,
+            canonical_name=deal_record.get("canonical_name", ""),
+            brand=deal_record.get("brand"),
+            current_price=current_price,
+            unit_price=unit_price,
+            page_number=deal_record.get("page_number", 1),
+            is_front_page=bool(deal_record.get("is_front_page", 1)),
+            historical_min=current_price,
+            historical_avg=current_price,
+            historical_max=current_price,
+            past_observations_count=0,
+            diff_pct_vs_avg=0.0,
+            badge=first_badge,
+            summary_reason=first_reason,
+            unit_size=deal_record.get("unit_size"),
+            unit_type=unit_type,
+            category=category,
+            category_min_unit_price=round(cat_min_unit, 4) if cat_min_unit is not None else None,
+            category_avg_unit_price=round(cat_avg_unit, 4) if cat_avg_unit is not None else None,
+            promo_type=promo_type,
+            promo_detail=promo_detail,
+            qualifying_qty=qualifying_qty,
+            base_price=base_price,
+            raw_deal_id=raw_deal_id,
+            ad_id=ad_id,
+            raw_title=raw_title,
+            image_url=image_url,
+        )
+
+    def _evaluate_historical_deal(
+        self, deal_record, product_id, canonical_name, current_price, unit_price,
+        unit_type, category, cat_min_unit, cat_avg_unit, promo_type,
+        promo_detail, qualifying_qty, base_price, raw_deal_id, ad_id,
+        raw_title, image_url, promo_note, cat_note, past_obs,
+        current_valid_from,
+    ) -> DealEvaluation:
         episodes = self.cluster_episodes(past_obs)
         past_prices = [h["advertised_price"] for h in past_obs]
         h_min = min(past_prices)
         h_max = max(past_prices)
 
-        # Baseline non-doorbuster episodes for averages & hike comparisons
         baseline_episodes = [
             ep for ep in episodes if ep.promo_type not in ("doorbuster", "outlier")
         ]
@@ -543,7 +626,6 @@ class DealAnalyzer:
         b_avg = sum(ep.price for ep in baseline_episodes) / len(baseline_episodes)
         diff_vs_avg = ((current_price - b_avg) / b_avg) * 100.0
 
-        # Check for contiguous multi-week continuation
         sorted_past = sorted(past_obs, key=lambda o: self._parse_date(o.get("valid_from") or o.get("recorded_at")))
         last_obs = sorted_past[-1]
         last_end = self._parse_date(last_obs.get("valid_to") or last_obs.get("valid_from"))
@@ -556,8 +638,6 @@ class DealAnalyzer:
 
         badge = "STANDARD_DEAL"
         reason = f"Past sale range: ${b_min:.2f} - ${b_max:.2f} (avg ${b_avg:.2f}){promo_note}{cat_note}"
-
-        # Has historical variation beyond a single flat price?
         has_price_variation = (h_max - h_min) >= 0.05
         is_generic_placeholder = canonical_name.strip().lower() in GENERIC_PLACEHOLDER_NAMES
 
@@ -565,7 +645,6 @@ class DealAnalyzer:
             badge = "STANDARD_DEAL"
             reason = f"Unbranded/assorted circular promo (${current_price:.2f}){promo_note}{cat_note}"
         elif is_contiguous_continuation:
-            # Multi-week promotion continuation
             if current_price <= h_min and has_price_variation:
                 badge = "MATCHES_ATL"
                 reason = f"🌟 Multi-week sale at All-Time Low (${h_min:.2f}){promo_note}{cat_note}"

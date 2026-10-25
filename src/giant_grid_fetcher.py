@@ -10,7 +10,11 @@ import re
 import json
 import logging
 from typing import List, Tuple, Optional, Dict, Any
-from playwright.sync_api import sync_playwright
+
+try:
+    from playwright.sync_api import sync_playwright
+except ImportError:
+    sync_playwright = None
 
 from .fetcher import FlyerMetadata, FlyerItem
 from .normalizer.models import NormalizedDeal
@@ -58,6 +62,10 @@ class GiantGridFetcher:
         Launch persistent browser context, extract weekly circular items and resolve
         exact shelf prices and effective unit economics for all Buy X Get Y / bundle deals.
         """
+        if sync_playwright is None:
+            raise RuntimeError(
+                "Playwright is not installed. Install with 'pip install playwright' and 'playwright install chromium'."
+            )
         with sync_playwright() as p:
             context = p.chromium.launch_persistent_context(
                 user_data_dir=self.user_data_dir,

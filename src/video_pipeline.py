@@ -5,10 +5,14 @@ and persists structured circular items into the SQLite database with trust taggi
 """
 
 import urllib.request
-import cv2
 import logging
 from pathlib import Path
 from typing import List, Optional, Dict, Any
+
+try:
+    import cv2
+except ImportError:
+    cv2 = None
 from .database import DealsDatabase
 from .fetcher import FlyerMetadata
 from .normalizer import NormalizedDeal
@@ -57,6 +61,11 @@ class VideoAdPipeline:
         video_file = Path(video_path)
         if not video_file.exists():
             raise FileNotFoundError(f"Video file not found: {video_path}")
+
+        if cv2 is None:
+            raise RuntimeError(
+                "OpenCV (cv2) is not installed. Install with 'pip install opencv-python' to process video circulars."
+            )
 
         cap = cv2.VideoCapture(str(video_file))
         fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
