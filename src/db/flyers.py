@@ -307,7 +307,7 @@ class FlyersMixin:
                 )
                 deals = normalizer.disaggregate_and_normalize(item)
 
-                if len(deals) > 1 or (len(deals) == 1 and (deals[0].canonical_name != r["canonical_name"] or deals[0].unit_price != r["unit_price"] or deals[0].category != r["category"])):
+                if len(deals) > 1 or (len(deals) == 1 and (deals[0].canonical_name != r["canonical_name"] or deals[0].brand != r["brand"] or deals[0].unit_price != r["unit_price"] or deals[0].category != r["category"])):
                     disaggregated_obs += 1
                     new_obs_total += len(deals)
 

@@ -929,7 +929,7 @@
       const remaining = g.items.length - topItems.length;
       previewChipsHtml = `
         <div class="group-varieties-preview" title="Items included in this ad promotion">
-          ${topItems.map(it => `<span class="variety-chip">${escapeHtml(it.name.split(' - ')[0])}</span>`).join('')}
+          ${topItems.map(it => `<span class="variety-chip">${escapeHtml(it.name.split(' - ')[0])}</span>`).join(' ')}
           ${remaining > 0 ? `<span class="variety-chip more">+${remaining} more varieties</span>` : ''}
         </div>
       `;

@@ -16,7 +16,7 @@ from .fetcher import FlyerMetadata, FlyerItem
 from .normalizer.models import NormalizedDeal
 from .normalizer.units import extract_unit_info
 from .normalizer.categories import infer_category, infer_department
-from .normalizer.cleaner import normalize_text
+from .normalizer.cleaner import normalize_text, clean_sales_notes
 from .normalizer.normalizer import ProductNormalizer
 from .promo_extractor import PromoExtractor, PromoInfo
 
@@ -241,7 +241,7 @@ class GiantGridFetcher:
                     if products:
                         for p_idx, prod in enumerate(products):
                             raw_pname = (prod.get("name") or name).strip()
-                            prod_name = normalize_text(raw_pname)
+                            prod_name = clean_sales_notes(normalize_text(raw_pname)) or normalize_text(raw_pname)
                             prod_brand = prod.get("brand")
                             reg_price = prod.get("regularPrice") or prod.get("price") or 0.0
                             size_str = prod.get("size", "")
