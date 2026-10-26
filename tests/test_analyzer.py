@@ -745,7 +745,85 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertEqual(evals[0].current_price, 5.33)
         self.assertEqual(evals[0].badge, "SPEND_SAVE")
 
+    def test_parent_ad_history_and_category_benchmark_elevation(self):
+        # 1. Past flyer has parent ad "Turkey Hill Ice Cream" at $6.00
+        flyer_past = FlyerMetadata(
+            id=901,
+            merchant="Giant Food Stores",
+            merchant_id=1,
+            name="Past Ad",
+            postal_code="17837",
+            valid_from="2026-10-09T00:00:00",
+            valid_to="2026-10-16T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer_past)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=90101,
+                    flyer_id=901,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Turkey Hill Ice Cream",
+                    brand="Turkey Hill",
+                    advertised_price=6.00,
+                    unit_size=48.0,
+                    unit_type="oz",
+                    unit_price=0.125,
+                    raw_title="Turkey Hill Ice Cream - 2 FOR $6.00",
+                    image_url=None,
+                    ad_title="Turkey Hill Ice Cream",
+                    category="Ice Cream",
+                )
+            ]
+        )
+
+        # 2. Current flyer has a disambiguated flavor variety at $3.49
+        flyer_curr = FlyerMetadata(
+            id=902,
+            merchant="Giant Food Stores",
+            merchant_id=1,
+            name="Current Ad",
+            postal_code="17837",
+            valid_from="2026-10-23T00:00:00",
+            valid_to="2026-10-30T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer_curr)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=90201,
+                    flyer_id=902,
+                    page_number=1,
+                    is_front_page=True,
+                    canonical_name="Turkey Hill Butter Pecan Frozen Dairy Dessert",
+                    brand="Turkey Hill",
+                    advertised_price=3.49,
+                    unit_size=46.0,
+                    unit_type="oz",
+                    unit_price=0.0759,
+                    raw_title="Turkey Hill Butter Pecan Frozen Dairy Dessert - $3.49",
+                    image_url=None,
+                    ad_title="Turkey Hill Ice Cream",
+                    category="Ice Cream",
+                )
+            ]
+        )
+
+        evals = self.analyzer.evaluate_flyer(902)
+        self.assertEqual(len(evals), 1)
+        deal = evals[0]
+
+        # Must NOT be FIRST_SEEN: should inherit parent ad history and recognize 41.8% drop
+        self.assertNotEqual(deal.badge, "FIRST_SEEN")
+        self.assertEqual(deal.badge, "NEW_ALL_TIME_LOW")
+        self.assertAlmostEqual(deal.historical_min, 6.00)
+        self.assertTrue(deal.is_category_best)
+        self.assertIn("New All-Time Low", deal.summary_reason)
+        self.assertIn("Best Ice Cream price", deal.summary_reason)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 

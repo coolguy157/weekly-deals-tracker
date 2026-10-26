@@ -170,10 +170,26 @@ class DealAnalyzer:
                 else:
                     past_obs = []
 
+        # Check parent ad_title history when individual SKU has no prior exact-match history
+        ad_title = (deal_record.get("ad_title") or "").strip()
+        if not past_obs and ad_title and ad_title.lower() not in GENERIC_PLACEHOLDER_NAMES:
+            parent_past = self.db.get_ad_title_price_history(
+                ad_title,
+                target_flyer_id=target_flyer_id,
+                current_valid_from=current_valid_from,
+                merchant=merchant,
+            )
+            if parent_past:
+                past_obs = parent_past
+
         # Tier 3: Category Unit Benchmark across all brands
         category = deal_record.get("category")
-        unit_price = deal_record.get("unit_price")
+        unit_size = deal_record.get("unit_size")
         unit_type = deal_record.get("unit_type")
+        unit_price = deal_record.get("unit_price")
+        if unit_price is None and current_price is not None and unit_size and unit_size > 0:
+            unit_price = round(current_price / unit_size, 4)
+
         cat_min_unit = None
         cat_avg_unit = None
         if category and unit_price is not None and unit_type:
@@ -572,11 +588,18 @@ class DealAnalyzer:
         if cat_min_unit is not None and cat_avg_unit is not None and unit_price is not None:
             if unit_price <= (cat_min_unit + 0.005):
                 first_badge = "NEW_ALL_TIME_LOW"
-                first_reason = f"🌟 First seen & Best {category} price! ${unit_price:.2f}/{unit_type} (lowest across all brands){promo_note}"
+                first_reason = f"🌟 Best {category} price! ${unit_price:.2f}/{unit_type} (lowest across all brands){promo_note}"
             elif unit_price <= (cat_avg_unit * 0.85):
                 first_badge = "BEAT_AVERAGE"
                 diff_cat = abs(int(((unit_price - cat_avg_unit) / cat_avg_unit) * 100.0))
-                first_reason = f"🔥 First seen ({diff_cat}% below {category} category avg of ${cat_avg_unit:.2f}/{unit_type}){promo_note}"
+                first_reason = f"🔥 Great value! {diff_cat}% below {category} category avg of ${cat_avg_unit:.2f}/{unit_type}{promo_note}"
+            elif unit_price <= (cat_avg_unit * 1.15):
+                first_badge = "STANDARD_DEAL"
+                first_reason = f"Standard deal within normal range for {category} (${unit_price:.2f}/{unit_type} vs ${cat_avg_unit:.2f} avg){promo_note}"
+            else:
+                first_badge = "PRICE_HIKE"
+                diff_cat = int(((unit_price - cat_avg_unit) / cat_avg_unit) * 100.0)
+                first_reason = f"⚠️ Above average for {category} (+{diff_cat}% vs ${cat_avg_unit:.2f}/{unit_type} avg){promo_note}"
 
         return DealEvaluation(
             deal_id=deal_record.get("id", 0),
