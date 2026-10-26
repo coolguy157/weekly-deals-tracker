@@ -87,6 +87,10 @@ CREATE INDEX IF NOT EXISTS idx_obs_product_rec
     ON deal_observations(product_id, recorded_at);
 CREATE INDEX IF NOT EXISTS idx_obs_flyer 
     ON deal_observations(flyer_id);
+CREATE INDEX IF NOT EXISTS idx_obs_ad_title
+    ON deal_observations(ad_title);
+CREATE INDEX IF NOT EXISTS idx_prod_category
+    ON products(category);
 CREATE INDEX IF NOT EXISTS idx_coupon_type 
     ON app_digital_coupons(coupon_type);
 CREATE INDEX IF NOT EXISTS idx_coupon_cat 
@@ -131,3 +135,7 @@ def apply_migrations(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE deal_observations ADD COLUMN coupon_discount REAL")
     if "ad_title" not in obs_cols:
         conn.execute("ALTER TABLE deal_observations ADD COLUMN ad_title TEXT")
+
+    # Ensure performance indexes exist on existing databases
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_obs_ad_title ON deal_observations(ad_title)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_prod_category ON products(category)")

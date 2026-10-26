@@ -39,6 +39,30 @@ class AnalyticsMixin:
             rows = conn.execute(query, params).fetchall()
             return [dict(r) for r in rows]
 
+    def get_flyer_product_histories(self, flyer_id: int) -> Dict[int, List[Dict[str, Any]]]:
+        """Batch fetch historical deal observations for all products appearing in a circular flyer."""
+        query = """
+            SELECT 
+                d.id as deal_id, d.advertised_price, d.unit_price, d.page_number, d.is_front_page,
+                d.promo_type, d.promo_detail, d.qualifying_qty, d.base_price, d.coupon_discount,
+                d.is_trusted, d.source_type, d.recorded_at, f.valid_from, f.valid_to, f.flyer_id, f.merchant, f.postal_code,
+                p.unit_size, p.unit_type, p.category, p.last_shelf_price, p.upc, d.product_id
+            FROM deal_observations d
+            JOIN products p ON d.product_id = p.product_id
+            JOIN flyer_runs f ON d.flyer_id = f.flyer_id
+            WHERE d.product_id IN (SELECT DISTINCT product_id FROM deal_observations WHERE flyer_id = ?)
+            ORDER BY f.valid_from ASC
+        """
+        result: Dict[int, List[Dict[str, Any]]] = {}
+        with self._get_connection() as conn:
+            rows = conn.execute(query, (flyer_id,)).fetchall()
+            for r in rows:
+                pid = r["product_id"]
+                if pid not in result:
+                    result[pid] = []
+                result[pid].append(dict(r))
+        return result
+
     def get_commodity_unit_price_history(
         self, category: str, unit_type: Optional[str] = None, trusted_only: bool = False
     ) -> List[Dict[str, Any]]:

@@ -133,11 +133,17 @@ class DealAnalyzer:
         current_flyer_id: Optional[int] = None,
         flyer_cat_mins: Optional[Dict[Tuple[str, str], float]] = None,
         point_value: float = 0.0274,
+        history_override: Optional[List[Dict[str, Any]]] = None,
+        ad_title_cache: Optional[Dict[Any, List[Dict[str, Any]]]] = None,
+        cat_cache: Optional[Dict[Tuple[str, str], List[Dict[str, Any]]]] = None,
     ) -> DealEvaluation:
         """Evaluate a deal against its recorded history using episode clustering."""
         product_id = deal_record["product_id"]
         current_price = deal_record.get("advertised_price")
-        history = self.db.get_product_price_history(product_id)
+        if history_override is not None:
+            history = history_override
+        else:
+            history = self.db.get_product_price_history(product_id)
 
         # Exclude observations from current flyer and concurrent/overlapping date window
         target_flyer_id = current_flyer_id or deal_record.get("flyer_id")
@@ -173,12 +179,23 @@ class DealAnalyzer:
         # Check parent ad_title history when individual SKU has no prior exact-match history
         ad_title = (deal_record.get("ad_title") or "").strip()
         if not past_obs and ad_title and ad_title.lower() not in GENERIC_PLACEHOLDER_NAMES:
-            parent_past = self.db.get_ad_title_price_history(
-                ad_title,
-                target_flyer_id=target_flyer_id,
-                current_valid_from=current_valid_from,
-                merchant=merchant,
-            )
+            if ad_title_cache is not None:
+                cache_key = (ad_title.lower(), target_flyer_id, current_valid_from, merchant)
+                if cache_key not in ad_title_cache:
+                    ad_title_cache[cache_key] = self.db.get_ad_title_price_history(
+                        ad_title,
+                        target_flyer_id=target_flyer_id,
+                        current_valid_from=current_valid_from,
+                        merchant=merchant,
+                    )
+                parent_past = ad_title_cache[cache_key]
+            else:
+                parent_past = self.db.get_ad_title_price_history(
+                    ad_title,
+                    target_flyer_id=target_flyer_id,
+                    current_valid_from=current_valid_from,
+                    merchant=merchant,
+                )
             if parent_past:
                 past_obs = parent_past
 
@@ -193,18 +210,30 @@ class DealAnalyzer:
         cat_min_unit = None
         cat_avg_unit = None
         if category and unit_price is not None and unit_type:
-            cat_history = self.db.get_commodity_unit_price_history(category, unit_type=unit_type)
-            cat_past_obs = [
-                h for h in cat_history
-                if h.get("flyer_id") != target_flyer_id
-                and (not current_valid_from or (h.get("valid_from") or "")[:10] < current_valid_from)
-                and h.get("unit_price") is not None
-            ]
+            cat_key = (category.lower(), unit_type.lower())
+            if cat_cache is not None:
+                if cat_key not in cat_cache:
+                    cat_history = self.db.get_commodity_unit_price_history(category, unit_type=unit_type)
+                    cat_cache[cat_key] = [
+                        h for h in cat_history
+                        if h.get("flyer_id") != target_flyer_id
+                        and (not current_valid_from or (h.get("valid_from") or "")[:10] < current_valid_from)
+                        and h.get("unit_price") is not None
+                    ]
+                cat_past_obs = cat_cache[cat_key]
+            else:
+                cat_history = self.db.get_commodity_unit_price_history(category, unit_type=unit_type)
+                cat_past_obs = [
+                    h for h in cat_history
+                    if h.get("flyer_id") != target_flyer_id
+                    and (not current_valid_from or (h.get("valid_from") or "")[:10] < current_valid_from)
+                    and h.get("unit_price") is not None
+                ]
             cat_unit_prices = [h["unit_price"] for h in cat_past_obs] if cat_past_obs else []
             if flyer_cat_mins:
-                f_min = flyer_cat_mins.get((category.lower(), unit_type.lower()))
+                f_min = flyer_cat_mins.get(cat_key)
                 if f_min is not None:
-                    cat_unit_prices.append(f_min)
+                    cat_unit_prices = list(cat_unit_prices) + [f_min]
             if cat_unit_prices:
                 cat_min_unit = min(cat_unit_prices)
                 cat_avg_unit = sum(cat_unit_prices) / len(cat_unit_prices)
@@ -758,8 +787,23 @@ class DealAnalyzer:
                 if key not in flyer_cat_mins or up < flyer_cat_mins[key]:
                     flyer_cat_mins[key] = up
 
+        # Batch load product histories for all items in the flyer in 1 query (~0.05s)
+        prod_histories = self.db.get_flyer_product_histories(flyer_id)
+
+        # Local memoized caches for ad_title and category benchmarks across the flyer run
+        ad_title_cache: Dict[Any, List[Dict[str, Any]]] = {}
+        cat_cache: Dict[Tuple[str, str], List[Dict[str, Any]]] = {}
+
         evaluations = [
-            self.evaluate_deal(d, current_flyer_id=flyer_id, flyer_cat_mins=flyer_cat_mins, point_value=avg_point_val)
+            self.evaluate_deal(
+                d,
+                current_flyer_id=flyer_id,
+                flyer_cat_mins=flyer_cat_mins,
+                point_value=avg_point_val,
+                history_override=prod_histories.get(d["product_id"], []),
+                ad_title_cache=ad_title_cache,
+                cat_cache=cat_cache,
+            )
             for d in deals
         ]
 
