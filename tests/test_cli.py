@@ -164,6 +164,139 @@ class TestCLIStoreConfiguration(unittest.TestCase):
             self.assertIn("[Deal ID: 1]", output)
             self.assertIn("[Deal ID: 2]", output)
 
+    def test_cmd_deals_grouped_and_skus_and_flat(self):
+        from src.cli import cmd_deals
+        from src.analyzer import DealEvaluation
+        from io import StringIO
+
+        mock_db = MagicMock()
+        mock_db.get_latest_flyer_id.return_value = 12345
+
+        ev1 = DealEvaluation(
+            deal_id=1,
+            product_id=10,
+            canonical_name="Turkey Hill Vanilla Ice Cream",
+            brand="Turkey Hill",
+            current_price=3.49,
+            unit_price=0.07,
+            page_number=1,
+            is_front_page=True,
+            historical_min=3.49,
+            historical_avg=4.00,
+            historical_max=4.50,
+            past_observations_count=5,
+            diff_pct_vs_avg=-12.5,
+            badge="NEW_ALL_TIME_LOW",
+            summary_reason="🌟 New All-Time Low",
+            ad_title="Turkey Hill Ice Cream",
+        )
+        ev2 = DealEvaluation(
+            deal_id=2,
+            product_id=11,
+            canonical_name="Turkey Hill Chocolate Ice Cream",
+            brand="Turkey Hill",
+            current_price=3.49,
+            unit_price=0.07,
+            page_number=1,
+            is_front_page=True,
+            historical_min=3.49,
+            historical_avg=4.00,
+            historical_max=4.50,
+            past_observations_count=5,
+            diff_pct_vs_avg=-12.5,
+            badge="NEW_ALL_TIME_LOW",
+            summary_reason="🌟 New All-Time Low",
+            ad_title="Turkey Hill Ice Cream",
+        )
+
+        mock_analyzer = MagicMock()
+        mock_analyzer.evaluate_flyer.return_value = [ev1, ev2]
+
+        # 1. Default grouped call
+        args_grouped = argparse.Namespace(
+            db=":memory:",
+            store="giant",
+            merchant=None,
+            flyer_id=12345,
+            front_page_only=False,
+            query=None,
+            category=None,
+            atl_only=False,
+            cat_best_only=False,
+            price_hikes_only=False,
+            all_pages=False,
+            include_see_ad=False,
+            sort_unit_price=False,
+            verbose=False,
+            skus=False,
+            flat=False,
+        )
+        with patch("src.cli.DealsDatabase", return_value=mock_db), patch("src.cli.DealAnalyzer", return_value=mock_analyzer):
+            buf = StringIO()
+            with patch("sys.stdout", buf):
+                cmd_deals(args_grouped)
+            output = buf.getvalue()
+            self.assertIn("Turkey Hill Ice Cream", output)
+            self.assertIn("2 varieties", output)
+            self.assertNotIn("[Deal ID: 1]", output)
+
+        # 2. Detailed SKUs call
+        args_skus = argparse.Namespace(
+            db=":memory:",
+            store="giant",
+            merchant=None,
+            flyer_id=12345,
+            front_page_only=False,
+            query=None,
+            category=None,
+            atl_only=False,
+            cat_best_only=False,
+            price_hikes_only=False,
+            all_pages=False,
+            include_see_ad=False,
+            sort_unit_price=False,
+            verbose=False,
+            skus=True,
+            flat=False,
+        )
+        with patch("src.cli.DealsDatabase", return_value=mock_db), patch("src.cli.DealAnalyzer", return_value=mock_analyzer):
+            buf = StringIO()
+            with patch("sys.stdout", buf):
+                cmd_deals(args_skus)
+            output = buf.getvalue()
+            self.assertIn("Turkey Hill Ice Cream", output)
+            self.assertIn("[Deal ID: 1]", output)
+            self.assertIn("[Deal ID: 2]", output)
+
+        # 3. Flat legacy call
+        args_flat = argparse.Namespace(
+            db=":memory:",
+            store="giant",
+            merchant=None,
+            flyer_id=12345,
+            front_page_only=False,
+            query=None,
+            category=None,
+            atl_only=False,
+            cat_best_only=False,
+            price_hikes_only=False,
+            all_pages=False,
+            include_see_ad=False,
+            sort_unit_price=False,
+            verbose=False,
+            skus=False,
+            flat=True,
+        )
+        with patch("src.cli.DealsDatabase", return_value=mock_db), patch("src.cli.DealAnalyzer", return_value=mock_analyzer):
+            buf = StringIO()
+            with patch("sys.stdout", buf):
+                cmd_deals(args_flat)
+            output = buf.getvalue()
+            self.assertIn("Turkey Hill Vanilla Ice Cream", output)
+            self.assertIn("Turkey Hill Chocolate Ice Cream", output)
+            self.assertNotIn("[2 varieties", output)
+
+
 
 if __name__ == "__main__":
     unittest.main()

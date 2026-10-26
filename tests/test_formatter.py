@@ -84,10 +84,18 @@ class TestFormatter(unittest.TestCase):
         captured_output = StringIO()
         sys.stdout = captured_output
         try:
+            # Grouped by default
             render_filtered_report([ev], flyer_id=999, title="TEST REPORT", search_query="milk")
             output = captured_output.getvalue()
-            self.assertIn("TEST REPORT (Flyer ID: 999) - 1 items", output)
+            self.assertIn("TEST REPORT (Flyer ID: 999) - 1 circular ads (1 items)", output)
             self.assertIn("Search full price history", output)
+
+            # Flat mode
+            captured_output.seek(0)
+            captured_output.truncate(0)
+            render_filtered_report([ev], flyer_id=999, title="TEST REPORT", search_query="milk", flat=True)
+            output_flat = captured_output.getvalue()
+            self.assertIn("TEST REPORT (Flyer ID: 999) - 1 items", output_flat)
         finally:
             sys.stdout = sys.__stdout__
 

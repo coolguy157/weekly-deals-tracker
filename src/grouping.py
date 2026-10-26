@@ -1,0 +1,351 @@
+"""
+Circular ad grouping and multi-item promotion aggregation for weekly deals.
+"""
+
+from collections import defaultdict
+from dataclasses import dataclass, field
+import re
+from typing import Any, Dict, List, Optional
+
+from .normalizer.cleaner import GENERIC_PLACEHOLDER_NAMES
+
+
+@dataclass
+class GroupedDeal:
+    group_id: str
+    title: str
+    items: List[Any]
+    representative: Any
+    badge: str
+    page_number: int
+    pages: List[int]
+    is_front_page: bool
+    min_price: Optional[float]
+    max_price: Optional[float]
+    min_unit_price: Optional[float]
+    max_unit_price: Optional[float]
+    unit_type: Optional[str]
+    varieties: List[str]
+    category: Optional[str] = None
+    brands: List[str] = field(default_factory=list)
+
+
+def _get_item_attr(item: Any, attr: str, default: Any = None) -> Any:
+    """Helper to access attribute from either an object or a dict."""
+    if isinstance(item, dict):
+        return item.get(attr, default)
+    return getattr(item, attr, default)
+
+
+def get_group_key(deal: Any) -> str:
+    """Generate a stable group key to aggregate circular varieties into promotion families."""
+    promo_detail = (_get_item_attr(deal, "promo_detail") or "").strip().lower()
+    promo_type = _get_item_attr(deal, "promo_type", "standard") or "standard"
+    page = _get_item_attr(deal, "page_number") or _get_item_attr(deal, "page") or 1
+
+    # Weekly Meal Deal bundle check
+    if promo_type == "meal_deal" or "meal deal" in promo_detail or "get these free" in promo_detail:
+        return f"meal_deal_p{page}"
+
+    ad_id = _get_item_attr(deal, "ad_id")
+    if ad_id:
+        return f"ad_{ad_id}"
+
+    raw_id = str(_get_item_attr(deal, "raw_deal_id") or "")
+    if len(raw_id) >= 11:
+        return f"ad_{raw_id[:10]}"
+    if raw_id and raw_id != "0":
+        return f"raw_{raw_id}"
+
+    ad_title = (_get_item_attr(deal, "ad_title") or "").strip()
+    if ad_title and ad_title.lower() not in GENERIC_PLACEHOLDER_NAMES:
+        clean_ad = re.sub(r"[^a-z0-9]", "", ad_title.lower())[:30]
+        return f"adtitle_p{page}_{clean_ad}"
+
+    brand = (_get_item_attr(deal, "brand") or "").strip().lower()
+    if promo_detail and promo_detail not in ("standard", "(none)"):
+        clean_p = re.sub(r"[^a-z0-9]", "", promo_detail)[:25]
+        return f"promo_p{page}_{promo_type}_{clean_p}_{brand}"
+
+    deal_id = _get_item_attr(deal, "deal_id")
+    return f"deal_{deal_id}"
+
+
+def synthesize_group_title(items: List[Any]) -> str:
+    """Synthesize a canonical ad promotion title from a group of circular items."""
+    if not items:
+        return "Unknown Deal"
+
+    # 1. Prefer explicit canonical ad_title if published and not a placeholder
+    for it in items:
+        ad_t = (_get_item_attr(it, "ad_title") or "").strip()
+        if ad_t and ad_t.lower() not in GENERIC_PLACEHOLDER_NAMES:
+            return ad_t
+
+    if len(items) == 1:
+        return _get_item_attr(items[0], "canonical_name") or _get_item_attr(items[0], "name") or "Deal Item"
+
+    # 2. Meal Deal bundle check
+    promo_detail = (_get_item_attr(items[0], "promo_detail") or "").lower()
+    if (
+        any(_get_item_attr(it, "promo_type") == "meal_deal" for it in items)
+        or "meal deal" in promo_detail
+        or "get these free" in promo_detail
+    ):
+        return "Weekly Meal Deal"
+
+    brands = sorted(list({_get_item_attr(it, "brand") for it in items if _get_item_attr(it, "brand")}))
+    names = [_get_item_attr(it, "canonical_name") or _get_item_attr(it, "name") or "" for it in items]
+
+    # 3. Multi-brand specialized categories
+    if "Duncan Hines" in brands and "PAM" in brands:
+        return "Duncan Hines & PAM • Cake Mixes, Frosting & Baking Spray"
+    if "CareOne" in brands and "Nature's Promise" in brands:
+        return "Nature's Promise & CareOne • Vitamins & Supplements"
+    if "Floral" in brands or any(re.search(r"carnation|mum", n, re.I) for n in names):
+        return "Floral • Carnations & Mums (Colors May Vary)"
+    if "Martin's Snacks" in brands and "Nature's Own" in brands:
+        return "Martin's Snacks & Nature's Own • Chips, Popcorn & Bread"
+
+    has_seafood = (
+        "Fresh Seafood" in brands
+        or "Hannaford" in brands
+        or any(
+            re.search(
+                r"fish|seafood|salmon|shrimp|tilapia|swordfish|tuna|haddock|swai|cod|whiting|flounder",
+                n,
+                re.I,
+            )
+            for n in names
+        )
+        or (
+            any(re.search(r"fillet|filet", n, re.I) for n in names)
+            and not any(re.search(r"pork|beef|chicken|turkey|steak|chop|loin", n, re.I) for n in names)
+        )
+    )
+    if has_seafood:
+        return "Fresh & Frozen Seafood Fillets"
+
+    # 4. Common grocery product types
+    keywords = [
+        "Soda", "Potato Chips", "Tortilla Chips", "Chips", "Cookies", "Cereal",
+        "Sausage", "Bratwurst", "Brats", "Shampoo", "Lotion", "Bread", "Dressing",
+        "Broth", "Crackers", "Water", "Tea", "Juice", "Vitamins", "Candy", "Dip",
+        "Pasta", "Rice", "Ice Cream", "Coffee", "Cheese", "Spices", "Yogurt",
+        "Snacks", "Sauce", "Chicken", "Beef", "Pork", "Fish", "Seafood", "Bacon",
+    ]
+
+    matched_keyword = None
+    for kw in keywords:
+        if all(kw.lower() in n.lower() for n in names):
+            matched_keyword = kw
+            break
+
+    pkg = ""
+    for p in ["12 pk", "6 pk", "8 pk", "15 ct", "Family Size", "Party Size", "1 Liter", "2 Liter"]:
+        if all(p.lower() in n.lower() for n in names):
+            pkg = f" ({p})"
+            break
+
+    if matched_keyword:
+        if len(brands) == 1:
+            return f"{brands[0]} {matched_keyword}{pkg}"
+        elif len(brands) <= 3:
+            return f"{', '.join(brands)} • {matched_keyword}{pkg}"
+        else:
+            return f"{brands[0]}, {brands[1]} & more • {matched_keyword}{pkg}"
+
+    if len(brands) == 1:
+        return f"{brands[0]} Assorted Varieties{pkg} ({len(items)} Items)"
+    elif len(brands) <= 3:
+        return f"{', '.join(brands)} Selection{pkg} ({len(items)} Items)"
+    else:
+        return f"{brands[0]}, {brands[1]} & more{pkg} ({len(items)} Items)"
+
+
+def _deal_priority(it: Any) -> float:
+    """Numerical priority score for selecting the representative deal for a group."""
+    badge = (_get_item_attr(it, "badge") or "").upper()
+    if badge == "POINTS_FREEBIE":
+        return 0.0
+    if badge == "NEW_ALL_TIME_LOW":
+        return 1.0
+    if badge == "MATCHES_ATL":
+        return 2.0
+    if badge == "ALL_TIME_LOW":
+        return 3.0
+    if _get_item_attr(it, "is_category_best", False):
+        return 4.0
+    if badge in ("POINTS_DEAL", "POINTS_REWARD"):
+        return 5.0
+    if badge == "SPEND_SAVE":
+        return 6.0
+    if badge == "PERCENT_OFF":
+        return 7.0
+    if badge == "BEAT_AVERAGE":
+        return 8.0
+    if badge == "CYCLE_REFRESH":
+        return 9.0
+    if badge == "FIRST_SEEN":
+        return 10.0
+    if badge == "STANDARD_DEAL":
+        return 11.0
+    if badge == "PRICE_HIKE":
+        return 12.0
+    if badge == "SEE_AD":
+        return 13.0
+    return 20.0
+
+
+def group_evaluations(evaluations: List[Any]) -> List[GroupedDeal]:
+    """
+    Group a list of DealEvaluation objects or deal dictionaries into consolidated
+    circular ad promotion groups.
+    """
+    groups_map: Dict[str, List[Any]] = defaultdict(list)
+    for e in evaluations:
+        key = get_group_key(e)
+        existing = groups_map[key]
+        name = _get_item_attr(e, "canonical_name") or _get_item_attr(e, "name")
+        price = _get_item_attr(e, "current_price") or _get_item_attr(e, "price") or 0.0
+        # Deduplicate identical items within the same ad tile
+        if not any(
+            (_get_item_attr(it, "canonical_name") or _get_item_attr(it, "name")) == name
+            and abs((_get_item_attr(it, "current_price") or _get_item_attr(it, "price") or 0.0) - price) < 0.01
+            for it in existing
+        ):
+            existing.append(e)
+
+    # Merge redundant meal deal sub-ad tiles on the same page
+    meal_deal_groups = {k: v for k, v in groups_map.items() if k.startswith("meal_deal_")}
+    to_delete = []
+    for k, items in groups_map.items():
+        if k.startswith("meal_deal_"):
+            continue
+        for md_k, md_items in meal_deal_groups.items():
+            match_count = sum(
+                1
+                for it in items
+                if any(
+                    (_get_item_attr(m, "canonical_name") or _get_item_attr(m, "name"))
+                    == (_get_item_attr(it, "canonical_name") or _get_item_attr(it, "name"))
+                    for m in md_items
+                )
+            )
+            if items and match_count >= min(3, len(items)) and (match_count / len(items)) >= 0.7:
+                for it in items:
+                    it_name = _get_item_attr(it, "canonical_name") or _get_item_attr(it, "name")
+                    if not any(
+                        (_get_item_attr(m, "canonical_name") or _get_item_attr(m, "name")) == it_name
+                        for m in md_items
+                    ):
+                        md_items.append(it)
+                to_delete.append(k)
+                break
+
+    for k in to_delete:
+        del groups_map[k]
+
+    grouped_list: List[GroupedDeal] = []
+    for k, items in groups_map.items():
+        title = synthesize_group_title(items)
+
+        # Prices
+        prices = [
+            _get_item_attr(it, "current_price")
+            if _get_item_attr(it, "current_price") is not None
+            else _get_item_attr(it, "price")
+            for it in items
+        ]
+        valid_prices = [p for p in prices if p is not None]
+
+        # Unit Prices
+        unit_types = [_get_item_attr(it, "unit_type") for it in items if _get_item_attr(it, "unit_type")]
+        primary_unit_type = None
+        if unit_types:
+            # Most common unit type
+            counts: Dict[str, int] = defaultdict(int)
+            for u in unit_types:
+                counts[u] += 1
+            primary_unit_type = max(counts.keys(), key=lambda x: counts[x])
+
+        matching_unit_prices = [
+            _get_item_attr(it, "unit_price")
+            for it in items
+            if _get_item_attr(it, "unit_type") == primary_unit_type and _get_item_attr(it, "unit_price") is not None
+        ]
+
+        # Select representative deal: lowest priority number = highest signal
+        sorted_by_signal = sorted(items, key=_deal_priority)
+        representative = sorted_by_signal[0]
+
+        # Handle headline price for meal deal
+        is_meal_deal = (
+            k.startswith("meal_deal_")
+            or _get_item_attr(representative, "promo_type") == "meal_deal"
+            or "meal deal" in title.lower()
+        )
+        if is_meal_deal and valid_prices:
+            # Anchor price is highest priced qualifying item
+            min_p = max(valid_prices)
+            max_p = max(valid_prices)
+        else:
+            min_p = min(valid_prices) if valid_prices else None
+            max_p = max(valid_prices) if valid_prices else None
+
+        min_up = min(matching_unit_prices) if matching_unit_prices else None
+        max_up = max(matching_unit_prices) if matching_unit_prices else None
+
+        pages = sorted(
+            list(
+                {
+                    _get_item_attr(it, "page_number") or _get_item_attr(it, "page")
+                    for it in items
+                    if (_get_item_attr(it, "page_number") or _get_item_attr(it, "page")) is not None
+                }
+            )
+        )
+        is_front = any(bool(_get_item_attr(it, "is_front_page")) for it in items)
+
+        unique_vars = sorted(
+            list(
+                {
+                    _get_item_attr(it, "canonical_name") or _get_item_attr(it, "name")
+                    for it in items
+                    if (_get_item_attr(it, "canonical_name") or _get_item_attr(it, "name"))
+                }
+            )
+        )
+        brands = sorted(list({_get_item_attr(it, "brand") for it in items if _get_item_attr(it, "brand")}))
+        cat = _get_item_attr(representative, "category") or _get_item_attr(items[0], "category")
+
+        grouped_list.append(
+            GroupedDeal(
+                group_id=k,
+                title=title,
+                items=items,
+                representative=representative,
+                badge=_get_item_attr(representative, "badge") or "STANDARD_DEAL",
+                page_number=pages[0] if pages else 1,
+                pages=pages,
+                is_front_page=is_front,
+                min_price=min_p,
+                max_price=max_p,
+                min_unit_price=min_up,
+                max_unit_price=max_up,
+                unit_type=primary_unit_type,
+                varieties=unique_vars,
+                category=cat,
+                brands=brands,
+            )
+        )
+
+    # Default sort by representative signal priority, then front page, then min_price
+    grouped_list.sort(
+        key=lambda g: (
+            0 if g.is_front_page else 1,
+            _deal_priority(g.representative),
+            g.min_price if g.min_price is not None else 999999,
+        )
+    )
+    return grouped_list

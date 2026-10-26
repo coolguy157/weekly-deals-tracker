@@ -100,6 +100,9 @@ def cmd_deals(args: argparse.Namespace) -> None:
     if not args.query:
         evaluations_priced = [e for e in evaluations_priced if e.canonical_name.strip().lower() not in GENERIC_PLACEHOLDER_NAMES]
 
+    show_skus = getattr(args, "skus", False)
+    flat = getattr(args, "flat", False)
+
     # If --all or a specific search/filter is specified, print direct matching list
     if has_custom_filter or args.front_page_only:
         title = "ALL CIRCULAR DEALS" if args.all_pages else "WEEKLY DEALS REPORT"
@@ -110,6 +113,8 @@ def cmd_deals(args: argparse.Namespace) -> None:
             verbose=verbose,
             see_ad_omitted_count=(see_ad_count if not args.include_see_ad and not args.query else 0),
             search_query=args.query,
+            show_skus=show_skus,
+            flat=flat,
         )
         return
 
@@ -119,6 +124,8 @@ def cmd_deals(args: argparse.Namespace) -> None:
         total_circular_items=len(evaluations),
         flyer_id=flyer_id,
         verbose=verbose,
+        show_skus=show_skus,
+        flat=flat,
     )
 
 
@@ -307,6 +314,8 @@ def main() -> None:
     p_deals.add_argument("--all", "--all-pages", dest="all_pages", action="store_true", help="Show all items across all circular pages")
     p_deals.add_argument("--include-see-ad", action="store_true", help="Include unpriced promotional tiles and bundle headers")
     p_deals.add_argument("--sort-unit-price", "--sort-by-unit-price", dest="sort_unit_price", action="store_true", help="Sort deals by unit price ($/unit) ascending")
+    p_deals.add_argument("--skus", "--all-skus", dest="skus", action="store_true", help="Display full breakdown of individual SKUs / varieties under each ad group")
+    p_deals.add_argument("--flat", action="store_true", help="Display unmerged individual product records (legacy view)")
     p_deals.add_argument("-v", "--verbose", action="store_true", help="Show multi-line detailed cards for each item")
 
     # history
