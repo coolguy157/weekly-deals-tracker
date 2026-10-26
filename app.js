@@ -1017,6 +1017,17 @@
       promoDetailHtml = `<div class="promo-detail-note">🏷️ ${escapeHtml(g.promoDetail)}</div>`;
     }
 
+    let historyHtml = '';
+    if (rep) {
+      if (rep.historical_min && rep.price && rep.historical_min > rep.price) {
+        historyHtml = `<div class="history-summary">Best price recorded (Past low was <strong>${formatMoney(rep.historical_min)}</strong>)</div>`;
+      } else if (rep.historical_min && rep.historical_avg && rep.historical_min < rep.price) {
+        historyHtml = `<div class="history-summary">Avg: <strong>${formatMoney(rep.historical_avg)}</strong> • Min: <strong>${formatMoney(rep.historical_min)}</strong></div>`;
+      } else if (isAtlBadge(rep.badge) && rep.historical_avg) {
+        historyHtml = `<div class="history-summary">Best price recorded (Avg: <strong>${formatMoney(rep.historical_avg)}</strong>)</div>`;
+      }
+    }
+
     // Brand display string
     const brandStr = g.brands.length > 0 ? g.brands.slice(0, 4).join(' • ') + (g.brands.length > 4 ? ' • ...' : '') : '';
 
@@ -1126,6 +1137,7 @@
           </div>
 
           ${promoDetailHtml}
+          ${historyHtml}
           ${previewChipsHtml}
         </div>
 
