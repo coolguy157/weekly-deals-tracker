@@ -88,6 +88,83 @@ class TestCLIStoreConfiguration(unittest.TestCase):
         args_merchant = argparse.Namespace(store=None, merchant="Safeway")
         self.assertEqual(_resolve_merchant_filter(args_merchant), "Safeway")
 
+    def test_cmd_history_grouped_and_skus(self):
+        from src.cli import cmd_history
+        from io import StringIO
+        import sys
+
+        mock_db = MagicMock()
+        mock_db.get_grouped_price_history.return_value = [
+            {
+                "title": "Turkey Hill Ice Cream",
+                "brands": ["Turkey Hill"],
+                "categories": ["Ice Cream"],
+                "runs": [
+                    {
+                        "valid_from": "2026-10-23",
+                        "valid_to": "2026-10-30",
+                        "merchant": "Giant Food Stores",
+                        "min_price": 3.49,
+                        "max_price": 3.49,
+                        "min_unit_price": None,
+                        "max_unit_price": None,
+                        "unit_type": None,
+                        "promo_detail": None,
+                        "pages": [1],
+                        "is_front_page": True,
+                        "is_trusted": True,
+                        "is_doorbuster": False,
+                        "varieties": ["Vanilla", "Chocolate"],
+                        "observations": [
+                            {"canonical_name": "Vanilla", "advertised_price": 3.49, "deal_id": 1, "unit_price": None, "unit_type": None},
+                            {"canonical_name": "Chocolate", "advertised_price": 3.49, "deal_id": 2, "unit_price": None, "unit_type": None},
+                        ],
+                    }
+                ],
+            }
+        ]
+
+        # 1. Default grouped call
+        args_grouped = argparse.Namespace(
+            db=":memory:",
+            query="ice cream",
+            store="giant",
+            merchant=None,
+            trusted_only=False,
+            limit=None,
+            skus=False,
+            flat=False,
+        )
+        with patch("src.cli.DealsDatabase", return_value=mock_db):
+            buf = StringIO()
+            with patch("sys.stdout", buf):
+                cmd_history(args_grouped)
+            output = buf.getvalue()
+            self.assertIn("Group: Turkey Hill Ice Cream", output)
+            self.assertIn("2 varieties", output)
+            self.assertNotIn("[Deal ID: 1]", output)
+
+        # 2. Detailed SKUs call
+        args_skus = argparse.Namespace(
+            db=":memory:",
+            query="ice cream",
+            store="giant",
+            merchant=None,
+            trusted_only=False,
+            limit=None,
+            skus=True,
+            flat=False,
+        )
+        with patch("src.cli.DealsDatabase", return_value=mock_db):
+            buf = StringIO()
+            with patch("sys.stdout", buf):
+                cmd_history(args_skus)
+            output = buf.getvalue()
+            self.assertIn("Group: Turkey Hill Ice Cream", output)
+            self.assertIn("[Deal ID: 1]", output)
+            self.assertIn("[Deal ID: 2]", output)
+
 
 if __name__ == "__main__":
     unittest.main()
+

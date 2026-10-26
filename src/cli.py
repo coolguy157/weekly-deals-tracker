@@ -123,45 +123,119 @@ def cmd_deals(args: argparse.Namespace) -> None:
 
 
 def cmd_history(args: argparse.Namespace) -> None:
-    """Display price history timeline for a product."""
+    """Display price history timeline for a product or ad group."""
     db = DealsDatabase(args.db)
     merchant = _resolve_merchant_filter(args)
-    products = db.search_products(args.query, merchant=merchant)
 
-    if not products:
-        target_str = f" for store '{merchant}'" if merchant else ""
-        print(f"No products found matching '{args.query}'{target_str}.")
+    # Legacy flat per-SKU view if requested via --flat
+    if getattr(args, "flat", False):
+        products = db.search_products(args.query, merchant=merchant)
+        if not products:
+            target_str = f" for store '{merchant}'" if merchant else ""
+            print(f"No products found matching '{args.query}'{target_str}.")
+            return
+
+        limit = getattr(args, "limit", None) or len(products)
+        shown = products[:limit]
+        limit_note = f" (showing first {len(shown)} - use --limit to view more)" if len(shown) < len(products) else ""
+        print(f"\nFound {len(products)} matching product(s){limit_note}:\n")
+
+        for p in shown:
+            brand_str = f"Brand: {p.get('brand')}" if p.get("brand") else "Brand: N/A"
+            cat_str = f" | Commodity: {p.get('category')}" if p.get("category") else ""
+            print(f"--- Product: {p['canonical_name']} ({brand_str}{cat_str}) ---")
+            history = db.get_product_price_history(p["product_id"], trusted_only=args.trusted_only, merchant=merchant)
+            if not history:
+                print("   No recorded price observations.")
+                continue
+
+            for h in history:
+                valid_from = (h.get("valid_from") or "")[:10]
+                valid_to = (h.get("valid_to") or "")[:10]
+                price = f"${h['advertised_price']:.2f}" if h.get("advertised_price") is not None else "See ad"
+                unit_str = ""
+                if h.get("unit_price") is not None and h.get("unit_type"):
+                    u_fmt = format_unit_price(h.get("unit_price"), h.get("unit_type"))
+                    if u_fmt:
+                        unit_str = f" ({u_fmt})"
+                page_info = f"Page {h['page_number']}" + (" (Front Page)" if h['is_front_page'] else "")
+                merchant_info = f" [{h['merchant']}]" if h.get("merchant") else ""
+                trust_info = "" if h.get("is_trusted", 1) else " \033[93m[Untrusted / Backfill]\033[0m"
+                doorbuster_info = " \033[95m[Doorbuster / Outlier]\033[0m" if h.get("promo_type") in ("doorbuster", "outlier") else ""
+                deal_id_str = f" [Deal ID: {h['deal_id']}]" if "deal_id" in h else ""
+                print(f"   • [{valid_from} - {valid_to}] Price: {price}{unit_str} ({page_info}){merchant_info}{doorbuster_info}{trust_info}{deal_id_str}")
+            print()
         return
 
-    limit = getattr(args, "limit", None) or len(products)
-    shown = products[:limit]
-    limit_note = f" (showing first {len(shown)} - use --limit to view more)" if len(shown) < len(products) else ""
-    print(f"\nFound {len(products)} matching product(s){limit_note}:\n")
+    # Default: Grouped timeline by Ad / Product Family
+    groups = db.get_grouped_price_history(args.query, merchant=merchant, trusted_only=args.trusted_only)
+    if not groups:
+        target_str = f" for store '{merchant}'" if merchant else ""
+        print(f"No product ads or items found matching '{args.query}'{target_str}.")
+        return
 
-    for p in shown:
-        brand_str = f"Brand: {p.get('brand')}" if p.get("brand") else "Brand: N/A"
-        cat_str = f" | Commodity: {p.get('category')}" if p.get("category") else ""
-        print(f"--- Product: {p['canonical_name']} ({brand_str}{cat_str}) ---")
-        history = db.get_product_price_history(p["product_id"], trusted_only=args.trusted_only, merchant=merchant)
-        if not history:
+    limit = getattr(args, "limit", None) or len(groups)
+    shown = groups[:limit]
+    limit_note = f" (showing first {len(shown)} - use --limit to view more)" if len(shown) < len(groups) else ""
+    print(f"\nFound {len(groups)} matching ad / product group(s){limit_note}:\n")
+
+    show_skus = getattr(args, "skus", False)
+
+    for g in shown:
+        brands = g["brands"]
+        if brands:
+            brand_str = f"Brand: {', '.join(brands[:3])}" + (f" (+{len(brands)-3} more)" if len(brands) > 3 else "")
+        else:
+            brand_str = "Brand: N/A"
+        cat_str = f" | Commodity: {', '.join(g['categories'][:2])}" if g["categories"] else ""
+        print(f"--- Group: {g['title']} ({brand_str}{cat_str}) ---")
+
+        if not g["runs"]:
             print("   No recorded price observations.")
+            print()
             continue
 
-        for h in history:
-            valid_from = (h.get("valid_from") or "")[:10]
-            valid_to = (h.get("valid_to") or "")[:10]
-            price = f"${h['advertised_price']:.2f}" if h.get("advertised_price") is not None else "See ad"
+        for r in g["runs"]:
+            if r["min_price"] is not None:
+                if abs(r["min_price"] - r["max_price"]) < 0.01:
+                    price_str = f"${r['min_price']:.2f}"
+                else:
+                    price_str = f"${r['min_price']:.2f} - ${r['max_price']:.2f}"
+            else:
+                price_str = "See ad"
+
             unit_str = ""
-            if h.get("unit_price") is not None and h.get("unit_type"):
-                u_fmt = format_unit_price(h.get("unit_price"), h.get("unit_type"))
-                if u_fmt:
-                    unit_str = f" ({u_fmt})"
-            page_info = f"Page {h['page_number']}" + (" (Front Page)" if h['is_front_page'] else "")
-            merchant_info = f" [{h['merchant']}]" if h.get("merchant") else ""
-            trust_info = "" if h.get("is_trusted", 1) else " \033[93m[Untrusted / Backfill]\033[0m"
-            doorbuster_info = " \033[95m[Doorbuster / Outlier]\033[0m" if h.get("promo_type") in ("doorbuster", "outlier") else ""
-            deal_id_str = f" [Deal ID: {h['deal_id']}]" if "deal_id" in h else ""
-            print(f"   • [{valid_from} - {valid_to}] Price: {price}{unit_str} ({page_info}){merchant_info}{doorbuster_info}{trust_info}{deal_id_str}")
+            if r["min_unit_price"] is not None and r["unit_type"]:
+                u_type = r["unit_type"]
+                if abs(r["min_unit_price"] - r["max_unit_price"]) < 0.0001:
+                    unit_str = f" (${r['min_unit_price']:.2f}/{u_type})"
+                else:
+                    unit_str = f" (${r['min_unit_price']:.2f}-${r['max_unit_price']:.2f}/{u_type})"
+
+            promo_info = f" • {r['promo_detail']}" if r["promo_detail"] else ""
+            pages_str = ",".join(map(str, r["pages"])) if r["pages"] else "1"
+            page_info = f"Page {pages_str}" + (" (Front Page)" if r["is_front_page"] else "")
+            merchant_info = f" [{r['merchant']}]" if r.get("merchant") else ""
+            trust_info = "" if r["is_trusted"] else " \033[93m[Untrusted / Backfill]\033[0m"
+            doorbuster_info = " \033[95m[Doorbuster / Outlier]\033[0m" if r["is_doorbuster"] else ""
+
+            vars_list = r["varieties"]
+            if len(vars_list) > 1:
+                sample = ", ".join(vars_list[:3])
+                more = f", +{len(vars_list)-3} more" if len(vars_list) > 3 else ""
+                var_str = f" [{len(vars_list)} varieties: {sample}{more}]"
+            elif len(vars_list) == 1 and vars_list[0].lower() != g["title"].lower():
+                var_str = f" ({vars_list[0]})"
+            else:
+                var_str = ""
+
+            print(f"   • [{r['valid_from']} - {r['valid_to']}] Price: {price_str}{unit_str}{promo_info} ({page_info}){merchant_info}{doorbuster_info}{trust_info}{var_str}")
+
+            if show_skus and len(r["observations"]) > 1:
+                for obs in r["observations"]:
+                    p = f"${obs['advertised_price']:.2f}" if obs.get("advertised_price") is not None else "See ad"
+                    u = f" ({obs['unit_price']:.2f}/{obs['unit_type']})" if obs.get("unit_price") and obs.get("unit_type") else ""
+                    print(f"       - {obs['canonical_name']}: {p}{u} [Deal ID: {obs['deal_id']}]")
         print()
 
 
@@ -236,12 +310,14 @@ def main() -> None:
     p_deals.add_argument("-v", "--verbose", action="store_true", help="Show multi-line detailed cards for each item")
 
     # history
-    p_hist = subparsers.add_parser("history", help="Show price history of a product")
-    p_hist.add_argument("query", type=str, help="Product name or brand to search")
+    p_hist = subparsers.add_parser("history", help="Show price history of a product or ad group")
+    p_hist.add_argument("query", type=str, help="Product name, brand, or circular ad to search")
     p_hist.add_argument("--store", type=str, default=None, help="Filter history by preset store alias (default: 'tomthumb')")
     p_hist.add_argument("-m", "--merchant", type=str, default=None, help="Filter history by merchant banner (e.g. 'Giant', 'Tom Thumb')")
     p_hist.add_argument("--trusted-only", action="store_true", help="Show only verified/trusted deal observations")
-    p_hist.add_argument("-n", "--limit", type=int, default=None, help="Maximum number of matching products to display")
+    p_hist.add_argument("-n", "--limit", type=int, default=None, help="Maximum number of matching groups to display")
+    p_hist.add_argument("--skus", "--all-skus", dest="skus", action="store_true", help="Display full breakdown of individual SKUs / flavors under each group")
+    p_hist.add_argument("--flat", action="store_true", help="Display unmerged individual product records (legacy view)")
 
     # mark-trust
     p_trust = subparsers.add_parser("mark-trust", help="Set trust / verification flag on deals")

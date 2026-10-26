@@ -430,8 +430,73 @@ class TestDealsDatabase(unittest.TestCase):
         self.db.clear_matched_stacks()
         self.assertEqual(len(self.db.get_all_matched_stacks()), 0)
 
+    def test_get_grouped_price_history(self):
+        # 1. Flyer run
+        flyer = FlyerMetadata(
+            id=9100,
+            merchant="Giant Food Stores",
+            merchant_id=1,
+            name="Weekly Circular",
+            postal_code="17837",
+            valid_from="2026-10-23T00:00:00",
+            valid_to="2026-10-30T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer)
+
+        # 2. Record 2 varieties sharing the same ad_title "Turkey Hill Ice Cream"
+        v1 = NormalizedDeal(
+            raw_deal_id=91001,
+            flyer_id=9100,
+            page_number=1,
+            is_front_page=True,
+            canonical_name="Turkey Hill Original Vanilla Ice Cream",
+            brand="Turkey Hill",
+            advertised_price=3.49,
+            unit_size=48.0,
+            unit_type="oz",
+            unit_price=0.0727,
+            raw_title="Turkey Hill Original Vanilla Ice Cream",
+            image_url="http://img.com/v1.jpg",
+            ad_title="Turkey Hill Ice Cream",
+            category="Ice Cream",
+        )
+        v2 = NormalizedDeal(
+            raw_deal_id=91002,
+            flyer_id=9100,
+            page_number=1,
+            is_front_page=True,
+            canonical_name="Turkey Hill Dutch Chocolate Ice Cream",
+            brand="Turkey Hill",
+            advertised_price=3.49,
+            unit_size=48.0,
+            unit_type="oz",
+            unit_price=0.0727,
+            raw_title="Turkey Hill Dutch Chocolate Ice Cream",
+            image_url="http://img.com/v2.jpg",
+            ad_title="Turkey Hill Ice Cream",
+            category="Ice Cream",
+        )
+        self.db.record_deals([v1, v2])
+
+        # 3. Query grouped history
+        groups = self.db.get_grouped_price_history("ice cream", merchant="Giant")
+        self.assertEqual(len(groups), 1)
+        g = groups[0]
+        self.assertEqual(g["title"], "Turkey Hill Ice Cream")
+        self.assertIn("Turkey Hill", g["brands"])
+        self.assertEqual(len(g["runs"]), 1)
+
+        run = g["runs"][0]
+        self.assertEqual(run["min_price"], 3.49)
+        self.assertEqual(run["max_price"], 3.49)
+        self.assertEqual(len(run["varieties"]), 2)
+        self.assertIn("Turkey Hill Original Vanilla Ice Cream", run["varieties"])
+        self.assertIn("Turkey Hill Dutch Chocolate Ice Cream", run["varieties"])
+        self.assertEqual(len(run["observations"]), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
 
