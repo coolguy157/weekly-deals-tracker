@@ -2,6 +2,7 @@
 Terminal formatting, ANSI color rendering, and deal card/digest presentation.
 """
 
+import shutil
 from typing import List, Optional, Dict, Any
 
 from .grouping import group_evaluations, GroupedDeal
@@ -65,8 +66,8 @@ def format_unit_price(unit_price: Optional[float], unit_type: Optional[str]) -> 
     return f"${unit_price:.2f}/{unit_type}"
 
 
-def format_compact_note(ev: Any) -> str:
-    """Format a concise, high-signal annotation tag for clean single-line display."""
+def get_compact_tags(ev: Any) -> List[str]:
+    """Return ordered list of compact signal tags for single-line display."""
     tags = []
 
     # Promo Tag (BOGO, Must Buy, Digital Coupon, Points, Spend & Save, Percent Off)
@@ -80,9 +81,7 @@ def format_compact_note(ev: Any) -> str:
         tags.append(f"📦 {promo_detail}")
     elif promo_type == "digital_coupon" and promo_detail:
         tags.append(f"🎟️ {promo_detail}")
-    elif promo_type == "points_redemption" and promo_detail:
-        tags.append(f"🪙 {promo_detail}")
-    elif promo_type == "points_bonus" and promo_detail:
+    elif promo_type in ("points_redemption", "points_bonus") and promo_detail:
         tags.append(f"🪙 {promo_detail}")
     elif promo_type == "spend_save" and promo_detail:
         tags.append(f"🏷️ {promo_detail}")
@@ -102,30 +101,45 @@ def format_compact_note(ev: Any) -> str:
             tags.append(f"⚠️ +{pct}% cat avg")
 
     # Historical price note
-    if ev.badge in ("ALL_TIME_LOW", "NEW_ALL_TIME_LOW", "MATCHES_ATL"):
-        if ev.historical_min and ev.current_price and ev.current_price < (ev.historical_min - 0.005):
-            pct = round(((ev.historical_min - ev.current_price) / ev.historical_min) * 100)
-            tags.append(f"🌟 -{pct}% ATL (was ${ev.historical_min:.2f})")
-        elif "Matches" in ev.summary_reason or (ev.historical_min and abs((ev.current_price or 0) - ev.historical_min) <= 0.005):
+    badge = getattr(ev, "badge", "")
+    historical_min = getattr(ev, "historical_min", None)
+    current_price = getattr(ev, "current_price", None)
+    if current_price is None:
+        current_price = getattr(ev, "price", None)
+    summary_reason = getattr(ev, "summary_reason", "")
+
+    if badge in ("ALL_TIME_LOW", "NEW_ALL_TIME_LOW", "MATCHES_ATL"):
+        if historical_min and current_price and current_price < (historical_min - 0.005):
+            pct = round(((historical_min - current_price) / historical_min) * 100)
+            tags.append(f"🌟 -{pct}% ATL")
+        elif "Matches" in summary_reason or (historical_min and abs((current_price or 0) - historical_min) <= 0.005):
             tags.append("🌟 Matches ATL")
         else:
             tags.append("🌟 ATL")
-    elif ev.badge == "PRICE_HIKE":
-        if ev.diff_pct_vs_avg:
-            tags.append(f"⚠️ +{round(ev.diff_pct_vs_avg)}% vs avg")
+    elif badge == "PRICE_HIKE":
+        diff_pct = getattr(ev, "diff_pct_vs_avg", None)
+        if diff_pct:
+            tags.append(f"⚠️ +{round(diff_pct)}% vs avg")
         else:
             tags.append("⚠️ Price Hike")
-    elif ev.badge == "BEAT_AVERAGE":
-        if ev.diff_pct_vs_avg:
-            tags.append(f"🔥 {round(ev.diff_pct_vs_avg)}% vs avg")
-    elif ev.badge == "CYCLE_REFRESH":
-        if "multi-week" in ev.summary_reason.lower():
+    elif badge == "BEAT_AVERAGE":
+        diff_pct = getattr(ev, "diff_pct_vs_avg", None)
+        if diff_pct:
+            tags.append(f"🔥 {round(diff_pct)}% vs avg")
+    elif badge == "CYCLE_REFRESH":
+        if "multi-week" in summary_reason.lower():
             tags.append("🔄 Multi-week")
 
+    return tags
+
+
+def format_compact_note(ev: Any) -> str:
+    """Format a concise, high-signal annotation tag for clean single-line display."""
+    tags = get_compact_tags(ev)
     if not tags:
         return ""
 
-    color = "\033[91m" if ev.badge == "PRICE_HIKE" else "\033[92m"
+    color = "\033[91m" if getattr(ev, "badge", "") == "PRICE_HIKE" else "\033[92m"
     reset = "\033[0m"
     return f"  {color}↳ " + " • ".join(tags) + reset
 
@@ -153,8 +167,41 @@ def print_deal_card(ev: Any, verbose: bool = False) -> None:
         print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str}{unit_str} ({page_str})")
         print(f"   ↳ {ev.summary_reason}\n")
     else:
-        note = format_compact_note(ev)
-        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str}{unit_str} ({page_str}){note}")
+        try:
+            term_width = max(80, shutil.get_terminal_size(fallback=(100, 24)).columns)
+        except Exception:
+            term_width = 100
+        target_width = max(78, term_width - 1)
+
+        tags = get_compact_tags(ev)
+        base_overhead = 1 + 16 + 2 + 7 + 2 + len(brand_str) + len(unit_str) + len(f" ({page_str})")
+        avail = target_width - base_overhead
+
+        name = ev.canonical_name
+        avail_for_tags = avail - min(len(name), 35)
+        cur_tag_str = ""
+        for t in tags:
+            candidate = (cur_tag_str + " • " + t) if cur_tag_str else t
+            if len(candidate) + 4 <= avail_for_tags:
+                cur_tag_str = candidate
+            elif not cur_tag_str and len(t) + 4 <= avail - 20:
+                cur_tag_str = t
+                break
+            else:
+                break
+
+        tag_str = ""
+        tag_len = 0
+        if cur_tag_str:
+            color = "\033[91m" if ev.badge == "PRICE_HIKE" else "\033[92m"
+            tag_str = f"  {color}↳ {cur_tag_str}\033[0m"
+            tag_len = len(cur_tag_str) + 4
+
+        avail_name = target_width - base_overhead - tag_len
+        if len(name) > avail_name and avail_name > 10:
+            name = name[:avail_name - 1].rstrip() + "…"
+
+        print(f" {badge_str}  {price_str:>7}  {name}{brand_str}{unit_str} ({page_str}){tag_str}")
 
 
 def print_grouped_deal_card(g: Any, verbose: bool = False, show_skus: bool = False) -> None:
@@ -164,53 +211,99 @@ def print_grouped_deal_card(g: Any, verbose: bool = False, show_skus: bool = Fal
 
     # Price string
     if g.badge == "POINTS_FREEBIE" or getattr(rep, "promo_type", "") == "points_redemption":
-        price_str = "   FREE"
+        price_str = "       FREE"
     elif g.min_price is not None:
         if g.max_price is not None and abs(g.min_price - g.max_price) >= 0.01:
             price_str = f"${g.min_price:.2f}-${g.max_price:.2f}"
         else:
             price_str = f"${g.min_price:.2f}"
     else:
-        price_str = " See ad"
+        price_str = "    See ad"
 
     # Page string
     pages_list = getattr(g, "pages", [getattr(g, "page_number", 1)])
     if pages_list:
-        pages_str = f"p.{','.join(map(str, pages_list))}"
+        p_num = str(pages_list[0])
     else:
-        pages_str = f"p.{getattr(g, 'page_number', 1)}"
-    if g.is_front_page:
-        pages_str += " (Cover)"
+        p_num = str(getattr(g, "page_number", 1))
+    page_str = f"p.{p_num}*" if g.is_front_page else f"p.{p_num}"
 
     # Unit price string
     if g.min_unit_price is not None and g.unit_type:
-        if g.max_unit_price is not None and abs(g.min_unit_price - g.max_unit_price) >= 0.005:
-            u_min = format_unit_price(g.min_unit_price, g.unit_type)
-            u_max = format_unit_price(g.max_unit_price, g.unit_type)
-            unit_str = f" ({u_min}-{u_max})"
-        else:
-            unit_str = f" ({format_unit_price(g.min_unit_price, g.unit_type)})"
+        unit_str = f" ({format_unit_price(g.min_unit_price, g.unit_type)})"
     else:
         unit_str = ""
 
-    # Variety note
     varieties = getattr(g, "varieties", [])
-    if len(varieties) > 1:
-        sample = ", ".join(varieties[:3])
-        more = f", +{len(varieties)-3} more" if len(varieties) > 3 else ""
-        var_note = f" [{len(varieties)} varieties: {sample}{more}]"
-    else:
-        var_note = ""
-
-    note = format_compact_note(rep)
 
     if verbose:
-        print(f" {badge_str}  {price_str:>11}  {g.title}{unit_str} ({pages_str}){var_note}")
+        if g.min_unit_price is not None and g.max_unit_price is not None and abs(g.min_unit_price - g.max_unit_price) >= 0.005 and g.unit_type:
+            u_min = format_unit_price(g.min_unit_price, g.unit_type)
+            u_max = format_unit_price(g.max_unit_price, g.unit_type)
+            unit_str_verbose = f" ({u_min}-{u_max})"
+        else:
+            unit_str_verbose = unit_str
+
+        pages_verbose = f"p.{','.join(map(str, pages_list))}" if pages_list else f"p.{getattr(g, 'page_number', 1)}"
+        if g.is_front_page:
+            pages_verbose += " (Cover)"
+        if len(varieties) > 1:
+            sample = ", ".join(varieties[:3])
+            more = f", +{len(varieties)-3} more" if len(varieties) > 3 else ""
+            var_note = f" [{len(varieties)} varieties: {sample}{more}]"
+        else:
+            var_note = ""
+        print(f" {badge_str}  {price_str:>11}  {g.title}{unit_str_verbose} ({pages_verbose}){var_note}")
         reason = getattr(rep, "summary_reason", "")
         if reason:
             print(f"   ↳ {reason}\n")
     else:
-        print(f" {badge_str}  {price_str:>11}  {g.title}{unit_str} ({pages_str}){note}{var_note}")
+        # Strictly single-line layout budgeted to terminal width
+        try:
+            term_width = max(80, shutil.get_terminal_size(fallback=(100, 24)).columns)
+        except Exception:
+            term_width = 100
+        target_width = max(78, term_width - 1)
+
+        var_str = f" [{len(varieties)} varieties]" if len(varieties) > 1 else ""
+        tags = get_compact_tags(rep)
+
+        # Base overhead: 1 space + badge(16) + 2 spaces + price(11) + 2 spaces + var_str + unit_str + ' (' + page_str + ')'
+        base_overhead = 1 + 16 + 2 + 11 + 2 + len(var_str) + len(unit_str) + len(f" ({page_str})")
+        avail = target_width - base_overhead
+
+        # Prioritize high-signal promo / ATL tags
+        cur_tag_str = ""
+        avail_for_tags = max(0, avail - min(len(g.title), 32))
+        for t in tags:
+            candidate = (cur_tag_str + " • " + t) if cur_tag_str else t
+            if len(candidate) + 4 <= avail_for_tags:
+                cur_tag_str = candidate
+            elif not cur_tag_str and len(t) + 4 <= avail - 18:
+                cur_tag_str = t
+                break
+            else:
+                break
+
+        tag_str = ""
+        tag_len = 0
+        if cur_tag_str:
+            color = "\033[91m" if g.badge == "PRICE_HIKE" else "\033[92m"
+            tag_str = f"  {color}↳ {cur_tag_str}\033[0m"
+            tag_len = len(cur_tag_str) + 4
+
+        avail_title = target_width - base_overhead - tag_len
+        if avail_title < 18 and unit_str:
+            # Drop unit string if space is tight to preserve title visibility
+            base_overhead -= len(unit_str)
+            unit_str = ""
+            avail_title = target_width - base_overhead - tag_len
+
+        title = g.title
+        if len(title) > avail_title and avail_title > 10:
+            title = title[:avail_title - 1].rstrip() + "…"
+
+        print(f" {badge_str}  {price_str:>11}  {title}{var_str}{unit_str} ({page_str}){tag_str}")
 
     if show_skus and len(getattr(g, "items", [])) > 1:
         for it in g.items:
