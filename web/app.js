@@ -332,6 +332,14 @@
     return `deal_${deal.deal_id}`;
   }
 
+  function cleanFlyerRawTitle(title) {
+    if (!title) return '';
+    let t = title.replace(/\ufffd/g, '').replace(/[®™]/g, '').trim();
+    t = t.replace(/\s+/g, ' ');
+    t = t.replace(/\s*-\s*(\$\d+(\.\d{2})?|\d+\/\s*\$\d+|SAVE\s+\$\d+|DIGITAL\s+COUPON).*$/i, '').trim();
+    return t;
+  }
+
   function synthesizeGroupTitle(items) {
     if (items.length === 1) {
       return items[0].name || 'Deal Item';
@@ -347,6 +355,24 @@
     const adTitle = items.find(it => it.ad_title)?.ad_title;
     if (adTitle && adTitle.trim() && !/^(?:select|assorted|various|mix|match)/i.test(adTitle.trim())) {
       return adTitle.trim();
+    }
+
+    // Check for shared concise raw flyer headline across items
+    const rawTitles = Array.from(new Set(
+      items
+        .map(it => cleanFlyerRawTitle(it.raw_title || ''))
+        .filter(Boolean)
+    ));
+    if (rawTitles.length === 1) {
+      const sharedRaw = rawTitles[0];
+      const commaCount = (sharedRaw.match(/,/g) || []).length;
+      if (
+        sharedRaw.length <= 80 &&
+        commaCount <= 4 &&
+        !/^(?:select|assorted|various|mix\s*&\s*match)\b/i.test(sharedRaw)
+      ) {
+        return sharedRaw;
+      }
     }
 
     const brands = Array.from(new Set(items.map(it => it.brand).filter(Boolean))).sort();

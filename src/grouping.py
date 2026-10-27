@@ -71,6 +71,17 @@ def get_group_key(deal: Any) -> str:
     return f"deal_{deal_id}"
 
 
+def clean_flyer_raw_title(title: str) -> str:
+    """Clean flyer raw headline, stripping encoding artifacts, trademark symbols, and trailing promo/price tags."""
+    if not title:
+        return ""
+    t = title.replace("\ufffd", "").replace("®", "").replace("™", "").strip()
+    t = re.sub(r"\s+", " ", t)
+    # Strip promo / price trailers like "- $3.99 /ea." or "- SAVE $15..." or "- $7.99 DIGITAL COUPON"
+    t = re.sub(r"\s*-\s*(\$\d+(\.\d{2})?|\d+/\s*\$\d+|SAVE\s+\$\d+|DIGITAL\s+COUPON).*$", "", t, flags=re.I).strip()
+    return t
+
+
 def synthesize_group_title(items: List[Any]) -> str:
     """Synthesize a canonical ad promotion title from a group of circular items."""
     if not items:
@@ -93,6 +104,23 @@ def synthesize_group_title(items: List[Any]) -> str:
         or "get these free" in promo_detail
     ):
         return "Weekly Meal Deal"
+
+    # 3. Check for shared concise raw flyer headline across items
+    raw_titles = {
+        clean_flyer_raw_title(_get_item_attr(it, "raw_title") or "")
+        for it in items
+        if (_get_item_attr(it, "raw_title") or "").strip()
+    }
+    raw_titles.discard("")
+    if len(raw_titles) == 1:
+        shared_raw = list(raw_titles)[0]
+        if (
+            len(shared_raw) <= 80
+            and shared_raw.count(",") <= 4
+            and shared_raw.lower() not in GENERIC_PLACEHOLDER_NAMES
+            and not re.match(r"^(?:select|assorted|various|mix\s*&\s*match)\b", shared_raw, re.I)
+        ):
+            return shared_raw
 
     brands = sorted(list({_get_item_attr(it, "brand") for it in items if _get_item_attr(it, "brand")}))
     names = [_get_item_attr(it, "canonical_name") or _get_item_attr(it, "name") or "" for it in items]

@@ -32,6 +32,15 @@ def get_group_key(deal):
     return f"deal_{deal.get('deal_id')}"
 
 
+def clean_flyer_raw_title(title: str) -> str:
+    if not title:
+        return ""
+    t = title.replace("\ufffd", "").replace("®", "").replace("™", "").strip()
+    t = re.sub(r"\s+", " ", t)
+    t = re.sub(r"\s*-\s*(\$\d+(\.\d{2})?|\d+/\s*\$\d+|SAVE\s+\$\d+|DIGITAL\s+COUPON).*$", "", t, flags=re.I).strip()
+    return t
+
+
 def synthesize_group_title(items):
     if len(items) == 1:
         return items[0].get("name") or "Deal Item"
@@ -40,6 +49,21 @@ def synthesize_group_title(items):
     promo = (items[0].get("promo_detail") or "").lower()
     if any(it.get("promo_type") == "meal_deal" for it in items) or "meal deal" in promo or "get these free" in promo:
         return "Weekly Meal Deal"
+
+    raw_titles = {
+        clean_flyer_raw_title(it.get("raw_title") or "")
+        for it in items
+        if (it.get("raw_title") or "").strip()
+    }
+    raw_titles.discard("")
+    if len(raw_titles) == 1:
+        shared_raw = list(raw_titles)[0]
+        if (
+            len(shared_raw) <= 80
+            and shared_raw.count(",") <= 4
+            and not re.match(r"^(?:select|assorted|various|mix\s*&\s*match)\b", shared_raw, re.I)
+        ):
+            return shared_raw
 
     brands = sorted(list({it.get("brand") for it in items if it.get("brand")}))
     names = [it.get("name") or "" for it in items]
@@ -222,6 +246,18 @@ class TestGroupingLogic(unittest.TestCase):
         ]
         seafood_title = synthesize_group_title(seafood_items)
         self.assertEqual(seafood_title, "Fresh & Frozen Seafood Fillets")
+
+    def test_concise_raw_title_preservation(self):
+        items = [
+            {"name": "O Organics Romaine", "brand": "O Organics", "price": 3.99, "raw_title": "O Organics® Romaine or Celery Hearts"},
+            {"name": "Celery Hearts", "brand": "O Organics", "price": 3.99, "raw_title": "O Organics® Romaine or Celery Hearts"},
+        ]
+        title = synthesize_group_title(items)
+        self.assertEqual(title, "O Organics Romaine or Celery Hearts")
+
+        from deals_tracker.src.grouping import synthesize_group_title as src_synthesize_group_title
+        src_title = src_synthesize_group_title(items)
+        self.assertEqual(src_title, "O Organics Romaine or Celery Hearts")
 
 
 if __name__ == "__main__":
