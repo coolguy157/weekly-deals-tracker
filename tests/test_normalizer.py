@@ -1599,6 +1599,31 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(standardize_unit_tokens("Product 1 Gallon"), "Product 1 gal")
         self.assertEqual(standardize_unit_tokens("Product 6-8 Ounces"), "Product 6-8 oz")
 
+    def test_multibuy_bundle_price_normalization(self):
+        item = FlyerItem(
+            id=1044979398,
+            flyer_id=1195672,
+            name="Turkey Hill Ice Cream - 2/ $6.00",
+            price=6.0,
+            original_price=None,
+            pre_price_text="2/ $6.00",
+            post_price_text=None,
+            description=None,
+            brand="Turkey Hill",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 1)
+        self.assertEqual(deals[0].canonical_name, "Turkey Hill Ice Cream")
+        self.assertEqual(deals[0].advertised_price, 3.0)
+        self.assertEqual(deals[0].promo_type, "must_buy")
+        self.assertEqual(deals[0].promo_detail, "2 FOR $6.00")
+        self.assertEqual(deals[0].qualifying_qty, 2)
+
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -309,11 +309,17 @@ class ProductNormalizer:
             coupon_discount = promo_info.coupon_discount if promo_info else None
             base_price = item.original_price
 
-            if advertised_price is None and promo_info:
-                advertised_price = PromoExtractor.calculate_effective_price(promo_info, base_price=item.original_price)
-                if advertised_price is not None and size and size > 0:
-                    unit_price = round(advertised_price / size, 4)
-            elif advertised_price is not None and unit_price is None and size and size > 0:
+            if promo_info:
+                if advertised_price is None:
+                    advertised_price = PromoExtractor.calculate_effective_price(promo_info, base_price=item.original_price)
+                elif promo_info.qualifying_qty > 1 and promo_info.stated_unit_price is not None:
+                    # If advertised_price was populated with the bundle total price (e.g. $6.00 for 2/ $6.00)
+                    if promo_info.stated_total_price is not None and abs(advertised_price - promo_info.stated_total_price) < 0.01:
+                        advertised_price = promo_info.stated_unit_price
+                    elif abs(advertised_price - (promo_info.stated_unit_price * promo_info.qualifying_qty)) < 0.01:
+                        advertised_price = promo_info.stated_unit_price
+
+            if advertised_price is not None and size and size > 0:
                 unit_price = round(advertised_price / size, 4)
 
             image = item.clean_image_url or item.cutout_image_url
