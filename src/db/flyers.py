@@ -6,6 +6,7 @@ import sqlite3
 from typing import Optional, List, Dict, Any, Tuple
 from ..fetcher import FlyerMetadata, FlyerItem
 from ..normalizer import NormalizedDeal
+from ..normalizer.vocabulary import TOM_THUMB_STORE_BRANDS, GIANT_STORE_BRANDS
 
 
 class FlyersMixin:
@@ -282,9 +283,10 @@ class FlyersMixin:
             rows = conn.execute("""
                 SELECT d.id as obs_id, d.flyer_id, d.raw_deal_id, d.page_number, d.is_front_page,
                        d.advertised_price, d.unit_price, d.promo_type, d.raw_title, d.image_url, d.is_trusted, d.source_type,
-                       d.recorded_at, p.product_id, p.canonical_name, p.brand, p.category
+                       d.recorded_at, p.product_id, p.canonical_name, p.brand, p.category, f.merchant
                 FROM deal_observations d
                 JOIN products p ON d.product_id = p.product_id
+                LEFT JOIN flyer_runs f ON d.flyer_id = f.flyer_id
             """).fetchall()
 
             disaggregated_obs = 0
@@ -296,6 +298,15 @@ class FlyersMixin:
                 if deal_key in processed_raw_deals:
                     continue
 
+                item_brand = r["brand"]
+                merchant_lower = (r["merchant"] or "").lower()
+                if any(b in merchant_lower for b in ("tom thumb", "safeway", "albertsons")):
+                    if item_brand in GIANT_STORE_BRANDS:
+                        item_brand = None
+                elif "giant" in merchant_lower:
+                    if item_brand in TOM_THUMB_STORE_BRANDS:
+                        item_brand = None
+
                 item = FlyerItem(
                     id=r["raw_deal_id"],
                     flyer_id=r["flyer_id"],
@@ -305,7 +316,7 @@ class FlyersMixin:
                     pre_price_text=None,
                     post_price_text=None,
                     description=None,
-                    brand=r["brand"],
+                    brand=item_brand,
                     page_number=r["page_number"],
                     is_front_page=bool(r["is_front_page"]),
                     cutout_image_url=r["image_url"],

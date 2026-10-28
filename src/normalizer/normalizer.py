@@ -12,7 +12,7 @@ from .models import NormalizedDeal
 from .categories import COMMODITY_PATTERNS, infer_category
 from .units import UNIT_PATTERN, extract_unit_info
 from .ast_parser import DealASTParser
-from .vocabulary import STORE_BRANDS, NATIONAL_BRANDS, DEPARTMENT_BANNERS
+from .vocabulary import STORE_BRANDS, NATIONAL_BRANDS, DEPARTMENT_BANNERS, TOM_THUMB_STORE_BRANDS, GIANT_STORE_BRANDS
 from .rules import (
     COLLAGE_5_FOR_5_MAP,
     STAPLES_5_FOR_5,
@@ -181,39 +181,47 @@ class ProductNormalizer:
                     size, unit = post_size, post_unit
 
             # Match brand:
-            # 1. Look for known item_brands or store brands within sub_name
-            brand = None
-            for b in item_brands:
-                if re.search(r"\b" + re.escape(b) + r"\b", sub_name, re.IGNORECASE):
-                    brand = b
+            # First check for recognized national brands in sub_name (sorted by descending length so "Green Giant" matches before "Giant")
+            national_brand_in_sub = None
+            for nb in sorted(self.NATIONAL_BRANDS, key=len, reverse=True):
+                if re.search(r"\b" + re.escape(nb) + r"\b", sub_name, re.IGNORECASE):
+                    national_brand_in_sub = nb
                     break
 
-            if not brand:
-                for sb in self.STORE_BRANDS:
-                    if re.search(r"\b" + re.escape(sb) + r"\b", sub_name, re.IGNORECASE):
-                        brand = sb
+            brand = None
+            # If sub_name explicitly mentions a national brand, assign it directly
+            if national_brand_in_sub:
+                brand = national_brand_in_sub
+            else:
+                # 1. Look for known item_brands or store brands within sub_name
+                for b in item_brands:
+                    if re.search(r"\b" + re.escape(b) + r"\b", sub_name, re.IGNORECASE):
+                        brand = b
                         break
 
-            # Check common national brand keywords if not found
-            if not brand:
-                for nb in self.NATIONAL_BRANDS:
-                    if re.search(r"\b" + re.escape(nb) + r"\b", sub_name, re.IGNORECASE):
-                        brand = nb
-                        break
+                if not brand:
+                    for sb in sorted(self.STORE_BRANDS, key=len, reverse=True):
+                        if sb.lower() == "giant":
+                            if re.search(r"(?<!\bGreen\s)\bGiant\b(?!\s+Size\b)", sub_name, re.IGNORECASE):
+                                brand = sb
+                                break
+                        elif re.search(r"\b" + re.escape(sb) + r"\b", sub_name, re.IGNORECASE):
+                            brand = sb
+                            break
 
-            # 2. Inherit initial brand if deal started with it and no other explicit brand in sub_name
-            if not brand and initial_brand and not is_5_for_5:
-                other_brand_in_sub = any(
-                    re.search(r"\b" + re.escape(b) + r"\b", sub_name, re.IGNORECASE)
-                    for b in item_brands
-                    if b.lower() != initial_brand.lower()
-                )
-                if not other_brand_in_sub:
-                    brand = initial_brand
+                # 2. Inherit initial brand if deal started with it and no other explicit brand in sub_name
+                if not brand and initial_brand and not is_5_for_5:
+                    other_brand_in_sub = any(
+                        re.search(r"\b" + re.escape(b) + r"\b", sub_name, re.IGNORECASE)
+                        for b in item_brands
+                        if b.lower() != initial_brand.lower()
+                    )
+                    if not other_brand_in_sub:
+                        brand = initial_brand
 
-            # 3. If still not found and only 1 item_brand available, assign it
-            if not brand and len(item_brands) == 1:
-                brand = item_brands[0]
+                # 3. If still not found and only 1 item_brand available, assign it
+                if not brand and len(item_brands) == 1:
+                    brand = item_brands[0]
 
             # Check for bulk package rate clause: "Sold in 3 lb. Package for $11.97 ea." or "Sold in a 2 lb. bag for $13.98 each"
             pkg_rate_match = re.search(
@@ -242,8 +250,30 @@ class ProductNormalizer:
             if size_from_desc and size and unit:
                 size_str = int(size) if size.is_integer() else size
                 canonical = f"{canonical} {size_str} {unit}"
+
+            has_national_brand = bool(national_brand_in_sub) or any(
+                re.search(r"\b" + re.escape(nb) + r"\b", canonical, re.IGNORECASE)
+                for nb in self.NATIONAL_BRANDS
+            )
+
+            # Strip store brand prefix if a national brand is present (e.g. 'Our Brand Swanson Broth' -> 'Swanson Broth')
+            if has_national_brand:
+                for sb in sorted(self.STORE_BRANDS, key=len, reverse=True):
+                    if re.match(r"^" + re.escape(sb) + r"\s+", canonical, re.IGNORECASE):
+                        canonical = re.sub(r"^" + re.escape(sb) + r"\s+", "", canonical, flags=re.IGNORECASE).strip()
+                        break
+                # Ensure brand is not set to a store brand when a national brand is present
+                if brand in self.STORE_BRANDS:
+                    brand = national_brand_in_sub or next(
+                        (nb for nb in sorted(self.NATIONAL_BRANDS, key=len, reverse=True)
+                         if re.search(r"\b" + re.escape(nb) + r"\b", canonical, re.IGNORECASE)),
+                        None
+                    )
+
             if not is_5_for_5 and brand and brand.lower() not in canonical.lower() and not initial_store_brand:
-                canonical = f"{brand} {canonical}"
+                # Architectural guard: Never prepend a store brand onto a canonical name that contains a national brand
+                if not (brand in self.STORE_BRANDS and has_national_brand):
+                    canonical = f"{brand} {canonical}"
 
             if is_5_for_5:
                 c_key = sub_name.lower().strip()

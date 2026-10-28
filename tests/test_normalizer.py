@@ -1648,6 +1648,93 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[1].unit_size, 1.0)
         self.assertEqual(deals[1].unit_type, "lb")
 
+    def test_national_brand_store_brand_isolation(self):
+        # 1. Plain Swanson Broth with store brand passed in item.brand
+        item1 = FlyerItem(
+            id=1049095426,
+            flyer_id=8197163,
+            name="Swanson Broth",
+            price=2.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Our Brand",
+            page_number=4,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals1 = self.normalizer.disaggregate_and_normalize(item1)
+        self.assertEqual(len(deals1), 1)
+        self.assertEqual(deals1[0].canonical_name, "Swanson Broth")
+        self.assertEqual(deals1[0].brand, "Swanson")
+
+        # 2. Contaminated 'Our Brand Swanson Broth' string
+        item2 = FlyerItem(
+            id=1049095427,
+            flyer_id=8197163,
+            name="Our Brand Swanson Broth",
+            price=2.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Our Brand",
+            page_number=4,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals2 = self.normalizer.disaggregate_and_normalize(item2)
+        self.assertEqual(len(deals2), 1)
+        self.assertEqual(deals2[0].canonical_name, "Swanson Broth")
+        self.assertEqual(deals2[0].brand, "Swanson")
+
+        # 3. Compound promo containing both store brand and national brand
+        item3 = FlyerItem(
+            id=1044979822,
+            flyer_id=1195672,
+            name="Our Brand Rice & Pasta Blend or Swanson Broth - 5/ $5.00",
+            price=5.0,
+            original_price=None,
+            pre_price_text="5/ $5.00",
+            post_price_text=None,
+            description=None,
+            brand="Our Brand",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals3 = self.normalizer.disaggregate_and_normalize(item3)
+        self.assertEqual(len(deals3), 2)
+        self.assertEqual(deals3[0].canonical_name, "Our Brand Rice & Pasta Blend")
+        self.assertEqual(deals3[0].brand, "Our Brand")
+        self.assertEqual(deals3[1].canonical_name, "Swanson Broth")
+        self.assertEqual(deals3[1].brand, "Swanson")
+
+        # 4. Green Giant must match Green Giant, not store brand Giant
+        item4 = FlyerItem(
+            id=9992,
+            flyer_id=8197163,
+            name="Green Giant Simply Steam Vegetables",
+            price=1.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=2,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals4 = self.normalizer.disaggregate_and_normalize(item4)
+        self.assertEqual(len(deals4), 1)
+        self.assertEqual(deals4[0].canonical_name, "Green Giant Simply Steam Vegetables")
+        self.assertEqual(deals4[0].brand, "Green Giant")
+
 
 if __name__ == "__main__":
     unittest.main()
