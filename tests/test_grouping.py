@@ -259,6 +259,63 @@ class TestGroupingLogic(unittest.TestCase):
         src_title = src_synthesize_group_title(items)
         self.assertEqual(src_title, "O Organics Romaine or Celery Hearts")
 
+    def test_should_split_fresh_meat_and_poultry_cuts(self):
+        from deals_tracker.src.grouping import should_split_ad_group, group_evaluations
+
+        # 1. Chicken Breasts or Pork Loin Chops sold per lb
+        chicken_pork = [
+            {"canonical_name": "Boneless Skinless Chicken Breasts", "unit_type": "lb", "category": "Boneless Chicken Breasts", "price": 2.77, "raw_deal_id": 1001, "badge": "STANDARD_DEAL"},
+            {"canonical_name": "Pork Loin Chops", "unit_type": "lb", "category": "Pork Chops", "price": 2.77, "raw_deal_id": 1001, "badge": "PRICE_HIKE"},
+        ]
+        self.assertTrue(should_split_ad_group(chicken_pork))
+
+        groups = group_evaluations(chicken_pork)
+        self.assertEqual(len(groups), 2)
+        titles = {g.title for g in groups}
+        self.assertEqual(titles, {"Boneless Skinless Chicken Breasts", "Pork Loin Chops"})
+        badges = {g.title: g.badge for g in groups}
+        self.assertEqual(badges["Pork Loin Chops"], "PRICE_HIKE")
+        self.assertEqual(badges["Boneless Skinless Chicken Breasts"], "STANDARD_DEAL")
+
+        # 2. Beef Roasts sold per lb (ATL vs Price Hike)
+        beef_roasts = [
+            {"canonical_name": "USDA Choice Beef Chuck Roast", "unit_type": "lb", "category": "Roast", "price": 5.99, "raw_deal_id": 1002, "badge": "MATCHES_ATL"},
+            {"canonical_name": "USDA Choice Beef Bottom Round Roast", "unit_type": "lb", "category": "Roast", "price": 5.99, "raw_deal_id": 1002, "badge": "PRICE_HIKE"},
+            {"canonical_name": "USDA Choice Beef Short Ribs", "unit_type": "lb", "category": "Beef", "price": 5.99, "raw_deal_id": 1002, "badge": "BEAT_AVERAGE"},
+        ]
+        self.assertTrue(should_split_ad_group(beef_roasts))
+
+        beef_groups = group_evaluations(beef_roasts)
+        self.assertEqual(len(beef_groups), 3)
+
+    def test_should_not_split_bxgy_or_mix_and_match(self):
+        from deals_tracker.src.grouping import should_split_ad_group, group_evaluations
+
+        # 1. BOGO Meat deal: Must stay grouped
+        bogo_meat = [
+            {"canonical_name": "Beef Chuck Roast", "unit_type": "lb", "price": 8.99, "promo_type": "bogo", "promo_detail": "Buy 1 Get 1 Free", "raw_deal_id": 2001},
+            {"canonical_name": "Petite Sirloin Steak", "unit_type": "lb", "price": 8.99, "promo_type": "bogo", "promo_detail": "Buy 1 Get 1 Free", "raw_deal_id": 2001},
+        ]
+        self.assertFalse(should_split_ad_group(bogo_meat))
+        self.assertEqual(len(group_evaluations(bogo_meat)), 1)
+
+        # 2. Mix & Match Soup / Pasta promo (0.88 / 0.97 member price)
+        soup_promo = [
+            {"canonical_name": "Progresso Soup 18-19 oz", "unit_type": "oz", "price": 0.97, "raw_deal_id": 2002, "promo_detail": "When you buy 4"},
+            {"canonical_name": "Barilla Pasta 12-16 oz", "unit_type": "oz", "price": 0.97, "raw_deal_id": 2002, "promo_detail": "When you buy 4"},
+        ]
+        self.assertFalse(should_split_ad_group(soup_promo))
+        self.assertEqual(len(group_evaluations(soup_promo)), 1)
+
+        # 3. Packaged Cheese varieties (Lucerne chunk, sliced, shredded)
+        cheese_varieties = [
+            {"canonical_name": "Lucerne Shredded Cheese 8 oz", "brand": "Lucerne", "category": "Cheese", "unit_type": "oz", "price": 1.99, "raw_deal_id": 2003},
+            {"canonical_name": "Lucerne Chunk Cheese 8 oz", "brand": "Lucerne", "category": "Cheese", "unit_type": "oz", "price": 1.99, "raw_deal_id": 2003},
+            {"canonical_name": "Lucerne Sliced Cheese 8 oz", "brand": "Lucerne", "category": "Cheese", "unit_type": "oz", "price": 1.99, "raw_deal_id": 2003},
+        ]
+        self.assertFalse(should_split_ad_group(cheese_varieties))
+        self.assertEqual(len(group_evaluations(cheese_varieties)), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

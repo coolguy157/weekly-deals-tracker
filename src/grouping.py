@@ -246,6 +246,80 @@ def _deal_priority(it: Any) -> float:
     return 20.0
 
 
+def should_split_ad_group(items: List[Any]) -> bool:
+    """
+    Determine if a multi-item ad tile should be split into discrete deal cards in the digest.
+
+    Rules:
+    1. NEVER split true promotional bundles or qualifying groups:
+       - BXGY / BOGO (e.g. Buy 1 Get 1 Free)
+       - Multi-Buys / Mix & Match (e.g. "when you buy 4", "must buy 3", "5 for $5")
+       - Bundles / Meal Deals
+    2. NEVER split packaged goods promotions or variety families:
+       - Items sharing brand and category (e.g. Lucerne cheese chunks/shreds/slices)
+       - Packaged grocery promotional collages (soups, pasta, snacks, sodas, etc.)
+         with fixed packaging units (oz, ct, pk, count, etc., not sold per lb).
+    3. DO split fresh butcher/seafood cuts sold by weight (per lb) or distinct animal protein cuts
+       (e.g. Chicken Breasts vs Pork Loin Chops, or Chuck Roast vs Bottom Round Roast vs Short Ribs)
+       where items have independent price baselines and differing deal evaluations.
+    """
+    if len(items) <= 1:
+        return False
+
+    # 1. Never split true promotional bundles (BXGY, BOGO, Multi-Buy, Mix & Match)
+    for it in items:
+        ptype = (_get_item_attr(it, "promo_type", "standard") or "standard").lower()
+        pdetail = (_get_item_attr(it, "promo_detail", "") or "").lower()
+        rtitle = (_get_item_attr(it, "raw_title", "") or "").lower()
+
+        if ptype in ("bogo", "bxgy", "buy_x_get_y", "must_buy", "bundle", "meal_deal", "mix_and_match"):
+            return False
+        if (_get_item_attr(it, "qualifying_qty") or 1) > 1:
+            return False
+        if any(
+            k in pdetail or k in rtitle
+            for k in (
+                "bogo", "buy 1 get", "buy 2 get", "buy one get", "get 1 free", "get one free",
+                "when you buy", "must buy", "mix & match", "mix and match", "participating",
+            )
+        ):
+            return False
+
+    # 2. Never split packaged goods varieties (unit not 'lb')
+    units = {_get_item_attr(it, "unit_type") for it in items if _get_item_attr(it, "unit_type")}
+    if "lb" not in units:
+        # Packaged consumer goods (soups, crackers, cheese packs, sodas, etc.) stay grouped
+        return False
+
+    # 3. For per-lb items (fresh meat, poultry, pork, beef, seafood):
+    # Split if they represent distinct commodities or cuts
+    canonical_names = {
+        (_get_item_attr(it, "canonical_name") or _get_item_attr(it, "name") or "").strip()
+        for it in items
+    }
+    canonical_names.discard("")
+    if len(canonical_names) <= 1:
+        return False
+
+    # Check if items are fresh meat/poultry/seafood cuts
+    meat_keywords = (
+        "chicken", "breast", "breasts", "pork", "chop", "chops", "beef", "roast", "roasts",
+        "steak", "steaks", "tenderloin", "rib", "ribs", "short rib", "chuck", "round",
+        "salmon", "fillet", "fillets", "wings", "tenders", "meat", "poultry", "sirloin",
+        "brisket", "loin"
+    )
+    is_meat_or_seafood = any(
+        any(
+            k in (_get_item_attr(it, "canonical_name", "") or "").lower()
+            or k in (_get_item_attr(it, "category", "") or "").lower()
+            for k in meat_keywords
+        )
+        for it in items
+    )
+
+    return is_meat_or_seafood
+
+
 def group_evaluations(evaluations: List[Any]) -> List[GroupedDeal]:
     """
     Group a list of DealEvaluation objects or deal dictionaries into consolidated
@@ -297,6 +371,44 @@ def group_evaluations(evaluations: List[Any]) -> List[GroupedDeal]:
 
     grouped_list: List[GroupedDeal] = []
     for k, items in groups_map.items():
+        if should_split_ad_group(items):
+            for idx, it in enumerate(items):
+                cname = _get_item_attr(it, "canonical_name") or _get_item_attr(it, "name") or "Deal Item"
+                price = (
+                    _get_item_attr(it, "current_price")
+                    if _get_item_attr(it, "current_price") is not None
+                    else _get_item_attr(it, "price")
+                )
+                u_price = _get_item_attr(it, "unit_price")
+                u_type = _get_item_attr(it, "unit_type")
+                page = _get_item_attr(it, "page_number") or _get_item_attr(it, "page") or 1
+                is_front = bool(_get_item_attr(it, "is_front_page"))
+                badge = _get_item_attr(it, "badge") or "STANDARD_DEAL"
+                cat = _get_item_attr(it, "category")
+                brand = _get_item_attr(it, "brand")
+
+                grouped_list.append(
+                    GroupedDeal(
+                        group_id=f"{k}_{idx}",
+                        title=cname,
+                        items=[it],
+                        representative=it,
+                        badge=badge,
+                        page_number=page,
+                        pages=[page],
+                        is_front_page=is_front,
+                        min_price=price,
+                        max_price=price,
+                        min_unit_price=u_price,
+                        max_unit_price=u_price,
+                        unit_type=u_type,
+                        varieties=[cname],
+                        category=cat,
+                        brands=[brand] if brand else [],
+                    )
+                )
+            continue
+
         title = synthesize_group_title(items)
 
         # Prices
