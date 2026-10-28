@@ -2,6 +2,7 @@
 Deal intelligence and historical price trend analyzer.
 """
 
+import math
 from dataclasses import dataclass
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
@@ -17,6 +18,7 @@ class PromoEpisode:
     valid_to: str
     promo_type: str
     observations_count: int
+    is_trusted: bool = True
 
 
 @dataclass
@@ -89,6 +91,7 @@ class DealAnalyzer:
         for obs in sorted_obs:
             price = obs["advertised_price"]
             obs_start = self._parse_date(obs.get("valid_from") or obs.get("recorded_at"))
+            obs_trusted = bool(obs.get("is_trusted", 1))
 
             if not episodes:
                 episodes.append(
@@ -99,6 +102,7 @@ class DealAnalyzer:
                         valid_to=obs.get("valid_to") or "",
                         promo_type=obs.get("promo_type") or "standard",
                         observations_count=1,
+                        is_trusted=obs_trusted,
                     )
                 )
                 continue
@@ -111,6 +115,8 @@ class DealAnalyzer:
             if abs(price - last_ep.price) < 0.005 and 0 <= days_gap <= self.max_episode_gap_days:
                 last_ep.valid_to = obs.get("valid_to") or last_ep.valid_to
                 last_ep.observations_count += 1
+                if obs_trusted:
+                    last_ep.is_trusted = True
                 if obs.get("promo_type") in ("doorbuster", "outlier"):
                     last_ep.promo_type = obs.get("promo_type")
             else:
@@ -122,6 +128,7 @@ class DealAnalyzer:
                         valid_to=obs.get("valid_to") or "",
                         promo_type=obs.get("promo_type") or "standard",
                         observations_count=1,
+                        is_trusted=obs_trusted,
                     )
                 )
 
@@ -683,7 +690,30 @@ class DealAnalyzer:
 
         b_min = min(ep.price for ep in baseline_episodes)
         b_max = max(ep.price for ep in baseline_episodes)
-        b_avg = sum(ep.price for ep in baseline_episodes) / len(baseline_episodes)
+
+        # Time-decayed baseline average:
+        # Weights recent promotional episodes more heavily than older ones to account for
+        # inflation and macro price drift, with an exponential half-life of 90 days.
+        # Untrusted backfill records receive an additional 0.5x discount to phase them out over time.
+        curr_dt = self._parse_date(current_valid_from)
+        if curr_dt == datetime.min:
+            curr_dt = datetime.now()
+
+        weights = []
+        for ep in baseline_episodes:
+            ep_dt = self._parse_date(ep.valid_to or ep.valid_from)
+            days_ago = max(0, (curr_dt - ep_dt).days) if ep_dt != datetime.min else 0
+            w = math.pow(0.5, days_ago / 90.0)
+            if not getattr(ep, "is_trusted", True):
+                w *= 0.5
+            weights.append(w)
+
+        total_weight = sum(weights)
+        if total_weight > 0:
+            b_avg = sum(ep.price * w for ep, w in zip(baseline_episodes, weights, strict=False)) / total_weight
+        else:
+            b_avg = sum(ep.price for ep in baseline_episodes) / len(baseline_episodes)
+
         diff_vs_avg = ((current_price - b_avg) / b_avg) * 100.0 if b_avg > 0 else 0.0
 
         sorted_past = sorted(past_obs, key=lambda o: self._parse_date(o.get("valid_from") or o.get("recorded_at")))

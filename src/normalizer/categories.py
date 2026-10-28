@@ -23,9 +23,13 @@ COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\byogurt\b", re.IGNORECASE), "Yogurt"),
     (re.compile(r"\bsour\s+cream\b", re.IGNORECASE), "Sour Cream"),
     # Meats & Poultry
+    (re.compile(r"\b(?:deli\s+(?:sliced|premium|homestyle)?|lunchmeat|dietz\s*&\s*watson)\b", re.IGNORECASE), "Deli"),
     (re.compile(r"\bbacon\b", re.IGNORECASE), "Bacon"),
     (re.compile(r"\bsausage\b", re.IGNORECASE), "Sausage"),
     (re.compile(r"\bhot\s*dogs?\b", re.IGNORECASE), "Hot Dogs"),
+    (re.compile(r"\bturkey\b(?!\s+hill\b)", re.IGNORECASE), "Turkey"),
+    (re.compile(r"\b(?:beef|filet\s+mignon)\b.*\btenderloins?\b|\btenderloins?\b.*\b(?:beef|filet\s+mignon)\b|\bfilet\s+mignon\b|\bbeef\s+tenderloin\b", re.IGNORECASE), "Beef"),
+    (re.compile(r"\bpork\b.*\btenderloins?\b|\bpork\s+tenderloin\b", re.IGNORECASE), "Pork Chops"),
     (re.compile(r"\bboneless\b.*\b(?:chicken\s+)?breasts?\b|\b(?:chicken\s+)?breasts?\b.*\bboneless\b", re.IGNORECASE), "Boneless Chicken Breasts"),
     (re.compile(r"\b(?:split|bone-?in)\b.*\b(?:chicken\s+)?breasts?\b|\b(?:chicken\s+)?breasts?\b.*\b(?:split|bone-?in)\b", re.IGNORECASE), "Bone-In Chicken Breasts"),
     (re.compile(r"\b(?:chicken\s+)?breasts?\b", re.IGNORECASE), "Boneless Chicken Breasts"),
@@ -44,7 +48,6 @@ COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\bsteaks?\b", re.IGNORECASE), "Steak"),
     (re.compile(r"\b(?:bottom|top|eye\s+of)\s+round\b|\bchuck(?:\s+shoulder)?\s+roast\b|\bshoulder\s+roast\b|\brump\s+roast\b|\broasts?\b", re.IGNORECASE), "Roast"),
     (re.compile(r"\bbeef\b", re.IGNORECASE), "Beef"),
-    (re.compile(r"\bturkey\b(?!\s+hill\b)", re.IGNORECASE), "Turkey"),
     (re.compile(r"\bsalmon\b", re.IGNORECASE), "Salmon"),
     (re.compile(r"\bshrimp\b", re.IGNORECASE), "Shrimp"),
     # Produce
