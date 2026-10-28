@@ -252,16 +252,19 @@ def should_split_ad_group(items: List[Any]) -> bool:
 
     Rules:
     1. NEVER split true promotional bundles or qualifying groups:
-       - BXGY / BOGO (e.g. Buy 1 Get 1 Free)
-       - Multi-Buys / Mix & Match (e.g. "when you buy 4", "must buy 3", "5 for $5")
+       - BXGY / BOGO (e.g. Buy 1 Get 1 Free, Buy 2 Get 3 Free)
+       - Multi-Buys / Mix & Match (e.g. "when you buy 4", "must buy 3", "5 for $5", "mix & match")
        - Bundles / Meal Deals
-    2. NEVER split packaged goods promotions or variety families:
-       - Items sharing brand and category (e.g. Lucerne cheese chunks/shreds/slices)
-       - Packaged grocery promotional collages (soups, pasta, snacks, sodas, etc.)
-         with fixed packaging units (oz, ct, pk, count, etc., not sold per lb).
-    3. DO split fresh butcher/seafood cuts sold by weight (per lb) or distinct animal protein cuts
-       (e.g. Chicken Breasts vs Pork Loin Chops, or Chuck Roast vs Bottom Round Roast vs Short Ribs)
-       where items have independent price baselines and differing deal evaluations.
+    2. NEVER split pure flavor or sub-cut varieties of the SAME brand and product line:
+       - Items sharing the same brand and product category / commodity
+         (e.g. Lucerne Shredded vs Chunk vs Sliced Cheese 8 oz, Yoplait Yogurt flavors,
+          Huggies Diapers 106 ct styles, Campbell's Chunky Soup flavors).
+    3. DO split multi-item promotions featuring distinct products or brands sold at standalone prices
+       (e.g. Progresso Soup vs Barilla Pasta vs Prego Sauce at $0.97 each,
+        Smithfield Bacon vs Nathan's Franks vs Carando Meatballs at $3.99 each,
+        Ore Ida Potatoes vs Red Baron Pizza,
+        Navel Oranges vs Granny Smith Apples vs Pomegranates,
+        Chicken Breasts vs Pork Loin Chops).
     """
     if len(items) <= 1:
         return False
@@ -279,45 +282,68 @@ def should_split_ad_group(items: List[Any]) -> bool:
         if any(
             k in pdetail or k in rtitle
             for k in (
-                "bogo", "buy 1 get", "buy 2 get", "buy one get", "get 1 free", "get one free",
-                "when you buy", "must buy", "mix & match", "mix and match", "participating",
+                "bogo", "buy 1 get", "buy 2 get", "buy 3 get", "buy one get",
+                "get 1 free", "get 2 free", "get 3 free", "get one free",
+                "when you buy", "must buy", "mix & match", "mix and match", "mix or match",
+                "participating", "meal deal",
             )
         ):
             return False
 
-    # 2. Never split packaged goods varieties (unit not 'lb')
-    units = {_get_item_attr(it, "unit_type") for it in items if _get_item_attr(it, "unit_type")}
-    if "lb" not in units:
-        # Packaged consumer goods (soups, crackers, cheese packs, sodas, etc.) stay grouped
-        return False
+    # 2. Check for distinct brands
+    raw_brands = [(_get_item_attr(it, "brand") or "").strip() for it in items]
+    all_brands = {b.lower() for b in raw_brands if b}
+    if len(all_brands) > 1:
+        return True
 
-    # 3. For per-lb items (fresh meat, poultry, pork, beef, seafood):
-    # Split if they represent distinct commodities or cuts
-    canonical_names = {
-        (_get_item_attr(it, "canonical_name") or _get_item_attr(it, "name") or "").strip()
-        for it in items
-    }
-    canonical_names.discard("")
+    # 3. Check for distinct non-empty categories
+    cats = {(_get_item_attr(it, "category") or "").strip().lower() for it in items}
+    cats.discard("")
+    if len(cats) > 1:
+        return True
+
+    # 4. Check for distinct commodities / product types in canonical names
+    names = [(_get_item_attr(it, "canonical_name") or _get_item_attr(it, "name") or "").lower() for it in items]
+    canonical_names = {n.strip() for n in names if n.strip()}
     if len(canonical_names) <= 1:
         return False
 
-    # Check if items are fresh meat/poultry/seafood cuts
-    meat_keywords = (
-        "chicken", "breast", "breasts", "pork", "chop", "chops", "beef", "roast", "roasts",
-        "steak", "steaks", "tenderloin", "rib", "ribs", "short rib", "chuck", "round",
-        "salmon", "fillet", "fillets", "wings", "tenders", "meat", "poultry", "sirloin",
-        "brisket", "loin"
-    )
-    is_meat_or_seafood = any(
-        any(
-            k in (_get_item_attr(it, "canonical_name", "") or "").lower()
-            or k in (_get_item_attr(it, "category", "") or "").lower()
-            for k in meat_keywords
-        )
-        for it in items
-    )
+    commodity_clusters = [
+        ("chicken", "pork", "beef", "turkey", "lamb", "salmon", "tilapia", "shrimp", "cod", "tuna", "seafood"),
+        ("roast", "steak", "rib", "ribs", "chop", "chops", "cutlet", "breast", "breasts", "wings", "tenders", "ground", "loin", "sirloin"),
+        ("apple", "apples", "orange", "oranges", "pomegranate", "pomegranates", "banana", "bananas", "berry", "berries", "grape", "grapes", "potato", "potatoes", "onion", "onions", "avocado", "avocados"),
+        ("soup", "pasta", "sauce", "pizza", "bacon", "frank", "franks", "hot dog", "hot dogs", "lunchmeat", "meatball", "meatballs", "sausage", "sausages"),
+        ("deodorant", "haircare", "shampoo", "body wash", "soap", "lotion"),
+        ("mop", "mops", "broom", "brooms", "brush", "brushes"),
+        ("paper towel", "paper towels", "facial tissue", "bath tissue", "napkin", "napkins", "scrubber", "spray bottle"),
+        ("bread", "donut", "donuts", "bagel", "bagels", "muffin", "muffins", "bun", "buns"),
+        ("pie", "pies", "cake", "cakes", "cheesecake", "cheesecakes", "brownie", "brownies", "cookie", "cookies"),
+        ("chip", "chips", "pretzel", "pretzels", "cracker", "crackers", "popcorn", "dip"),
+        ("toothpaste", "mouthwash", "floss", "toothbrush"),
+        ("condensed milk", "cornbread", "pancake", "waffle", "syrup"),
+        ("beer", "cider", "wine", "spirits", "liquor", "whiskey", "vodka"),
+    ]
+    for cluster in commodity_clusters:
+        matched = {kw for kw in cluster if any(re.search(r"\b" + re.escape(kw) + r"\b", n) for n in names)}
+        if len(matched) > 1:
+            return True
 
-    return is_meat_or_seafood
+    # 5. Check if raw_title separates distinct products with " or "
+    raw_title = (_get_item_attr(items[0], "raw_title") or "").strip()
+    if " or " in raw_title.lower() or " | " in raw_title:
+        words_per_item = [set(re.findall(r"[a-z]+", n)) - {"oz", "lb", "ct", "pk", "pack", "select", "varieties", "assorted"} for n in names]
+        if len(words_per_item) >= 2:
+            intersection = set.intersection(*words_per_item)
+            if not intersection:
+                return True
+
+    # 6. Check different unit types (e.g. lb vs oz, or ct vs oz)
+    units = {(_get_item_attr(it, "unit_type") or "").strip().lower() for it in items}
+    units.discard("")
+    if len(units) > 1:
+        return True
+
+    return False
 
 
 def group_evaluations(evaluations: List[Any]) -> List[GroupedDeal]:

@@ -316,6 +316,32 @@ class TestGroupingLogic(unittest.TestCase):
         self.assertFalse(should_split_ad_group(cheese_varieties))
         self.assertEqual(len(group_evaluations(cheese_varieties)), 1)
 
+    def test_should_split_distinct_promos_standalone(self):
+        from deals_tracker.src.grouping import should_split_ad_group, group_evaluations
+
+        # 1. Distinct multi-brand promo tile (Progresso Soup, Barilla Pasta, Prego Sauce at $0.97 each)
+        soup_pasta_sauce = [
+            {"canonical_name": "Progresso Soup 18-19 oz", "brand": "Progresso", "category": "Soup", "unit_type": "oz", "price": 0.97, "raw_deal_id": 3001, "promo_type": "standard", "promo_detail": None, "qualifying_qty": 1, "badge": "NEW_ALL_TIME_LOW"},
+            {"canonical_name": "Barilla Pasta 12-16 oz", "brand": "Barilla", "category": "Pasta", "unit_type": "oz", "price": 0.97, "raw_deal_id": 3001, "promo_type": "standard", "promo_detail": None, "qualifying_qty": 1, "badge": "NEW_ALL_TIME_LOW"},
+            {"canonical_name": "Prego Sauce 14.5-24 oz", "brand": "Prego", "category": "Sauce", "unit_type": "oz", "price": 0.97, "raw_deal_id": 3001, "promo_type": "standard", "promo_detail": None, "qualifying_qty": 1, "badge": "ALL_TIME_LOW"},
+        ]
+        self.assertTrue(should_split_ad_group(soup_pasta_sauce))
+        groups = group_evaluations(soup_pasta_sauce)
+        self.assertEqual(len(groups), 3)
+        titles = {g.title for g in groups}
+        self.assertEqual(titles, {"Progresso Soup 18-19 oz", "Barilla Pasta 12-16 oz", "Prego Sauce 14.5-24 oz"})
+
+        # 2. Distinct meat/deli brands at $3.99 each
+        deli_selection = [
+            {"canonical_name": "Smithfield Bacon 16 oz", "brand": "Smithfield", "category": "Bacon", "unit_type": "oz", "price": 3.99, "raw_deal_id": 3002},
+            {"canonical_name": "Nathan's Beef Franks 11-12 oz", "brand": "Nathan's", "category": "Beef", "unit_type": "oz", "price": 3.99, "raw_deal_id": 3002},
+            {"canonical_name": "Carando Meatballs 16 oz", "brand": "Carando", "category": "Meatballs", "unit_type": "oz", "price": 3.99, "raw_deal_id": 3002},
+        ]
+        self.assertTrue(should_split_ad_group(deli_selection))
+        deli_groups = group_evaluations(deli_selection)
+        self.assertEqual(len(deli_groups), 3)
+
+
 
 if __name__ == "__main__":
     unittest.main()
