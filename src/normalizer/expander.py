@@ -211,8 +211,8 @@ def pre_expand_deal_string(name: str) -> str:
         expanded = []
         for c in raw_parts:
             cut = c.strip()
-            if re.search(r"^(?:Beef\s+)?Short\s+Ribs?(?:\s+Bone-in)?$", cut, re.IGNORECASE):
-                cut = "Short Ribs Bone-in"
+            if re.search(r"^(?:Beef\s+)?Short\s+Ribs?(?:\s+Bone-?in)?$", cut, re.IGNORECASE):
+                cut = "Short Ribs"
             elif re.search(r"^(?:Bottom|Top|Eye\s+of)\s+Round$", cut, re.IGNORECASE):
                 cut = f"{cut} Roast"
             elif re.search(r"^Chuck$", cut, re.IGNORECASE):
@@ -221,6 +221,8 @@ def pre_expand_deal_string(name: str) -> str:
                 cut = "Rump Roast"
             elif re.search(r"^Sirloin\s+Tip$", cut, re.IGNORECASE):
                 cut = "Sirloin Tip Roast"
+            elif re.search(r"\bBone-in\b", cut, re.IGNORECASE):
+                cut = re.sub(r"\bBone-in\b", "Bone-In", cut, flags=re.IGNORECASE)
 
             expanded.append(f"{prefix} {cut}")
         return " or ".join(expanded)

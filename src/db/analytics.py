@@ -51,6 +51,7 @@ class AnalyticsMixin:
             JOIN products p ON d.product_id = p.product_id
             JOIN flyer_runs f ON d.flyer_id = f.flyer_id
             WHERE d.product_id IN (SELECT DISTINCT product_id FROM deal_observations WHERE flyer_id = ?)
+            AND d.is_trusted = 1 AND f.is_trusted = 1
             ORDER BY f.valid_from ASC
         """
         result: Dict[int, List[Dict[str, Any]]] = {}

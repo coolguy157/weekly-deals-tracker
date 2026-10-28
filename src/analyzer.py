@@ -153,6 +153,7 @@ class DealAnalyzer:
             if h.get("flyer_id") != target_flyer_id
             and (not current_valid_from or (h.get("valid_from") or "")[:10] < current_valid_from)
             and h.get("advertised_price") is not None
+            and h.get("is_trusted", 1) == 1
         ]
 
         # Scope price history: prioritize same-merchant history to prevent cross-banner distortions
@@ -626,9 +627,9 @@ class DealAnalyzer:
                 first_badge = "STANDARD_DEAL"
                 first_reason = f"Standard deal within normal range for {category} (${unit_price:.2f}/{unit_type} vs ${cat_avg_unit:.2f} avg){promo_note}"
             else:
-                first_badge = "PRICE_HIKE"
+                first_badge = "FIRST_SEEN"
                 diff_cat = int(((unit_price - cat_avg_unit) / cat_avg_unit) * 100.0)
-                first_reason = f"⚠️ Above average for {category} (+{diff_cat}% vs ${cat_avg_unit:.2f}/{unit_type} avg){promo_note}"
+                first_reason = f"First time tracked in circular database ({category} avg: ${cat_avg_unit:.2f}/{unit_type}, +{diff_cat}%){promo_note}"
 
         return DealEvaluation(
             deal_id=deal_record.get("id", 0),

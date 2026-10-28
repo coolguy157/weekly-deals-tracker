@@ -79,6 +79,14 @@ def apply_beef_cut_standardization(canonical: str) -> str:
         if "usda choice" in canonical.lower():
             return "USDA Choice Beef Chuck Roast"
         return "Beef Chuck Roast"
+    if re.search(r"^(?:USDA\s+Choice\s+(?:Beef\s+)?)?Short\s+Ribs?(?:\s+Bone-?in)?$", canonical, re.IGNORECASE):
+        if "usda choice" in canonical.lower():
+            return "USDA Choice Beef Short Ribs"
+        return "Beef Short Ribs"
+    if re.search(r"^(?:USDA\s+Choice\s+(?:Beef\s+)?)?Chuck\s+Shoulder\s+Roast(?:\s+Bone-?in)?$", canonical, re.IGNORECASE):
+        if "usda choice" in canonical.lower():
+            return "USDA Choice Beef Chuck Shoulder Roast Bone-In"
+        return "Beef Chuck Shoulder Roast Bone-In"
     return canonical
 
 
