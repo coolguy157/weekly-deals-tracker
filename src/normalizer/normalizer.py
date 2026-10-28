@@ -43,7 +43,16 @@ from .expander import (
 )
 
 
+def format_size_token(val: float) -> str:
+    """Format unit size cleanly without binary floating point precision artifacts."""
+    rounded = round(val, 3)
+    if rounded.is_integer():
+        return str(int(rounded))
+    return f"{rounded:g}"
+
+
 class ProductNormalizer:
+
     """Parses raw circular text into normalized product entities with unit sizes and brands."""
 
     UNIT_PATTERN = UNIT_PATTERN
@@ -308,14 +317,14 @@ class ProductNormalizer:
                     size = pkg_qty
                     unit = "lb" if pkg_u in ("lb", "pound") else pkg_u
                     unit_price = round(pkg_cost / pkg_qty, 4)
-                    pkg_promo_detail = f"Sold in {int(pkg_qty) if pkg_qty.is_integer() else pkg_qty} {unit} pkg"
+                    pkg_promo_detail = f"Sold in {format_size_token(pkg_qty)} {unit} pkg"
             elif item.price and size and size > 0:
                 unit_price = round(item.price / size, 4)
 
             # Clean sub_name for canonical representation
             canonical = sub_name
             if size_from_desc and size and unit:
-                size_str = int(size) if size.is_integer() else size
+                size_str = format_size_token(size)
                 canonical = f"{canonical} {size_str} {unit}"
 
             has_national_brand = bool(national_brand_in_sub) or any(

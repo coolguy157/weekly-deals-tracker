@@ -38,10 +38,10 @@ def extract_unit_info(text: str) -> Tuple[Optional[float], Optional[str]]:
 
     if match.group(1) and match.group(2):
         # Range like 12-14 oz -> use average
-        size = (float(match.group(1)) + float(match.group(2))) / 2.0
+        size = round((float(match.group(1)) + float(match.group(2))) / 2.0, 3)
         unit = match.group(3).lower()
     else:
-        size = float(match.group(4))
+        size = round(float(match.group(4)), 3)
         unit = match.group(5).lower()
 
     std_unit = UNIT_MAP.get(unit, unit)

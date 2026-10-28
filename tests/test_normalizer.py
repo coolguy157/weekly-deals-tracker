@@ -1841,6 +1841,31 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deal.promo_type, "bundle")
         self.assertEqual(deal.qualifying_qty, 2)
 
+    def test_clean_unit_size_floating_point_precision(self):
+        """Range size averaging (e.g. 8.4-14.8 oz) must not introduce floating point
+        artifacts like 11.600000000000001 oz into canonical names."""
+        item = FlyerItem(
+            id=1049095311,
+            flyer_id=8197163,
+            name="Kellogg's® Eggo® Waffles, Pancakes or Toaster Sticks",
+            price=3.49,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description="8.4-14.8 oz.",
+            brand=None,
+            page_number=4,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        for d in deals:
+            self.assertNotIn("11.600000000000001", d.canonical_name)
+            self.assertIn("11.6 oz", d.canonical_name)
+            self.assertEqual(d.unit_size, 11.6)
+
+
 
 
 if __name__ == "__main__":
