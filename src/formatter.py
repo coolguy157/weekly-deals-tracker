@@ -171,7 +171,7 @@ def print_deal_card(ev: Any, verbose: bool = False) -> None:
             term_width = max(80, shutil.get_terminal_size(fallback=(100, 24)).columns)
         except Exception:
             term_width = 100
-        target_width = max(78, term_width - 1)
+        target_width = max(76, term_width - 3)
 
         tags = get_compact_tags(ev)
         base_overhead = 1 + 16 + 2 + 7 + 2 + len(brand_str) + len(unit_str) + len(f" ({page_str})")
@@ -263,7 +263,7 @@ def print_grouped_deal_card(g: Any, verbose: bool = False, show_skus: bool = Fal
             term_width = max(80, shutil.get_terminal_size(fallback=(100, 24)).columns)
         except Exception:
             term_width = 100
-        target_width = max(78, term_width - 1)
+        target_width = max(76, term_width - 3)
 
         var_str = f" [{len(varieties)} varieties]" if len(varieties) > 1 else ""
         tags = get_compact_tags(rep)
@@ -332,18 +332,18 @@ def render_filtered_report(
 ) -> None:
     """Render filtered report of deal cards, grouped by circular ad by default."""
     if flat:
-        print(f"\n{'='*78}")
+        print(f"\n{'='*76}")
         print(f" {title} (Flyer ID: {flyer_id}) - {len(evaluations)} items")
-        print(f"{'='*78}\n")
+        print(f"{'='*76}\n")
 
         for ev in evaluations:
             print_deal_card(ev, verbose=verbose)
     else:
         groups = group_evaluations(evaluations)
         total_items = sum(len(g.items) for g in groups)
-        print(f"\n{'='*78}")
+        print(f"\n{'='*76}")
         print(f" {title} (Flyer ID: {flyer_id}) - {len(groups)} circular ads ({total_items} items)")
-        print(f"{'='*78}\n")
+        print(f"{'='*76}\n")
 
         for g in groups:
             print_grouped_deal_card(g, verbose=verbose, show_skus=show_skus)
@@ -374,13 +374,13 @@ def render_smart_digest(
             and (e.badge in ("ALL_TIME_LOW", "NEW_ALL_TIME_LOW", "MATCHES_ATL") or getattr(e, "is_category_best", False))
         ]
 
-        print(f"\n{'='*78}")
+        print(f"\n{'='*76}")
         print(f" 🛒 WEEKLY DEALS DIGEST (Flyer ID: {flyer_id})")
         print(f" Showing: Front Page Deals ({len(front_page_deals)}) + Inside Price Hikes ({len(inside_hikes)}) & ATLs/Category Bests ({len(inside_atls)})")
-        print(f"{'='*78}\n")
+        print(f"{'='*76}\n")
 
         print(f"⭐ FRONT PAGE DEALS (Cover - {len(front_page_deals)} items)")
-        print(f"{'-'*78}")
+        print(f"{'-'*76}")
         if front_page_deals:
             for ev in front_page_deals:
                 print_deal_card(ev, verbose=verbose)
@@ -390,14 +390,14 @@ def render_smart_digest(
 
         if inside_hikes:
             print(f"⚠️  PRICE HIKE ALERTS (Inside Pages - {len(inside_hikes)} items)")
-            print(f"{'-'*78}")
+            print(f"{'-'*76}")
             for ev in inside_hikes:
                 print_deal_card(ev, verbose=verbose)
             print()
 
         if inside_atls:
             print(f"🌟 ALL-TIME LOWS & CATEGORY BESTS ON INSIDE PAGES ({len(inside_atls)} items)")
-            print(f"{'-'*78}")
+            print(f"{'-'*76}")
             for ev in inside_atls:
                 print_deal_card(ev, verbose=verbose)
             print()
@@ -412,13 +412,13 @@ def render_smart_digest(
         ]
         fp_item_count = sum(len(g.items) for g in front_page_groups)
 
-        print(f"\n{'='*78}")
+        print(f"\n{'='*76}")
         print(f" 🛒 WEEKLY DEALS DIGEST (Flyer ID: {flyer_id})")
         print(f" Showing: Front Page Promotions ({len(front_page_groups)}) + Inside Price Hikes ({len(inside_hikes)}) & ATLs/Category Bests ({len(inside_atls)})")
-        print(f"{'='*78}\n")
+        print(f"{'='*76}\n")
 
         print(f"⭐ FRONT PAGE PROMOTIONS (Cover - {len(front_page_groups)} ads, {fp_item_count} items)")
-        print(f"{'-'*78}")
+        print(f"{'-'*76}")
         if front_page_groups:
             for g in front_page_groups:
                 print_grouped_deal_card(g, verbose=verbose, show_skus=show_skus)
@@ -428,19 +428,19 @@ def render_smart_digest(
 
         if inside_hikes:
             print(f"⚠️  PRICE HIKE ALERTS (Inside Pages - {len(inside_hikes)} ads)")
-            print(f"{'-'*78}")
+            print(f"{'-'*76}")
             for g in inside_hikes:
                 print_grouped_deal_card(g, verbose=verbose, show_skus=show_skus)
             print()
 
         if inside_atls:
             print(f"🌟 ALL-TIME LOWS & CATEGORY BESTS ON INSIDE PAGES ({len(inside_atls)} ads)")
-            print(f"{'-'*78}")
+            print(f"{'-'*76}")
             for g in inside_atls:
                 print_grouped_deal_card(g, verbose=verbose, show_skus=show_skus)
             print()
 
-    print(f"{'-'*78}")
+    print(f"{'-'*76}")
     print(f"💡 Total circular items: {total_circular_items} (omitted unpriced tiles & standard inside deals)")
     print(f"   • Search price history: py -m src.cli history \"<item>\" (e.g. py -m src.cli history \"beef\")")
     print(f"   • Search current ad:    py -m src.cli deals -q <item>")
