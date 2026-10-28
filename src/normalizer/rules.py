@@ -96,6 +96,73 @@ def apply_beef_cut_standardization(canonical: str) -> str:
     return canonical
 
 
+def apply_pork_cut_standardization(
+    canonical: str,
+    brand: Optional[str],
+) -> Tuple[str, Optional[str]]:
+    """
+    Standardize fresh supermarket pork cuts across flyer naming variations.
+    Unifies Pork Loin Chops (Assorted, Value Pack, Bone-In, Boneless), Pork Butt Roasts, and Loins.
+    """
+    c_lower = canonical.lower()
+
+    # Guard: only operate on pork cuts
+    if not any(k in c_lower for k in ("pork", "sparerib", "spare rib", "baby back")):
+        return canonical, brand
+
+    # Guard against processed/packaged grocery items
+    if any(k in c_lower for k in ("seasoning", "sauce", "marinade", "rice", "beans", "dog food", "treat", "roll", "rolls", "soup", "bratwurst", "hot dog")):
+        return canonical, brand
+
+    # Clear store brands on fresh butcher pork cuts
+    if brand in ("Signature SELECT", "Signature Farms", "Our Brand", "Giant", "Giant Brand"):
+        brand = None
+
+    # Strip noise prefixes: "Fresh ", "Value Pack ", "Bone-In ", "Half "
+    cleaned = canonical
+    for noise in ["Fresh ", "fresh ", "Value Pack ", "value pack ", "Half ", "half ", "Bone-in ", "Bone-In ", "bone-in "]:
+        if cleaned.startswith(noise):
+            cleaned = cleaned[len(noise):].strip()
+
+    cleaned = re.sub(r"\s+(?:Value Pack|Family Size|Sold in the bag|Bone-?In|Bone in)\b", "", cleaned, flags=re.IGNORECASE).strip()
+    c_clean_lower = cleaned.lower()
+
+    # 1. Pork Loin Chops
+    # Matches: Pork Loin Chops, Assorted Pork Loin Chops, Boneless Pork Loin Chops, Value Pack Pork Loin Chops
+    if any(k in c_clean_lower for k in ("pork loin chop", "pork loin chops", "assorted pork loin")):
+        return "Pork Loin Chops", brand
+
+    # Plain "Pork Chops" remains "Pork Chops"
+    if "pork chop" in c_clean_lower or "pork chops" in c_clean_lower:
+        return "Pork Chops", brand
+
+    # 2. Boneless Half Pork Loin / Pork Loin Roast
+    if "pork loin" in c_clean_lower and not any(k in c_clean_lower for k in ("chop", "chops")):
+        return "Boneless Half Pork Loin", brand
+
+    # 3. Pork Butt Roast / Pork Shoulder Roast
+    if any(k in c_clean_lower for k in ("pork butt", "pork shoulder roast", "pork picnic shoulder")):
+        return "Fresh Pork Butt Roast", brand
+
+    # 4. Pork Tenderloin
+    if "pork tenderloin" in c_clean_lower and not any(k in c_clean_lower for k in ("seasoning", "sauce")):
+        return "Fresh Pork Tenderloin", brand
+
+    # 5. St. Louis Style Pork Ribs
+    if "st. louis" in c_clean_lower and "rib" in c_clean_lower:
+        return "St. Louis Style Pork Ribs", brand
+
+    # 6. Baby Back Pork Ribs
+    if "baby back" in c_clean_lower and "rib" in c_clean_lower:
+        return "Pork Baby Back Ribs", brand
+
+    # 7. Pork Spare Ribs
+    if "spare rib" in c_clean_lower or "sparerib" in c_clean_lower:
+        return "Pork Spare Ribs", brand
+
+    return canonical, brand
+
+
 def apply_ground_meat_standardization(
     canonical: str,
     brand: Optional[str],

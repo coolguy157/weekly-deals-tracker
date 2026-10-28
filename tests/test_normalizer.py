@@ -1623,6 +1623,30 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[0].promo_detail, "2 FOR $6.00")
         self.assertEqual(deals[0].qualifying_qty, 2)
 
+    def test_pork_cut_standardization(self):
+        item = FlyerItem(
+            id=9991,
+            flyer_id=8197163,
+            name="Signature SELECT® Fresh Boneless Skinless Chicken Breasts or Value Pack Pork Loin Chops",
+            price=2.77,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Signature SELECT",
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 2)
+        self.assertEqual(deals[0].canonical_name, "Boneless Skinless Chicken Breasts")
+        self.assertEqual(deals[1].canonical_name, "Pork Loin Chops")
+        self.assertIsNone(deals[1].brand)
+        self.assertEqual(deals[1].category, "Pork Chops")
+        self.assertEqual(deals[1].unit_size, 1.0)
+        self.assertEqual(deals[1].unit_type, "lb")
 
 
 if __name__ == "__main__":

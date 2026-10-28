@@ -19,6 +19,7 @@ from .rules import (
     apply_store_brand_meat_stripping,
     apply_poultry_cut_standardization,
     apply_beef_cut_standardization,
+    apply_pork_cut_standardization,
     apply_ground_meat_standardization,
     apply_berry_standardization,
     apply_seasoning_standardization,
@@ -253,6 +254,7 @@ class ProductNormalizer:
             canonical = apply_store_brand_meat_stripping(canonical)
             canonical = apply_poultry_cut_standardization(canonical)
             canonical = apply_beef_cut_standardization(canonical)
+            canonical, brand = apply_pork_cut_standardization(canonical, brand)
             canonical, brand = apply_ground_meat_standardization(canonical, brand)
             canonical, brand = apply_berry_standardization(canonical, brand)
             canonical = apply_seasoning_standardization(canonical)

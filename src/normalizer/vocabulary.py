@@ -70,7 +70,7 @@ HEAD_NOUN_PATTERNS = [
     r"(?:Chicken\s+)?Breasts?",
     r"Whole\s+Chickens?",
     r"Chicken\s+(?:Thighs|Drumsticks|Wings|Tenders|Cutlets)",
-    r"Pork\s+(?:Chops|Loin\s+Chops|Spare\s+Ribs)",
+    r"Pork\s+Loin\s+Chops?|Pork\s+Loin|Pork\s+Chops?|Pork\s+(?:Butt|Shoulder)(?:\s+Roasts?)?|Pork\s+Tenderloins?|Pork\s+(?:Spare\s*)?Ribs?|Baby\s+Back\s+Ribs?|Catfish(?:\s+Nuggets?|\s+Fillets?)?",
     r"Cheese|Cheddar|Mozzarella|Swiss|Provolone|Parmesan\s+Cheese",
     r"Squash|Pumpkin(?:s)?|Potato(?:es)?|Apple(?:s)?|Grape(?:s)?|Pear(?:s)?|Melon(?:s)?",
     r"Pepper(?:s)?|Onion(?:s)?|Tomato(?:es)?|Orange(?:s)?|Citrus|Peach(?:es)?|Plum(?:s)?",
@@ -88,7 +88,7 @@ HEAD_NOUN_PATTERNS = [
 COMMON_HEAD_NOUNS_PATTERN = "|".join(HEAD_NOUN_PATTERNS)
 
 KNOWN_HEAD_NOUN_WORDS = set(
-    "pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry strawberries strawberry blueberries blueberry raspberries raspberry blackberries blackberry cheese mushrooms parfait parfaits tortillas crust crusts bread buns rolls butter yogurt milk eggs bacon chicken breasts thighs drumsticks tenders cutlets wings chops sugar flour frosting cake cakes brownie brownies muffins muffin cookies cookie chips chip pretzels pretzel crackers cracker tray trays platter platters".split()
+    "pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry strawberries strawberry blueberries blueberry raspberries raspberry blackberries blackberry cheese mushrooms parfait parfaits tortillas crust crusts bread buns rolls butter yogurt milk eggs bacon chicken breasts thighs drumsticks tenders cutlets wings chops roast roasts pork loin butt shoulder tenderloin catfish nuggets ribs sugar flour frosting cake cakes brownie brownies muffins muffin cookies cookie chips chip pretzels pretzel crackers cracker tray trays platter platters".split()
 )
 
 MEAT_KEYWORDS = (
