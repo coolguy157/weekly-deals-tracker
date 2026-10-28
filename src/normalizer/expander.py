@@ -113,26 +113,68 @@ def expand_chunk(chunk: str) -> List[str]:
         return prior_items + [item1, item2]
 
     # 4. Standard split if no coordination matched.
-    # Guard: Do not split on 'or' if the first split lacks a head noun while the final split has one,
-    # which indicates a single coordinated noun phrase (e.g. "Fruit or Vegetable Tray", "Wheat or White Bread").
+    # Guard: Keep single combo container phrases together (e.g. "Fruit or Vegetable Tray", "Meat and Cheese Platter")
     if re.search(r"\s+or\s+", chunk, re.IGNORECASE):
         parts = re.split(r"\s+or\s+", chunk, flags=re.IGNORECASE)
         last_words = parts[-1].strip().split()
         last_w = last_words[-1].lower() if last_words else ""
-        last_has_head = last_w in KNOWN_HEAD_NOUN_WORDS or (last_w.endswith("s") and last_w[:-1] in KNOWN_HEAD_NOUN_WORDS)
-        first_words = [w.lower().strip(" ,.-") for w in parts[0].split() if w]
-        first_has_head = any(w in KNOWN_HEAD_NOUN_WORDS or (w.endswith("s") and w[:-1] in KNOWN_HEAD_NOUN_WORDS) for w in first_words)
-        if not first_has_head and last_has_head:
-            return [chunk]
+        if last_w in ("tray", "trays", "platter", "platters", "bowl", "bowls", "basket", "baskets"):
+            first_words = [w.lower().strip(" ,.-") for w in parts[0].split() if w]
+            first_has_head = any(w in KNOWN_HEAD_NOUN_WORDS or (w.endswith("s") and w[:-1] in KNOWN_HEAD_NOUN_WORDS) for w in first_words)
+            if not first_has_head:
+                return [chunk]
 
     splits = [s.strip() for s in SPLIT_PATTERN.split(chunk) if len(s.strip()) >= 3]
     if len(splits) > 1:
+        splits = distribute_head_noun_splits(splits)
         all_expanded = []
         for s in splits:
             all_expanded.extend(expand_chunk(s))
         return all_expanded
 
     return [chunk]
+
+
+def distribute_head_noun_splits(splits: List[str]) -> List[str]:
+    """
+    If the final split in a coordinate list ends with a head noun/suffix
+    while preceding splits are bare brands or adjectives lacking a head noun,
+    distribute the head noun/suffix to the preceding splits.
+    e.g. ['CLIF', 'LUNA Bars'] -> ['CLIF Bars', 'LUNA Bars']
+    e.g. ['Bud', 'Miller', 'Coors Beer'] -> ['Bud Beer', 'Miller Beer', 'Coors Beer']
+    e.g. ['CLIF', 'LUNA', 'Builders Bars 1.69-2.40 oz'] -> ['CLIF Bars 1.69-2.40 oz', 'LUNA Bars 1.69-2.40 oz', 'Builders Bars 1.69-2.40 oz']
+    """
+    if len(splits) < 2:
+        return splits
+
+    last = splits[-1].strip()
+    words = last.split()
+    if not words:
+        return splits
+
+    # Identify trailing head noun + optional size
+    head_idx = None
+    for idx, w in enumerate(words):
+        w_clean = w.lower().strip(" ,.-")
+        if w_clean in KNOWN_HEAD_NOUN_WORDS or (w_clean.endswith("s") and w_clean[:-1] in KNOWN_HEAD_NOUN_WORDS):
+            head_idx = idx
+            break
+
+    if head_idx is None:
+        return splits
+
+    suffix = " ".join(words[head_idx:])
+
+    res = []
+    for s in splits[:-1]:
+        s_words = [w.lower().strip(" ,.-") for w in s.split()]
+        has_head = any(w in KNOWN_HEAD_NOUN_WORDS or (w.endswith("s") and w[:-1] in KNOWN_HEAD_NOUN_WORDS) for w in s_words)
+        if not has_head:
+            res.append(f"{s} {suffix}".strip())
+        else:
+            res.append(s)
+    res.append(last)
+    return res
 
 
 def pre_expand_deal_string(name: str) -> str:

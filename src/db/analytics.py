@@ -3,7 +3,7 @@ Time-series pricing queries, commodity unit price baselines, and deal price upda
 """
 
 import sqlite3
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 
 
 class AnalyticsMixin:
@@ -150,6 +150,84 @@ class AnalyticsMixin:
             rows = conn.execute(query, params).fetchall()
             return [dict(r) for r in rows]
 
+    @staticmethod
+    def _compute_history_group_key(r: Dict[str, Any]) -> Tuple[str, str]:
+        """
+        Compute a general canonical history grouping key and display title for an observation.
+        Collapses minor ounce-range variations, pack-size representations (e.g. '6 ct' vs '6-2.4 oz'),
+        and synonymous product representations into a single unified timeline.
+        """
+        import re
+        raw_name = (r.get("canonical_name") or "").strip()
+        brand = (r.get("brand") or "").strip()
+        ad_title = (r.get("ad_title") or "").strip()
+        unit_size = r.get("unit_size")
+        unit_type = (r.get("unit_type") or "").lower()
+
+        placeholder_names = {
+            "assorted products",
+            "assorted product",
+            "assorted varieties",
+            "select varieties",
+            "selected varieties",
+            "mix or match",
+        }
+
+        # Prefer ad_title if provided and not a placeholder, unless ad_title is just a generic fragment
+        if ad_title and ad_title.lower() not in placeholder_names:
+            name = ad_title
+        elif raw_name.lower() in placeholder_names:
+            name = (r.get("raw_title") or "").strip()
+        else:
+            name = raw_name
+
+        # 1. Clean brand artifacts (e.g. "Clif Bar" -> "Clif")
+        clean_brand = brand
+        if clean_brand.lower() in ("clif bar", "clif bars"):
+            clean_brand = "Clif"
+
+        # 2. Extract Multi-Pack Count (ct / pk / pack)
+        # Pattern A: e.g. "6 ct", "10 pk", "12 pack", "18 ct", but NOT decimals like "1.69" or "2.40"
+        pack_count = None
+        m_pack = re.search(r"(?<![\d\.])(\d+)\s*(?:ct|pk|pack|count|roll|rolls|can|cans|bottle|bottles)\b", name, re.I)
+        if m_pack:
+            pack_count = int(m_pack.group(1))
+        else:
+            # Pattern B: Supermarket N-count of M-oz format: "6-2.4 oz", "12-12 oz", "24-12 oz"
+            m_multioz = re.search(r"(?<![\d\.])(\d+)\s*-\s*\d+(?:\.\d+)?\s*oz\b", name, re.I)
+            if m_multioz:
+                pack_count = int(m_multioz.group(1))
+            elif unit_type in ("ct", "pk", "roll") and unit_size and unit_size > 1:
+                pack_count = int(unit_size)
+
+        # 3. Standardize base product line (strip minor ounce ranges & pack tokens)
+        # Remove ounce range (e.g. "1.69-2.40 oz", "12-16 oz", "4-6 oz", "8.9-10.8 oz")
+        base = re.sub(r"\b\d+(?:\.\d+)?\s*-\s*\d+(?:\.\d+)?\s*(?:oz|ounce)\.?\b", "", name, flags=re.I)
+        # Remove single ounce specs (e.g. "2.045 oz", "2.4 oz", "14.4 oz.", "16 oz.")
+        # But preserve standard container nouns like "Pint", "Quart", "Half Gallon", "Gallon"
+        base = re.sub(r"\b\d+(?:\.\d+)?\s*(?:oz|ounce)\.?\b", "", base, flags=re.I)
+        # Remove pack tokens from base (e.g. "6 ct", "10 pk", "6-2.4 oz")
+        base = re.sub(r"(?<![\d\.])\d+\s*(?:ct|pk|pack|count|roll|rolls)\.?\b", "", base, flags=re.I)
+        base = re.sub(r"(?<![\d\.])\d+\s*-\s*\d+(?:\.\d+)?\s*oz\.?\b", "", base, flags=re.I)
+
+        # Clean whitespace and trailing punctuation
+        base = " ".join(base.split()).strip(" ,.-")
+
+        # Head noun restoration if truncated
+        if re.match(r"^clif\s+luna\b", base, re.I):
+            base = re.sub(r"^clif\s+luna", "LUNA", base, flags=re.I).strip()
+        if base.upper() == "CLIF":
+            base = "CLIF Bars"
+        elif base.upper() == "LUNA":
+            base = "LUNA Bars"
+
+        # 4. Formulate canonical pack tier
+        tier_suffix = f"{pack_count} ct" if (pack_count and pack_count > 1) else ""
+
+        display_title = f"{base} {tier_suffix}".strip() if tier_suffix else base
+        group_key = f"{base.lower()}_{tier_suffix.lower()}".strip("_")
+        return group_key, display_title
+
     def get_grouped_price_history(
         self,
         query: str,
@@ -191,16 +269,10 @@ class AnalyticsMixin:
             "mix or match",
         }
 
-        # Group observations by canonical group title
+        # Group observations by general canonical history key and title
         groups: Dict[str, Dict[str, Any]] = {}
         for r in rows:
-            ad_t = (r.get("ad_title") or "").strip()
-            if ad_t and ad_t.lower() not in placeholder_names:
-                group_title = ad_t
-            else:
-                group_title = r["canonical_name"].strip()
-
-            key = group_title.lower()
+            key, group_title = self._compute_history_group_key(r)
             if key not in groups:
                 groups[key] = {
                     "title": group_title,

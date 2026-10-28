@@ -30,7 +30,8 @@ NATIONAL_BRANDS = [
     "Sutter Home", "Yellow Tail", "Cupcake", "Stella Rosa", "14 Hands", "Headsnapper",
     "Andre", "Firefly Ridge", "Menage A Trois", "Ménage à Trois", "Chloe", "Nobilo", "Rold Gold",
     "Miss Vickie's", "Snapple", "Poppi", "Ozarka", "Sunny Delight",
-    "Premier Protein", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
+    "Sparkling Ice", "Body Armor", "BodyArmor", "Dr. Pepper", "Dr Pepper", "Powerade", "Vitamin Water", "Dasani", "Snuggle", "Purex",
+    "Premier Protein",
     "Tina's", "Yoplait", "Chobani", "Dannon", "Oikos", "Tillamook", "Turkey Hill",
     "Banquet", "BelGioioso", "Aleia's", "Sparkle", "Artesano",
     "Quaker", "Cap'n Crunch", "Life", "Campbell's", "Chef Boyardee", "Barilla",
@@ -49,6 +50,7 @@ NATIONAL_BRANDS = [
     "Jell-O", "Jello", "PAM", "Fleischmann's", "Arm & Hammer", "Morton", "Smucker's", "Jif", "Skippy",
     "Peter Pan", "Nutella", "Log Cabin", "Mrs. Butterworth's", "Pearl Milling Company",
     "Cape Cod", "Snyder's of Hanover", "Late July",
+    "CLIF", "Clif Bar", "LUNA", "KIND", "Larabar", "Nature Valley", "RXBAR", "Think!", "Quest",
 ]
 
 DEPARTMENT_BANNERS = {
@@ -89,12 +91,17 @@ HEAD_NOUN_PATTERNS = [
     r"Pretzels?",
     r"Crackers?",
     r"Trays?|Platters?",
+    r"Bars?",
+    r"Beer",
+    r"Soups?",
+    r"Pastas?",
+    r"Cereals?",
 ]
 
 COMMON_HEAD_NOUNS_PATTERN = "|".join(HEAD_NOUN_PATTERNS)
 
 KNOWN_HEAD_NOUN_WORDS = set(
-    "pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry strawberries strawberry blueberries blueberry raspberries raspberry blackberries blackberry cheese mushrooms parfait parfaits tortillas crust crusts bread buns rolls butter yogurt milk eggs bacon chicken breasts thighs drumsticks tenders cutlets wings chops roast roasts pork loin butt shoulder tenderloin catfish nuggets ribs sugar flour frosting cake cakes brownie brownies muffins muffin cookies cookie chips chip pretzels pretzel crackers cracker tray trays platter platters".split()
+    "pumpkins pumpkin squash potatoes potato apples apple grapes grape pears pear melons melon peppers pepper onions onion tomatoes tomato oranges orange citrus peaches peach plums plum berries berry strawberries strawberry blueberries blueberry raspberries raspberry blackberries blackberry cheese mushrooms parfait parfaits tortillas crust crusts bread buns rolls butter yogurt milk eggs bacon chicken breasts thighs drumsticks tenders cutlets wings chops roast roasts pork loin butt shoulder tenderloin catfish nuggets ribs sugar flour frosting cake cakes brownie brownies muffins muffin cookies cookie chips chip pretzels pretzel crackers cracker tray trays platter platters bars bar beer soda cereal soup pasta beans sauce broth dip salsa hummus pizza water tea coffee juice".split()
 )
 
 MEAT_KEYWORDS = (

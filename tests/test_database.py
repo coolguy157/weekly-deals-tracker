@@ -494,6 +494,24 @@ class TestDealsDatabase(unittest.TestCase):
         self.assertIn("Turkey Hill Dutch Chocolate Ice Cream", run["varieties"])
         self.assertEqual(len(run["observations"]), 2)
 
+    def test_compute_history_group_key(self):
+        # 1. Multi-pack count unification: "6 ct" vs "6-2.4 oz" collapse to same key
+        k1, t1 = self.db._compute_history_group_key({"canonical_name": "CLIF BUILDERS Bars 6 ct", "brand": "Clif"})
+        k2, t2 = self.db._compute_history_group_key({"canonical_name": "CLIF BUILDERS Bars 6-2.4 oz", "brand": "CLIF"})
+        self.assertEqual(k1, k2)
+        self.assertEqual(t1, "CLIF BUILDERS Bars 6 ct")
+        self.assertEqual(t2, "CLIF BUILDERS Bars 6 ct")
+
+        # 2. Single-item ounce range collapsing: "1.69-2.40 oz", "2.4 oz", and bare name collapse together
+        k3, t3 = self.db._compute_history_group_key({"canonical_name": "CLIF Builders Bars 1.69-2.40 oz", "brand": "CLIF"})
+        k4, t4 = self.db._compute_history_group_key({"canonical_name": "CLIF BUILDERS Bars", "brand": "Clif"})
+        self.assertEqual(k3, k4)
+        self.assertEqual(t3, "CLIF Builders Bars")
+        self.assertEqual(t4, "CLIF BUILDERS Bars")
+
+        # 3. Single bars do not merge with multi-packs
+        self.assertNotEqual(k1, k3)
+
 
 if __name__ == "__main__":
     unittest.main()

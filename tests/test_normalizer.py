@@ -1765,6 +1765,26 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertFalse(is_alcohol_deal({"canonical_name": "Boneless Skinless Chicken Breasts", "brand": "Signature SELECT"}))
         self.assertFalse(is_alcohol_deal({"canonical_name": "Lucerne Large Eggs 12 ct", "brand": "Lucerne"}))
 
+    def test_distribute_head_noun_splits(self):
+        from src.normalizer.expander import distribute_head_noun_splits
+
+        # 1. Bare brands sharing a head noun
+        splits1 = ["CLIF", "LUNA Bars"]
+        self.assertEqual(distribute_head_noun_splits(splits1), ["CLIF Bars", "LUNA Bars"])
+
+        splits2 = ["Bud", "Miller", "Coors Beer"]
+        self.assertEqual(distribute_head_noun_splits(splits2), ["Bud Beer", "Miller Beer", "Coors Beer"])
+
+        # 2. Multi-item with size suffix
+        splits3 = ["CLIF", "LUNA", "Builders Bars 1.69-2.40 oz"]
+        self.assertEqual(
+            distribute_head_noun_splits(splits3),
+            ["CLIF Bars 1.69-2.40 oz", "LUNA Bars 1.69-2.40 oz", "Builders Bars 1.69-2.40 oz"],
+        )
+
+        # 3. Both items already have head nouns
+        splits4 = ["Campbell's Soup", "Progresso Soup"]
+        self.assertEqual(distribute_head_noun_splits(splits4), ["Campbell's Soup", "Progresso Soup"])
 
 
 if __name__ == "__main__":
