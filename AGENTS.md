@@ -7,7 +7,7 @@ Circular Ingestion & Price History Engine: Flipp API and Giant Grid fetcher, pro
 1. **Dedicated Scratchpad**: Use `deals_tracker/scratch/` for one-off experimentation and diagnostics. Never use inline `python -c`. Clean up scratch files when tasks finish.
 2. **Shared Database**: Interacts with shared database `../data/deals.db` (or local `:memory:` for testing) via `DealsDatabase` context managers.
 3. **Web App Deployment to GitHub Pages**:
-   The live web application is hosted via GitHub Pages from the root of the `gh-pages` branch. When web assets (`deals_tracker/web/`) or `deals.json` are updated, deploy them to GitHub Pages by extracting the `web` subtree from `main`:
+   The live web application is hosted via GitHub Pages from the root of the `gh-pages` branch. Only deploy when explicit live website UI assets (`deals_tracker/web/`) or web exports are requested. Do NOT deploy to `gh-pages` for internal backend, normalization, or CLI updates:
    ```powershell
    # In deals_tracker directory:
    $subtree = (git subtree split --prefix web main).Trim()

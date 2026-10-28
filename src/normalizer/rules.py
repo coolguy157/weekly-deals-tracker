@@ -90,6 +90,79 @@ def apply_beef_cut_standardization(canonical: str) -> str:
     return canonical
 
 
+def apply_ground_meat_standardization(
+    canonical: str,
+    brand: Optional[str],
+) -> Tuple[str, Optional[str]]:
+    """
+    Standardize ground beef and ground turkey across supermarket naming variations.
+    Unifies lean/fat percentages, strips store brand prefixes and noise suffixes (Value Pack, Fresh, etc.).
+    """
+    c_lower = canonical.lower()
+
+    # --- Ground Beef ---
+    if "ground beef" in c_lower:
+        is_patties = bool(re.search(r"\b(patties|burgers?)\b", c_lower))
+
+        # Preserve premium specialized brands & gourmet blends (e.g. Schweid & Sons, Rastelli's, Wagyu)
+        if brand and brand in ("Schweid & Sons", "Rastelli's"):
+            return canonical, brand
+        if any(k in c_lower for k in ("schweid", "rastelli", "wagyu", "meatloaf mix")):
+            return canonical, brand
+
+        # Extract lean percentage
+        lean_pct = None
+        m_pct = re.search(r"\b(73|80|85|90|93)(?:%|\s*%\s*lean|\s*/\s*\d+)?\b", canonical)
+        if m_pct:
+            lean_pct = m_pct.group(1)
+        elif "80/20" in canonical or "20% fat" in c_lower:
+            lean_pct = "80"
+        elif "85/15" in canonical or "15% fat" in c_lower:
+            lean_pct = "85"
+        elif "90/10" in canonical or "10% fat" in c_lower:
+            lean_pct = "90"
+        elif "93/7" in canonical or "7% fat" in c_lower:
+            lean_pct = "93"
+        elif "73/27" in canonical or "27% fat" in c_lower:
+            lean_pct = "73"
+
+        suffix = " Patties" if is_patties else ""
+
+        # Clear store brands and leaking beef grades on commodity ground beef
+        if brand in ("Our Brand", "Giant", "Giant Brand", "Signature SELECT", "Signature Farms", "USDA Prime", "USDA Choice"):
+            brand = None
+
+        if lean_pct:
+            return f"{lean_pct}% Lean Ground Beef{suffix}", brand
+        return f"Ground Beef{suffix}", brand
+
+    # --- Ground Turkey ---
+    if "ground turkey" in c_lower:
+        is_breast = "breast" in c_lower
+        lean_pct = None
+        m_pct = re.search(r"\b(85|90|93|99)(?:%|\s*%\s*lean|\s*/\s*\d+)?\b", canonical)
+        if m_pct:
+            lean_pct = m_pct.group(1)
+        elif "99/1" in canonical or "1% fat" in c_lower:
+            lean_pct = "99"
+        elif "93/7" in canonical or "7% fat" in c_lower:
+            lean_pct = "93"
+        elif "85/15" in canonical or "15% fat" in c_lower:
+            lean_pct = "85"
+
+        is_organic = "organic" in c_lower
+        org_prefix = "Organic " if is_organic else ""
+        breast_suffix = " Breast" if is_breast else ""
+
+        brand_prefix = f"{brand} " if brand and brand not in ("Our Brand", "Giant", "Giant Brand", "Signature SELECT", "Signature Farms") else ""
+
+        if lean_pct:
+            std_name = f"{brand_prefix}{org_prefix}{lean_pct}% Lean Ground Turkey{breast_suffix}".strip()
+            return std_name, brand
+
+    return canonical, brand
+
+
 def apply_seasoning_standardization(canonical: str) -> str:
     """Standardize seasoning and mix packet names by stripping minor weight ranges."""
     if any(k in canonical.lower() for k in SEASONING_KEYWORDS):
@@ -242,12 +315,16 @@ def apply_deli_or_meat_per_lb_fallback(
         is_portion_or_unit = bool(re.search(r"\b(?:portions?|patt(?:y|ies)|cakes?|skewers?)\b", canonical, re.IGNORECASE))
         is_fresh_meat_cut = (
             not is_portion_or_unit
-            and any(k in canonical.lower() for k in (
-                "boneless", "skinless", "bone-in", "fresh", "whole", "center cut",
-                "loin chop", "pork chop", "ribeye", "sirloin", "t-bone", "filet mignon",
-                "flank steak", "drumsticks", "tenders", "cutlets", "roast", "steak",
-                "chuck", "round", "ribs", "short rib", "brisket",
-            ))
+            and (
+                "ground beef" in canonical.lower()
+                or "ground turkey" in canonical.lower()
+                or any(k in canonical.lower() for k in (
+                    "boneless", "skinless", "bone-in", "fresh", "whole", "center cut",
+                    "loin chop", "pork chop", "ribeye", "sirloin", "t-bone", "filet mignon",
+                    "flank steak", "drumsticks", "tenders", "cutlets", "roast", "steak",
+                    "chuck", "round", "ribs", "short rib", "brisket",
+                ))
+            )
             and any(k in canonical.lower() for k in ("chicken", "beef", "pork", "turkey", "salmon", "tilapia", "cod", "shrimp"))
         )
         if (

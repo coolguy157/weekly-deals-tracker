@@ -19,6 +19,7 @@ from .rules import (
     apply_store_brand_meat_stripping,
     apply_poultry_cut_standardization,
     apply_beef_cut_standardization,
+    apply_ground_meat_standardization,
     apply_seasoning_standardization,
     apply_egg_standardization,
     apply_brand_specific_rules,
@@ -251,6 +252,7 @@ class ProductNormalizer:
             canonical = apply_store_brand_meat_stripping(canonical)
             canonical = apply_poultry_cut_standardization(canonical)
             canonical = apply_beef_cut_standardization(canonical)
+            canonical, brand = apply_ground_meat_standardization(canonical, brand)
             canonical = apply_seasoning_standardization(canonical)
             canonical = self.clean_sales_notes(canonical)
             canonical = " ".join(canonical.split()).strip(" ,.-")
