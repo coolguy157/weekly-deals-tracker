@@ -115,7 +115,7 @@ def synthesize_group_title(items: List[Any]) -> str:
     if len(raw_titles) == 1:
         shared_raw = list(raw_titles)[0]
         if (
-            len(shared_raw) <= 80
+            len(shared_raw) <= 90
             and shared_raw.count(",") <= 4
             and shared_raw.lower() not in GENERIC_PLACEHOLDER_NAMES
             and not re.match(r"^(?:select|assorted|various|mix\s*&\s*match)\b", shared_raw, re.I)
@@ -137,18 +137,17 @@ def synthesize_group_title(items: List[Any]) -> str:
 
     has_seafood = (
         "Fresh Seafood" in brands
-        or "Hannaford" in brands
         or any(
             re.search(
-                r"fish|seafood|salmon|shrimp|tilapia|swordfish|tuna|haddock|swai|cod|whiting|flounder",
+                r"\b(?:fish|seafood|salmon|shrimp|tilapia|swordfish|tuna|haddock|swai|whiting|flounder)\b|(?<!cape\s)\bcod\b",
                 n,
                 re.I,
             )
             for n in names
         )
         or (
-            any(re.search(r"fillet|filet", n, re.I) for n in names)
-            and not any(re.search(r"pork|beef|chicken|turkey|steak|chop|loin", n, re.I) for n in names)
+            any(re.search(r"\b(?:fillet|filet)s?\b", n, re.I) for n in names)
+            and not any(re.search(r"pork|beef|chicken|turkey|steak|chop|loin|chip|pretzel|snack", n, re.I) for n in names)
         )
     )
     if has_seafood:

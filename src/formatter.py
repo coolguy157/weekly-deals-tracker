@@ -2,10 +2,31 @@
 Terminal formatting, ANSI color rendering, and deal card/digest presentation.
 """
 
+import re
 import shutil
 from typing import List, Optional, Dict, Any
 
 from .grouping import group_evaluations, GroupedDeal
+
+
+def clean_repeated_promo(s: Optional[str]) -> Optional[str]:
+    """Clean duplicated or repetitive promo strings (e.g. TalkBack duplicated accessibility text)."""
+    if not s:
+        return s
+    cleaned = s.strip()
+    words = cleaned.split()
+    n = len(words)
+    if n >= 4 and n % 2 == 0:
+        half = n // 2
+        if [w.lower() for w in words[:half]] == [w.lower() for w in words[half:]]:
+            cleaned = " ".join(words[:half])
+
+    # Pattern: "When You Buy 6 or More 10% OFF When You Buy 6 or More"
+    m = re.match(r"^(.*?)\s+(10%\s*OFF|\$\d+(?:\.\d{2})?\s*OFF|\d+%\s*OFF)\s+\1$", cleaned, flags=re.I)
+    if m:
+        cleaned = f"{m.group(2)} {m.group(1)}"
+
+    return cleaned
 
 
 def format_badge_fixed(badge: str, width: int = 16) -> str:
@@ -72,7 +93,10 @@ def get_compact_tags(ev: Any) -> List[str]:
 
     # Promo Tag (BOGO, Must Buy, Digital Coupon, Points, Spend & Save, Percent Off)
     promo_type = getattr(ev, "promo_type", "standard")
-    promo_detail = getattr(ev, "promo_detail", None)
+    promo_detail = clean_repeated_promo(getattr(ev, "promo_detail", None))
+    # Suppress zero-value freebie artifacts like 'BUY 1 GET 0 FREE'
+    if promo_detail and "get 0 free" in promo_detail.lower():
+        promo_detail = None
     base_price = getattr(ev, "base_price", None)
     if promo_type == "bogo" and promo_detail:
         base_str = f" (Base ${base_price:.2f})" if base_price else ""
