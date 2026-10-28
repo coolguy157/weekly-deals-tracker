@@ -149,13 +149,14 @@ class FlippAdFetcher:
         thematic_keywords = {
             "halloween", "trick or treat", "trick-or-treat", "candy bag", "snack size bag",
             "candy bar", "marshmallow pumpkin", "fall truffle", "costume", "novelty",
+            "cupcake", "halloween cakes", "rose bouquet", "party",
         }
         fresh_anchor_keywords = {
             "chicken", "beef", "steak", "roast", "pork", "chop", "ribs", "shrimp",
             "salmon", "ground beef", "bacon", "turkey", "sirloin", "brisket",
             "fillet", "catfish", "lobster", "t-bone", "apple", "berries", "strawberry",
             "grape", "avocado", "broccoli", "lettuce", "banana", "citrus", "orange",
-            "salad kit", "fresh express",
+            "salad kit", "fresh express", "potato", "potatoes", "soup", "yogurt", "cereal",
         }
 
         for page in pages:
@@ -200,18 +201,22 @@ class FlippAdFetcher:
             if len(p_items) >= 4 and (priced_count < 2 or (priced_count / len(p_items)) <= 0.25):
                 continue
 
-            # 3. Holiday / thematic insert lacking core fresh department anchors
-            # (e.g. standalone Halloween candy / trick-or-treat wraps)
+            # 3. Holiday / thematic insert or non-grocery brand insert lacking core fresh anchors
+            # (e.g. standalone Halloween candy / party wraps, P&G household cleaning inserts)
             thematic_count = 0
             fresh_anchor_count = 0
             for it in p_items:
                 name_lower = (it.get("name") or "").lower()
                 if any(kw in name_lower for kw in thematic_keywords):
                     thematic_count += 1
-                if any(kw in name_lower for kw in fresh_anchor_keywords):
+                if any(kw in name_lower for kw in fresh_anchor_keywords) and "fried" not in name_lower:
                     fresh_anchor_count += 1
 
-            if len(p_items) >= 4 and fresh_anchor_count == 0 and (thematic_count / len(p_items)) >= 0.25:
+            if len(p_items) >= 4 and (
+                fresh_anchor_count == 0
+                or (thematic_count >= 3 and fresh_anchor_count < 3)
+                or (fresh_anchor_count < 2 and (thematic_count / len(p_items)) >= 0.25)
+            ):
                 continue
 
             return page.page_number

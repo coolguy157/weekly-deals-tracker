@@ -112,14 +112,22 @@ def synthesize_group_title(items: List[Any]) -> str:
         if (_get_item_attr(it, "raw_title") or "").strip()
     }
     raw_titles.discard("")
-    if len(raw_titles) == 1:
-        shared_raw = list(raw_titles)[0]
+    shared_raw = list(raw_titles)[0] if len(raw_titles) == 1 else None
+    if shared_raw:
         if (
-            len(shared_raw) <= 90
-            and shared_raw.count(",") <= 4
+            len(shared_raw) <= 120
+            and shared_raw.count(",") <= 5
             and shared_raw.lower() not in GENERIC_PLACEHOLDER_NAMES
             and not re.match(r"^(?:select|assorted|various|mix\s*&\s*match)\b", shared_raw, re.I)
         ):
+            words = shared_raw.split()
+            if sum(1 for w in words if w.isupper()) >= 2 and all(
+                w.isupper() or w.lower() in ("or", "and", "in", "of", "with", "a", "an", "the", "pc", "pk") for w in words
+            ):
+                shared_raw = " ".join(
+                    w.lower() if w.lower() in ("or", "and", "in", "of", "with", "a", "an", "the") else w.capitalize()
+                    for w in words
+                )
             return shared_raw
 
     brands = sorted(list({_get_item_attr(it, "brand") for it in items if _get_item_attr(it, "brand")}))
@@ -184,10 +192,18 @@ def synthesize_group_title(items: List[Any]) -> str:
 
     if len(brands) == 1:
         return f"{brands[0]} Assorted Varieties{pkg} ({len(items)} Items)"
-    elif len(brands) <= 3:
+    elif 2 <= len(brands) <= 3:
         return f"{', '.join(brands)} Selection{pkg} ({len(items)} Items)"
-    else:
+    elif len(brands) > 3:
         return f"{brands[0]}, {brands[1]} & more{pkg} ({len(items)} Items)"
+    elif shared_raw:
+        clean_raw = shared_raw[:60].rsplit(" ", 1)[0].strip(" ,.-")
+        return f"{clean_raw}{pkg} ({len(items)} Varieties)"
+    else:
+        cats = sorted(list({_get_item_attr(it, "category") for it in items if _get_item_attr(it, "category")}))
+        if len(cats) == 1:
+            return f"Assorted {cats[0]}{pkg} ({len(items)} Items)"
+        return f"Assorted Selection{pkg} ({len(items)} Items)"
 
 
 def _deal_priority(it: Any) -> float:

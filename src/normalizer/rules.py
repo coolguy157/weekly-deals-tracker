@@ -53,6 +53,10 @@ def apply_poultry_cut_standardization(canonical: str) -> str:
         canonical = "Bone-In Chicken Thighs"
     elif re.search(r"^Fresh\s+Chicken\s+Drumsticks$", canonical, re.IGNORECASE):
         canonical = "Chicken Drumsticks"
+    elif re.search(r"^(?:deli\s+)?wings$", canonical, re.IGNORECASE):
+        canonical = "Chicken Wings"
+    elif re.search(r"^(?:deli\s+)?tenders$", canonical, re.IGNORECASE):
+        canonical = "Chicken Tenders"
 
     return canonical
 
@@ -182,6 +186,15 @@ def apply_brand_specific_rules(
         unit = "ct"
         if item_price:
             unit_price = round(item_price / 8.0, 4)
+
+    # Velveeta Cheese Loaf: circular ad shorthand "Velveeta" -> 32 oz Loaf
+    if canonical.lower() == "velveeta":
+        canonical = "Velveeta Cheese Loaf 32 oz"
+        brand = "Velveeta"
+        size = 32.0
+        unit = "oz"
+        if item_price and size > 0:
+            unit_price = round(item_price / size, 4)
 
     return canonical, brand, size, unit, unit_price
 
