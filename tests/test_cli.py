@@ -296,6 +296,161 @@ class TestCLIStoreConfiguration(unittest.TestCase):
             self.assertIn("Turkey Hill Chocolate Ice Cream", output)
             self.assertNotIn("[2 varieties", output)
 
+    def test_cmd_deals_alcohol_filtering(self):
+        from src.cli import cmd_deals
+        from src.analyzer import DealEvaluation
+        from io import StringIO
+
+        mock_db = MagicMock()
+        mock_db.get_latest_flyer_id.return_value = 12345
+
+        food_deal = DealEvaluation(
+            deal_id=1,
+            product_id=10,
+            canonical_name="Boneless Skinless Chicken Breasts",
+            brand="Signature SELECT",
+            category="Meat & Seafood",
+            current_price=2.77,
+            unit_price=2.77,
+            page_number=1,
+            is_front_page=True,
+            historical_min=1.97,
+            historical_avg=2.85,
+            historical_max=3.99,
+            past_observations_count=5,
+            diff_pct_vs_avg=-2.8,
+            badge="DEAL",
+            summary_reason="🏷️ Standard Deal",
+            ad_title="Chicken Breasts",
+        )
+        beer_deal = DealEvaluation(
+            deal_id=2,
+            product_id=11,
+            canonical_name="Bud Light 24 pk",
+            brand="Budweiser",
+            category="Beer",
+            current_price=21.99,
+            unit_price=None,
+            page_number=1,
+            is_front_page=True,
+            historical_min=19.99,
+            historical_avg=22.99,
+            historical_max=24.99,
+            past_observations_count=4,
+            diff_pct_vs_avg=-4.3,
+            badge="DEAL",
+            summary_reason="🏷️ Standard Deal",
+            ad_title="Bud, Miller or Coors Beer",
+        )
+        wine_deal = DealEvaluation(
+            deal_id=3,
+            product_id=12,
+            canonical_name="LaMarca Prosecco 750 ml",
+            brand="LaMarca",
+            category="Wine",
+            current_price=14.99,
+            unit_price=None,
+            page_number=1,
+            is_front_page=True,
+            historical_min=13.99,
+            historical_avg=15.99,
+            historical_max=16.99,
+            past_observations_count=3,
+            diff_pct_vs_avg=-6.2,
+            badge="DEAL",
+            summary_reason="🏷️ Standard Deal",
+            ad_title="LaMarca Sparkling Wine",
+        )
+
+        mock_analyzer = MagicMock()
+        mock_analyzer.evaluate_flyer.return_value = [food_deal, beer_deal, wine_deal]
+
+        # 1. Default deals call excludes alcohol deals
+        args_default = argparse.Namespace(
+            db=":memory:",
+            store="tomthumb",
+            merchant=None,
+            flyer_id=12345,
+            front_page_only=False,
+            query=None,
+            category=None,
+            atl_only=False,
+            cat_best_only=False,
+            price_hikes_only=False,
+            all_pages=False,
+            include_see_ad=False,
+            include_alcohol=False,
+            sort_unit_price=False,
+            verbose=False,
+            skus=False,
+            flat=False,
+        )
+        with patch("src.cli.DealsDatabase", return_value=mock_db), patch("src.cli.DealAnalyzer", return_value=mock_analyzer):
+            buf = StringIO()
+            with patch("sys.stdout", buf):
+                cmd_deals(args_default)
+            output = buf.getvalue()
+            self.assertIn("Chicken Breasts", output)
+            self.assertNotIn("Bud, Miller or Coors", output)
+            self.assertNotIn("LaMarca Sparkling Wine", output)
+
+        # 2. Including alcohol shows both food and alcohol
+        args_with_alcohol = argparse.Namespace(
+            db=":memory:",
+            store="tomthumb",
+            merchant=None,
+            flyer_id=12345,
+            front_page_only=False,
+            query=None,
+            category=None,
+            atl_only=False,
+            cat_best_only=False,
+            price_hikes_only=False,
+            all_pages=False,
+            include_see_ad=False,
+            include_alcohol=True,
+            sort_unit_price=False,
+            verbose=False,
+            skus=False,
+            flat=False,
+        )
+        with patch("src.cli.DealsDatabase", return_value=mock_db), patch("src.cli.DealAnalyzer", return_value=mock_analyzer):
+            buf = StringIO()
+            with patch("sys.stdout", buf):
+                cmd_deals(args_with_alcohol)
+            output = buf.getvalue()
+            self.assertIn("Chicken Breasts", output)
+            self.assertIn("Bud, Miller or Coors", output)
+            self.assertIn("LaMarca Sparkling Wine", output)
+
+        # 3. Querying for beer explicitly shows beer even if include_alcohol is False
+        args_query_beer = argparse.Namespace(
+            db=":memory:",
+            store="tomthumb",
+            merchant=None,
+            flyer_id=12345,
+            front_page_only=False,
+            query="beer",
+            category=None,
+            atl_only=False,
+            cat_best_only=False,
+            price_hikes_only=False,
+            all_pages=False,
+            include_see_ad=False,
+            include_alcohol=False,
+            sort_unit_price=False,
+            verbose=False,
+            skus=False,
+            flat=False,
+        )
+        with patch("src.cli.DealsDatabase", return_value=mock_db), patch("src.cli.DealAnalyzer", return_value=mock_analyzer):
+            buf = StringIO()
+            with patch("sys.stdout", buf):
+                cmd_deals(args_query_beer)
+            output = buf.getvalue()
+            self.assertIn("Bud, Miller or Coors", output)
+
+
 
 
 if __name__ == "__main__":

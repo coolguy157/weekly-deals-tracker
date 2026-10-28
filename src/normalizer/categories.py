@@ -3,7 +3,7 @@ categories.py
 Commodity category taxonomy patterns and classification heuristics.
 """
 
-from typing import Optional, List, Tuple, Dict
+from typing import Optional, List, Tuple, Dict, Any
 import re
 
 COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
@@ -82,8 +82,8 @@ COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\b(?:water|drinking water|spring water)\b", re.IGNORECASE), "Water"),
     (re.compile(r"\b(?:gatorade|propel|powerade|sports drink)\b", re.IGNORECASE), "Sports Drinks"),
     # Adult Beverages / Wine & Beer
-    (re.compile(r"\b(?:wine|chardonnay|cabernet(?:\s+sauvignon)?|pinot\s+(?:noir|grigio)|merlot|sauvignon\s+blanc|moscato|ros[eé]|prosecco|champagne|sparkling\s+wine|zinfandel|malbec|shiraz|syrah|riesling|red\s+blend|white\s+blend|bogle|menage\s+a\s+trois|m[eé]nage\s+[aà]\s+trois|chloe|nobilo|meiomi|la\s+crema|barefoot|woodbridge|sutter\s+home|yellow\s+tail|cupcake|stella\s+rosa|14\s+hands|headsnapper|firefly\s+ridge|josh\s+cellars)\b", re.IGNORECASE), "Wine"),
-    (re.compile(r"\b(?:beer|ale|lager|ipa|stout|pilsner|hard\s+seltzer|cider)\b", re.IGNORECASE), "Beer"),
+    (re.compile(r"\b(?:wine|chardonnay|cabernet(?:\s+sauvignon)?|pinot\s+(?:noir|grigio)|merlot|sauvignon\s+blanc|moscato|rosé|rose\s+wine|prosecco|champagne|sparkling\s+wine|zinfandel|malbec|shiraz|syrah|riesling|red\s+blend|white\s+blend|bogle|menage\s+a\s+trois|m[eé]nage\s+[aà]\s+trois|chloe|nobilo|meiomi|la\s+crema|barefoot|woodbridge|sutter\s+home|yellow\s+tail|cupcake\s+wine|cupcake\s+vineyards|stella\s+rosa|14\s+hands|headsnapper|firefly\s+ridge|josh\s+cellars|lamarca|kim\s+crawford|freixenet|mionetto|unshackled|ghost\s+pines|freakshow|erath|decoy|conundrum|apothic|daou|caymus|kendall-jackson|robert\s+mondavi)\b", re.IGNORECASE), "Wine"),
+    (re.compile(r"\b(?:beer|ale|lager|ipa|stout|pilsner|hard\s+seltzer|cider|budweiser|bud\s+light|bud\s+miller|bud\s+coors|miller\s+lite|coors\s+light|michelob(?:\s+ultra)?|shiner|corona|modelo|dos\s+equis|pacifico|heineken|yuengling|white\s+claw|truly|twisted\s+tea|angry\s+orchard|topo\s+chico\s+hard|malt\s+beverage|hard\s+tea)\b", re.IGNORECASE), "Beer"),
 ]
 
 
@@ -160,3 +160,83 @@ def infer_category(text: str) -> Optional[str]:
         if pat.search(text):
             return cat
     return None
+
+
+WINE_BRANDS = {
+    "lamarca", "kim crawford", "freixenet", "mionetto", "josh cellars", "josh",
+    "headsnapper", "unshackled", "ghost pines", "freakshow", "erath", "decoy",
+    "conundrum", "kendall-jackson", "chateau ste michelle", "chateau ste. michelle",
+    "robert mondavi", "barefoot", "woodbridge", "sutter home", "yellow tail",
+    "stella rosa", "14 hands", "andre", "firefly ridge", "menage a trois",
+    "ménage à trois", "chloe", "nobilo", "meiomi", "la crema", "bogle", "apothic",
+    "daou", "caymus",
+}
+
+BEER_SELTZER_BRANDS = {
+    "bud", "budweiser", "bud light", "miller", "miller lite", "coors", "coors light",
+    "michelob", "michelob ultra", "shiner", "corona", "modelo", "dos equis", "pacifico",
+    "heineken", "yuengling", "samuel adams", "sam adams", "blue moon", "stella artois",
+    "white claw", "truly", "twisted tea", "angry orchard", "topo chico hard",
+}
+
+ALCOHOL_KEYWORDS = re.compile(
+    r"\b(?:wine|chardonnay|cabernet(?:\s+sauvignon)?|pinot\s+(?:noir|grigio)|merlot|sauvignon\s+blanc|"
+    r"moscato|prosecco|champagne|sparkling\s+wine|zinfandel|malbec|shiraz|syrah|riesling|"
+    r"red\s+blend|white\s+blend|rosé|rose\s+wine|cupcake\s+wine|cupcake\s+vineyards|beer|lager|ipa|pilsner|stout|hard\s+seltzer|cider|"
+    r"malt\s+beverage|hard\s+tea|vodka|whiskey|whisky|bourbon|rum|tequila|gin|cognac|liqueur)\b",
+    re.IGNORECASE,
+)
+
+ALCOHOL_EXCLUSIONS = re.compile(
+    r"\b(?:vinegar|ginger\s+ale|bouquet|sauce|glaze|marinade|non-alcoholic|dealcoholized|cake|cupcake|donut|bakery|bread|floral)\b",
+    re.IGNORECASE,
+)
+
+
+def is_alcohol_deal(deal: Any) -> bool:
+    """Check if a deal observation, deal evaluation, or dictionary represents an alcoholic beverage."""
+    cat = (
+        getattr(deal, "category", None)
+        or (deal.get("category") if isinstance(deal, dict) else "")
+        or ""
+    ).lower()
+    if cat in ("wine", "beer", "wine & spirits", "liquor", "spirits"):
+        return True
+
+    cname = (
+        getattr(deal, "canonical_name", None)
+        or (deal.get("canonical_name") if isinstance(deal, dict) else "")
+        or getattr(deal, "name", None)
+        or (deal.get("name") if isinstance(deal, dict) else "")
+        or getattr(deal, "title", None)
+        or (deal.get("title") if isinstance(deal, dict) else "")
+        or ""
+    ).lower()
+    brand = (
+        getattr(deal, "brand", None)
+        or (deal.get("brand") if isinstance(deal, dict) else "")
+        or ""
+    ).lower()
+
+    full_text = f"{brand} {cname}".strip()
+    if not full_text:
+        return False
+
+    if ALCOHOL_EXCLUSIONS.search(full_text):
+        return False
+
+    if brand in WINE_BRANDS or brand in BEER_SELTZER_BRANDS:
+        return True
+
+    for b in WINE_BRANDS:
+        if re.search(r"\b" + re.escape(b) + r"\b", full_text):
+            return True
+
+    for b in BEER_SELTZER_BRANDS:
+        if re.search(r"\b" + re.escape(b) + r"\b", full_text):
+            return True
+
+    if ALCOHOL_KEYWORDS.search(full_text):
+        return True
+
+    return False

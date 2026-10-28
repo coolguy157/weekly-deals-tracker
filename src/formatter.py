@@ -472,5 +472,6 @@ def render_smart_digest(
     print(f"   • Expand varieties:     py -m src.cli deals --skus")
     print(f"   • Flat unmerged items:  py -m src.cli deals --flat")
     print(f"   • Multi-line details:   py -m src.cli deals --verbose")
-    print(f"   • Show unpriced tiles:  py -m src.cli deals --include-see-ad\n")
+    print(f"   • Show unpriced tiles:  py -m src.cli deals --include-see-ad")
+    print(f"   • Include beer & wine:  py -m src.cli deals --include-alcohol\n")
 

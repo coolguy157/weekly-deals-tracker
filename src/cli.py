@@ -14,6 +14,7 @@ from .formatter import (
     render_smart_digest,
 )
 from .normalizer.cleaner import GENERIC_PLACEHOLDER_NAMES
+from .normalizer.categories import is_alcohol_deal
 
 # Modular services & pipeline imports
 from .sync_pipeline import (
@@ -99,6 +100,15 @@ def cmd_deals(args: argparse.Namespace) -> None:
     # Filter out generic placeholder umbrella tiles (e.g. 'Assorted Products') from standard digest
     if not args.query:
         evaluations_priced = [e for e in evaluations_priced if e.canonical_name.strip().lower() not in GENERIC_PLACEHOLDER_NAMES]
+
+    # Filter out alcohol by default unless explicitly requested via --include-alcohol
+    # or explicitly queried (e.g. -q beer, -q wine, -c Wine, -c Beer)
+    include_alcohol = getattr(args, "include_alcohol", False)
+    query_is_alcohol = bool(args.query and any(k in args.query.lower() for k in ("wine", "beer", "alcohol", "liquor", "spirits", "chardonnay", "ipa", "cider", "bud", "coors", "miller", "corona", "modelo", "shiner", "prosecco", "champagne")))
+    cat_is_alcohol = bool(getattr(args, "category", None) and any(k in args.category.lower() for k in ("wine", "beer", "liquor", "spirits", "alcohol")))
+
+    if not include_alcohol and not query_is_alcohol and not cat_is_alcohol:
+        evaluations_priced = [e for e in evaluations_priced if not is_alcohol_deal(e)]
 
     show_skus = getattr(args, "skus", False)
     flat = getattr(args, "flat", False)
@@ -314,6 +324,7 @@ def main() -> None:
     p_deals.add_argument("--hikes-only", "--price-hikes-only", dest="price_hikes_only", action="store_true", help="Filter Price Hikes only")
     p_deals.add_argument("--all", "--all-pages", dest="all_pages", action="store_true", help="Show all items across all circular pages")
     p_deals.add_argument("--include-see-ad", action="store_true", help="Include unpriced promotional tiles and bundle headers")
+    p_deals.add_argument("--include-alcohol", action="store_true", help="Include beer, wine, and spirits in deals output (omitted by default)")
     p_deals.add_argument("--sort-unit-price", "--sort-by-unit-price", dest="sort_unit_price", action="store_true", help="Sort deals by unit price ($/unit) ascending")
     p_deals.add_argument("--skus", "--all-skus", dest="skus", action="store_true", help="Display full breakdown of individual SKUs / varieties under each ad group")
     p_deals.add_argument("--flat", action="store_true", help="Display unmerged individual product records (legacy view)")

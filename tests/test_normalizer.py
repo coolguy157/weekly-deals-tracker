@@ -1735,6 +1735,37 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals4[0].canonical_name, "Green Giant Simply Steam Vegetables")
         self.assertEqual(deals4[0].brand, "Green Giant")
 
+    def test_is_alcohol_deal(self):
+        from src.normalizer.categories import is_alcohol_deal
+
+        # Positive alcohol deals by category
+        self.assertTrue(is_alcohol_deal({"category": "Wine", "canonical_name": "Red Blend"}))
+        self.assertTrue(is_alcohol_deal({"category": "Beer", "canonical_name": "Craft Ale"}))
+
+        # Positive alcohol deals by brand
+        self.assertTrue(is_alcohol_deal({"canonical_name": "LaMarca Prosecco 750 ml", "brand": "LaMarca"}))
+        self.assertTrue(is_alcohol_deal({"canonical_name": "Kim Crawford Sauvignon Blanc", "brand": "Kim Crawford"}))
+        self.assertTrue(is_alcohol_deal({"canonical_name": "Bud, Miller or Coors 24 pk", "brand": "Budweiser"}))
+        self.assertTrue(is_alcohol_deal({"canonical_name": "Michelob Ultra 12 pk", "brand": "Michelob"}))
+        self.assertTrue(is_alcohol_deal({"canonical_name": "Shiner Bock Beer", "brand": "Shiner"}))
+        self.assertTrue(is_alcohol_deal({"canonical_name": "White Claw Variety Pack", "brand": "White Claw"}))
+
+        # Positive alcohol deals by keywords
+        self.assertTrue(is_alcohol_deal({"canonical_name": "Josh Cellars Cabernet Sauvignon", "brand": "Josh Cellars"}))
+        self.assertTrue(is_alcohol_deal({"canonical_name": "Mionetto Prosecco Rose", "brand": "Mionetto"}))
+        self.assertTrue(is_alcohol_deal({"canonical_name": "Chardonnay White Wine 750 ml", "brand": None}))
+        self.assertTrue(is_alcohol_deal({"canonical_name": "Local Craft IPA 6 pk", "brand": None}))
+
+        # Negative non-alcohol items / exclusions
+        self.assertFalse(is_alcohol_deal({"canonical_name": "Fresh Made Cupcakes 6 ct", "brand": "Bakery"}))
+        self.assertFalse(is_alcohol_deal({"canonical_name": "Wicked Rose Bouquet", "brand": "Floral"}))
+        self.assertFalse(is_alcohol_deal({"canonical_name": "Pompeian Red Wine Vinegar 16 oz", "brand": "Pompeian"}))
+        self.assertFalse(is_alcohol_deal({"canonical_name": "Canada Dry Ginger Ale 12 pk", "brand": "Canada Dry"}))
+        self.assertFalse(is_alcohol_deal({"canonical_name": "Sweet Baby Ray's Honey Bourbon BBQ Sauce", "brand": "Sweet Baby Ray's"}))
+        self.assertFalse(is_alcohol_deal({"canonical_name": "Boneless Skinless Chicken Breasts", "brand": "Signature SELECT"}))
+        self.assertFalse(is_alcohol_deal({"canonical_name": "Lucerne Large Eggs 12 ct", "brand": "Lucerne"}))
+
+
 
 if __name__ == "__main__":
     unittest.main()
