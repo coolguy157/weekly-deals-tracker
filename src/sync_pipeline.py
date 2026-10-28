@@ -124,52 +124,27 @@ def _enrich_deals_with_app(db: DealsDatabase, flyer_id: int) -> None:
     deals = db.get_deals_for_flyer(flyer_id)
     bogo_deals = [d for d in deals if d.get("promo_type") == "bogo" and d.get("advertised_price") is None]
 
-    if not bogo_deals:
-        print("  [App Enrichment] No unpriced BOGO deals requiring shelf price lookup.")
-        return
+    if bogo_deals:
+        print(f"  [App Enrichment] Found {len(bogo_deals)} unpriced BOGO deals. Resolving shelf prices...")
 
-    print(f"  [App Enrichment] Found {len(bogo_deals)} unpriced BOGO deals. Resolving shelf prices...")
+        # Build search query terms for BOGOs
+        search_queries = []
+        deal_map = {}
+        for d in bogo_deals:
+            cname = d["canonical_name"]
+            # Use brand or first 2-3 words of canonical name
+            term = d.get("brand") or " ".join(cname.split()[:2])
+            search_queries.append(term)
+            deal_map[term] = d
 
-    # Build search query terms for BOGOs
-    search_queries = []
-    deal_map = {}
-    for d in bogo_deals:
-        cname = d["canonical_name"]
-        # Use brand or first 2-3 words of canonical name
-        term = d.get("brand") or " ".join(cname.split()[:2])
-        search_queries.append(term)
-        deal_map[term] = d
-
-    # 1. Check local DB cache first
-    cached_count = 0
-    queries_needing_app = []
-    for term, d in deal_map.items():
-        cached_price = d.get("last_shelf_price")
-        if cached_price and cached_price > 0:
-            cached_count += 1
-            # Compute effective price
-            promo_info = PromoExtractor.extract_promo(d.get("promo_detail") or "BUY 1 GET 1 FREE") or PromoInfo(
-                promo_type="bogo",
-                promo_detail=d.get("promo_detail") or "BOGO",
-                buy_qty=1,
-                free_qty=1,
-                qualifying_qty=d.get("qualifying_qty") or 2,
-            )
-            eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=cached_price)
-            unit_price = round(eff_price / d["unit_size"], 4) if (eff_price and d.get("unit_size")) else None
-            db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=cached_price)
-            print(f"  [Cached Shelf Price] {d['canonical_name']}: Base ${cached_price:.2f} -> Effective ${eff_price:.2f}/ea")
-        else:
-            queries_needing_app.append(term)
-
-    # 2. Query live app for remaining items
-    if queries_needing_app:
-        print(f"  [App Enrichment] Querying app for {len(queries_needing_app)} uncached items...")
-        app_prices = lookup_shelf_fn(queries_needing_app)
-        for term, price in app_prices.items():
-            d = deal_map.get(term)
-            if d and price:
-                db.update_product_shelf_price(d["product_id"], price)
+        # 1. Check local DB cache first
+        cached_count = 0
+        queries_needing_app = []
+        for term, d in deal_map.items():
+            cached_price = d.get("last_shelf_price")
+            if cached_price and cached_price > 0:
+                cached_count += 1
+                # Compute effective price
                 promo_info = PromoExtractor.extract_promo(d.get("promo_detail") or "BUY 1 GET 1 FREE") or PromoInfo(
                     promo_type="bogo",
                     promo_detail=d.get("promo_detail") or "BOGO",
@@ -177,16 +152,45 @@ def _enrich_deals_with_app(db: DealsDatabase, flyer_id: int) -> None:
                     free_qty=1,
                     qualifying_qty=d.get("qualifying_qty") or 2,
                 )
-                eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=price)
+                eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=cached_price)
                 unit_price = round(eff_price / d["unit_size"], 4) if (eff_price and d.get("unit_size")) else None
-                db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=price)
-                print(f"  [App Scraped Price] {d['canonical_name']}: Base ${price:.2f} -> Effective ${eff_price:.2f}/ea")
+                db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=cached_price)
+                print(f"  [Cached Shelf Price] {d['canonical_name']}: Base ${cached_price:.2f} -> Effective ${eff_price:.2f}/ea")
+            else:
+                queries_needing_app.append(term)
 
-    # 3. Disambiguate multi-buy/BOGO collage tiles (Chips, Soda, Mix & Match)
+        # 2. Query live app for remaining items
+        if queries_needing_app:
+            print(f"  [App Enrichment] Querying app for {len(queries_needing_app)} uncached items...")
+            app_prices = lookup_shelf_fn(queries_needing_app)
+            for term, price in app_prices.items():
+                d = deal_map.get(term)
+                if d and price:
+                    db.update_product_shelf_price(d["product_id"], price)
+                    promo_info = PromoExtractor.extract_promo(d.get("promo_detail") or "BUY 1 GET 1 FREE") or PromoInfo(
+                        promo_type="bogo",
+                        promo_detail=d.get("promo_detail") or "BOGO",
+                        buy_qty=1,
+                        free_qty=1,
+                        qualifying_qty=d.get("qualifying_qty") or 2,
+                    )
+                    eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=price)
+                    unit_price = round(eff_price / d["unit_size"], 4) if (eff_price and d.get("unit_size")) else None
+                    db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=price)
+                    print(f"  [App Scraped Price] {d['canonical_name']}: Base ${price:.2f} -> Effective ${eff_price:.2f}/ea")
+    else:
+        print("  [App Enrichment] No unpriced BOGO deals requiring shelf price lookup.")
+
+    # 3. Disambiguate multi-buy/BOGO collage tiles, berries, and candidate bundles
     if disambiguate_fn:
-        print("  [App Enrichment] Disambiguating circular collage tiles and unpriced multi-buys...")
+        print("  [App Enrichment] Disambiguating circular collage tiles, berries, and multi-buys...")
         try:
-            disambiguate_fn(db)
+            disambiguate_fn(db, disambiguate_all=True)
+        except TypeError:
+            try:
+                disambiguate_fn(db)
+            except Exception as e:
+                print(f"  [App Enrichment] Warning during collage disambiguation: {e}")
         except Exception as e:
             print(f"  [App Enrichment] Warning during collage disambiguation: {e}")
 
@@ -348,7 +352,9 @@ def cmd_sync(args: argparse.Namespace) -> None:
             return
         print(f"[INFO] Proceeding with sync: {reason}")
 
-    enrich_app = getattr(args, "enrich_app", False)
+    enrich_app = getattr(args, "enrich_app", None)
+    if enrich_app is None:
+        enrich_app = True
     fp_num = getattr(args, "front_page_number", None)
     extra_kwargs = {"front_page_number": fp_num} if fp_num is not None else {}
     sync_fn = _get_sync_single_fn()

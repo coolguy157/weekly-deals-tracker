@@ -297,7 +297,8 @@ def main() -> None:
     p_sync.add_argument("--all-stores", action="store_true", help="Sync all configured stores (from TRACKER_STORES in .env or presets)")
     p_sync.add_argument("--front-page-only", action="store_true", help="Ingest front page only")
     p_sync.add_argument("--front-page-number", type=int, default=None, help="Explicit front page number (overrides auto-detection for Savings Lock inserts)")
-    p_sync.add_argument("--enrich-app", action="store_true", help="Bridge with Tom Thumb mobile app to harvest in-app viewer promos and search base shelf prices")
+    p_sync.add_argument("--enrich-app", dest="enrich_app", action="store_true", default=None, help="Bridge with Tom Thumb mobile app to harvest in-app viewer promos and search base shelf prices (enabled by default)")
+    p_sync.add_argument("--no-enrich-app", dest="enrich_app", action="store_false", help="Skip mobile app bridge enrichment")
     p_sync.add_argument("--if-needed", action="store_true", help="Only run sync if current circular is expired, missing, or needs BxGy resolution")
 
     # deals

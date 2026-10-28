@@ -169,6 +169,51 @@ def apply_ground_meat_standardization(
     return canonical, brand
 
 
+def apply_berry_standardization(
+    canonical: str,
+    brand: Optional[str],
+) -> Tuple[str, Optional[str]]:
+    """
+    Standardize fresh supermarket berries (Raspberries, Blackberries, Blueberries, Strawberries).
+    Unifies standard produce clamshell sizes (6 oz for raspberries/blackberries, 1 lb for strawberries).
+    """
+    c_lower = canonical.lower()
+
+    # Ignore processed grocery items (tea, ice cream, mixes, candy, gummies, etc.)
+    if any(k in c_lower for k in ("tea", "ice cream", "mix", "brownie", "candy", "chocolate", "gummies", "water", "bar")):
+        return canonical, brand
+
+    # Raspberries
+    if "raspberr" in c_lower and not any(k in c_lower for k in ("black raspberr", "blue raspberr")):
+        if "heart" in c_lower:
+            return "Driscoll's Heart Shaped Raspberries 8 oz", "Driscoll's"
+        if "12 oz" in c_lower:
+            return "Raspberries 12 oz", None
+        return "Raspberries 6 oz", None
+
+    # Blackberries
+    if "blackberr" in c_lower:
+        if "12 oz" in c_lower:
+            return "Blackberries 12 oz", None
+        return "Blackberries 6 oz", None
+
+    # Blueberries
+    if "blueberr" in c_lower:
+        if "pint" in c_lower:
+            return "Blueberries Pint", None
+        if "organic" in c_lower:
+            return "Organic Blueberries 6 oz", None
+        return "Blueberries 6 oz", None
+
+    # Strawberries
+    if "strawberr" in c_lower:
+        if "2 lb" in c_lower:
+            return "Strawberries 2 lb", None
+        return "Strawberries 1 lb", None
+
+    return canonical, brand
+
+
 def apply_seasoning_standardization(canonical: str) -> str:
     """Standardize seasoning and mix packet names by stripping minor weight ranges."""
     if any(k in canonical.lower() for k in SEASONING_KEYWORDS):
@@ -341,5 +386,26 @@ def apply_deli_or_meat_per_lb_fallback(
             size = 1.0
             unit = "lb"
             unit_price = round(item_price / 1.0, 4)
+        elif any(k in canonical.lower() for k in ("raspberries", "blackberries", "blueberries", "strawberries")):
+            if "6 oz" in canonical.lower():
+                size = 6.0
+                unit = "oz"
+                unit_price = round(item_price / 6.0, 4)
+            elif "12 oz" in canonical.lower():
+                size = 12.0
+                unit = "oz"
+                unit_price = round(item_price / 12.0, 4)
+            elif "1 lb" in canonical.lower():
+                size = 1.0
+                unit = "lb"
+                unit_price = round(item_price / 1.0, 4)
+            elif "2 lb" in canonical.lower():
+                size = 2.0
+                unit = "lb"
+                unit_price = round(item_price / 2.0, 4)
+            elif "pint" in canonical.lower():
+                size = 1.0
+                unit = "pt"
+                unit_price = round(item_price / 1.0, 4)
 
     return size, unit, unit_price

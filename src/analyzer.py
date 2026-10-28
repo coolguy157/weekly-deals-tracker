@@ -160,7 +160,6 @@ class DealAnalyzer:
             if h.get("flyer_id") != target_flyer_id
             and (not current_valid_from or (h.get("valid_from") or "")[:10] < current_valid_from)
             and h.get("advertised_price") is not None
-            and h.get("is_trusted", 1) == 1
         ]
 
         # Scope price history: prioritize same-merchant history to prevent cross-banner distortions

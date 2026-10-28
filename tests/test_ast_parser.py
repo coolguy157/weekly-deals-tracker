@@ -100,6 +100,28 @@ class TestASTParser(unittest.TestCase):
         self.assertEqual(items[4], "NatureSweet Cherub Tomatoes")
         self.assertEqual(items[5], "NatureSweet Golden Cherub Tomatoes")
 
+    def test_coordinated_berries_shared_size(self):
+        text = "Blueberries or Raspberries 6 oz"
+        items = self.parser.disaggregate(text)
+        self.assertEqual(
+            items,
+            [
+                "Blueberries 6 oz",
+                "Raspberries 6 oz",
+            ],
+        )
+
+    def test_coordinated_berries_brand_prefix_and_size(self):
+        text = "Driscoll's Blackberries or Raspberries 6 oz"
+        items = self.parser.disaggregate(text)
+        self.assertEqual(
+            items,
+            [
+                "Driscoll's Blackberries 6 oz",
+                "Driscoll's Raspberries 6 oz",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -48,9 +48,14 @@ class DealASTParser:
                 # A boundary exists if there are independent head nouns on both sides
                 # OR if there is a unit spec before this comma/coord and another product follows
                 has_unit_before = any(last_boundary_idx < ui < i for ui, ut in enumerate(tokens) if ut.type == TokenType.UNIT_SPEC)
+                has_unit_after = any(ui > i for ui, ut in enumerate(tokens) if ut.type == TokenType.UNIT_SPEC)
                 has_brand_after = any(bi > i for bi, bt in enumerate(tokens) if bt.type == TokenType.BRAND)
-                if (has_head_before and has_head_after) or (has_unit_before and (has_head_after or has_brand_after)):
+                if has_unit_before and (has_head_after or has_brand_after):
                     is_boundary = True
+                elif has_head_before and has_head_after:
+                    # Do not split coordinated items if they share a trailing unit spec (e.g. "Blueberries or Raspberries 6 oz")
+                    if not (has_unit_after and not has_unit_before):
+                        is_boundary = True
 
             if is_boundary:
                 if cur_product:
@@ -77,22 +82,81 @@ class DealASTParser:
         if brand_pair:
             return brand_pair
 
-        # 2. Left-Distribution: Brand1 (, Brand2)* or Brand3 + HeadNoun + Size?
+        # 2. Coordinated Head Nouns with Shared Size / Prefix: Noun1 (, Noun2)* or NounLast [UNIT_SPEC?]
+        coord_nouns = self._match_coordinated_nouns(tokens)
+        if coord_nouns:
+            return coord_nouns
+
+        # 3. Left-Distribution: Brand1 (, Brand2)* or Brand3 + HeadNoun + Size?
         left_dist = self._match_left_distribution(tokens)
         if left_dist:
             return left_dist
 
-        # 3. Produce Prefix List: [Prefix] [HEAD_NOUN] [V1, V2 or V3]
+        # 4. Produce Prefix List: [Prefix] [HEAD_NOUN] [V1, V2 or V3]
         prefix_list = self._match_prefix_list(tokens)
         if prefix_list:
             return prefix_list
 
-        # 4. Right-Distribution: [Prefix*] M1 (, M2)* or M_last [HEAD_NOUN] [SIZE?]
+        # 5. Right-Distribution: [Prefix*] M1 (, M2)* or M_last [HEAD_NOUN] [SIZE?]
         right_dist = self._match_right_distribution(tokens)
         if right_dist:
             return right_dist
 
         return [clause_str]
+
+    def _match_coordinated_nouns(self, tokens: List[Token]) -> Optional[List[str]]:
+        """Match coordinated product head nouns sharing an optional prefix and optional trailing unit spec."""
+        if not tokens:
+            return None
+
+        coord_indices = [i for i, t in enumerate(tokens) if t.type == TokenType.COORD]
+        if not coord_indices:
+            return None
+
+        last_coord_idx = coord_indices[-1]
+        if any(t.type == TokenType.UNIT_SPEC for t in tokens[:last_coord_idx]):
+            return None
+
+        # Trailing unit spec
+        trailing_units = [t.value for t in tokens[last_coord_idx + 1:] if t.type == TokenType.UNIT_SPEC]
+        unit_str = f" {' '.join(trailing_units)}" if trailing_units else ""
+
+        prod_tokens = [t for t in tokens if t.type != TokenType.UNIT_SPEC]
+        parts = []
+        cur_part = []
+        for t in prod_tokens:
+            if t.type in (TokenType.COMMA, TokenType.COORD):
+                if cur_part:
+                    parts.append(cur_part)
+                    cur_part = []
+            else:
+                cur_part.append(t)
+        if cur_part:
+            parts.append(cur_part)
+
+        if len(parts) < 2:
+            return None
+
+        # Check for a shared prefix before the first noun if first part has multiple tokens
+        prefix_str = ""
+        first_part = parts[0]
+        if len(first_part) > 1 and len(parts[1]) == 1:
+            prefix_str = " ".join(t.value for t in first_part[:-1]) + " "
+            first_part = [first_part[-1]]
+            parts[0] = first_part
+
+        # Every coordinated part must contain an independent HEAD_NOUN
+        if not all(any(t.type == TokenType.HEAD_NOUN for t in p) for p in parts):
+            return None
+
+        results = []
+        for p in parts:
+            p_str = " ".join(t.value for t in p).strip()
+            if not p_str:
+                return None
+            results.append(f"{prefix_str}{p_str}{unit_str}".strip())
+
+        return results
 
     def _match_brand_pair_with_size(self, tokens: List[Token]) -> Optional[List[str]]:
         if (
