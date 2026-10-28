@@ -77,11 +77,16 @@ class AnalyticsMixin:
             FROM deal_observations d
             JOIN products p ON d.product_id = p.product_id
             JOIN flyer_runs f ON d.flyer_id = f.flyer_id
-            WHERE (p.category LIKE ? OR p.canonical_name LIKE ?)
+            WHERE (p.category = ? COLLATE NOCASE OR (p.category IS NULL AND (
+                p.canonical_name LIKE ? 
+                OR p.canonical_name LIKE ? 
+                OR p.canonical_name LIKE ?
+                OR p.canonical_name = ?
+            )))
               AND (d.unit_price IS NOT NULL OR (d.advertised_price IS NOT NULL AND p.unit_size > 0))
               AND d.advertised_price IS NOT NULL
         """
-        params: List[Any] = [f"%{category}%", f"%{category}%"]
+        params: List[Any] = [category, f"% {category} %", f"% {category}", f"{category} %", category]
         if unit_type:
             query += " AND p.unit_type = ?"
             params.append(unit_type)

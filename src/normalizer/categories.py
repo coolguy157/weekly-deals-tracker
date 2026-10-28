@@ -81,6 +81,8 @@ COMMODITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
     (re.compile(r"\bbroth\b", re.IGNORECASE), "Broth"),
     (re.compile(r"\b(?:water|drinking water|spring water)\b", re.IGNORECASE), "Water"),
     (re.compile(r"\b(?:gatorade|propel|powerade|sports drink)\b", re.IGNORECASE), "Sports Drinks"),
+    # Candy & Gum
+    (re.compile(r"\b(?:chewing\s+|bubble\s+|sugar\s*free\s+)?gum\b(?!\s*(?:care|drop|bearing|tree|arabic|plant|assortment))\b|\b(?:trident|dentyne|hubba\s*bubba|dubble\s*bubble|juicy\s*fruit|doublemint)\b|\b(?:extra|orbit|eclipse|mentos|ice\s*breakers)\s+gum\b", re.IGNORECASE), "Gum"),
     # Adult Beverages / Wine & Beer
     (re.compile(r"\b(?:wine|chardonnay|cabernet(?:\s+sauvignon)?|pinot\s+(?:noir|grigio)|merlot|sauvignon\s+blanc|moscato|rosé|rose\s+wine|prosecco|champagne|sparkling\s+wine|zinfandel|malbec|shiraz|syrah|riesling|red\s+blend|white\s+blend|bogle|menage\s+a\s+trois|m[eé]nage\s+[aà]\s+trois|chloe|nobilo|meiomi|la\s+crema|barefoot|woodbridge|sutter\s+home|yellow\s+tail|cupcake\s+wine|cupcake\s+vineyards|stella\s+rosa|14\s+hands|headsnapper|firefly\s+ridge|josh\s+cellars|lamarca|kim\s+crawford|freixenet|mionetto|unshackled|ghost\s+pines|freakshow|erath|decoy|conundrum|apothic|daou|caymus|kendall-jackson|robert\s+mondavi)\b", re.IGNORECASE), "Wine"),
     (re.compile(r"\b(?:beer|ale|lager|ipa|stout|pilsner|hard\s+seltzer|cider|budweiser|bud\s+light|bud\s+miller|bud\s+coors|miller\s+lite|coors\s+light|michelob(?:\s+ultra)?|shiner|corona|modelo|dos\s+equis|pacifico|heineken|yuengling|white\s+claw|truly|twisted\s+tea|angry\s+orchard|topo\s+chico\s+hard|malt\s+beverage|hard\s+tea)\b", re.IGNORECASE), "Beer"),
@@ -122,6 +124,7 @@ DEPARTMENT_KEYWORDS: Dict[str, str] = {
     "chips": "Snacks & Candy",
     "chip": "Snacks & Candy",
     "candy": "Snacks & Candy",
+    "gum": "Snacks & Candy",
     "canned": "Canned Goods",
     "pantry": "Pantry",
     "pasta": "Pantry",

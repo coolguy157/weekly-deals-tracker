@@ -1865,7 +1865,37 @@ class TestProductNormalizer(unittest.TestCase):
             self.assertIn("11.6 oz", d.canonical_name)
             self.assertEqual(d.unit_size, 11.6)
 
+    def test_chewing_gum_category_classification(self):
+        """Chewing gum products must be categorized under 'Gum' and excluded from non-gum items."""
+        item_trident = FlyerItem(
+            id=1055,
+            flyer_id=8197163,
+            name="Trident Chewing Gum 14 ct",
+            price=2.29,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Trident",
+            page_number=6,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item_trident)
+        self.assertEqual(len(deals), 1)
+        self.assertEqual(deals[0].category, "Gum")
 
+        from src.normalizer.categories import infer_category
+        self.assertEqual(infer_category("Wrigley's Extra Gum 15 ct"), "Gum")
+        self.assertEqual(infer_category("Orbit Spearmint Gum 14 ct"), "Gum")
+        self.assertEqual(infer_category("Dentyne Ice Peppermint Gum"), "Gum")
+        self.assertEqual(infer_category("Hubba Bubba Bubble Tape"), "Gum")
+        self.assertEqual(infer_category("ICE BREAKERS Mentos Gum"), "Gum")
+        # Non-gum items must not match Gum
+        self.assertNotEqual(infer_category("Grapery Grapes Gum Drop"), "Gum")
+        self.assertNotEqual(infer_category("Nerds Gummy Clusters"), "Gum")
+        self.assertNotEqual(infer_category("Oral-B Glide Gum Care Dental Floss Picks"), "Gum")
 
 
 if __name__ == "__main__":

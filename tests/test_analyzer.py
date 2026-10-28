@@ -902,6 +902,98 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertIn("4X for U points", deal.summary_reason)
         self.assertIn("6.0% back", deal.summary_reason)
 
+    def test_gum_category_benchmarking(self):
+        """First-seen gum SKU should benchmark against historical Gum category entries."""
+        # Flyer 201: Wrigley's Extra Gum 15 ct at $2.29 ($0.1527/ct)
+        flyer_201 = FlyerMetadata(
+            id=201,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad",
+            postal_code="00000",
+            valid_from="2026-04-01T00:00:00",
+            valid_to="2026-04-07T23:59:59",
+        )
+        # Flyer 202: Current flyer with Trident Chewing Gum 14 ct at $2.29 ($0.1636/ct)
+        flyer_202 = FlyerMetadata(
+            id=202,
+            merchant="Tom Thumb",
+            merchant_id=2381,
+            name="Weekly Ad",
+            postal_code="00000",
+            valid_from="2026-10-28T00:00:00",
+            valid_to="2026-11-03T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer_201)
+        self.db.upsert_flyer_run(flyer_202)
+
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=2001,
+                    flyer_id=201,
+                    page_number=6,
+                    is_front_page=False,
+                    canonical_name="Wrigley's Extra Gum 15 ct",
+                    brand="Extra",
+                    advertised_price=2.29,
+                    unit_size=15.0,
+                    unit_type="ct",
+                    unit_price=0.1527,
+                    raw_title="Wrigley's Extra Gum",
+                    image_url=None,
+                    category="Gum",
+                ),
+                # Vitafusion Gummies in Health & Beauty must NOT contaminate Gum category history
+                NormalizedDeal(
+                    raw_deal_id=2002,
+                    flyer_id=201,
+                    page_number=20,
+                    is_front_page=False,
+                    canonical_name="vitafusion Multivitamin Gummies 150 ct",
+                    brand="vitafusion",
+                    advertised_price=5.50,
+                    unit_size=150.0,
+                    unit_type="ct",
+                    unit_price=0.0367,
+                    raw_title="vitafusion Multivitamin Gummies",
+                    image_url=None,
+                    category="Health & Beauty",
+                ),
+            ]
+        )
+
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=2003,
+                    flyer_id=202,
+                    page_number=6,
+                    is_front_page=False,
+                    canonical_name="Trident Chewing Gum 14 ct",
+                    brand="Trident",
+                    advertised_price=2.29,
+                    unit_size=14.0,
+                    unit_type="ct",
+                    unit_price=0.1636,
+                    raw_title="Trident Chewing Gum",
+                    image_url=None,
+                    category="Gum",
+                )
+            ]
+        )
+
+        evals = self.analyzer.evaluate_flyer(202)
+        self.assertEqual(len(evals), 1)
+        deal = evals[0]
+
+        # Trident should be evaluated as STANDARD_DEAL against Gum category average (~$0.16/ct)
+        self.assertEqual(deal.badge, "STANDARD_DEAL")
+        self.assertEqual(deal.category, "Gum")
+        self.assertIn("Standard deal within normal range for Gum", deal.summary_reason)
+        self.assertAlmostEqual(deal.category_min_unit_price, 0.1527, places=3)
+        self.assertAlmostEqual(deal.category_avg_unit_price, 0.1582, places=3)
+
 
 if __name__ == "__main__":
     unittest.main()
