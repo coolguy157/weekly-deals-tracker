@@ -79,6 +79,12 @@ def clean_flyer_raw_title(title: str) -> str:
     t = re.sub(r"\s+", " ", t)
     # Strip promo / price trailers like "- $3.99 /ea." or "- SAVE $15..." or "- $7.99 DIGITAL COUPON"
     t = re.sub(r"\s*-\s*(\$\d+(\.\d{2})?|\d+/\s*\$\d+|SAVE\s+\$\d+|DIGITAL\s+COUPON).*$", "", t, flags=re.I).strip()
+    # Strip store brand prefixes on fresh meat & produce
+    t = re.sub(r"^(?:Signature SELECT|Signature Farms|Our Brand|Giant Brand|Giant)\s*(?:Fresh\s+)?", "", t, flags=re.I).strip()
+    # Strip value pack prefix
+    t = re.sub(r"\bValue\s+Pack\s+", "", t, flags=re.I).strip()
+    # Condense verbose poultry descriptions
+    t = re.sub(r"\bBoneless\s+Skinless\s+Chicken\s+Breasts\b", "Chicken Breasts", t, flags=re.I)
     return t
 
 
@@ -229,9 +235,9 @@ def _deal_priority(it: Any) -> float:
         return 8.0
     if badge == "CYCLE_REFRESH":
         return 9.0
-    if badge == "FIRST_SEEN":
-        return 10.0
     if badge == "STANDARD_DEAL":
+        return 10.0
+    if badge == "FIRST_SEEN":
         return 11.0
     if badge == "PRICE_HIKE":
         return 12.0

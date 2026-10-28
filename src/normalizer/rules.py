@@ -35,6 +35,12 @@ def apply_store_brand_meat_stripping(canonical: str) -> str:
             remainder = canonical[len(sb):].strip(" ,.-")
             if any(k in remainder.lower() for k in MEAT_KEYWORDS):
                 return remainder
+    # Strip leading package size modifiers on fresh meat cuts
+    for pfx in ["Value Pack", "Family Size", "Small Pack"]:
+        if canonical.lower().startswith(pfx.lower()):
+            remainder = canonical[len(pfx):].strip(" ,.-")
+            if any(k in remainder.lower() for k in MEAT_KEYWORDS):
+                return remainder
     return canonical
 
 
