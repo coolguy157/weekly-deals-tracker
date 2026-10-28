@@ -87,6 +87,46 @@ class ProductNormalizer:
         if lower_raw in self.DEPARTMENT_BANNERS or any(lower_raw.startswith(b) for b in self.DEPARTMENT_BANNERS if len(b) > 8):
             return []
 
+        # Handle store-wide / basket-level coupon banners (e.g. "$20 off $100 with for U Digital Coupon")
+        is_basket_coupon = (
+            ("digital coupon" in lower_raw or "store coupon" in lower_raw or "coupon for u" in lower_raw)
+            and ("exclusive" in lower_raw or "coupon" in lower_raw or "spend" in lower_raw or "off" in lower_raw)
+            and not any(w in lower_raw for w in ("chips", "crackers", "bread", "milk", "cheese", "soup", "cereal", "meat", "beef", "chicken", "pork", "fruit", "berries", "apples", "coffee", "water", "soda", "detergent", "paper", "oil", "sauce", "pasta", "butter", "yogurt", "pizza", "ice cream"))
+        ) or bool(re.search(r"^\$?\d+\s*off\s+(?:or|on|\$?\d+)\b", (item.pre_price_text or "") + " " + (item.description or "")))
+
+        if is_basket_coupon:
+            combined_desc = f"{raw_name} {item.pre_price_text or ''} {item.description or ''}"
+            m_ss = PromoExtractor.SPEND_SAVE_PATTERN.search(combined_desc)
+            if m_ss:
+                save_amt = float(m_ss.group(1) or m_ss.group(3))
+                spend_amt = float(m_ss.group(2) or m_ss.group(4))
+                c_name = f"Exclusive Digital Coupon - ${int(save_amt)} off ${int(spend_amt)}"
+                detail = f"SAVE ${save_amt:.2f} ON ${spend_amt:.2f}+ WITH DIGITAL COUPON"
+                return [
+                    NormalizedDeal(
+                        raw_deal_id=item.id,
+                        flyer_id=item.flyer_id,
+                        page_number=item.page_number,
+                        is_front_page=item.is_front_page,
+                        canonical_name=c_name,
+                        brand=None,
+                        advertised_price=None,
+                        unit_size=None,
+                        unit_type=None,
+                        unit_price=None,
+                        raw_title=raw_name,
+                        image_url=item.cutout_image_url or item.clean_image_url,
+                        promo_type="basket_coupon",
+                        promo_detail=detail,
+                        qualifying_qty=1,
+                        base_price=spend_amt,
+                        coupon_discount=save_amt,
+                        ad_title=item.name,
+                        category=None,
+                    )
+                ]
+            return []
+
         # Strip packaging and promotional notes before disaggregation (preserving bulk package clauses for pricing)
         cleaned_name = self.clean_sales_notes(raw_name, preserve_bulk_pkg=True)
         if not cleaned_name:

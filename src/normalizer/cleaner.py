@@ -18,6 +18,11 @@ GENERIC_PLACEHOLDER_NAMES: Set[str] = {
     "select varieties",
     "selected varieties",
     "mix or match",
+    "exclusive",
+    "exclusive digital coupon",
+    "exclusive digital coupon for u",
+    "digital coupon",
+    "store coupon",
 }
 
 # Packaging, portioning, and promotional sales patterns to clean from canonical names

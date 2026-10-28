@@ -1786,6 +1786,34 @@ class TestProductNormalizer(unittest.TestCase):
         splits4 = ["Campbell's Soup", "Progresso Soup"]
         self.assertEqual(distribute_head_noun_splits(splits4), ["Campbell's Soup", "Progresso Soup"])
 
+    def test_basket_coupon_normalization(self):
+        """Store-wide basket coupons (e.g. $20 off $100 with for U Digital Coupon)
+        must NOT be normalized as a fake $20 item named 'Exclusive'."""
+        item = FlyerItem(
+            id=1049095295,
+            flyer_id=8197163,
+            name="Exclusive Digital Coupon for U",
+            price=None,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description="$20 OFF or $100 or more with digital coupon",
+            brand=None,
+            page_number=3,
+            is_front_page=True,
+            cutout_image_url="http://example.com/coupon.jpg",
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 1)
+        deal = deals[0]
+        self.assertEqual(deal.canonical_name, "Exclusive Digital Coupon - $20 off $100")
+        self.assertIsNone(deal.advertised_price)
+        self.assertEqual(deal.promo_type, "basket_coupon")
+        self.assertEqual(deal.coupon_discount, 20.0)
+        self.assertEqual(deal.base_price, 100.0)
+        self.assertIn("SAVE $20.00 ON $100.00+", deal.promo_detail)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -349,6 +349,37 @@ class DealAnalyzer:
                     merchant=merchant,
                 )
 
+        if promo_type in ("basket_coupon", "store_coupon"):
+            return DealEvaluation(
+                deal_id=deal_record.get("id", 0),
+                product_id=product_id,
+                canonical_name=canonical_name,
+                brand=deal_record.get("brand"),
+                current_price=None,
+                unit_price=None,
+                page_number=deal_record.get("page_number", 1),
+                is_front_page=bool(deal_record.get("is_front_page", 1)),
+                historical_min=None,
+                historical_avg=None,
+                historical_max=None,
+                past_observations_count=len(past_obs),
+                diff_pct_vs_avg=0.0,
+                badge="STORE_COUPON",
+                summary_reason=f"🎟️ {promo_detail or 'Store Digital Coupon'}",
+                unit_size=None,
+                unit_type=None,
+                category=None,
+                promo_type=promo_type,
+                promo_detail=promo_detail,
+                qualifying_qty=qualifying_qty,
+                base_price=base_price,
+                raw_deal_id=raw_deal_id,
+                ad_id=ad_id,
+                ad_title=deal_record.get("ad_title"),
+                raw_title=raw_title,
+                image_url=image_url,
+            )
+
         if promo_type == "spend_save" and promo_info:
             return self._evaluate_spend_save(
                 deal_record, product_id, canonical_name, unit_price, unit_type,

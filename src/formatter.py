@@ -47,6 +47,8 @@ def format_badge_fixed(badge: str, width: int = 16) -> str:
         "STANDARD_DEAL": "[DEAL]",
         "PRICE_HIKE": "[! PRICE HIKE]",
         "SEE_AD": "[SEE AD]",
+        "STORE_COUPON": "[🎟️ COUPON]",
+        "BASKET_COUPON": "[🎟️ COUPON]",
     }
     raw = raw_labels.get(badge, f"[{badge}]")
     padded = f"{raw:<{width}}"
@@ -67,6 +69,8 @@ def format_badge_fixed(badge: str, width: int = 16) -> str:
         "STANDARD_DEAL": "\033[90m",
         "PRICE_HIKE": "\033[91m",
         "SEE_AD": "\033[90m",
+        "STORE_COUPON": "\033[95m",
+        "BASKET_COUPON": "\033[95m",
     }
     color = color_map.get(badge, "")
     reset = "\033[0m" if color else ""
@@ -396,18 +400,55 @@ def render_smart_digest(
     flat: bool = False,
 ) -> None:
     """Render default 3-tier digest: Front Page + Inside Price Hikes & All-Time Lows / Category Bests."""
+    from .normalizer.cleaner import GENERIC_PLACEHOLDER_NAMES
+
+    def _is_basket_coupon(it: Any) -> bool:
+        promo_type = getattr(it, "promo_type", "") or ""
+        badge = getattr(it, "badge", "") or ""
+        raw_t = (getattr(it, "raw_title", "") or "").lower()
+        cname = (getattr(it, "canonical_name", "") or getattr(it, "title", "") or "").strip().lower()
+        promo_d = (getattr(it, "promo_detail", "") or "").lower()
+        if promo_type in ("basket_coupon", "store_coupon") or badge in ("STORE_COUPON", "BASKET_COUPON"):
+            return True
+        if "20 off" in raw_t and "100" in raw_t:
+            return True
+        if "exclusive digital coupon" in raw_t or "exclusive digital coupon" in cname:
+            return True
+        if cname in GENERIC_PLACEHOLDER_NAMES and getattr(it, "coupon_discount", None):
+            return True
+        if "off $100" in promo_d or "on $100" in promo_d:
+            return True
+        return False
+
     if flat:
-        front_page_deals = [e for e in evaluations if e.is_front_page]
-        inside_hikes = [e for e in evaluations if not e.is_front_page and e.badge == "PRICE_HIKE"]
+        basket_coupons = [e for e in evaluations if _is_basket_coupon(e)]
+        front_page_deals = [e for e in evaluations if e.is_front_page and not _is_basket_coupon(e)]
+        inside_hikes = [e for e in evaluations if not e.is_front_page and e.badge == "PRICE_HIKE" and not _is_basket_coupon(e)]
         inside_atls = [
             e for e in evaluations
             if not e.is_front_page
+            and not _is_basket_coupon(e)
             and (e.badge in ("ALL_TIME_LOW", "NEW_ALL_TIME_LOW", "MATCHES_ATL") or getattr(e, "is_category_best", False))
         ]
+
+        coupon_lines = []
+        for bc in basket_coupons:
+            detail = getattr(bc, "promo_detail", "") or getattr(bc, "summary_reason", "")
+            page_info = f"p.{bc.page_number}*" if bc.is_front_page else f"p.{bc.page_number}"
+            m_s = re.search(r"(?:SAVE\s+\$(\d+)|(\d+)\s*OFF).*?(?:ON|WHEN\s+YOU\s+SPEND|OF|\$)\s*\$?(\d+)", detail, re.IGNORECASE)
+            if m_s:
+                save_val = m_s.group(1) or m_s.group(2)
+                spend_val = m_s.group(3)
+                coupon_desc = f"${save_val} OFF $ {spend_val}+ with for U Digital Coupon"
+            else:
+                coupon_desc = detail or "$20 OFF $100+ with for U Digital Coupon"
+            coupon_lines.append(f" 🎟️  STORE COUPON: {coupon_desc} ({page_info})")
 
         print(f"\n{'='*76}")
         print(f" 🛒 WEEKLY DEALS DIGEST (Flyer ID: {flyer_id})")
         print(f" Showing: Front Page Deals ({len(front_page_deals)}) + Inside Price Hikes ({len(inside_hikes)}) & ATLs/Category Bests ({len(inside_atls)})")
+        for cl in coupon_lines:
+            print(cl)
         print(f"{'='*76}\n")
 
         print(f"⭐ FRONT PAGE DEALS (Cover - {len(front_page_deals)} items)")
@@ -434,18 +475,36 @@ def render_smart_digest(
             print()
     else:
         groups = group_evaluations(evaluations)
-        front_page_groups = [g for g in groups if g.is_front_page]
-        inside_hikes = [g for g in groups if not g.is_front_page and g.badge == "PRICE_HIKE"]
+        basket_coupons = [g for g in groups if _is_basket_coupon(g.representative)]
+        front_page_groups = [g for g in groups if g.is_front_page and not _is_basket_coupon(g.representative)]
+        inside_hikes = [g for g in groups if not g.is_front_page and g.badge == "PRICE_HIKE" and not _is_basket_coupon(g.representative)]
         inside_atls = [
             g for g in groups
             if not g.is_front_page
+            and not _is_basket_coupon(g.representative)
             and (g.badge in ("ALL_TIME_LOW", "NEW_ALL_TIME_LOW", "MATCHES_ATL") or getattr(g.representative, "is_category_best", False))
         ]
         fp_item_count = sum(len(g.items) for g in front_page_groups)
 
+        coupon_lines = []
+        for bg in basket_coupons:
+            rep = bg.representative
+            detail = getattr(rep, "promo_detail", "") or getattr(rep, "summary_reason", "")
+            page_info = f"p.{bg.page_number}*" if bg.is_front_page else f"p.{bg.page_number}"
+            m_s = re.search(r"(?:SAVE\s+\$(\d+)|(\d+)\s*OFF).*?(?:ON|WHEN\s+YOU\s+SPEND|OF|\$)\s*\$?(\d+)", detail, re.IGNORECASE)
+            if m_s:
+                save_val = m_s.group(1) or m_s.group(2)
+                spend_val = m_s.group(3)
+                coupon_desc = f"${save_val} OFF ${spend_val}+ with for U Digital Coupon"
+            else:
+                coupon_desc = detail or "$20 OFF $100+ with for U Digital Coupon"
+            coupon_lines.append(f" 🎟️  STORE COUPON: {coupon_desc} ({page_info})")
+
         print(f"\n{'='*76}")
         print(f" 🛒 WEEKLY DEALS DIGEST (Flyer ID: {flyer_id})")
         print(f" Showing: Front Page Promotions ({len(front_page_groups)}) + Inside Price Hikes ({len(inside_hikes)}) & ATLs/Category Bests ({len(inside_atls)})")
+        for cl in coupon_lines:
+            print(cl)
         print(f"{'='*76}\n")
 
         print(f"⭐ FRONT PAGE PROMOTIONS (Cover - {len(front_page_groups)} ads, {fp_item_count} items)")

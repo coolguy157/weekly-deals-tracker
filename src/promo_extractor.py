@@ -105,7 +105,7 @@ class PromoExtractor:
     # 3. Digital Coupon / Member Discount Patterns
     # "WITH DIGITAL COUPON $1.99", "FOR U FINAL PRICE $2.49", "$2.99 /lb. DIGITAL COUPON"
     COUPON_FINAL_PRICE_PATTERN = re.compile(
-        r"(?:\b(?:WITH\s+)?(?:DIGITAL\s+COUPON|FOR\s*U\s*COUPON|FOR\s*U|JUST\s*FOR\s*U|MEMBER\s+PRICE|WITH\s+CARD).*?\$(\d+(?:\.\d{2})?)\b|\$(\d+(?:\.\d{2})?)(?:\s*/\s*(?:lb|ea|count|oz|pkg))?\.?\s*(?:DIGITAL\s+COUPON|FOR\s*U\s*COUPON|FOR\s*U|JUST\s*FOR\s*U|MEMBER\s+PRICE|WITH\s+CARD)\b)",
+        r"(?:\b(?:WITH\s+)?(?:DIGITAL\s+COUPON|FOR\s*U\s*COUPON|FOR\s*U|JUST\s*FOR\s*U|MEMBER\s+PRICE|WITH\s+CARD).*?\$(\d+(?:\.\d{2})?)\b(?!\s*OFF)|\$(\d+(?:\.\d{2})?)(?:\s*/\s*(?:lb|ea|count|oz|pkg))?\.?\s*(?:DIGITAL\s+COUPON|FOR\s*U\s*COUPON|FOR\s*U|JUST\s*FOR\s*U|MEMBER\s+PRICE|WITH\s+CARD)\b)",
         re.IGNORECASE,
     )
     # "SAVE $1.00 WITH DIGITAL COUPON", "$1.00 OFF WITH DIGITAL COUPON"
@@ -148,9 +148,9 @@ class PromoExtractor:
     )
 
     # 6. Spend & Save / Multi-Buy Threshold Patterns
-    # "SAVE $5 When you spend $20 on participating products", "SAVE $15 When you buy 3"
+    # "SAVE $5 When you spend $20 on participating products", "SAVE $15 When you buy 3", "$20 OFF or $100 or more"
     SPEND_SAVE_PATTERN = re.compile(
-        r"SAVE\s+\$(\d+(?:\.\d{2})?)\s+WHEN\s+YOU\s+SPEND\s+\$(\d+(?:\.\d{2})?)",
+        r"(?:SAVE\s+\$(\d+(?:\.\d{2})?)\s+(?:WHEN\s+YOU\s+SPEND|ON|OR)\s+\$(\d+(?:\.\d{2})?)|\$(\d+(?:\.\d{2})?)\s*OFF\s*(?:ON|OR|WHEN\s+YOU\s+SPEND|OF)?\s*\$(\d+(?:\.\d{2})?))",
         re.IGNORECASE,
     )
     BUY_SAVE_PATTERN = re.compile(
@@ -420,8 +420,8 @@ class PromoExtractor:
         """Match Spend & Save threshold patterns."""
         m_ss = cls.SPEND_SAVE_PATTERN.search(text)
         if m_ss:
-            save_amt = float(m_ss.group(1))
-            spend_amt = float(m_ss.group(2))
+            save_amt = float(m_ss.group(1) or m_ss.group(3))
+            spend_amt = float(m_ss.group(2) or m_ss.group(4))
             if save_amt >= spend_amt:
                 net_spend = None
                 detail = f"SAVE ${save_amt:.2f} When you spend ${spend_amt:.2f}"
