@@ -192,6 +192,69 @@ class TestFlippAdFetcher(unittest.TestCase):
         self.assertTrue(all(it.is_front_page for it in items_fp))
         self.assertTrue(all(it.page_number == 3 for it in items_fp))
 
+    @patch.object(FlippAdFetcher, "_get_json")
+    def test_hydrate_item_details(self, mock_get_json):
+        from src.fetcher import FlyerItem
+
+        it1 = FlyerItem(
+            id=1049095604,
+            flyer_id=8197163,
+            name="CLIF BUILDERS Bars",
+            price=10.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand="Clif",
+            page_number=7,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        it2 = FlyerItem(
+            id=1049095603,
+            flyer_id=8197163,
+            name="5-Hour Energy Shots",
+            price=26.99,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description=None,
+            brand=None,
+            page_number=7,
+            is_front_page=False,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+
+        def mock_side_effect(url, **kwargs):
+            if "1049095604" in url:
+                return {
+                    "item": {
+                        "id": 1049095604,
+                        "description": "6 ct., Select Varieties",
+                        "sale_story": "MEMBER PRICE",
+                    }
+                }
+            elif "1049095603" in url:
+                return {
+                    "item": {
+                        "id": 1049095603,
+                        "description": "10 ct., Select Varieties",
+                        "brand": "5-hour ENERGY",
+                    }
+                }
+            return {}
+
+        mock_get_json.side_effect = mock_side_effect
+
+        self.fetcher.hydrate_item_details([it1, it2])
+
+        self.assertEqual(it1.description, "6 ct., Select Varieties")
+        self.assertEqual(it1.pre_price_text, "MEMBER PRICE")
+        self.assertEqual(it2.description, "10 ct., Select Varieties")
+        self.assertEqual(it2.brand, "5-hour ENERGY")
+
 
 if __name__ == "__main__":
     unittest.main()

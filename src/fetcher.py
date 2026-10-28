@@ -73,7 +73,7 @@ class FlippAdFetcher:
         self.timeout = timeout
         self.user_agent = user_agent
 
-    def _get_json(self, endpoint_url: str, retries: int = 3, backoff_sec: float = 2.0) -> Dict[str, Any]:
+    def _get_json(self, endpoint_url: str, retries: int = 3, backoff_sec: float = 2.0, log_warnings: bool = True) -> Dict[str, Any]:
         last_err = None
         for attempt in range(retries):
             req = urllib.request.Request(
@@ -86,7 +86,10 @@ class FlippAdFetcher:
                     return json.loads(raw_bytes.decode("utf-8"))
             except urllib.error.HTTPError as e:
                 last_err = e
-                logger.warning(f"HTTP error {e.code} querying {endpoint_url} (attempt {attempt + 1}/{retries}): {e.reason}")
+                if log_warnings:
+                    logger.warning(f"HTTP error {e.code} querying {endpoint_url} (attempt {attempt + 1}/{retries}): {e.reason}")
+                else:
+                    logger.debug(f"HTTP error {e.code} querying {endpoint_url} (attempt {attempt + 1}/{retries}): {e.reason}")
                 if attempt < retries - 1 and e.code in (500, 502, 503, 504, 429):
                     import time
                     time.sleep(backoff_sec * (attempt + 1))
@@ -94,7 +97,10 @@ class FlippAdFetcher:
                 raise
             except Exception as e:
                 last_err = e
-                logger.warning(f"Error querying {endpoint_url} (attempt {attempt + 1}/{retries}): {e}")
+                if log_warnings:
+                    logger.warning(f"Error querying {endpoint_url} (attempt {attempt + 1}/{retries}): {e}")
+                else:
+                    logger.debug(f"Error querying {endpoint_url} (attempt {attempt + 1}/{retries}): {e}")
                 if attempt < retries - 1:
                     import time
                     time.sleep(backoff_sec * (attempt + 1))
@@ -223,11 +229,50 @@ class FlippAdFetcher:
 
         return 1
 
+    def hydrate_item_details(self, items: List[FlyerItem], max_workers: int = 12) -> None:
+        """
+        Fetch individual item endpoints (/items/{id}) to hydrate missing descriptions,
+        pre/post price text, brands, and promo narratives from Flipp.
+        """
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        target_items = [it for it in items if it.id and not it.description]
+        if not target_items:
+            return
+
+        def _fetch_single(it: FlyerItem):
+            try:
+                url = f"{self.BASE_URL}/items/{it.id}"
+                data = self._get_json(url, log_warnings=False)
+                raw_item = data.get("item", {}) if isinstance(data, dict) else {}
+                if not raw_item:
+                    return
+                if not it.description and raw_item.get("description"):
+                    it.description = raw_item.get("description")
+                if not it.pre_price_text and raw_item.get("pre_price_text"):
+                    it.pre_price_text = raw_item.get("pre_price_text")
+                if not it.pre_price_text and raw_item.get("sale_story"):
+                    it.pre_price_text = raw_item.get("sale_story")
+                if not it.post_price_text and raw_item.get("post_price_text"):
+                    it.post_price_text = raw_item.get("post_price_text")
+                if not it.brand and raw_item.get("brand"):
+                    it.brand = raw_item.get("brand")
+                if not it.clean_image_url and raw_item.get("clean_image_url"):
+                    it.clean_image_url = raw_item.get("clean_image_url")
+            except Exception as e:
+                logger.debug(f"Could not hydrate Flipp item {it.id}: {e}")
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(_fetch_single, it) for it in target_items]
+            for f in as_completed(futures):
+                pass
+
     def get_flyer_pages_and_items(
         self,
         flyer_id: int,
         front_page_only: bool = False,
         front_page_number: Optional[int] = None,
+        hydrate_details: bool = True,
     ) -> tuple[List[FlyerPage], List[FlyerItem]]:
         """Fetch the full flyer payload and resolve items to flyer pages using coordinate math."""
         url = f"{self.BASE_URL}/flyers/{flyer_id}"
@@ -316,5 +361,8 @@ class FlippAdFetcher:
                     raw_payload=it,
                 )
             )
+
+        if hydrate_details and items:
+            self.hydrate_item_details(items)
 
         return pages, items
