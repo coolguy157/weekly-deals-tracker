@@ -76,7 +76,7 @@ class ProductNormalizer:
     def _expand_chunk(self, chunk: str) -> List[str]:
         return expand_chunk(chunk)
 
-    def disaggregate_and_normalize(self, item: FlyerItem) -> List[NormalizedDeal]:
+    def disaggregate_and_normalize(self, item: FlyerItem, merchant: Optional[str] = None) -> List[NormalizedDeal]:
         """Split bundled multi-item deal strings into discrete normalized deal entries."""
         raw_name = self.normalize_text(item.name)
         if not raw_name:
@@ -326,9 +326,11 @@ class ProductNormalizer:
             )
 
             # Extract promo mechanics across item text, pre/post price notes, and description
+            m_ctx = merchant or getattr(item, "merchant", None) or (item.raw_payload.get("merchant") if getattr(item, "raw_payload", None) else None)
             promo_info = PromoExtractor.extract_promo(
                 sub_name,
                 additional_texts=[item.name, item.pre_price_text, item.post_price_text, item.description],
+                merchant=m_ctx,
             )
 
             advertised_price = pkg_advertised_price if pkg_advertised_price is not None else item.price

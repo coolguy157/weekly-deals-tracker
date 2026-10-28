@@ -36,6 +36,38 @@ class PromoExtractor:
     # Default estimated point value (derived from circular grocery freebie redemption: ~2.74¢/pt)
     DEFAULT_POINT_VALUE = 0.0274
 
+    # Monorepo and banner loyalty program presets
+    STORE_LOYALTY_CONFIGS = {
+        "giant": {
+            "program": "Giant Choice",
+            "point_name": "CHOICE points",
+            "point_value": 0.0274,
+            "reward_label": "grocery rewards",
+        },
+        "tomthumb": {
+            "program": "for U",
+            "point_name": "for U points",
+            "point_value": 0.0150,  # 1.50¢/pt realistic weighted (gas + tiered app freebies); 1.00¢ base cash
+            "reward_label": "for U rewards",
+        },
+    }
+
+    @classmethod
+    def get_loyalty_config(cls, merchant: Optional[str] = None, text: str = "") -> Dict[str, Any]:
+        """Resolve store loyalty configuration by merchant banner or ad text."""
+        text_lower = text.lower() if text else ""
+        if "for u" in text_lower or "foru" in text_lower:
+            return cls.STORE_LOYALTY_CONFIGS["tomthumb"]
+        if "choice" in text_lower or "point freebie" in text_lower or "point-freebie" in text_lower:
+            return cls.STORE_LOYALTY_CONFIGS["giant"]
+        if merchant:
+            m_norm = merchant.lower().replace(" ", "").replace("-", "").replace("_", "")
+            if "giant" in m_norm:
+                return cls.STORE_LOYALTY_CONFIGS["giant"]
+            if any(k in m_norm for k in ("tomthumb", "safeway", "albertsons", "vons", "jewelosco", "acme", "shaw")):
+                return cls.STORE_LOYALTY_CONFIGS["tomthumb"]
+        return cls.STORE_LOYALTY_CONFIGS["giant"]
+
     # 1. BOGO Patterns
     # "BUY 2 GET 2 FREE", "BUY 1 GET 1 FREE", "BUY 2 GET 3 FREE", "BUY 5 GET 1 FREE"
     BOGO_PATTERN = re.compile(
@@ -85,7 +117,7 @@ class PromoExtractor:
     # 4. Points Redemption Patterns (Buy with points / Free with points)
     # "FREE ... when you redeem 75 CHOICE points", "FREE ... with 400 CHOICE points", "5-POINT FREEBIE", "5 POINT FREEBIE"
     REDEEM_POINTS_PATTERN = re.compile(
-        r"(?:(?:REDEEM|WITH)\s+(\d+)\s+(?:CHOICE\s+)?POINTS|(\d+)[-\s]+POINT\s+FREEBIE)",
+        r"(?:(?:REDEEM|WITH)\s+(\d+)\s+(?:CHOICE\s+|FOR\s*U\s+)?POINTS|(\d+)[-\s]+POINT\s+FREEBIE)",
         re.IGNORECASE,
     )
     POINTS_SAVE_AMT_PATTERN = re.compile(
@@ -103,15 +135,15 @@ class PromoExtractor:
     # 5. Extra Points / Points Bonus Patterns
     # "300 CHOICE POINTS When you spend $20", "EARN 10X CHOICE POINTS", "EARN 200 CHOICE POINTS"
     BONUS_POINTS_SPEND_PATTERN = re.compile(
-        r"(\d+)\s+(?:CHOICE\s+)?POINTS\s+WHEN\s+YOU\s+SPEND\s+\$(\d+(?:\.\d{2})?)",
+        r"(\d+)\s+(?:CHOICE\s+|FOR\s*U\s+)?POINTS\s+WHEN\s+YOU\s+SPEND\s+\$(\d+(?:\.\d{2})?)",
         re.IGNORECASE,
     )
     BONUS_POINTS_BUY_PATTERN = re.compile(
-        r"(\d+)\s+(?:CHOICE\s+)?POINTS\s+WHEN\s+YOU\s+BUY\s+(\d+)",
+        r"(\d+)\s+(?:CHOICE\s+|FOR\s*U\s+)?POINTS\s+WHEN\s+YOU\s+BUY\s+(\d+)",
         re.IGNORECASE,
     )
     EARN_POINTS_MULT_PATTERN = re.compile(
-        r"EARN\s+(\d+)X\s+(?:CHOICE\s+)?POINTS",
+        r"(?:EARN\s+)?(\d+)X\s+(?:CHOICE\s+|FOR\s*U\s+)?POINTS(?:\s+(?:WITH|FOR)\s+FOR\s*U)?",
         re.IGNORECASE,
     )
 
@@ -175,7 +207,8 @@ class PromoExtractor:
         cls,
         text: Optional[str],
         additional_texts: Optional[List[Optional[str]]] = None,
-        point_value: float = DEFAULT_POINT_VALUE,
+        point_value: Optional[float] = None,
+        merchant: Optional[str] = None,
     ) -> Optional[PromoInfo]:
         """
         Examine text and auxiliary fields (pre-price, post-price, description) for promo patterns.
@@ -206,7 +239,7 @@ class PromoExtractor:
         if promo:
             return promo
 
-        promo = cls._extract_points(cleaned_text, point_value=point_value)
+        promo = cls._extract_points(cleaned_text, point_value=point_value, merchant=merchant)
         if promo:
             return promo
 
@@ -311,14 +344,24 @@ class PromoExtractor:
         return None
 
     @classmethod
-    def _extract_points(cls, text: str, point_value: float = DEFAULT_POINT_VALUE) -> Optional[PromoInfo]:
-        """Match CHOICE points redemption or bonus points patterns."""
+    def _extract_points(
+        cls,
+        text: str,
+        point_value: Optional[float] = None,
+        merchant: Optional[str] = None,
+    ) -> Optional[PromoInfo]:
+        """Match loyalty points redemption or bonus points patterns."""
+        loyalty = cls.get_loyalty_config(merchant=merchant, text=text)
+        pts_label = loyalty["point_name"]
+        rew_label = loyalty["reward_label"]
+        effective_pt_val = point_value if point_value is not None else loyalty["point_value"]
+
         m_red = cls.REDEEM_POINTS_PATTERN.search(text)
         if m_red:
             pts_val = int(m_red.group(1) or m_red.group(2))
             m_sv = cls.POINTS_SAVE_AMT_PATTERN.search(text)
             saved = float(m_sv.group(1)) if m_sv else None
-            detail = f"FREE with {pts_val} CHOICE points" + (f" (Save ${saved:.2f})" if saved else "")
+            detail = f"FREE with {pts_val} {pts_label}" + (f" (Save ${saved:.2f})" if saved else "")
             return PromoInfo(
                 promo_type="points_redemption",
                 promo_detail=detail,
@@ -332,9 +375,9 @@ class PromoExtractor:
         if m_bsp:
             pts = int(m_bsp.group(1))
             spend = float(m_bsp.group(2))
-            reward_val = round(pts * point_value, 2)
+            reward_val = round(pts * effective_pt_val, 2)
             net_spend = round(max(0.0, spend - reward_val), 2)
-            detail = f"{pts} CHOICE POINTS When you spend ${spend:.2f} (~${reward_val:.2f} reward value, Est. Net ${net_spend:.2f})"
+            detail = f"{pts} {pts_label.upper()} When you spend ${spend:.2f} (~${reward_val:.2f} reward value, Est. Net ${net_spend:.2f})"
             return PromoInfo(
                 promo_type="points_bonus",
                 promo_detail=detail,
@@ -348,8 +391,8 @@ class PromoExtractor:
         m_em = cls.EARN_POINTS_MULT_PATTERN.search(text)
         if m_em:
             mult = float(m_em.group(1))
-            pct_back = round(mult * point_value * 100, 1)
-            detail = f"EARN {int(mult)}X CHOICE POINTS (~{pct_back}% back in grocery rewards)"
+            pct_back = round(mult * effective_pt_val * 100, 1)
+            detail = f"EARN {int(mult)}X {pts_label.upper()} (~{pct_back}% back in {rew_label})"
             return PromoInfo(
                 promo_type="points_bonus",
                 promo_detail=detail,
@@ -361,8 +404,8 @@ class PromoExtractor:
         if m_bq:
             pts = int(m_bq.group(1))
             buy_q = int(m_bq.group(2))
-            reward_val = round(pts * point_value, 2)
-            detail = f"EARN {pts} CHOICE POINTS When you buy {buy_q} (~${reward_val:.2f} reward value)"
+            reward_val = round(pts * effective_pt_val, 2)
+            detail = f"EARN {pts} {pts_label.upper()} When you buy {buy_q} (~${reward_val:.2f} reward value)"
             return PromoInfo(
                 promo_type="points_bonus",
                 promo_detail=detail,
@@ -614,14 +657,18 @@ class PromoExtractor:
     def calculate_dynamic_point_value(
         cls,
         items: List[Any],
-        default_value: float = DEFAULT_POINT_VALUE,
+        default_value: Optional[float] = None,
         min_points_threshold: int = 50,
         exclude_points: Tuple[int, ...] = (5, 10),
+        merchant: Optional[str] = None,
     ) -> float:
         """
         Dynamically calculates the baseline point value ($/point) from standard grocery redemption promotions.
         Explicitly excludes promotional doorbusters/freebies (e.g. 5-point freebies) to avoid skewing standard reward valuation.
         """
+        if default_value is None:
+            default_value = cls.get_loyalty_config(merchant)["point_value"]
+
         redemption_values = []
         for item in items:
             p_info = None
@@ -629,7 +676,7 @@ class PromoExtractor:
                 p_info = item
             elif isinstance(item, dict):
                 p_text = f"{item.get('raw_title') or ''} {item.get('promo_detail') or ''}"
-                p_info = cls.extract_promo(p_text, [item.get("canonical_name")])
+                p_info = cls.extract_promo(p_text, [item.get("canonical_name")], merchant=merchant)
 
             if p_info and p_info.promo_type == "points_redemption" and p_info.points_cost and p_info.points_saved_val:
                 # Specifically ignore 5-point freebies and small loss-leader doorbusters

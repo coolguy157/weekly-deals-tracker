@@ -822,6 +822,86 @@ class TestDealAnalyzer(unittest.TestCase):
         self.assertIn("New All-Time Low", deal.summary_reason)
         self.assertIn("Best Ice Cream price", deal.summary_reason)
 
+    def test_points_multiplier_priced_deal_preserves_atl(self):
+        """Priced items with points multipliers (e.g. $1.97 Nabisco Crackers with 4X points)
+        must be evaluated on cash price history (e.g. NEW_ALL_TIME_LOW) and not blindly
+        usurped by a generic POINTS_REWARD badge."""
+        # 1. Historical flyer with $2.99 and $3.49 prices
+        flyer1 = FlyerMetadata(
+            id=1001,
+            merchant="Tom Thumb",
+            merchant_id=1,
+            name="Weekly Ad 1",
+            postal_code="75080",
+            valid_from="2026-09-01T00:00:00",
+            valid_to="2026-09-07T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer1)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=10001,
+                    flyer_id=1001,
+                    page_number=3,
+                    is_front_page=True,
+                    canonical_name="Ritz Toasted Chips 7.1-8.1 oz",
+                    brand="Ritz",
+                    advertised_price=2.99,
+                    unit_size=8.1,
+                    unit_type="oz",
+                    unit_price=0.369,
+                    raw_title="Ritz Toasted Chips",
+                    image_url=None,
+                    promo_type="standard",
+                )
+            ]
+        )
+
+        # 2. Current flyer offering $1.97 with Earn 4X for U points
+        flyer2 = FlyerMetadata(
+            id=1002,
+            merchant="Tom Thumb",
+            merchant_id=1,
+            name="Weekly Ad 2",
+            postal_code="75080",
+            valid_from="2026-10-28T00:00:00",
+            valid_to="2026-11-03T23:59:59",
+        )
+        self.db.upsert_flyer_run(flyer2)
+        self.db.record_deals(
+            [
+                NormalizedDeal(
+                    raw_deal_id=10002,
+                    flyer_id=1002,
+                    page_number=3,
+                    is_front_page=True,
+                    canonical_name="Ritz Toasted Chips 7.1-8.1 oz",
+                    brand="Ritz",
+                    advertised_price=1.97,
+                    unit_size=8.1,
+                    unit_type="oz",
+                    unit_price=0.243,
+                    raw_title="Ritz Toasted Chips Earn 4X POINTS with forU",
+                    image_url=None,
+                    promo_type="points_bonus",
+                    promo_detail="EARN 4X FOR U POINTS (~6.0% back in for U rewards)",
+                )
+            ]
+        )
+
+        evals = self.analyzer.evaluate_flyer(1002)
+        self.assertEqual(len(evals), 1)
+        deal = evals[0]
+
+        # Must evaluate as an All-Time Low, NOT POINTS_REWARD
+        self.assertEqual(deal.badge, "NEW_ALL_TIME_LOW")
+        self.assertAlmostEqual(deal.historical_min, 2.99)
+        self.assertAlmostEqual(deal.current_price, 1.97)
+        self.assertIn("New All-Time Low", deal.summary_reason)
+        # Multiplier perk should be preserved in the note
+        self.assertIn("4X for U points", deal.summary_reason)
+        self.assertIn("6.0% back", deal.summary_reason)
+
 
 if __name__ == "__main__":
     unittest.main()

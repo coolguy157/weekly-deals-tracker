@@ -311,6 +311,32 @@ class TestPromoExtractor(unittest.TestCase):
         eff_glitch = PromoExtractor.calculate_effective_price(p_glitch, base_price=3.99)
         self.assertEqual(eff_glitch, 3.99)
 
+    def test_tom_thumb_for_u_points_weighting(self):
+        # Tom Thumb for U multiplier
+        p_tt = PromoExtractor.extract_promo(
+            "NABISCO Small Snack Crackers",
+            additional_texts=["Earn 4X POINTS with forU"],
+            merchant="Tom Thumb",
+        )
+        self.assertIsNotNone(p_tt)
+        self.assertEqual(p_tt.promo_type, "points_bonus")
+        self.assertEqual(p_tt.points_multiplier, 4.0)
+        self.assertIn("4X FOR U POINTS", p_tt.promo_detail)
+        # 4 * 1.5% = 6.0%
+        self.assertIn("6.0% back", p_tt.promo_detail)
+
+        # Giant Choice multiplier for comparison
+        p_gt = PromoExtractor.extract_promo(
+            "Nabisco Crackers",
+            additional_texts=["EARN 4X CHOICE POINTS"],
+            merchant="Giant Food Stores",
+        )
+        self.assertIsNotNone(p_gt)
+        self.assertEqual(p_gt.promo_type, "points_bonus")
+        self.assertIn("CHOICE POINTS", p_gt.promo_detail)
+        # 4 * 2.74% = 11.0%
+        self.assertIn("11.0% back", p_gt.promo_detail)
+
 
 if __name__ == "__main__":
     unittest.main()

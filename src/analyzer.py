@@ -139,12 +139,20 @@ class DealAnalyzer:
         deal_record: Dict[str, Any],
         current_flyer_id: Optional[int] = None,
         flyer_cat_mins: Optional[Dict[Tuple[str, str], float]] = None,
-        point_value: float = 0.0274,
+        point_value: Optional[float] = None,
         history_override: Optional[List[Dict[str, Any]]] = None,
         ad_title_cache: Optional[Dict[Any, List[Dict[str, Any]]]] = None,
         cat_cache: Optional[Dict[Tuple[str, str], List[Dict[str, Any]]]] = None,
+        merchant: Optional[str] = None,
     ) -> DealEvaluation:
         """Evaluate a deal against its recorded history using episode clustering."""
+        if merchant is None:
+            merchant = (deal_record.get("merchant") or "").strip()
+        from .promo_extractor import PromoExtractor
+        if point_value is None:
+            loyalty = PromoExtractor.get_loyalty_config(merchant=merchant)
+            point_value = loyalty["point_value"]
+
         product_id = deal_record["product_id"]
         current_price = deal_record.get("advertised_price")
         if history_override is not None:
@@ -265,7 +273,12 @@ class DealAnalyzer:
 
         # Extract structured promo info if present
         from .promo_extractor import PromoExtractor
-        promo_info = PromoExtractor.extract_promo(promo_detail or raw_title, [raw_title, canonical_name], point_value=point_value)
+        promo_info = PromoExtractor.extract_promo(
+            promo_detail or raw_title,
+            [raw_title, canonical_name],
+            point_value=point_value,
+            merchant=merchant,
+        )
         if promo_info:
             promo_type = promo_info.promo_type
             if not promo_detail or promo_type in ("points_redemption", "points_bonus", "spend_save", "percent_off"):
@@ -285,7 +298,14 @@ class DealAnalyzer:
         elif promo_type == "points_redemption":
             promo_note = f" • [{promo_detail or 'Buy with Points'}]"
         elif promo_type == "points_bonus":
-            promo_note = f" • [{promo_detail or 'Points Reward'}]"
+            if promo_info and promo_info.points_multiplier:
+                mult = int(promo_info.points_multiplier)
+                pct_back = round(mult * point_value * 100, 1)
+                loyalty = PromoExtractor.get_loyalty_config(merchant=merchant, text=raw_title or promo_detail or "")
+                pts_label = loyalty["point_name"]
+                promo_note = f" • 🪙 Earn {mult}X {pts_label} (~{pct_back}% back)"
+            else:
+                promo_note = f" • [{promo_detail or 'Points Reward'}]"
         elif promo_type == "spend_save":
             promo_note = f" • [{promo_detail or 'Spend & Save'}]"
         elif promo_type == "percent_off":
@@ -310,15 +330,24 @@ class DealAnalyzer:
                 deal_record, product_id, canonical_name, base_price, promo_info,
                 point_value, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
                 qualifying_qty, raw_deal_id, ad_id, raw_title, image_url, past_obs,
+                merchant=merchant,
             )
 
         if promo_type == "points_bonus" and promo_info:
-            return self._evaluate_points_bonus(
-                deal_record, product_id, canonical_name, current_price, promo_info,
-                point_value, unit_price, unit_type, category, cat_min_unit,
-                cat_avg_unit, promo_type, promo_detail, qualifying_qty, base_price,
-                raw_deal_id, ad_id, raw_title, image_url, past_obs,
-            )
+            # Multiplier on priced deal (e.g. 4X points on a $1.97 item):
+            # Do not replace historical price evaluation with a blind POINTS_REWARD badge.
+            # Instead, evaluate against past prices so real ATLs/discounts are surfaced,
+            # while non-deals aren't artificially promoted just for having 4X points.
+            if promo_info.points_multiplier and current_price is not None and current_price > 0:
+                pass  # Fall through to historical evaluation below
+            else:
+                return self._evaluate_points_bonus(
+                    deal_record, product_id, canonical_name, current_price, promo_info,
+                    point_value, unit_price, unit_type, category, cat_min_unit,
+                    cat_avg_unit, promo_type, promo_detail, qualifying_qty, base_price,
+                    raw_deal_id, ad_id, raw_title, image_url, past_obs,
+                    merchant=merchant,
+                )
 
         if promo_type == "spend_save" and promo_info:
             return self._evaluate_spend_save(
@@ -364,7 +393,12 @@ class DealAnalyzer:
         self, deal_record, product_id, canonical_name, base_price, promo_info,
         point_value, cat_min_unit, cat_avg_unit, promo_type, promo_detail,
         qualifying_qty, raw_deal_id, ad_id, raw_title, image_url, past_obs,
+        merchant: Optional[str] = None,
     ) -> DealEvaluation:
+        from .promo_extractor import PromoExtractor
+        loyalty = PromoExtractor.get_loyalty_config(merchant=merchant, text=raw_title or promo_detail or "")
+        pts_label = loyalty["point_name"]
+
         pts = promo_info.points_cost or 0
         saved = promo_info.points_saved_val or base_price or deal_record.get("advertised_price")
         yield_val = (saved / pts) if (saved and pts > 0) else None
@@ -378,18 +412,18 @@ class DealAnalyzer:
             cur_price = 0.0
             u_price = 0.0
             val_str = f" (Save ${saved:.2f} • {yield_cents:.1f}¢/pt)" if (saved and pts > 0) else ""
-            summary_reason = f"🪙 FREE with {pts} CHOICE points{val_str}"
+            summary_reason = f"🪙 FREE with {pts} {pts_label}{val_str}"
         elif yield_val is not None and yield_val >= (point_value * 1.3) and yield_val >= 0.03:
             badge = "POINTS_DEAL"
             cur_price = round(pts * 0.01, 2)
             u_price = round(cur_price / unit_size, 4) if (unit_size and unit_size > 0) else None
-            summary_reason = f"🪙 High-Yield Points Deal: {pts} CHOICE points for ${saved:.2f} value ({yield_cents:.1f}¢/pt vs {point_value*100:.1f}¢ avg)"
+            summary_reason = f"🪙 High-Yield Points Deal: {pts} {pts_label} for ${saved:.2f} value ({yield_cents:.1f}¢/pt vs {point_value*100:.1f}¢ avg)"
         else:
             badge = "POINTS_REDEMPTION"
             cur_price = round(pts * 0.01, 2) if pts > 0 else (saved or 0.0)
             u_price = round(cur_price / unit_size, 4) if (unit_size and unit_size > 0) else None
             val_str = f" for ${saved:.2f} value ({yield_cents:.1f}¢/pt)" if (saved and pts > 0) else ""
-            summary_reason = f"🪙 Points Redemption: {pts} CHOICE points{val_str}"
+            summary_reason = f"🪙 Points Redemption: {pts} {pts_label}{val_str}"
 
         return DealEvaluation(
             deal_id=deal_record.get("id", 0),
@@ -428,7 +462,13 @@ class DealAnalyzer:
         point_value, unit_price, unit_type, category, cat_min_unit, cat_avg_unit,
         promo_type, promo_detail, qualifying_qty, base_price, raw_deal_id, ad_id,
         raw_title, image_url, past_obs,
+        merchant: Optional[str] = None,
     ) -> DealEvaluation:
+        from .promo_extractor import PromoExtractor
+        loyalty = PromoExtractor.get_loyalty_config(merchant=merchant, text=raw_title or promo_detail or "")
+        pts_label = loyalty["point_name"]
+        rew_label = loyalty["reward_label"]
+
         pts = promo_info.points_bonus or 0
         spend = promo_info.spend_threshold
         rew = promo_info.est_reward_val or (pts * point_value)
@@ -438,11 +478,11 @@ class DealAnalyzer:
         if promo_info.points_multiplier:
             mult = int(promo_info.points_multiplier)
             pct_back = round(mult * point_value * 100, 1)
-            reason_pts = f"🪙 Earn {mult}X CHOICE Points (~{pct_back}% back in grocery rewards @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
+            reason_pts = f"🪙 Earn {mult}X {pts_label} (~{pct_back}% back in {rew_label} @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
         elif spend and net_p:
-            reason_pts = f"🪙 Est. Net ${net_p:.2f} after ~${rew:.2f} in CHOICE Points reward (${spend:.0f} spend, {pts} pts @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
+            reason_pts = f"🪙 Est. Net ${net_p:.2f} after ~${rew:.2f} in {pts_label} reward (${spend:.0f} spend, {pts} pts @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
         else:
-            reason_pts = f"🪙 {pts} CHOICE Points (~${rew:.2f} reward value @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
+            reason_pts = f"🪙 {pts} {pts_label} (~${rew:.2f} reward value @ {point_value*100:.2f}¢/pt) [Est. with Points Reward]"
 
         return DealEvaluation(
             deal_id=deal_record.get("id", 0),
@@ -801,10 +841,14 @@ class DealAnalyzer:
     ) -> List[DealEvaluation]:
         """Evaluate all deals in a circular against historical data."""
         deals = self.db.get_deals_for_flyer(flyer_id, front_page_only=front_page_only)
+        merchant = (deals[0].get("merchant") or "Tom Thumb") if deals else "Tom Thumb"
 
         # Precompute circular-wide average point valuation from points redemption deals (specifically ignoring 5-point freebies)
         from .promo_extractor import PromoExtractor
-        avg_point_val = PromoExtractor.calculate_dynamic_point_value(deals, default_value=PromoExtractor.DEFAULT_POINT_VALUE)
+        loyalty = PromoExtractor.get_loyalty_config(merchant=merchant)
+        avg_point_val = PromoExtractor.calculate_dynamic_point_value(
+            deals, default_value=loyalty["point_value"], merchant=merchant
+        )
 
         # Precompute current flyer category min unit prices
         flyer_cat_mins: Dict[Tuple[str, str], float] = {}
@@ -833,6 +877,7 @@ class DealAnalyzer:
                 history_override=prod_histories.get(d["product_id"], []),
                 ad_title_cache=ad_title_cache,
                 cat_cache=cat_cache,
+                merchant=merchant,
             )
             for d in deals
         ]

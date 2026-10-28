@@ -106,7 +106,14 @@ def get_compact_tags(ev: Any) -> List[str]:
     elif promo_type == "digital_coupon" and promo_detail:
         tags.append(f"🎟️ {promo_detail}")
     elif promo_type in ("points_redemption", "points_bonus") and promo_detail:
-        tags.append(f"🪙 {promo_detail}")
+        m_mult = re.search(r"EARN\s+(\d+)X\s+(.*?)\s+\(~?(\d+(?:\.\d+)?)%\s*back(?:\s+in\s+.*?)?\)", promo_detail, re.IGNORECASE)
+        if m_mult:
+            mult_val = m_mult.group(1)
+            pts_name = m_mult.group(2).strip().title()
+            pct_val = m_mult.group(3)
+            tags.append(f"🪙 {mult_val}X {pts_name} (~{pct_val}% back)")
+        else:
+            tags.append(f"🪙 {promo_detail}")
     elif promo_type == "spend_save" and promo_detail:
         tags.append(f"🏷️ {promo_detail}")
     elif promo_type == "percent_off" and promo_detail:
