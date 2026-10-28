@@ -127,6 +127,33 @@ class ProductNormalizer:
                 ]
             return []
 
+        # Handle in-store cafe pairing / combo bundles (e.g. Starbucks drink + food pairing for $9)
+        if re.search(r"\b(?:grande\s+handcrafted\s+drink|handcrafted\s+drink)\b", lower_raw):
+            c_name = "Starbucks Grande Drink & Breakfast or Lunch Food Pairing"
+            return [
+                NormalizedDeal(
+                    raw_deal_id=item.id,
+                    flyer_id=item.flyer_id,
+                    page_number=item.page_number,
+                    is_front_page=item.is_front_page,
+                    canonical_name=c_name,
+                    brand="Starbucks",
+                    advertised_price=item.price,
+                    unit_size=None,
+                    unit_type=None,
+                    unit_price=None,
+                    raw_title=raw_name,
+                    image_url=item.cutout_image_url or item.clean_image_url,
+                    promo_type="bundle",
+                    promo_detail="PAIR DRINK WITH FOOD ITEM",
+                    qualifying_qty=2,
+                    base_price=None,
+                    coupon_discount=None,
+                    ad_title=item.name,
+                    category="Prepared Food",
+                )
+            ]
+
         # Strip packaging and promotional notes before disaggregation (preserving bulk package clauses for pricing)
         cleaned_name = self.clean_sales_notes(raw_name, preserve_bulk_pkg=True)
         if not cleaned_name:

@@ -1814,6 +1814,34 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deal.base_price, 100.0)
         self.assertIn("SAVE $20.00 ON $100.00+", deal.promo_detail)
 
+    def test_starbucks_pairing_combo(self):
+        """In-store Starbucks drink + food pairing combos must not be split into
+        separate fake $9 items like 'lunch sandwich', 'wrap', 'egg bites', or 'pocket'."""
+        item = FlyerItem(
+            id=1049095558,
+            flyer_id=8197163,
+            name="Any grande handcrafted drink*, breakfast sandwich, lunch sandwich, wrap, egg bites or pocket",
+            price=9.0,
+            original_price=None,
+            pre_price_text=None,
+            post_price_text=None,
+            description="At Selected Stores",
+            brand=None,
+            page_number=5,
+            is_front_page=False,
+            cutout_image_url="http://example.com/sbux.jpg",
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item)
+        self.assertEqual(len(deals), 1)
+        deal = deals[0]
+        self.assertEqual(deal.canonical_name, "Starbucks Grande Drink & Breakfast or Lunch Food Pairing")
+        self.assertEqual(deal.brand, "Starbucks")
+        self.assertEqual(deal.advertised_price, 9.0)
+        self.assertEqual(deal.promo_type, "bundle")
+        self.assertEqual(deal.qualifying_qty, 2)
+
+
 
 if __name__ == "__main__":
     unittest.main()
