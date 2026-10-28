@@ -4,12 +4,29 @@ Terminal formatting, ANSI color rendering, and deal card/digest presentation.
 
 import re
 import shutil
+import unicodedata
 from typing import List, Optional, Dict, Any
 
 from .grouping import group_evaluations, GroupedDeal
 
 
+def visual_len(text: str) -> int:
+    """Calculate terminal visual display width accounting for wide emoji and variation selectors."""
+    clean = re.sub(r"\033\[[0-9;]*m", "", text)
+    cols = 0
+    for ch in clean:
+        if ch in ("\ufe0f", "\u200d", "\ufe0e"):
+            continue
+        eaw = unicodedata.east_asian_width(ch)
+        if eaw in ("F", "W") or ord(ch) >= 0x1F000 or ch in ("⭐", "⚡", "✨"):
+            cols += 2
+        else:
+            cols += 1
+    return cols
+
+
 def clean_repeated_promo(s: Optional[str]) -> Optional[str]:
+
     """Clean duplicated or repetitive promo strings (e.g. TalkBack duplicated accessibility text)."""
     if not s:
         return s
@@ -29,8 +46,8 @@ def clean_repeated_promo(s: Optional[str]) -> Optional[str]:
     return cleaned
 
 
-def format_badge_fixed(badge: str, width: int = 16) -> str:
-    """Format deal badge with ANSI terminal color and fixed-width padding."""
+def format_badge_fixed(badge: str, width: int = 18) -> str:
+    """Format deal badge with ANSI terminal color and fixed visual column padding."""
     raw_labels = {
         "NEW_ALL_TIME_LOW": "[🔥 NEW ATL]",
         "MATCHES_ATL": "[⭐ MATCH ATL]",
@@ -51,7 +68,12 @@ def format_badge_fixed(badge: str, width: int = 16) -> str:
         "BASKET_COUPON": "[🎟️ COUPON]",
     }
     raw = raw_labels.get(badge, f"[{badge}]")
-    padded = f"{raw:<{width}}"
+    if width > 0:
+        vlen = visual_len(raw)
+        pad = max(0, width - vlen)
+        padded = raw + (" " * pad)
+    else:
+        padded = raw
 
     color_map = {
         "NEW_ALL_TIME_LOW": "\033[91m",
@@ -80,6 +102,32 @@ def format_badge_fixed(badge: str, width: int = 16) -> str:
 def format_badge(badge: str) -> str:
     """Format deal badge with ANSI terminal color and dynamic width."""
     return format_badge_fixed(badge, width=0)
+
+
+def format_price_decimal_aligned(
+    min_price: Optional[float],
+    max_price: Optional[float] = None,
+    is_free: bool = False,
+    width: int = 7,
+) -> str:
+    """
+    Format price string space-aligned on the decimal point.
+    For standard prices (e.g. $0.97, $1.97, $12.00), the decimal point is placed at column width - 2.
+    """
+    if is_free:
+        return f"{'FREE':>{width}}"
+    if min_price is None:
+        return f"{'See ad':>{width}}"
+
+    # If price range
+    if max_price is not None and abs(min_price - max_price) >= 0.01:
+        first_str = f"${min_price:.2f}"
+        second_str = f"${max_price:.2f}"
+        padded_first = f"{first_str:>{width}}"
+        return f"{padded_first}-{second_str}"
+
+    p_str = f"${min_price:.2f}"
+    return f"{p_str:>{width}}"
 
 
 def format_unit_price(unit_price: Optional[float], unit_type: Optional[str]) -> str:
@@ -181,13 +229,9 @@ def format_compact_note(ev: Any) -> str:
 
 def print_deal_card(ev: Any, verbose: bool = False) -> None:
     """Print a single deal observation with formatted badge and inline metadata."""
-    badge_str = format_badge_fixed(ev.badge, width=16)
-    if ev.badge == "POINTS_FREEBIE" or getattr(ev, "promo_type", "") == "points_redemption":
-        price_str = "   FREE"
-    elif ev.current_price is not None:
-        price_str = f"${ev.current_price:.2f}"
-    else:
-        price_str = " See ad"
+    badge_str = format_badge_fixed(ev.badge, width=18)
+    is_free = (ev.badge == "POINTS_FREEBIE" or getattr(ev, "promo_type", "") == "points_redemption")
+    price_str = format_price_decimal_aligned(ev.current_price, is_free=is_free, width=7)
     page_str = f"p.{ev.page_number}" + (" (Cover)" if ev.is_front_page else "")
 
     # Deduplicate brand tag if brand is already part of canonical product name
@@ -199,7 +243,7 @@ def print_deal_card(ev: Any, verbose: bool = False) -> None:
     unit_str = f" ({u_str})" if u_str else ""
 
     if verbose:
-        print(f" {badge_str}  {price_str:>7}  {ev.canonical_name}{brand_str}{unit_str} ({page_str})")
+        print(f" {badge_str}  {price_str}  {ev.canonical_name}{brand_str}{unit_str} ({page_str})")
         print(f"   ↳ {ev.summary_reason}\n")
     else:
         try:
@@ -209,7 +253,7 @@ def print_deal_card(ev: Any, verbose: bool = False) -> None:
         target_width = max(76, term_width - 3)
 
         tags = get_compact_tags(ev)
-        base_overhead = 1 + 16 + 2 + 7 + 2 + len(brand_str) + len(unit_str) + len(f" ({page_str})")
+        base_overhead = 1 + 18 + 2 + len(price_str) + 2 + len(brand_str) + len(unit_str) + len(f" ({page_str})")
         avail = target_width - base_overhead
 
         name = ev.canonical_name
@@ -236,24 +280,17 @@ def print_deal_card(ev: Any, verbose: bool = False) -> None:
         if len(name) > avail_name and avail_name > 10:
             name = name[:avail_name - 1].rstrip() + "…"
 
-        print(f" {badge_str}  {price_str:>7}  {name}{brand_str}{unit_str} ({page_str}){tag_str}")
+        print(f" {badge_str}  {price_str}  {name}{brand_str}{unit_str} ({page_str}){tag_str}")
 
 
 def print_grouped_deal_card(g: Any, verbose: bool = False, show_skus: bool = False) -> None:
     """Print a grouped circular ad card with price range, unit price, and variety breakdown."""
     rep = getattr(g, "representative", g)
-    badge_str = format_badge_fixed(g.badge, width=16)
+    badge_str = format_badge_fixed(g.badge, width=18)
 
-    # Price string
-    if g.badge == "POINTS_FREEBIE" or getattr(rep, "promo_type", "") == "points_redemption":
-        price_str = "       FREE"
-    elif g.min_price is not None:
-        if g.max_price is not None and abs(g.min_price - g.max_price) >= 0.01:
-            price_str = f"${g.min_price:.2f}-${g.max_price:.2f}"
-        else:
-            price_str = f"${g.min_price:.2f}"
-    else:
-        price_str = "    See ad"
+    # Price string space-aligned on decimal point
+    is_free = (g.badge == "POINTS_FREEBIE" or getattr(rep, "promo_type", "") == "points_redemption")
+    price_str = format_price_decimal_aligned(g.min_price, g.max_price, is_free=is_free, width=7)
 
     # Page string
     pages_list = getattr(g, "pages", [getattr(g, "page_number", 1)])
@@ -288,7 +325,7 @@ def print_grouped_deal_card(g: Any, verbose: bool = False, show_skus: bool = Fal
             var_note = f" [{len(varieties)} varieties: {sample}{more}]"
         else:
             var_note = ""
-        print(f" {badge_str}  {price_str:>11}  {g.title}{unit_str_verbose} ({pages_verbose}){var_note}")
+        print(f" {badge_str}  {price_str}  {g.title}{unit_str_verbose} ({pages_verbose}){var_note}")
         reason = getattr(rep, "summary_reason", "")
         if reason:
             print(f"   ↳ {reason}\n")
@@ -303,8 +340,8 @@ def print_grouped_deal_card(g: Any, verbose: bool = False, show_skus: bool = Fal
         var_str = f" [{len(varieties)} varieties]" if len(varieties) > 1 else ""
         tags = get_compact_tags(rep)
 
-        # Base overhead: 1 space + badge(16) + 2 spaces + price(11) + 2 spaces + var_str + unit_str + ' (' + page_str + ')'
-        base_overhead = 1 + 16 + 2 + 11 + 2 + len(var_str) + len(unit_str) + len(f" ({page_str})")
+        # Base overhead: 1 space + badge(18) + 2 spaces + price + 2 spaces + var_str + unit_str + ' (' + page_str + ')'
+        base_overhead = 1 + 18 + 2 + len(price_str) + 2 + len(var_str) + len(unit_str) + len(f" ({page_str})")
         avail = target_width - base_overhead
 
         # Prioritize high-signal promo / ATL tags
@@ -338,7 +375,7 @@ def print_grouped_deal_card(g: Any, verbose: bool = False, show_skus: bool = Fal
         if len(title) > avail_title and avail_title > 10:
             title = title[:avail_title - 1].rstrip() + "…"
 
-        print(f" {badge_str}  {price_str:>11}  {title}{var_str}{unit_str} ({page_str}){tag_str}")
+        print(f" {badge_str}  {price_str}  {title}{var_str}{unit_str} ({page_str}){tag_str}")
 
     if show_skus and len(getattr(g, "items", [])) > 1:
         for it in g.items:

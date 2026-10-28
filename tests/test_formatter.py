@@ -31,6 +31,56 @@ class TestFormatter(unittest.TestCase):
         badge = format_badge("CYCLE_REFRESH")
         self.assertIn("[~ CYCLE REFRESH]", badge)
 
+    def test_decimal_alignment_across_badges(self):
+        from src.formatter import format_price_decimal_aligned, print_deal_card, visual_len
+        import re
+
+        # Test format_price_decimal_aligned
+        self.assertEqual(format_price_decimal_aligned(1.97, width=7), "  $1.97")
+        self.assertEqual(format_price_decimal_aligned(12.00, width=7), " $12.00")
+        self.assertEqual(format_price_decimal_aligned(0.97, width=7), "  $0.97")
+        self.assertEqual(format_price_decimal_aligned(None, width=7), " See ad")
+        self.assertEqual(format_price_decimal_aligned(0.0, is_free=True, width=7), "   FREE")
+
+        # Test visual column alignment to decimal point across different badges
+        badges_to_test = ["POINTS_REWARD", "BEAT_AVERAGE", "NEW_ALL_TIME_LOW", "STANDARD_DEAL", "CYCLE_REFRESH"]
+        captured_lines = []
+        for badge_name in badges_to_test:
+            ev = DealEvaluation(
+                deal_id=1,
+                product_id=1,
+                canonical_name="Test Product",
+                brand="Test Brand",
+                current_price=2.97,
+                unit_price=2.97,
+                page_number=1,
+                is_front_page=True,
+                historical_min=2.97,
+                historical_avg=3.49,
+                historical_max=3.99,
+                past_observations_count=5,
+                diff_pct_vs_avg=-14.3,
+                badge=badge_name,
+                summary_reason="Test reason",
+            )
+            buf = StringIO()
+            sys.stdout = buf
+            try:
+                print_deal_card(ev, verbose=False)
+                captured_lines.append(buf.getvalue().strip())
+            finally:
+                sys.stdout = sys.__stdout__
+
+        dot_columns = []
+        for line in captured_lines:
+            clean = re.sub(r"\033\[[0-9;]*m", "", line)
+            dot_idx = clean.find(".")
+            dot_columns.append(visual_len(clean[:dot_idx]))
+
+        # All badges must align the decimal point at the exact same visual column
+        self.assertEqual(len(set(dot_columns)), 1)
+
+
     def test_print_deal_card(self):
         ev = DealEvaluation(
             deal_id=1,
