@@ -61,6 +61,27 @@ def apply_poultry_cut_standardization(canonical: str) -> str:
     return canonical
 
 
+def apply_beef_cut_standardization(canonical: str) -> str:
+    """Standardize beef roast and cut descriptions."""
+    if re.search(r"^(?:USDA\s+Choice\s+(?:Beef\s+)?)?Bottom\s+Round(?:\s+Roast)?$", canonical, re.IGNORECASE):
+        if "usda choice" in canonical.lower():
+            return "USDA Choice Beef Bottom Round Roast"
+        return "Beef Bottom Round Roast"
+    if re.search(r"^(?:USDA\s+Choice\s+(?:Beef\s+)?)?Top\s+Round(?:\s+Roast)?$", canonical, re.IGNORECASE):
+        if "usda choice" in canonical.lower():
+            return "USDA Choice Beef Top Round Roast"
+        return "Beef Top Round Roast"
+    if re.search(r"^(?:USDA\s+Choice\s+(?:Beef\s+)?)?Eye\s+of\s+Round(?:\s+Roast)?$", canonical, re.IGNORECASE):
+        if "usda choice" in canonical.lower():
+            return "USDA Choice Beef Eye of Round Roast"
+        return "Beef Eye of Round Roast"
+    if re.search(r"^(?:USDA\s+Choice\s+(?:Beef\s+)?)?Chuck(?:\s+Roast)?$", canonical, re.IGNORECASE):
+        if "usda choice" in canonical.lower():
+            return "USDA Choice Beef Chuck Roast"
+        return "Beef Chuck Roast"
+    return canonical
+
+
 def apply_seasoning_standardization(canonical: str) -> str:
     """Standardize seasoning and mix packet names by stripping minor weight ranges."""
     if any(k in canonical.lower() for k in SEASONING_KEYWORDS):
@@ -213,7 +234,12 @@ def apply_deli_or_meat_per_lb_fallback(
         is_portion_or_unit = bool(re.search(r"\b(?:portions?|patt(?:y|ies)|cakes?|skewers?)\b", canonical, re.IGNORECASE))
         is_fresh_meat_cut = (
             not is_portion_or_unit
-            and any(k in canonical.lower() for k in ("boneless", "skinless", "bone-in", "fresh", "whole", "center cut", "loin chop", "pork chop", "ribeye", "sirloin", "t-bone", "filet mignon", "flank steak", "drumsticks", "tenders", "cutlets"))
+            and any(k in canonical.lower() for k in (
+                "boneless", "skinless", "bone-in", "fresh", "whole", "center cut",
+                "loin chop", "pork chop", "ribeye", "sirloin", "t-bone", "filet mignon",
+                "flank steak", "drumsticks", "tenders", "cutlets", "roast", "steak",
+                "chuck", "round", "ribs", "short rib", "brisket",
+            ))
             and any(k in canonical.lower() for k in ("chicken", "beef", "pork", "turkey", "salmon", "tilapia", "cod", "shrimp"))
         )
         if (

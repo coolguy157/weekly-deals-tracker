@@ -171,6 +171,62 @@ def pre_expand_deal_string(name: str) -> str:
         flags=re.IGNORECASE,
     )
 
+    # Generalized Beef cut & roast coordination: e.g. "USDA Choice Beef Chuck, Bottom Round, Chuck Shoulder Roast Bone-in or Beef Short Rib Bone-in"
+    beef_cuts_list = [
+        r"Chuck\s+Shoulder\s+Roast(?:\s+Bone-in)?",
+        r"Shoulder\s+Roast(?:\s+Bone-in)?",
+        r"Beef\s+Short\s+Ribs?(?:\s+Bone-in)?",
+        r"Short\s+Ribs?(?:\s+Bone-in)?",
+        r"Bottom\s+Round(?:\s+Roast)?",
+        r"Top\s+Round(?:\s+Roast)?",
+        r"Eye\s+of\s+Round(?:\s+Roast)?",
+        r"Sirloin\s+Tip(?:\s+Roast)?",
+        r"Chuck(?:\s+Roast)?",
+        r"Rump(?:\s+Roast)?",
+        r"Tri-Tip(?:\s+Roast)?",
+        r"Ribeye(?:\s+Steak)?",
+        r"Strip\s+Steak",
+        r"T-Bone(?:\s+Steak)?",
+    ]
+    cuts_or = "|".join(beef_cuts_list)
+    beef_prefix_pat = re.compile(
+        rf"\b(USDA\s+Choice(?:\s+Beef)?|USDA\s+Prime(?:\s+Beef)?|USDA\s+Select(?:\s+Beef)?|Certified\s+Angus\s+Beef|Chairman's\s+Reserve(?:\s+Beef)?)\s+"
+        rf"((?:(?:{cuts_or})(?:,\s*|\s+or\s+))+)"
+        rf"({cuts_or})\b",
+        re.IGNORECASE,
+    )
+
+    def _expand_beef_cuts(m):
+        prefix = m.group(1).strip()
+        if not re.search(r"\bbeef\b", prefix, re.IGNORECASE):
+            prefix = f"{prefix} Beef"
+
+        middle = re.sub(r"\s+or\s*$", "", m.group(2).strip(), flags=re.IGNORECASE).strip()
+        last = m.group(3).strip()
+
+        raw_parts = [p.strip() for p in re.split(r",\s*|\s+or\s+", middle) if p.strip()]
+        if last.strip():
+            raw_parts.append(last.strip())
+
+        expanded = []
+        for c in raw_parts:
+            cut = c.strip()
+            if re.search(r"^(?:Beef\s+)?Short\s+Ribs?(?:\s+Bone-in)?$", cut, re.IGNORECASE):
+                cut = "Short Ribs Bone-in"
+            elif re.search(r"^(?:Bottom|Top|Eye\s+of)\s+Round$", cut, re.IGNORECASE):
+                cut = f"{cut} Roast"
+            elif re.search(r"^Chuck$", cut, re.IGNORECASE):
+                cut = "Chuck Roast"
+            elif re.search(r"^Rump$", cut, re.IGNORECASE):
+                cut = "Rump Roast"
+            elif re.search(r"^Sirloin\s+Tip$", cut, re.IGNORECASE):
+                cut = "Sirloin Tip Roast"
+
+            expanded.append(f"{prefix} {cut}")
+        return " or ".join(expanded)
+
+    cleaned_name = beef_prefix_pat.sub(_expand_beef_cuts, cleaned_name)
+
     # Boundary between Greenhouse Grown and next brand if missing comma (common in Giant circulars)
     cleaned_name = re.sub(
         r"\b(Greenhouse\s+Grown)\s+(Dole|Bolthouse|NatureSweet|Fresh\s+Express|Taylor\s+Farms|Our\s+Brand|Earthbound\s+Farm)\b",
