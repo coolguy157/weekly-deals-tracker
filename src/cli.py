@@ -41,6 +41,17 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
         pass
 
 
+def cmd_enrich(args: argparse.Namespace) -> None:
+    """Enrich unpriced and BOGO deals by querying the mobile app for promos and shelf prices."""
+    db = DealsDatabase(args.db)
+    merchant = _resolve_merchant_filter(args)
+    flyer_id = args.flyer_id or db.get_latest_flyer_id(merchant)
+    if not flyer_id:
+        print(f"No active circular found for merchant '{merchant}'. Run 'sync' first.")
+        return
+    _enrich_deals_with_app(db, flyer_id)
+
+
 def cmd_deals(args: argparse.Namespace) -> None:
     """Display analyzed deals for the latest circular with clean terminal digest formatting."""
     db = DealsDatabase(args.db)
@@ -365,6 +376,12 @@ def main() -> None:
     # renormalize
     p_renorm = subparsers.add_parser("renormalize", help="Reconcile and disaggregate all past compound deals")
 
+    # enrich
+    p_enrich = subparsers.add_parser("enrich", help="Enrich unpriced deals with mobile app promos & shelf prices")
+    p_enrich.add_argument("--store", type=str, default=None, help="Preset store alias (default: 'tomthumb')")
+    p_enrich.add_argument("-m", "--merchant", type=str, default=None, help="Merchant banner")
+    p_enrich.add_argument("--flyer-id", type=int, default=None, help="Specific flyer ID")
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -372,6 +389,8 @@ def main() -> None:
 
     if args.command == "sync":
         cmd_sync(args)
+    elif args.command == "enrich":
+        cmd_enrich(args)
     elif args.command == "deals":
         cmd_deals(args)
     elif args.command == "history":
