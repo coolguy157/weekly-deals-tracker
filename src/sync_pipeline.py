@@ -5,9 +5,10 @@ Purpose: Circular ingestion pipeline, store presets resolution, and mobile app e
 
 import argparse
 import os
+import re
 import sys
 from pathlib import Path
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Dict, Any
 
 from .database import DealsDatabase
 from .fetcher import FlippAdFetcher
@@ -122,40 +123,60 @@ def _enrich_deals_with_app(db: DealsDatabase, flyer_id: int) -> None:
 
     print("\n--- [App Enrichment] Connecting to Tom Thumb App Automation Bridge ---")
     deals = db.get_deals_for_flyer(flyer_id)
-    bogo_deals = [d for d in deals if d.get("promo_type") == "bogo" and d.get("advertised_price") is None]
+    from .normalizer.cleaner import GENERIC_PLACEHOLDER_NAMES
 
-    if bogo_deals:
-        print(f"  [App Enrichment] Found {len(bogo_deals)} unpriced BOGO deals. Resolving shelf prices...")
+    unpriced_deals = [
+        d for d in deals
+        if (d.get("advertised_price") is None or d.get("advertised_price") == 0)
+        and d["canonical_name"].strip().lower() not in GENERIC_PLACEHOLDER_NAMES
+    ]
 
-        # Build search query terms for BOGOs
-        search_queries = []
-        deal_map = {}
-        for d in bogo_deals:
-            cname = d["canonical_name"]
-            # Use brand or first 2-3 words of canonical name
-            term = d.get("brand") or " ".join(cname.split()[:2])
-            search_queries.append(term)
-            deal_map[term] = d
+    if unpriced_deals:
+        print(f"  [App Enrichment] Found {len(unpriced_deals)} unpriced deals. Resolving shelf prices...")
+
+        def _clean_query(d):
+            cname = d.get("canonical_name") or d.get("raw_title") or ""
+            clean = re.sub(r"\b\d+(\.\d+)?\s*(oz|lb|ct|pk|count|fl\s*oz|ounce|pound|liter|l|ml|gal)\b.*", "", cname, flags=re.IGNORECASE)
+            clean = re.sub(r"[,\(\)\-\:\®\™\.\*\'\"&]", " ", clean)
+            clean = re.sub(r"\b(or|and|of|for|with|in)\b", " ", clean, flags=re.IGNORECASE)
+            words = [w for w in clean.split() if w.lower() not in ("select", "varieties", "flavor", "flavors", "variety", "assorted", "fresh", "made")]
+            return d.get("brand") or " ".join(words[:2]).strip()
+
+        # Build clean search query terms mapped to deal lists
+        deal_map: Dict[str, List[Dict[str, Any]]] = {}
+        for d in unpriced_deals:
+            term = _clean_query(d)
+            if term and len(term) >= 2:
+                deal_map.setdefault(term, []).append(d)
 
         # 1. Check local DB cache first
         cached_count = 0
         queries_needing_app = []
-        for term, d in deal_map.items():
-            cached_price = d.get("last_shelf_price")
+        for term, d_list in deal_map.items():
+            cached_price = None
+            for d in d_list:
+                if d.get("last_shelf_price") and d.get("last_shelf_price") > 0:
+                    cached_price = d["last_shelf_price"]
+                    break
+
             if cached_price and cached_price > 0:
                 cached_count += 1
-                # Compute effective price
-                promo_info = PromoExtractor.extract_promo(d.get("promo_detail") or "BUY 1 GET 1 FREE") or PromoInfo(
-                    promo_type="bogo",
-                    promo_detail=d.get("promo_detail") or "BOGO",
-                    buy_qty=1,
-                    free_qty=1,
-                    qualifying_qty=d.get("qualifying_qty") or 2,
-                )
-                eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=cached_price)
-                unit_price = round(eff_price / d["unit_size"], 4) if (eff_price and d.get("unit_size")) else None
-                db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=cached_price)
-                print(f"  [Cached Shelf Price] {d['canonical_name']}: Base ${cached_price:.2f} -> Effective ${eff_price:.2f}/ea")
+                for d in d_list:
+                    p_detail = d.get("promo_detail") or ""
+                    promo_info = PromoExtractor.extract_promo(p_detail)
+                    if not promo_info and d.get("promo_type") == "bogo":
+                        promo_info = PromoInfo(
+                            promo_type="bogo",
+                            promo_detail=p_detail or "BOGO",
+                            buy_qty=1,
+                            free_qty=1,
+                            qualifying_qty=d.get("qualifying_qty") or 2,
+                        )
+                    eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=cached_price) if promo_info else None
+                    unit_price = round(eff_price / d["unit_size"], 4) if (eff_price and d.get("unit_size")) else None
+                    if eff_price is not None:
+                        db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=cached_price)
+                        print(f"  [Cached Shelf Price] {d['canonical_name']}: Base ${cached_price:.2f} -> Effective ${eff_price:.2f}/ea")
             else:
                 queries_needing_app.append(term)
 
@@ -164,22 +185,27 @@ def _enrich_deals_with_app(db: DealsDatabase, flyer_id: int) -> None:
             print(f"  [App Enrichment] Querying app for {len(queries_needing_app)} uncached items...")
             app_prices = lookup_shelf_fn(queries_needing_app)
             for term, price in app_prices.items():
-                d = deal_map.get(term)
-                if d and price:
-                    db.update_product_shelf_price(d["product_id"], price)
-                    promo_info = PromoExtractor.extract_promo(d.get("promo_detail") or "BUY 1 GET 1 FREE") or PromoInfo(
-                        promo_type="bogo",
-                        promo_detail=d.get("promo_detail") or "BOGO",
-                        buy_qty=1,
-                        free_qty=1,
-                        qualifying_qty=d.get("qualifying_qty") or 2,
-                    )
-                    eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=price)
-                    unit_price = round(eff_price / d["unit_size"], 4) if (eff_price and d.get("unit_size")) else None
-                    db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=price)
-                    print(f"  [App Scraped Price] {d['canonical_name']}: Base ${price:.2f} -> Effective ${eff_price:.2f}/ea")
+                matching_deals = deal_map.get(term, [])
+                if matching_deals and price:
+                    for d in matching_deals:
+                        db.update_product_shelf_price(d["product_id"], price)
+                        p_detail = d.get("promo_detail") or ""
+                        promo_info = PromoExtractor.extract_promo(p_detail)
+                        if not promo_info and d.get("promo_type") == "bogo":
+                            promo_info = PromoInfo(
+                                promo_type="bogo",
+                                promo_detail=p_detail or "BOGO",
+                                buy_qty=1,
+                                free_qty=1,
+                                qualifying_qty=d.get("qualifying_qty") or 2,
+                            )
+                        eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=price) if promo_info else None
+                        unit_price = round(eff_price / d["unit_size"], 4) if (eff_price and d.get("unit_size")) else None
+                        if eff_price is not None:
+                            db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=price)
+                            print(f"  [App Scraped Price] {d['canonical_name']}: Base ${price:.2f} -> Effective ${eff_price:.2f}/ea")
     else:
-        print("  [App Enrichment] No unpriced BOGO deals requiring shelf price lookup.")
+        print("  [App Enrichment] No unpriced deals requiring shelf price lookup.")
 
     # 3. Disambiguate multi-buy/BOGO collage tiles, berries, and candidate bundles
     if disambiguate_fn:

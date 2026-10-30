@@ -28,6 +28,13 @@ GENERIC_PLACEHOLDER_NAMES: Set[str] = {
     "egg bites",
     "lunch sandwich",
     "breakfast sandwich",
+    "gas rewards",
+    "we deliver!",
+    "we deliver",
+    "baby club savings",
+    "baby club",
+    "free flu shot",
+    "free flu shot + up to $20 off groceries",
 }
 
 # Packaging, portioning, and promotional sales patterns to clean from canonical names

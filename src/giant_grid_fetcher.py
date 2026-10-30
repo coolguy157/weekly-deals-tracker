@@ -9,6 +9,7 @@ import sys
 import re
 import time
 import json
+import random
 import logging
 from typing import List, Tuple, Optional, Dict, Any
 
@@ -234,7 +235,7 @@ class GiantGridFetcher:
             if targets:
                 logger.info(f"Disambiguating {len(targets)} circular items via in-page details API...")
                 print(f"\n--- [GiantGrid] Disambiguating {len(targets)} circular items via in-page details API (spread-paced) ---")
-                batch_size = 5
+                batch_size = 2
                 for b_idx in range(0, len(targets), batch_size):
                     chunk = targets[b_idx : b_idx + batch_size]
                     batch_payload = [
@@ -251,10 +252,13 @@ class GiantGridFetcher:
                         for aid, cid in chunk
                     ]
 
-                    for _attempt in range(2):
+                    for _attempt in range(3):
                         batch_res = page.evaluate(
                             """async (batch) => {
-                            const promises = batch.map(async (item) => {
+                            const promises = batch.map(async (item, idx) => {
+                                if (idx > 0) {
+                                    await new Promise(r => setTimeout(r, idx * 150));
+                                }
                                 try {
                                     const resp = await fetch(item.url, {
                                         method: 'POST',
@@ -280,8 +284,16 @@ class GiantGridFetcher:
                         )
 
                         if any(r.get("captcha") for r in (batch_res or [])):
-                            logger.warning("[GiantGrid] DataDome 403 detected during details batch. Awaiting user resolution...")
-                            self._wait_for_captcha(page)
+                            logger.warning(f"[GiantGrid] DataDome 403 detected at item {b_idx + 1}/{len(targets)}. Auto-refreshing page so CAPTCHA appears...")
+                            print(f"\n--- [GiantGrid] DataDome 403 detected at item {b_idx + 1}/{len(targets)}. Auto-refreshing page to trigger CAPTCHA modal... ---")
+                            try:
+                                page.reload(wait_until="domcontentloaded", timeout=30000)
+                                page.wait_for_timeout(2500)
+                            except Exception as e_reload:
+                                logger.warning(f"[GiantGrid] Page reload warning: {e_reload}")
+                            solved = self._wait_for_captcha(page)
+                            if solved:
+                                time.sleep(random.uniform(2.5, 4.0))
                             continue
 
                         for r in (batch_res or []):
@@ -290,9 +302,14 @@ class GiantGridFetcher:
                                 details_cache[aid] = r.get("products") or []
                         break
 
-                    time.sleep(0.18)
-                    if (b_idx // batch_size + 1) % 15 == 0 or (b_idx + batch_size) >= len(targets):
-                        done = min(b_idx + batch_size, len(targets))
+                    # Spaced and randomized jitter delay between batches
+                    pace_delay = random.uniform(0.65, 1.25)
+                    if (b_idx // batch_size + 1) % 12 == 0:
+                        pace_delay += random.uniform(1.2, 2.5)
+                    time.sleep(pace_delay)
+
+                    done = min(b_idx + batch_size, len(targets))
+                    if done % 25 == 0 or done == len(targets):
                         print(f"  [GiantGrid] Details progress: {done}/{len(targets)} circular items processed...")
 
             normalized_deals: List[NormalizedDeal] = []
