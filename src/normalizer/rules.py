@@ -429,7 +429,7 @@ def apply_deli_or_meat_per_lb_fallback(
     full_item_text: str,
 ) -> Tuple[Optional[float], Optional[str], Optional[float]]:
     """Deli counter cheese & meat / fresh butcher meat sold by the pound fallback."""
-    if size is None and item_price:
+    if size is None:
         is_portion_or_unit = bool(re.search(r"\b(?:portions?|patt(?:y|ies)|cakes?|skewers?)\b", canonical, re.IGNORECASE))
         is_fresh_meat_cut = (
             not is_portion_or_unit
@@ -452,7 +452,7 @@ def apply_deli_or_meat_per_lb_fallback(
         ):
             size = 1.0
             unit = "lb"
-            unit_price = round(item_price / 1.0, 4)
+            unit_price = round(item_price / 1.0, 4) if item_price else None
         elif any(k in canonical.lower() for k in ("raspberries", "blackberries", "blueberries", "strawberries")):
             if "6 oz" in canonical.lower():
                 size = 6.0

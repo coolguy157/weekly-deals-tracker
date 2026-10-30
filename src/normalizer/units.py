@@ -32,6 +32,13 @@ def extract_unit_info(text: str) -> Tuple[Optional[float], Optional[str]]:
     if re.search(r"\b(?:\d+\s*-\s*\d+|\d+)\s*(?:ct|count)\s*(?:per\s+(?:lb|pound)|/\s*(?:lb|pound))\b", text, re.IGNORECASE):
         return 1.0, "lb"
 
+    # Check for per-unit rate modifiers (e.g. "20% Off/lb.", "$2.00 Off/lb.", "5.00 Off/lb.", "$1.00 Off/ea.")
+    m_rate = re.search(r"(?:per\s+|/\s*)(lb|pound|oz|ounce|ea|each|count|ct)\b", text, re.IGNORECASE)
+    if m_rate:
+        u_raw = m_rate.group(1).lower()
+        std_u = UNIT_MAP.get(u_raw, u_raw)
+        return 1.0, std_u
+
     match = UNIT_PATTERN.search(text)
     if not match:
         return None, None

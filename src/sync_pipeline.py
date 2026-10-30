@@ -118,10 +118,8 @@ def _enrich_deals_with_app(db: DealsDatabase, flyer_id: int) -> None:
 
     get_promos_fn, lookup_shelf_fn, disambiguate_fn = _get_app_bridge()
     if not lookup_shelf_fn:
-        print("  [App Enrichment] App Automation bridge not available. Skipping in-app enrichment.\n")
-        return
+        print("  [App Enrichment] Mobile app bridge not available. Resolving unpriced deals via local database cache...")
 
-    print("\n--- [App Enrichment] Connecting to Tom Thumb App Automation Bridge ---")
     deals = db.get_deals_for_flyer(flyer_id)
     from .normalizer.cleaner import GENERIC_PLACEHOLDER_NAMES
 
@@ -149,7 +147,7 @@ def _enrich_deals_with_app(db: DealsDatabase, flyer_id: int) -> None:
             if term and len(term) >= 2:
                 deal_map.setdefault(term, []).append(d)
 
-        # 1. Check local DB cache first
+        # 1. Check local DB cache first (last_shelf_price and historical observations)
         cached_count = 0
         queries_needing_app = []
         for term, d_list in deal_map.items():
@@ -158,6 +156,35 @@ def _enrich_deals_with_app(db: DealsDatabase, flyer_id: int) -> None:
                 if d.get("last_shelf_price") and d.get("last_shelf_price") > 0:
                     cached_price = d["last_shelf_price"]
                     break
+
+            if not cached_price:
+                with db._get_connection() as conn:
+                    for d in d_list:
+                        row = conn.execute(
+                            """
+                            SELECT COALESCE(base_price, advertised_price) as hist_price
+                            FROM deal_observations
+                            WHERE product_id = ? AND (base_price > 0 OR advertised_price > 0)
+                            ORDER BY id DESC LIMIT 1
+                            """,
+                            (d["product_id"],),
+                        ).fetchone()
+                        if row and row["hist_price"]:
+                            cached_price = float(row["hist_price"])
+                            break
+                        row_c = conn.execute(
+                            """
+                            SELECT COALESCE(d2.base_price, d2.advertised_price) as hist_price
+                            FROM deal_observations d2
+                            JOIN products p2 ON d2.product_id = p2.product_id
+                            WHERE p2.canonical_name = ? AND (d2.base_price > 0 OR d2.advertised_price > 0)
+                            ORDER BY d2.id DESC LIMIT 1
+                            """,
+                            (d["canonical_name"],),
+                        ).fetchone()
+                        if row_c and row_c["hist_price"]:
+                            cached_price = float(row_c["hist_price"])
+                            break
 
             if cached_price and cached_price > 0:
                 cached_count += 1
@@ -180,30 +207,33 @@ def _enrich_deals_with_app(db: DealsDatabase, flyer_id: int) -> None:
             else:
                 queries_needing_app.append(term)
 
-        # 2. Query live app for remaining items
+        # 2. Query live app for remaining items if app bridge is available
         if queries_needing_app:
-            print(f"  [App Enrichment] Querying app for {len(queries_needing_app)} uncached items...")
-            app_prices = lookup_shelf_fn(queries_needing_app)
-            for term, price in app_prices.items():
-                matching_deals = deal_map.get(term, [])
-                if matching_deals and price:
-                    for d in matching_deals:
-                        db.update_product_shelf_price(d["product_id"], price)
-                        p_detail = d.get("promo_detail") or ""
-                        promo_info = PromoExtractor.extract_promo(p_detail)
-                        if not promo_info and d.get("promo_type") == "bogo":
-                            promo_info = PromoInfo(
-                                promo_type="bogo",
-                                promo_detail=p_detail or "BOGO",
-                                buy_qty=1,
-                                free_qty=1,
-                                qualifying_qty=d.get("qualifying_qty") or 2,
-                            )
-                        eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=price) if promo_info else None
-                        unit_price = round(eff_price / d["unit_size"], 4) if (eff_price and d.get("unit_size")) else None
-                        if eff_price is not None:
-                            db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=price)
-                            print(f"  [App Scraped Price] {d['canonical_name']}: Base ${price:.2f} -> Effective ${eff_price:.2f}/ea")
+            if lookup_shelf_fn:
+                print(f"  [App Enrichment] Querying app for {len(queries_needing_app)} uncached items...")
+                app_prices = lookup_shelf_fn(queries_needing_app)
+                for term, price in app_prices.items():
+                    matching_deals = deal_map.get(term, [])
+                    if matching_deals and price:
+                        for d in matching_deals:
+                            db.update_product_shelf_price(d["product_id"], price)
+                            p_detail = d.get("promo_detail") or ""
+                            promo_info = PromoExtractor.extract_promo(p_detail)
+                            if not promo_info and d.get("promo_type") == "bogo":
+                                promo_info = PromoInfo(
+                                    promo_type="bogo",
+                                    promo_detail=p_detail or "BOGO",
+                                    buy_qty=1,
+                                    free_qty=1,
+                                    qualifying_qty=d.get("qualifying_qty") or 2,
+                                )
+                            eff_price = PromoExtractor.calculate_effective_price(promo_info, base_price=price) if promo_info else None
+                            unit_price = round(eff_price / d["unit_size"], 4) if (eff_price and d.get("unit_size")) else None
+                            if eff_price is not None:
+                                db.update_deal_price(d["id"], advertised_price=eff_price, unit_price=unit_price, base_price=price)
+                                print(f"  [App Scraped Price] {d['canonical_name']}: Base ${price:.2f} -> Effective ${eff_price:.2f}/ea")
+            else:
+                print(f"  [App Enrichment] Local cache resolved {cached_count} items. ({len(queries_needing_app)} items require live bridge)")
     else:
         print("  [App Enrichment] No unpriced deals requiring shelf price lookup.")
 

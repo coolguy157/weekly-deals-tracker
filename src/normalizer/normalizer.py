@@ -255,6 +255,10 @@ class ProductNormalizer:
                 post_size, post_unit = self.extract_unit_info(item.post_price_text)
                 if post_size is not None:
                     size, unit = post_size, post_unit
+            if size is None and getattr(item, "pre_price_text", None):
+                pre_size, pre_unit = self.extract_unit_info(item.pre_price_text)
+                if pre_size is not None:
+                    size, unit = pre_size, pre_unit
 
             # Match brand:
             # First check for recognized national brands in sub_name (sorted by descending length so "Green Giant" matches before "Giant")

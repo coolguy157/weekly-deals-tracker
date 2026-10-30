@@ -28,7 +28,7 @@ from .promo_extractor import PromoExtractor, PromoInfo
 
 logger = logging.getLogger(__name__)
 
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
 
 
 class GiantGridFetcher:
@@ -76,6 +76,21 @@ class GiantGridFetcher:
         logger.warning("Please solve the puzzle in the Chrome browser window.")
         logger.warning("=" * 60)
         print("\n--- [GiantGrid] DataDome CAPTCHA detected. Please solve the puzzle in the open Chrome browser window... ---")
+
+        if sys.platform.startswith("win"):
+            try:
+                import subprocess
+                ps_script = (
+                    f'$action = New-ScheduledTaskAction -Execute "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" '
+                    f'-Argument \'--user-data-dir="{self.user_data_dir}" {page.url}\'; '
+                    f'$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries; '
+                    f'Register-ScheduledTask -TaskName "GiantAdWindow" -Action $action -Settings $settings -Force; '
+                    f'Start-ScheduledTask -TaskName "GiantAdWindow"'
+                )
+                subprocess.run(["powershell", "-NoProfile", "-Command", ps_script], capture_output=True, timeout=10)
+                logger.info("[GiantGrid] Popped open interactive Chrome window via Windows Task Scheduler.")
+            except Exception as e_pop:
+                logger.warning(f"[GiantGrid] Could not pop window via Task Scheduler: {e_pop}")
 
         start_time = time.time()
         while time.time() - start_time < timeout_sec:
