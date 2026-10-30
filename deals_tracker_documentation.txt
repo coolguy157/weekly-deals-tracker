@@ -71,3 +71,20 @@ tests/
   `python -m src.cli history "Lucerne Milk"`
 - Export deals to JSON:
   `python -m src.cli export --format json --output weekly_deals.json`
+
+5. Deploying to Live Site
+-------------------------
+
+The `deals.json` consumed by the Tom Thumb website is served from the `gh-pages` branch of the `weekly-deals-tracker` repository. After updating data locally:
+
+1. Commit the refreshed `web/deals.json` on the `main` branch (e.g., `git add web/deals.json && git commit -m "Refresh deals.json"`).
+2. Push `main` to `origin`.
+3. Run a subtree split to extract the `web` folder and force‑push it to the `gh-pages` branch:
+
+```sh
+git -C deals_tracker subtree split --prefix web main
+# copy the resulting hash (e.g., abcdef1)
+git -C deals_tracker push origin "<hash>:refs/heads/gh-pages" --force
+```
+
+This overrides Rule 9 (code changes go to `main`) by explicitly pushing the UI asset (`deals.json`) to `gh-pages`. After the push, the live site will serve the updated deals within a few seconds. No additional steps are required.

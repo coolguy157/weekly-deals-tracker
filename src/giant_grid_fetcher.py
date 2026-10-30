@@ -343,11 +343,19 @@ class GiantGridFetcher:
                 images = item.get("images", {})
                 image_url = images.get("medium") or images.get("small")
 
-                # Resolve true flyer page number
+                # Resolve true flyer page number via Flipp circular page map.
+                # 1. Exact match on lowercased ad name.
+                # 2. Flipp key is a meaningful substring of the grid name (key must be >12 chars to avoid
+                #    short-key false positives like "Our Brand" matching unrelated items).
+                # 3. Grid name is a meaningful substring of the Flipp key (same length guard).
                 pg_info = flipp_page_map.get(name.lower())
                 if not pg_info:
+                    name_l = name.lower()
                     for fk, fv in flipp_page_map.items():
-                        if fk in name.lower() or name.lower() in fk:
+                        if len(fk) > 12 and fk in name_l:
+                            pg_info = fv
+                            break
+                        if len(name_l) > 12 and name_l in fk:
                             pg_info = fv
                             break
 
