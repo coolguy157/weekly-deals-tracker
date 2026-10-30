@@ -403,10 +403,17 @@ class ProductNormalizer:
 
             # Extract promo mechanics across item text, pre/post price notes, and description
             m_ctx = merchant or getattr(item, "merchant", None) or (item.raw_payload.get("merchant") if getattr(item, "raw_payload", None) else None)
+            add_texts = [item.name, item.pre_price_text, item.post_price_text, item.description]
+            if item.price is not None and item.price > 0 and item.pre_price_text:
+                m_pref = PromoExtractor.BUNDLE_PREFIX_PATTERN.match(item.pre_price_text)
+                if m_pref:
+                    add_texts.append(f"{m_pref.group(1)} for ${item.price:.2f}")
+
             promo_info = PromoExtractor.extract_promo(
                 sub_name,
-                additional_texts=[item.name, item.pre_price_text, item.post_price_text, item.description],
+                additional_texts=add_texts,
                 merchant=m_ctx,
+                price=item.price,
             )
 
             advertised_price = pkg_advertised_price if pkg_advertised_price is not None else item.price
@@ -416,6 +423,13 @@ class ProductNormalizer:
                 promo_type = "must_buy"
                 promo_detail = pkg_promo_detail
             qualifying_qty = promo_info.qualifying_qty if promo_info else 1
+
+            if canonical.strip().upper() == "TURKEY" and promo_info and promo_info.promo_type == "points_redemption":
+                canonical = "Giant Brand Frozen Whole Turkey (up to 20 lbs)"
+                brand = "Giant"
+                size = 20.0
+                unit = "lb"
+                category = "Turkey"
 
             if is_5_for_5:
                 advertised_price = 1.00

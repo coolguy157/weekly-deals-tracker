@@ -224,7 +224,11 @@ class GiantGridFetcher:
                     nm = (item.get("name") or "").strip()
                     ds = (item.get("description") or "").strip()
                     dp = item.get("price")
-                    p_inf = PromoExtractor.extract_promo(s_txt, [nm, ds])
+                    try:
+                        dp_val = float(dp) if dp is not None and dp != "" else None
+                    except (ValueError, TypeError):
+                        dp_val = None
+                    p_inf = PromoExtractor.extract_promo(s_txt, [nm, ds], price=dp_val)
                     is_multi = bool(
                         re.search(r"\b(?:or|varieties|select|assorted|mix\s*&\s*match)\b", f"{nm} {ds}", re.IGNORECASE) or
                         (p_inf and p_inf.promo_type in ("must_buy", "quantity_threshold", "mix_and_match"))
@@ -350,7 +354,11 @@ class GiantGridFetcher:
                     is_front = False
 
                 # Extract promotional information via centralized PromoExtractor
-                promo_info = PromoExtractor.extract_promo(sales_text, [name, desc])
+                try:
+                    dp_val = float(direct_price) if direct_price is not None and direct_price != "" else None
+                except (ValueError, TypeError):
+                    dp_val = None
+                promo_info = PromoExtractor.extract_promo(sales_text, [name, desc], price=dp_val)
 
                 # Check if we have disambiguated products from details API
                 products = details_cache.get(ad_id, [])

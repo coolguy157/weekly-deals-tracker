@@ -3,6 +3,7 @@ Deal intelligence and historical price trend analyzer.
 """
 
 import math
+import re
 from dataclasses import dataclass
 from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime

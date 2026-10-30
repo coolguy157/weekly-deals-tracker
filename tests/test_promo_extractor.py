@@ -267,6 +267,31 @@ class TestPromoExtractor(unittest.TestCase):
         self.assertEqual(p2.stated_total_price, 10.00)
         self.assertEqual(p2.stated_unit_price, 3.33)
 
+        # 10 for 10 without dollar sign
+        p3 = PromoExtractor.extract_promo("Chobani Greek Yogurt 10 for 10")
+        self.assertIsNotNone(p3)
+        self.assertEqual(p3.promo_type, "must_buy")
+        self.assertEqual(p3.qualifying_qty, 10)
+        self.assertEqual(p3.stated_total_price, 10.00)
+        self.assertEqual(p3.stated_unit_price, 1.00)
+        self.assertEqual(PromoExtractor.calculate_effective_price(p3), 1.00)
+
+        # Bundle prefix pattern with price parameter: "10/" and price=10.0
+        p4 = PromoExtractor.extract_promo("Chobani Greek Yogurt", additional_texts=["10/"], price=10.0)
+        self.assertIsNotNone(p4)
+        self.assertEqual(p4.promo_type, "must_buy")
+        self.assertEqual(p4.qualifying_qty, 10)
+        self.assertEqual(p4.stated_total_price, 10.00)
+        self.assertEqual(p4.stated_unit_price, 1.00)
+
+        # Bundle prefix pattern: "2 for" and price=5.0
+        p5 = PromoExtractor.extract_promo("Doritos Chips", additional_texts=["2 for"], price=5.0)
+        self.assertIsNotNone(p5)
+        self.assertEqual(p5.promo_type, "must_buy")
+        self.assertEqual(p5.qualifying_qty, 2)
+        self.assertEqual(p5.stated_total_price, 5.00)
+        self.assertEqual(p5.stated_unit_price, 2.50)
+
     def test_holiday_turkey_and_free_with_purchase(self):
         # Turkey points redemption
         p_turkey = PromoExtractor.extract_promo(
@@ -275,7 +300,9 @@ class TestPromoExtractor(unittest.TestCase):
         self.assertIsNotNone(p_turkey)
         self.assertEqual(p_turkey.promo_type, "points_redemption")
         self.assertEqual(p_turkey.points_cost, 400)
-        self.assertEqual(p_turkey.promo_detail, "FREE with 400 CHOICE points")
+        self.assertEqual(p_turkey.points_saved_val, 26.0)
+        self.assertIn("Save up to $26.00", p_turkey.promo_detail)
+        self.assertIn("Redeem Nov 6", p_turkey.promo_detail)
 
         # Pizza crust free with purchase of 2
         p_pizza = PromoExtractor.extract_promo(

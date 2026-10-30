@@ -1623,6 +1623,33 @@ class TestProductNormalizer(unittest.TestCase):
         self.assertEqual(deals[0].promo_detail, "2 FOR $6.00")
         self.assertEqual(deals[0].qualifying_qty, 2)
 
+    def test_multibuy_split_pre_price_prefix(self):
+        # Flipp split circular ad: pre_price_text="10/", price=10.0, description="Select Varieties, 5.3 oz. cont."
+        item = FlyerItem(
+            id=1049112537,
+            flyer_id=8197131,
+            name="Chobani Greek, Creations, Less Sugar or Zero Sugar Yogurt",
+            price=10.0,
+            original_price=None,
+            pre_price_text="10/",
+            post_price_text=None,
+            description="Select Varieties,\n5.3 oz. cont.",
+            brand="Chobani",
+            page_number=1,
+            is_front_page=True,
+            cutout_image_url=None,
+            clean_image_url=None,
+        )
+        deals = self.normalizer.disaggregate_and_normalize(item, merchant="Giant Food Stores")
+        self.assertEqual(len(deals), 4)
+        for d in deals:
+            self.assertEqual(d.advertised_price, 1.0)
+            self.assertEqual(d.promo_type, "must_buy")
+            self.assertEqual(d.promo_detail, "10 FOR $10.00")
+            self.assertEqual(d.qualifying_qty, 10)
+            self.assertEqual(d.unit_size, 5.3)
+            self.assertAlmostEqual(d.unit_price, 0.1887, places=4)
+
     def test_pork_cut_standardization(self):
         item = FlyerItem(
             id=9991,

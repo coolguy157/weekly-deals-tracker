@@ -96,9 +96,14 @@ class PromoExtractor:
         r"\b(?:MUST\s+BUY|WHEN\s+YOU\s+BUY)\s+(\d+)\b",
         re.IGNORECASE,
     )
-    # "2 FOR $5", "3 FOR $10.00", "4 FOR $5", "2/ $5.00", "3/ $10"
+    # "2 FOR $5", "3 FOR $10.00", "4 FOR $5", "2/ $5.00", "3/ $10", "10 for 10", "2 for 5"
     X_FOR_Y_PATTERN = re.compile(
-        r"\b(\d+)\s*(?:FOR|/)\s*\$(\d+(?:\.\d{2})?)\b",
+        r"\b(\d+)\s*(?:FOR\s+\$?|/\s*\$)\s*(\d+(?:\.\d{2})?)\b",
+        re.IGNORECASE,
+    )
+    # Standalone bundle prefix: e.g. "10/", "2/", "4/", "10 for", "2 for"
+    BUNDLE_PREFIX_PATTERN = re.compile(
+        r"^\s*(\d+)\s*(?:/|for)\s*$",
         re.IGNORECASE,
     )
 
@@ -209,6 +214,7 @@ class PromoExtractor:
         additional_texts: Optional[List[Optional[str]]] = None,
         point_value: Optional[float] = None,
         merchant: Optional[str] = None,
+        price: Optional[float] = None,
     ) -> Optional[PromoInfo]:
         """
         Examine text and auxiliary fields (pre-price, post-price, description) for promo patterns.
@@ -216,11 +222,26 @@ class PromoExtractor:
         """
         all_candidates = []
         if text:
-            all_candidates.append(text)
+            if price is not None and price > 0:
+                m_pref = cls.BUNDLE_PREFIX_PATTERN.match(text)
+                if m_pref:
+                    all_candidates.append(f"{m_pref.group(1)} for ${price:.2f}")
+                else:
+                    all_candidates.append(text)
+            else:
+                all_candidates.append(text)
+
         if additional_texts:
             for t in additional_texts:
                 if t:
-                    all_candidates.append(t)
+                    if price is not None and price > 0:
+                        m_pref = cls.BUNDLE_PREFIX_PATTERN.match(t)
+                        if m_pref:
+                            all_candidates.append(f"{m_pref.group(1)} for ${price:.2f}")
+                        else:
+                            all_candidates.append(t)
+                    else:
+                        all_candidates.append(t)
 
         combined_text = " ".join(all_candidates).strip()
         if not combined_text:
@@ -361,7 +382,16 @@ class PromoExtractor:
             pts_val = int(m_red.group(1) or m_red.group(2))
             m_sv = cls.POINTS_SAVE_AMT_PATTERN.search(text)
             saved = float(m_sv.group(1)) if m_sv else None
-            detail = f"FREE with {pts_val} {pts_label}" + (f" (Save ${saved:.2f})" if saved else "")
+
+            # Special detection for Giant Holiday Turkey / Choice points voucher
+            if pts_val == 400 and re.search(r"\b(?:turkey|tofurky)\b", text, re.IGNORECASE):
+                # Giant annual holiday turkey promotion: Free Giant whole frozen turkey (up to 20 lbs)
+                # Benchmark 20 lb whole frozen turkey @ ~$1.30/lb = $26.00 value (~6.5¢/pt)
+                saved = 26.00
+                detail = f"FREE with 400 {pts_label} (Save up to $26.00 • Redeem Nov 6–26)"
+            else:
+                detail = f"FREE with {pts_val} {pts_label}" + (f" (Save ${saved:.2f})" if saved else "")
+
             return PromoInfo(
                 promo_type="points_redemption",
                 promo_detail=detail,

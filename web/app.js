@@ -311,6 +311,11 @@
       return `meal_deal_p${page}`;
     }
 
+    // Holiday Free Turkey / Choice points promotion
+    if (promo.includes('400 choice') && (promo.includes('turkey') || promo.includes('tofurky') || (deal.name || '').toLowerCase().includes('turkey') || (deal.name || '').toLowerCase().includes('tofurky'))) {
+      return `holiday_turkey_points_p${page}`;
+    }
+
     if (deal.ad_id) {
       return `ad_${deal.ad_id}`;
     }
@@ -349,6 +354,11 @@
     const promo = (items[0].promo_detail || '').toLowerCase();
     if (items.some(it => it.promo_type === 'meal_deal') || promo.includes('meal deal') || promo.includes('get these free')) {
       return 'Weekly Meal Deal';
+    }
+
+    // Holiday Free Turkey promotion
+    if (items.some(it => (it.promo_detail || '').toLowerCase().includes('400 choice') && ((it.promo_detail || '').toLowerCase().includes('turkey') || (it.name || '').toLowerCase().includes('turkey')))) {
+      return "Giant Holiday Free Turkey (up to 20 lbs) or Stouffer's / Tofurky Roast";
     }
 
     // Prefer explicit parent canonical ad title if present

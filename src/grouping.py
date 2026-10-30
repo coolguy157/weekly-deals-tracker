@@ -47,6 +47,10 @@ def get_group_key(deal: Any) -> str:
     if promo_type == "meal_deal" or "meal deal" in promo_detail or "get these free" in promo_detail:
         return f"meal_deal_p{page}"
 
+    # Holiday points turkey promotion check (groups Turkey and Stouffer's/Tofurky voucher on page 6)
+    if "400 choice" in promo_detail and ("turkey" in promo_detail or "tofurky" in promo_detail or "stouffer" in promo_detail):
+        return f"holiday_turkey_points_p{page}"
+
     ad_id = _get_item_attr(deal, "ad_id")
     if ad_id:
         return f"ad_{ad_id}"
@@ -138,6 +142,10 @@ def synthesize_group_title(items: List[Any]) -> str:
 
     brands = sorted(list({_get_item_attr(it, "brand") for it in items if _get_item_attr(it, "brand")}))
     names = [_get_item_attr(it, "canonical_name") or _get_item_attr(it, "name") or "" for it in items]
+
+    # Holiday points turkey promotion title
+    if any("holiday_turkey_points" in get_group_key(it) for it in items):
+        return "Giant Holiday Free Turkey (up to 20 lbs) or Stouffer's / Tofurky Roast"
 
     # 3. Multi-brand specialized categories
     if "Duncan Hines" in brands and "PAM" in brands:
@@ -271,6 +279,8 @@ def should_split_ad_group(items: List[Any]) -> bool:
 
     # 1. Never split true promotional bundles (BXGY, BOGO, Multi-Buy, Mix & Match)
     for it in items:
+        if "holiday_turkey_points" in get_group_key(it):
+            return False
         ptype = (_get_item_attr(it, "promo_type", "standard") or "standard").lower()
         pdetail = (_get_item_attr(it, "promo_detail", "") or "").lower()
         rtitle = (_get_item_attr(it, "raw_title", "") or "").lower()
