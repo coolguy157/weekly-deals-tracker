@@ -13,15 +13,11 @@ Circular Ingestion & Price History Engine: Flipp API and Giant Grid fetcher, pro
 
 1. **Dedicated Scratchpad**: Use `deals_tracker/scratch/` for one-off experimentation and diagnostics. Never use inline `python -c`. Clean up scratch files when tasks finish.
 2. **Shared Database Access**: Interacts with shared database `../data/deals.db` (or local `:memory:` for testing) via `DealsDatabase` context managers.
-3. **Push to `origin main` (No `gh-pages` Redeploy for Backend/Normalizer Updates)**:
-   When making changes to analysis, normalization, or ingestion, commit and push to `origin main`. Do NOT deploy to `gh-pages` via subtree split for routine backend updates.
-4. **Deploying Live Web App to GitHub Pages**:
-   Only redeploy to `gh-pages` when explicit live website UI assets (`deals_tracker/web/` or root `web/`) or web exports are requested:
-   ```powershell
-   cd deals_tracker
-   $subtree = (git subtree split --prefix web main).Trim()
-   git push origin "${subtree}:refs/heads/gh-pages" --force
-   ```
+3. **Automated Web App Deployment via GitHub Actions**:
+   The web application is automatically built and deployed to GitHub Pages (`gh-pages` branch) by GitHub Actions on any push to `main` touching `web/**` (`.github/workflows/deploy_web.yml`).
+   - **Do NOT manually push or split subtrees to `gh-pages`** unless GitHub Actions is unavailable or a manual recovery is explicitly requested.
+   - For routine backend, normalization, or ingestion updates, simply commit and push to `origin main`.
+   - Never push changes unless necessary and tested.
 5. **Default to Resolutions**: When deals parsing or normalizer errors are reported, fix the issue directly in code, rerun ingestion/re-normalization if needed, and verify with tests.
 
 ---
