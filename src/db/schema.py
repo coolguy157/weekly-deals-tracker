@@ -65,6 +65,7 @@ CREATE TABLE IF NOT EXISTS app_digital_coupons (
     is_clipped BOOLEAN DEFAULT 0,
     valid_to TIMESTAMP,
     raw_node_text TEXT,
+    account_email TEXT,
     scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -80,6 +81,7 @@ CREATE TABLE IF NOT EXISTS matched_stacks (
     is_free BOOLEAN GENERATED ALWAYS AS (final_out_of_pocket <= 0.00),
     is_clipped BOOLEAN DEFAULT 0,
     coupon_references TEXT,
+    account_email TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -87,8 +89,6 @@ CREATE INDEX IF NOT EXISTS idx_obs_product_rec
     ON deal_observations(product_id, recorded_at);
 CREATE INDEX IF NOT EXISTS idx_obs_flyer 
     ON deal_observations(flyer_id);
-CREATE INDEX IF NOT EXISTS idx_obs_ad_title
-    ON deal_observations(ad_title);
 CREATE INDEX IF NOT EXISTS idx_prod_category
     ON products(category);
 CREATE INDEX IF NOT EXISTS idx_coupon_type 
@@ -135,6 +135,18 @@ def apply_migrations(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE deal_observations ADD COLUMN coupon_discount REAL")
     if "ad_title" not in obs_cols:
         conn.execute("ALTER TABLE deal_observations ADD COLUMN ad_title TEXT")
+
+    # Check app_digital_coupons columns
+    cur = conn.execute("PRAGMA table_info(app_digital_coupons)")
+    coupon_cols = {row["name"] for row in cur.fetchall()}
+    if "account_email" not in coupon_cols:
+        conn.execute("ALTER TABLE app_digital_coupons ADD COLUMN account_email TEXT")
+
+    # Check matched_stacks columns
+    cur = conn.execute("PRAGMA table_info(matched_stacks)")
+    stack_cols = {row["name"] for row in cur.fetchall()}
+    if "account_email" not in stack_cols:
+        conn.execute("ALTER TABLE matched_stacks ADD COLUMN account_email TEXT")
 
     # Ensure performance indexes exist on existing databases
     conn.execute("CREATE INDEX IF NOT EXISTS idx_obs_ad_title ON deal_observations(ad_title)")

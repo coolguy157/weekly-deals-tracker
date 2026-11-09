@@ -429,6 +429,16 @@ def apply_deli_or_meat_per_lb_fallback(
     full_item_text: str,
 ) -> Tuple[Optional[float], Optional[str], Optional[float]]:
     """Deli counter cheese & meat / fresh butcher meat sold by the pound fallback."""
+    # Guard: If fresh fish/meat cut was contaminated with a count size from neighboring items in a tile,
+    # but the pricing is per pound ("lb member price" or "/lb"), correct size/unit to 1.0 lb.
+    is_fresh_fish_meat = any(k in canonical.lower() for k in ("catfish", "salmon", "tilapia", "cod", "fillet", "chicken", "beef", "pork", "steak", "roast", "loin chop"))
+    if is_fresh_fish_meat and not bool(re.search(r"\b(?:portions?|patt(?:y|ies)|cakes?|skewers?|nuggets?)\b", canonical, re.IGNORECASE)):
+        if unit == "ct" and re.search(r"\b(?:lb\s+member\s+price|/\s*lb|per\s+lb)\b", full_item_text, re.IGNORECASE):
+            size = 1.0
+            unit = "lb"
+            unit_price = round(item_price / 1.0, 4) if item_price else None
+            return size, unit, unit_price
+
     if size is None:
         is_portion_or_unit = bool(re.search(r"\b(?:portions?|patt(?:y|ies)|cakes?|skewers?)\b", canonical, re.IGNORECASE))
         is_fresh_meat_cut = (
@@ -443,12 +453,14 @@ def apply_deli_or_meat_per_lb_fallback(
                     "chuck", "round", "ribs", "short rib", "brisket",
                 ))
             )
-            and any(k in canonical.lower() for k in ("chicken", "beef", "pork", "turkey", "salmon", "tilapia", "cod", "shrimp"))
+            and any(k in canonical.lower() for k in ("chicken", "beef", "pork", "turkey", "salmon", "tilapia", "cod", "catfish", "fillet", "shrimp"))
         )
+        is_raw_banana = bool(re.search(r"^(?:organic\s+)?bananas?$", canonical.strip(), re.IGNORECASE))
         if (
             brand in DELI_BRANDS
-            or re.search(r"(?:per\s+lb|sold\s+by\s+the\s+lb|/\s*lb|\$?\d+(?:\.\d+)?\s*/?\s*lb\b)", full_item_text, re.IGNORECASE)
+            or re.search(r"(?:per\s+lb|sold\s+by\s+the\s+lb|/\s*lb|\$?\d+(?:\.\d+)?\s*/?\s*lb\b|lb\s+member\s+price)", full_item_text, re.IGNORECASE)
             or is_fresh_meat_cut
+            or is_raw_banana
         ):
             size = 1.0
             unit = "lb"
@@ -457,22 +469,22 @@ def apply_deli_or_meat_per_lb_fallback(
             if "6 oz" in canonical.lower():
                 size = 6.0
                 unit = "oz"
-                unit_price = round(item_price / 6.0, 4)
+                unit_price = round(item_price / 6.0, 4) if item_price else None
             elif "12 oz" in canonical.lower():
                 size = 12.0
                 unit = "oz"
-                unit_price = round(item_price / 12.0, 4)
+                unit_price = round(item_price / 12.0, 4) if item_price else None
             elif "1 lb" in canonical.lower():
                 size = 1.0
                 unit = "lb"
-                unit_price = round(item_price / 1.0, 4)
+                unit_price = round(item_price / 1.0, 4) if item_price else None
             elif "2 lb" in canonical.lower():
                 size = 2.0
                 unit = "lb"
-                unit_price = round(item_price / 2.0, 4)
+                unit_price = round(item_price / 2.0, 4) if item_price else None
             elif "pint" in canonical.lower():
                 size = 1.0
                 unit = "pt"
-                unit_price = round(item_price / 1.0, 4)
+                unit_price = round(item_price / 1.0, 4) if item_price else None
 
     return size, unit, unit_price

@@ -54,16 +54,38 @@ class GiantGridFetcher:
 
         self.normalizer = ProductNormalizer()
 
-    def _wait_for_captcha(self, page, timeout_sec: int = 120) -> bool:
-        """Check if DataDome CAPTCHA is present; if so, wait for user to solve it."""
+    def _wait_for_captcha(self, page, timeout_sec: int = 300) -> bool:
+        """Check if DataDome CAPTCHA is visually present; if so, wait for user to solve it."""
         def is_captcha_present() -> bool:
             try:
-                for f in page.frames:
-                    if "captcha" in f.url or "captcha-delivery" in f.url:
-                        return True
+                # 1. Check if the page itself was redirected to a challenge page
+                current_url = page.url.lower()
+                if "captcha-delivery" in current_url or "datadome.co" in current_url:
+                    return True
+
+                # 2. Check title / body for human verification challenge
+                title = page.title().lower()
+                if "datadome" in title or "robot or human" in title or "security check" in title:
+                    return True
+
+                # 3. Check for explicitly visible CAPTCHA iframes
                 el = page.query_selector("iframe[src*='captcha'], iframe[src*='captcha-delivery']")
                 if el and el.is_visible():
-                    return True
+                    box = el.bounding_box()
+                    if box and box["width"] > 50 and box["height"] > 50:
+                        return True
+
+                # 4. Check if any frame element is visually displayed (width/height > 50)
+                for f in page.frames:
+                    if ("captcha" in f.url or "captcha-delivery" in f.url) and f != page.main_frame:
+                        try:
+                            f_el = f.frame_element()
+                            if f_el and f_el.is_visible():
+                                box = f_el.bounding_box()
+                                if box and box["width"] > 50 and box["height"] > 50:
+                                    return True
+                        except Exception:
+                            pass
             except Exception:
                 pass
             return False
@@ -73,11 +95,16 @@ class GiantGridFetcher:
 
         logger.warning("=" * 60)
         logger.warning("DataDome CAPTCHA detected on Giant Food Stores.")
-        logger.warning("Please solve the puzzle in the Chrome browser window.")
+        logger.warning(f"Please solve the puzzle in the Chrome browser window (timeout: {timeout_sec}s).")
         logger.warning("=" * 60)
-        print("\n--- [GiantGrid] DataDome CAPTCHA detected. Please solve the puzzle in the open Chrome browser window... ---")
+        print(f"\n--- [GiantGrid] DataDome CAPTCHA detected. Please solve the puzzle in the open Chrome browser window (waiting up to {timeout_sec}s)... ---")
 
-        if sys.platform.startswith("win"):
+        try:
+            page.bring_to_front()
+        except Exception:
+            pass
+
+        if self.headless and sys.platform.startswith("win"):
             try:
                 import subprocess
                 ps_script = (
@@ -308,9 +335,10 @@ class GiantGridFetcher:
                             try:
                                 page.reload(wait_until="domcontentloaded", timeout=30000)
                                 page.wait_for_timeout(2500)
+                                page.bring_to_front()
                             except Exception as e_reload:
                                 logger.warning(f"[GiantGrid] Page reload warning: {e_reload}")
-                            solved = self._wait_for_captcha(page)
+                            solved = self._wait_for_captcha(page, timeout_sec=300)
                             if solved:
                                 time.sleep(random.uniform(2.5, 4.0))
                             continue

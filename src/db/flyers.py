@@ -205,9 +205,11 @@ class FlyersMixin:
             if merchant:
                 row = conn.execute(
                     """
-                    SELECT flyer_id FROM flyer_runs
-                    WHERE merchant LIKE ?
-                    ORDER BY valid_from DESC, scraped_at DESC
+                    SELECT f.flyer_id FROM flyer_runs f
+                    LEFT JOIN deal_observations d ON f.flyer_id = d.flyer_id
+                    WHERE f.merchant LIKE ?
+                    GROUP BY f.flyer_id
+                    ORDER BY (COUNT(d.id) > 0) DESC, substr(f.valid_from, 1, 10) DESC, f.scraped_at DESC
                     LIMIT 1
                     """,
                     (f"%{merchant}%",),
@@ -215,8 +217,10 @@ class FlyersMixin:
             else:
                 row = conn.execute(
                     """
-                    SELECT flyer_id FROM flyer_runs
-                    ORDER BY valid_from DESC, scraped_at DESC
+                    SELECT f.flyer_id FROM flyer_runs f
+                    LEFT JOIN deal_observations d ON f.flyer_id = d.flyer_id
+                    GROUP BY f.flyer_id
+                    ORDER BY (COUNT(d.id) > 0) DESC, substr(f.valid_from, 1, 10) DESC, f.scraped_at DESC
                     LIMIT 1
                     """,
                 ).fetchone()
