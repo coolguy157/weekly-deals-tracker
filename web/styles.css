@@ -637,6 +637,26 @@ body {
   border: 1px solid var(--badge-hike-border);
 }
 
+.deal-badge.user-loved {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  font-weight: 800;
+}
+
+.deal-badge.user-giveaway {
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+  font-weight: 800;
+}
+
+.deal-badge.user-hidden {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
 .page-indicator {
   font-size: 0.75rem;
   color: var(--slate-400);
@@ -948,6 +968,136 @@ body {
   color: var(--primary-900);
   border-color: var(--primary-600);
   font-weight: 700;
+}
+
+/* User Preference Rating Controls */
+.item-rating-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--slate-100);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  padding: 1px 3px;
+}
+
+.btn-rate-icon {
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  line-height: 1;
+  opacity: 0.45;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn-rate-icon:hover {
+  opacity: 1;
+  transform: scale(1.15);
+  background: white;
+}
+
+.btn-rate-icon.active-love {
+  opacity: 1;
+  background: #fee2e2;
+  border-color: #fca5a5;
+  box-shadow: 0 1px 2px rgba(185, 28, 28, 0.15);
+}
+
+.btn-rate-icon.active-giveaway {
+  opacity: 1;
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  box-shadow: 0 1px 2px rgba(109, 40, 217, 0.15);
+}
+
+.btn-rate-icon.active-hide {
+  opacity: 1;
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 2px rgba(100, 116, 139, 0.15);
+}
+
+.item-rating-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.item-rating-tag.rating-love {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.item-rating-tag.rating-giveaway {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.item-rating-tag.rating-hide {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.btn-rate-toggle {
+  background: white;
+  border: 1px solid var(--slate-300);
+  color: var(--slate-600);
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-rate-toggle:hover {
+  background: var(--slate-50);
+  color: var(--slate-900);
+  border-color: var(--slate-400);
+}
+
+.btn-rate-toggle.active-loved {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.btn-rate-toggle.active-giveaway {
+  background: #ede9fe;
+  color: #6d28d9;
+  border-color: #c4b5fd;
+}
+
+.btn-rate-toggle.active-hidden {
+  background: #f1f5f9;
+  color: #64748b;
+  border-color: #cbd5e1;
+}
+
+.single-card-rating-drawer {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.single-card-rating-drawer .drawer-label {
+  font-size: 0.72rem;
+  color: var(--slate-600);
+  font-weight: 600;
 }
 
 /* Table View */
