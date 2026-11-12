@@ -33,6 +33,17 @@
       </div>
 
       <div class="header-actions">
+        <!-- Navigation Tabs (Weekly Deals vs Categorize Items) -->
+        <nav class="header-nav-tabs">
+          <button id="nav-tab-deals" class="nav-tab active" title="Browse Circular Deals">
+            <span class="tab-icon">🛒</span> Deals Feed
+          </button>
+          <button id="nav-tab-categorize" class="nav-tab" title="Categorize Products & Set Preferences">
+            <span class="tab-icon">🏷️</span> Categorize Items
+            <span id="nav-rated-badge" class="nav-tab-badge">0</span>
+          </button>
+        </nav>
+
         <!-- View Toggle (Grid / Table) -->
         <div class="view-toggle-group">
           <button id="view-grid-btn" class="view-btn active" title="Grid View" aria-label="Grid View">
@@ -55,7 +66,9 @@
 
   <!-- Main Container -->
   <main class="main-content">
-    <!-- Quick Stats Cards Banner -->
+    <!-- Main Deals Feed View -->
+    <div id="deals-feed-view">
+      <!-- Quick Stats Cards Banner -->
     <section class="stats-banner">
       <div class="stat-card" id="stat-all-deals">
         <div class="stat-value" id="stat-total-count">-</div>
@@ -87,7 +100,7 @@
         <div class="sort-box">
           <label for="sort-select" class="sort-label">Sort by:</label>
           <select id="sort-select">
-            <option value="featured">Featured / Best Deals</option>
+            <option value="featured">Featured (Top Deals & Favorites First)</option>
             <option value="unit_price_asc">Unit Price ($/unit: Low to High)</option>
             <option value="price_asc">Price ($: Low to High)</option>
             <option value="price_desc">Price ($: High to Low)</option>
@@ -194,7 +207,83 @@
       <p>Try searching for a different keyword or resetting your active filters.</p>
       <button id="empty-reset-btn" class="btn-primary">Clear Filters</button>
     </div>
-  </main>
+  </div> <!-- End #deals-feed-view -->
+
+  <!-- Dedicated Categorize & Preferences Workspace -->
+  <div id="categorize-view" style="display: none;">
+    <section class="categorize-header-card">
+      <div class="categorize-header-left">
+        <h2>🏷️ Categorize Items & Set Preferences</h2>
+        <p class="categorize-subtitle">
+          Tag products as <strong>❤️ Love</strong> to bubble their sales to the top, <strong>🎁 Giveaway</strong> to highlight freebies, or <strong>🚫 Hide</strong> to remove items you don't eat.
+        </p>
+      </div>
+      <div class="categorize-stats-row">
+        <div class="pref-stat-chip stat-loved" id="pref-stat-loved">❤️ Favorites: <span>0</span></div>
+        <div class="pref-stat-chip stat-giveaway" id="pref-stat-giveaway">🎁 Giveaways: <span>0</span></div>
+        <div class="pref-stat-chip stat-hidden" id="pref-stat-hidden">🚫 Hidden: <span>0</span></div>
+        <div class="pref-stat-chip stat-unrated" id="pref-stat-unrated">⚡ Unrated: <span>0</span></div>
+      </div>
+    </section>
+
+    <!-- Categorization Controls & Filter Bar -->
+    <section class="controls-card categorize-controls">
+      <div class="search-row">
+        <div class="search-box">
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="categorize-search-input" placeholder="Search product name, brand, or flavor to categorize..." autocomplete="off" />
+          <button id="categorize-search-clear" class="clear-btn" title="Clear Search" style="display: none;">✕</button>
+        </div>
+        <div class="sort-box">
+          <label for="categorize-sort-select" class="sort-label">Sort by:</label>
+          <select id="categorize-sort-select">
+            <option value="name_asc">Product Name (A–Z)</option>
+            <option value="category">Category</option>
+            <option value="price_asc">Current Deal Price ($ Low–High)</option>
+            <option value="unrated_first">⚡ Unrated First</option>
+            <option value="rated_first">⭐ Rated First</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-chips-row">
+        <button class="filter-chip active" data-cat-status="all">
+          All Products (<span id="cat-count-all">0</span>)
+        </button>
+        <button class="filter-chip" data-cat-status="unrated">
+          ⚡ Unrated (<span id="cat-count-unrated">0</span>)
+        </button>
+        <button class="filter-chip" data-cat-status="love">
+          ❤️ Favorites (<span id="cat-count-love">0</span>)
+        </button>
+        <button class="filter-chip" data-cat-status="giveaway">
+          🎁 Giveaways (<span id="cat-count-giveaway">0</span>)
+        </button>
+        <button class="filter-chip" data-cat-status="hide">
+          🚫 Hidden (<span id="cat-count-hide">0</span>)
+        </button>
+      </div>
+
+      <div class="categories-bar-wrapper">
+        <div class="categories-bar" id="categorize-category-pills">
+          <button class="cat-pill active" data-cat-dept="ALL">All Categories</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categorize Items List -->
+    <section class="categorize-list-container">
+      <div class="categorize-list-header">
+        <div id="categorize-count-text">Showing products...</div>
+        <button id="categorize-clear-all-btn" class="reset-link" style="color:#b91c1c;">Reset all preferences</button>
+      </div>
+      <div id="categorize-items-list" class="categorize-grid"></div>
+      <div id="categorize-empty-state" class="state-container" style="display: none; padding: 40px 20px;">
+        <p>No products match your current search or filter.</p>
+      </div>
+    </section>
+  </div>
+</main>
 
   <!-- Shopping List Drawer / Slide-Over Modal -->
   <div id="shopping-list-backdrop" class="drawer-backdrop"></div>

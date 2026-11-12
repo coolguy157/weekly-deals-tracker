@@ -152,6 +152,58 @@ body {
   gap: 10px;
 }
 
+/* Header Nav Tabs */
+.header-nav-tabs {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 3px;
+  border-radius: var(--radius-md);
+  gap: 2px;
+}
+
+.nav-tab {
+  background: transparent;
+  border: none;
+  color: var(--primary-100);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.nav-tab:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-tab.active {
+  background: white;
+  color: var(--primary-900);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-tab-badge {
+  background: var(--primary-700);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.nav-tab.active .nav-tab-badge {
+  background: var(--primary-100);
+  color: var(--primary-900);
+}
+
 /* View Toggle */
 .view-toggle-group {
   display: flex;
@@ -1461,6 +1513,219 @@ body {
   padding: 24px 16px;
   font-size: 0.75rem;
   color: var(--slate-400);
+}
+
+/* Categorize Items Workspace */
+.categorize-header-card {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.categorize-header-left h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  margin-bottom: 4px;
+}
+
+.categorize-subtitle {
+  font-size: 0.85rem;
+  color: var(--slate-600);
+  line-height: 1.4;
+}
+
+.categorize-stats-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pref-stat-chip {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pref-stat-chip.stat-loved {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.pref-stat-chip.stat-giveaway {
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+}
+
+.pref-stat-chip.stat-hidden {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
+.pref-stat-chip.stat-unrated {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+
+.categorize-list-container {
+  margin-top: 16px;
+}
+
+.categorize-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+.categorize-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 10px;
+}
+
+.categorize-item-card {
+  background: white;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.categorize-item-card:hover {
+  border-color: var(--slate-300);
+  box-shadow: var(--shadow-sm);
+}
+
+.categorize-item-card.is-loved {
+  border-color: #fca5a5;
+  background: #fffafa;
+}
+
+.categorize-item-card.is-giveaway {
+  border-color: #c4b5fd;
+  background: #faf8ff;
+}
+
+.categorize-item-card.is-hidden {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  opacity: 0.75;
+}
+
+.cat-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cat-item-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  line-height: 1.25;
+}
+
+.cat-item-brand {
+  font-size: 0.75rem;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.cat-card-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--slate-500);
+  margin-top: 4px;
+}
+
+.cat-deal-price {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--slate-900);
+}
+
+.cat-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--slate-100);
+}
+
+.cat-btn-group {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.cat-rate-btn {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  background: var(--slate-50);
+  color: var(--slate-700);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.cat-rate-btn:hover {
+  background: white;
+  border-color: var(--slate-300);
+}
+
+.cat-rate-btn.btn-love.active {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+  font-weight: 700;
+}
+
+.cat-rate-btn.btn-giveaway.active {
+  background: #ede9fe;
+  color: #6d28d9;
+  border-color: #c4b5fd;
+  font-weight: 700;
+}
+
+.cat-rate-btn.btn-hide.active {
+  background: #e2e8f0;
+  color: #475569;
+  border-color: #cbd5e1;
+  font-weight: 700;
 }
 
 /* Mobile Responsiveness */
