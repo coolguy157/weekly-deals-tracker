@@ -21,6 +21,15 @@
   let shoppingList = []; // { id, name, price, unit_price, checked, page }
   let itemRatings = {}; // Map of productKey -> 'love' | 'giveaway' | 'hide'
 
+  // Tab & Categorization State
+  let activeTab = 'deals'; // 'deals' | 'categorize'
+  let pendingFeedRefresh = false; // Deferred re-ordering flag
+
+  let catSearchQuery = '';
+  let catActiveStatus = 'all'; // 'all' | 'unrated' | 'love' | 'giveaway' | 'hide'
+  let catActiveCategory = 'ALL';
+  let catActiveSort = 'name_asc';
+
   // DOM Elements
   const dealsGrid = document.getElementById('deals-grid');
   const dealsTableContainer = document.getElementById('deals-table-container');
@@ -40,6 +49,27 @@
   const expandCollapseAllBtn = document.getElementById('expand-collapse-all-btn');
   const expandCollapseIcon = document.getElementById('expand-collapse-icon');
   const expandCollapseText = document.getElementById('expand-collapse-text');
+
+  // Navigation & Categorize View Elements
+  const navTabDeals = document.getElementById('nav-tab-deals');
+  const navTabCategorize = document.getElementById('nav-tab-categorize');
+  const navRatedBadge = document.getElementById('nav-rated-badge');
+  const dealsFeedView = document.getElementById('deals-feed-view');
+  const categorizeView = document.getElementById('categorize-view');
+
+  const prefStatLoved = document.getElementById('pref-stat-loved');
+  const prefStatGiveaway = document.getElementById('pref-stat-giveaway');
+  const prefStatHidden = document.getElementById('pref-stat-hidden');
+  const prefStatUnrated = document.getElementById('pref-stat-unrated');
+
+  const catSearchInput = document.getElementById('categorize-search-input');
+  const catSearchClear = document.getElementById('categorize-search-clear');
+  const catSortSelect = document.getElementById('categorize-sort-select');
+  const catCategoryPills = document.getElementById('categorize-category-pills');
+  const catItemsList = document.getElementById('categorize-items-list');
+  const catCountText = document.getElementById('categorize-count-text');
+  const catEmptyState = document.getElementById('categorize-empty-state');
+  const catClearAllBtn = document.getElementById('categorize-clear-all-btn');
 
   // Stats Counters
   const statTotalCount = document.getElementById('stat-total-count');
@@ -134,11 +164,12 @@
     return itemRatings[key] || null;
   }
 
-  function setItemRating(item, rating) {
+  function setItemRating(item, rating, source = 'feed') {
     const key = getProductKey(item);
     if (!key) return;
     const current = itemRatings[key];
-    if (current === rating) {
+    const isClearing = current === rating;
+    if (isClearing) {
       delete itemRatings[key];
       showToast(`Reset rating for ${item.name.split(' - ')[0]}`);
     } else {
@@ -147,7 +178,131 @@
       showToast(`Marked ${item.name.split(' - ')[0]} as ${label}`);
     }
     saveItemRatings();
-    renderDeals();
+    updateRatingBadgesCount();
+
+    if (source === 'categorize') {
+      renderCategorizeView();
+      pendingFeedRefresh = true;
+    } else {
+      // In-place feed update without jumping/reordering while interacting with an ad card!
+      updateInPlaceFeedRow(key, isClearing ? null : rating);
+      pendingFeedRefresh = true;
+    }
+  }
+
+  function flushPendingFeedRefresh() {
+    if (pendingFeedRefresh) {
+      pendingFeedRefresh = false;
+      renderDeals();
+    }
+  }
+
+  function updateInPlaceFeedRow(productKey, rating) {
+    // 1. Update matching rows in expanded multi-item groups
+    document.querySelectorAll(`.group-item-row[data-product-key="${productKey}"]`).forEach(row => {
+      const loveBtn = row.querySelector('.btn-rate-icon[data-rate="love"]');
+      const giveBtn = row.querySelector('.btn-rate-icon[data-rate="giveaway"]');
+      const hideBtn = row.querySelector('.btn-rate-icon[data-rate="hide"]');
+      if (loveBtn) loveBtn.classList.toggle('active-love', rating === 'love');
+      if (giveBtn) giveBtn.classList.toggle('active-giveaway', rating === 'giveaway');
+      if (hideBtn) hideBtn.classList.toggle('active-hide', rating === 'hide');
+
+      const subDiv = row.querySelector('.group-item-sub');
+      if (subDiv) {
+        const existingTag = subDiv.querySelector('.item-rating-tag');
+        if (existingTag) existingTag.remove();
+        if (rating) {
+          const tag = document.createElement('span');
+          tag.className = `item-rating-tag rating-${rating}`;
+          tag.textContent = rating === 'love' ? '❤️ Favorite' : (rating === 'giveaway' ? '🎁 Giveaway' : '🚫 Hidden');
+          subDiv.appendChild(tag);
+        }
+      }
+    });
+
+    // 2. Update matching single-item cards
+    document.querySelectorAll(`.deal-card[data-product-key="${productKey}"]`).forEach(card => {
+      const toggleBtn = card.querySelector('.btn-rate-toggle');
+      if (toggleBtn) {
+        toggleBtn.className = `btn-rate-toggle ${rating === 'love' ? 'active-loved' : (rating === 'giveaway' ? 'active-giveaway' : (rating === 'hide' ? 'active-hidden' : ''))}`;
+        toggleBtn.textContent = rating === 'love' ? '❤️ Favorite' : (rating === 'giveaway' ? '🎁 Giveaway' : (rating === 'hide' ? '🚫 Hidden' : '⭐ Rate'));
+      }
+      const loveBtn = card.querySelector('.btn-rate-icon[data-rate="love"]');
+      const giveBtn = card.querySelector('.btn-rate-icon[data-rate="giveaway"]');
+      const hideBtn = card.querySelector('.btn-rate-icon[data-rate="hide"]');
+      if (loveBtn) loveBtn.classList.toggle('active-love', rating === 'love');
+      if (giveBtn) giveBtn.classList.toggle('active-giveaway', rating === 'giveaway');
+      if (hideBtn) hideBtn.classList.toggle('active-hide', rating === 'hide');
+    });
+  }
+
+  function getUniqueProducts() {
+    const productsMap = new Map();
+    allDeals.forEach(d => {
+      const key = getProductKey(d);
+      if (!productsMap.has(key)) {
+        productsMap.set(key, {
+          key,
+          product_id: d.product_id,
+          name: d.name,
+          brand: d.brand || '',
+          category: d.category || 'Other',
+          price: d.price,
+          unit_price: d.unit_price,
+          unit_type: d.unit_type,
+          deal_id: d.deal_id,
+          badge: d.badge || '',
+          is_front_page: d.is_front_page || false,
+        });
+      } else {
+        const existing = productsMap.get(key);
+        if (d.price != null && (existing.price == null || d.price < existing.price)) {
+          existing.price = d.price;
+          existing.unit_price = d.unit_price;
+          existing.deal_id = d.deal_id;
+        }
+      }
+    });
+    return Array.from(productsMap.values());
+  }
+
+  function updateRatingBadgesCount() {
+    const keys = Object.keys(itemRatings);
+    let loved = 0;
+    let giveaway = 0;
+    let hidden = 0;
+    keys.forEach(k => {
+      const r = itemRatings[k];
+      if (r === 'love') loved++;
+      else if (r === 'giveaway') giveaway++;
+      else if (r === 'hide') hidden++;
+    });
+    const totalRated = loved + giveaway + hidden;
+
+    if (navRatedBadge) {
+      navRatedBadge.textContent = totalRated > 0 ? `${totalRated}` : '0';
+    }
+
+    const uniqueProducts = getUniqueProducts();
+    const totalProducts = uniqueProducts.length;
+    const unrated = Math.max(0, totalProducts - totalRated);
+
+    if (prefStatLoved) prefStatLoved.querySelector('span').textContent = loved;
+    if (prefStatGiveaway) prefStatGiveaway.querySelector('span').textContent = giveaway;
+    if (prefStatHidden) prefStatHidden.querySelector('span').textContent = hidden;
+    if (prefStatUnrated) prefStatUnrated.querySelector('span').textContent = unrated;
+
+    const elAll = document.getElementById('cat-count-all');
+    const elUnrated = document.getElementById('cat-count-unrated');
+    const elLove = document.getElementById('cat-count-love');
+    const elGive = document.getElementById('cat-count-giveaway');
+    const elHide = document.getElementById('cat-count-hide');
+
+    if (elAll) elAll.textContent = totalProducts;
+    if (elUnrated) elUnrated.textContent = unrated;
+    if (elLove) elLove.textContent = loved;
+    if (elGive) elGive.textContent = giveaway;
+    if (elHide) elHide.textContent = hidden;
   }
 
   // Toast Notification
@@ -791,6 +946,10 @@
     // Build Categories
     buildCategoryPills();
 
+    // Populate Rating Badges & Categorize Tab
+    updateRatingBadgesCount();
+    setupCategorizeTabEvents();
+
     // Render Initial View
     renderDeals();
   }
@@ -895,20 +1054,21 @@
       filtered = filtered.filter(g => !g.allHidden);
     }
 
-    // Search Filter
+    // Search Filter (Smart word matching: all whitespace-separated keywords anywhere in any order)
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
+      const tokens = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
       filtered = filtered.filter(g => {
-        const titleMatch = (g.title || '').toLowerCase().includes(q);
-        const promoMatch = (g.promoDetail || '').toLowerCase().includes(q);
-        const brandMatch = g.brands.some(b => b.toLowerCase().includes(q));
-        const itemMatch = g.items.some(d => {
-          const n = (d.name || '').toLowerCase();
-          const b = (d.brand || '').toLowerCase();
-          const c = (d.category || '').toLowerCase();
-          return n.includes(q) || b.includes(q) || c.includes(q);
+        const groupHeader = `${g.title || ''} ${g.promoDetail || ''} ${(g.brands || []).join(' ')}`.toLowerCase();
+        if (tokens.every(t => groupHeader.includes(t))) return true;
+
+        const anyItemMatches = g.items.some(d => {
+          const itemBlob = `${d.name || ''} ${d.brand || ''} ${d.category || ''} ${d.promo_detail || ''}`.toLowerCase();
+          return tokens.every(t => itemBlob.includes(t));
         });
-        return titleMatch || promoMatch || brandMatch || itemMatch;
+        if (anyItemMatches) return true;
+
+        const groupTotalBlob = `${groupHeader} ${g.items.map(d => `${d.name || ''} ${d.brand || ''} ${d.category || ''} ${d.promo_detail || ''}`).join(' ')}`.toLowerCase();
+        return tokens.every(t => groupTotalBlob.includes(t));
       });
     }
 
@@ -991,13 +1151,10 @@
     }
 
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
+      const tokens = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
       filtered = filtered.filter(d => {
-        const name = (d.name || '').toLowerCase();
-        const brand = (d.brand || '').toLowerCase();
-        const cat = (d.category || '').toLowerCase();
-        const promo = (d.promo_detail || '').toLowerCase();
-        return name.includes(q) || brand.includes(q) || cat.includes(q) || promo.includes(q);
+        const itemBlob = `${d.name || ''} ${d.brand || ''} ${d.category || ''} ${d.promo_detail || ''}`.toLowerCase();
+        return tokens.every(t => itemBlob.includes(t));
       });
     }
 
@@ -1248,7 +1405,7 @@
               }
 
               return `
-                <div class="group-item-row" data-deal-id="${item.deal_id}">
+                <div class="group-item-row" data-deal-id="${item.deal_id}" data-product-key="${getProductKey(item)}">
                   <div class="group-item-info">
                     <div class="group-item-name">${escapeHtml(item.name)}</div>
                     <div class="group-item-sub">
@@ -1261,9 +1418,9 @@
                   </div>
                   <div class="group-item-actions">
                     <div class="item-rating-group" title="Rate your preference for this specific item">
-                      <button class="btn-rate-icon ${rating === 'love' ? 'active-love' : ''}" onclick="window.__setItemRating(${item.deal_id}, 'love')" title="❤️ Love / Favorite (bubbles to top)">❤️</button>
-                      <button class="btn-rate-icon ${rating === 'giveaway' ? 'active-giveaway' : ''}" onclick="window.__setItemRating(${item.deal_id}, 'giveaway')" title="🎁 Giveaway (prioritize if free)">🎁</button>
-                      <button class="btn-rate-icon ${rating === 'hide' ? 'active-hide' : ''}" onclick="window.__setItemRating(${item.deal_id}, 'hide')" title="🚫 Hide / Never show">🚫</button>
+                      <button class="btn-rate-icon ${rating === 'love' ? 'active-love' : ''}" data-rate="love" onclick="window.__setItemRating(${item.deal_id}, 'love')" title="❤️ Love / Favorite (bubbles to top)">❤️</button>
+                      <button class="btn-rate-icon ${rating === 'giveaway' ? 'active-giveaway' : ''}" data-rate="giveaway" onclick="window.__setItemRating(${item.deal_id}, 'giveaway')" title="🎁 Giveaway (prioritize if free)">🎁</button>
+                      <button class="btn-rate-icon ${rating === 'hide' ? 'active-hide' : ''}" data-rate="hide" onclick="window.__setItemRating(${item.deal_id}, 'hide')" title="🚫 Hide / Never show">🚫</button>
                     </div>
                     ${itemPriceHtml}
                     <button class="btn-item-add ${itemInList ? 'in-list' : ''}" onclick="window.__toggleShoppingItem(${item.deal_id})">
@@ -1361,7 +1518,7 @@
     const cardAtlClass = isNewAtl(d) ? 'is-atl' : (isMatchAtl(d) ? 'is-match-atl' : (isAtl ? 'is-atl' : ''));
 
     return `
-      <div class="deal-card ${cardAtlClass}" data-id="${d.deal_id}">
+      <div class="deal-card ${cardAtlClass}" data-id="${d.deal_id}" data-product-key="${getProductKey(d)}">
         <div>
           <div class="card-top">
             <div class="badge-row">
@@ -1395,9 +1552,9 @@
           <div class="single-card-rating-drawer">
             <span class="drawer-label">Preference:</span>
             <div class="item-rating-group">
-              <button class="btn-rate-icon ${dRating === 'love' ? 'active-love' : ''}" onclick="window.__setItemRating(${d.deal_id}, 'love')" title="❤️ Love / Favorite (bubbles to top)">❤️ Love</button>
-              <button class="btn-rate-icon ${dRating === 'giveaway' ? 'active-giveaway' : ''}" onclick="window.__setItemRating(${d.deal_id}, 'giveaway')" title="🎁 Giveaway (prioritize if free)">🎁 Giveaway</button>
-              <button class="btn-rate-icon ${dRating === 'hide' ? 'active-hide' : ''}" onclick="window.__setItemRating(${d.deal_id}, 'hide')" title="🚫 Hide">🚫 Hide</button>
+              <button class="btn-rate-icon ${dRating === 'love' ? 'active-love' : ''}" data-rate="love" onclick="window.__setItemRating(${d.deal_id}, 'love')" title="❤️ Love / Favorite (bubbles to top)">❤️ Love</button>
+              <button class="btn-rate-icon ${dRating === 'giveaway' ? 'active-giveaway' : ''}" data-rate="giveaway" onclick="window.__setItemRating(${d.deal_id}, 'giveaway')" title="🎁 Giveaway (prioritize if free)">🎁 Giveaway</button>
+              <button class="btn-rate-icon ${dRating === 'hide' ? 'active-hide' : ''}" data-rate="hide" onclick="window.__setItemRating(${d.deal_id}, 'hide')" title="🚫 Hide">🚫 Hide</button>
             </div>
           </div>
         ` : ''}
@@ -1638,16 +1795,264 @@
   }
 
   // =========================================================================
+  // CATEGORIZATION WORKSPACE & TAB CONTROLLER
+  // =========================================================================
+
+  function buildCategorizeCategoryPills() {
+    if (!catCategoryPills) return;
+    const uniqueProducts = getUniqueProducts();
+    const counts = {};
+    uniqueProducts.forEach(p => {
+      const cat = p.category || 'Other';
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+
+    const sortedCats = Object.keys(counts).sort((a, b) => {
+      if (a === 'Other') return 1;
+      if (b === 'Other') return -1;
+      return counts[b] - counts[a];
+    });
+
+    catCategoryPills.innerHTML = '';
+    const allBtn = document.createElement('button');
+    allBtn.className = `cat-pill ${catActiveCategory === 'ALL' ? 'active' : ''}`;
+    allBtn.dataset.catDept = 'ALL';
+    allBtn.textContent = `All Categories (${uniqueProducts.length})`;
+    allBtn.addEventListener('click', () => {
+      catActiveCategory = 'ALL';
+      catCategoryPills.querySelectorAll('.cat-pill').forEach(b => b.classList.toggle('active', b.dataset.catDept === 'ALL'));
+      renderCategorizeView();
+    });
+    catCategoryPills.appendChild(allBtn);
+
+    sortedCats.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = `cat-pill ${catActiveCategory === cat ? 'active' : ''}`;
+      btn.dataset.catDept = cat;
+      btn.textContent = `${cat} (${counts[cat]})`;
+      btn.addEventListener('click', () => {
+        catActiveCategory = cat;
+        catCategoryPills.querySelectorAll('.cat-pill').forEach(b => b.classList.toggle('active', b.dataset.catDept === cat));
+        renderCategorizeView();
+      });
+      catCategoryPills.appendChild(btn);
+    });
+  }
+
+  function renderCategorizeView() {
+    if (!categorizeView || activeTab !== 'categorize') return;
+
+    let products = getUniqueProducts();
+    updateRatingBadgesCount();
+
+    // 1. Filter by Search Query
+    if (catSearchQuery.trim()) {
+      const q = catSearchQuery.toLowerCase().trim();
+      products = products.filter(p => {
+        const n = (p.name || '').toLowerCase();
+        const b = (p.brand || '').toLowerCase();
+        const c = (p.category || '').toLowerCase();
+        return n.includes(q) || b.includes(q) || c.includes(q);
+      });
+    }
+
+    // 2. Filter by Rating Status
+    if (catActiveStatus === 'unrated') {
+      products = products.filter(p => !getItemRating(p));
+    } else if (catActiveStatus === 'love') {
+      products = products.filter(p => getItemRating(p) === 'love');
+    } else if (catActiveStatus === 'giveaway') {
+      products = products.filter(p => getItemRating(p) === 'giveaway');
+    } else if (catActiveStatus === 'hide') {
+      products = products.filter(p => getItemRating(p) === 'hide');
+    }
+
+    // 3. Filter by Category
+    if (catActiveCategory !== 'ALL') {
+      products = products.filter(p => (p.category || 'Other') === catActiveCategory);
+    }
+
+    // 4. Sort
+    products.sort((a, b) => {
+      if (catActiveSort === 'price_asc') {
+        return (a.price != null ? a.price : 999999) - (b.price != null ? b.price : 999999);
+      }
+      if (catActiveSort === 'category') {
+        const catCmp = (a.category || '').localeCompare(b.category || '');
+        if (catCmp !== 0) return catCmp;
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      if (catActiveSort === 'unrated_first') {
+        const aRated = getItemRating(a) ? 1 : 0;
+        const bRated = getItemRating(b) ? 1 : 0;
+        if (aRated !== bRated) return aRated - bRated;
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      if (catActiveSort === 'rated_first') {
+        const aRated = getItemRating(a) ? 1 : 0;
+        const bRated = getItemRating(b) ? 1 : 0;
+        if (aRated !== bRated) return bRated - aRated;
+        return (a.name || '').localeCompare(b.name || '');
+      }
+      // default: name_asc
+      return (a.name || '').localeCompare(b.name || '');
+    });
+
+    if (catCountText) {
+      catCountText.textContent = `Showing ${products.length} ${products.length === 1 ? 'product' : 'products'}`;
+    }
+
+    if (products.length === 0) {
+      if (catItemsList) catItemsList.innerHTML = '';
+      if (catEmptyState) catEmptyState.style.display = 'block';
+      return;
+    }
+
+    if (catEmptyState) catEmptyState.style.display = 'none';
+
+    if (catItemsList) {
+      catItemsList.innerHTML = products.map(p => {
+        const currentRating = getItemRating(p);
+        const ratingClass = currentRating === 'love' ? 'is-loved' : (currentRating === 'giveaway' ? 'is-giveaway' : (currentRating === 'hide' ? 'is-hidden' : ''));
+        let ratingTagHtml = '<span style="color:var(--slate-400); font-size:0.7rem;">⚡ Unrated</span>';
+        if (currentRating === 'love') {
+          ratingTagHtml = '<span class="item-rating-tag rating-love">❤️ Favorite</span>';
+        } else if (currentRating === 'giveaway') {
+          ratingTagHtml = '<span class="item-rating-tag rating-giveaway">🎁 Giveaway</span>';
+        } else if (currentRating === 'hide') {
+          ratingTagHtml = '<span class="item-rating-tag rating-hide">🚫 Hidden</span>';
+        }
+
+        const priceStr = p.price != null ? `<span class="cat-deal-price">${formatMoney(p.price)}${p.unit_price ? ` <span style="font-size:0.75rem; color:var(--slate-500); font-weight:400;">(${formatUnitPrice(p.unit_price, p.unit_type)})</span>` : ''}</span>` : '<span style="color:var(--slate-400); font-size:0.75rem;">Regular Price</span>';
+
+        return `
+          <div class="categorize-item-card ${ratingClass}" data-product-key="${p.key}">
+            <div class="cat-card-top">
+              <div style="flex:1; min-width:0;">
+                <div class="cat-item-name">${escapeHtml(p.name)}</div>
+                ${p.brand ? `<div class="cat-item-brand">${escapeHtml(p.brand)}</div>` : ''}
+              </div>
+              <span class="cat-pill" style="font-size:0.7rem; padding:2px 6px;">${escapeHtml(p.category || 'Other')}</span>
+            </div>
+
+            <div class="cat-card-sub">
+              ${priceStr}
+              ${ratingTagHtml}
+            </div>
+
+            <div class="cat-card-actions">
+              <div class="cat-btn-group">
+                <button class="cat-rate-btn btn-love ${currentRating === 'love' ? 'active' : ''}" onclick="window.__setItemRating(${p.deal_id}, 'love', 'categorize')">❤️ Love</button>
+                <button class="cat-rate-btn btn-giveaway ${currentRating === 'giveaway' ? 'active' : ''}" onclick="window.__setItemRating(${p.deal_id}, 'giveaway', 'categorize')">🎁 Giveaway</button>
+                <button class="cat-rate-btn btn-hide ${currentRating === 'hide' ? 'active' : ''}" onclick="window.__setItemRating(${p.deal_id}, 'hide', 'categorize')">🚫 Hide</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  function switchTab(targetTab) {
+    if (activeTab === targetTab) return;
+    activeTab = targetTab;
+
+    if (navTabDeals) navTabDeals.classList.toggle('active', activeTab === 'deals');
+    if (navTabCategorize) navTabCategorize.classList.toggle('active', activeTab === 'categorize');
+
+    if (activeTab === 'deals') {
+      if (categorizeView) categorizeView.style.display = 'none';
+      if (dealsFeedView) dealsFeedView.style.display = 'block';
+      flushPendingFeedRefresh();
+    } else {
+      if (dealsFeedView) dealsFeedView.style.display = 'none';
+      if (categorizeView) categorizeView.style.display = 'block';
+      buildCategorizeCategoryPills();
+      renderCategorizeView();
+    }
+  }
+
+  function setupCategorizeTabEvents() {
+    if (navTabDeals) {
+      navTabDeals.addEventListener('click', () => switchTab('deals'));
+    }
+    if (navTabCategorize) {
+      navTabCategorize.addEventListener('click', () => switchTab('categorize'));
+    }
+
+    if (catSearchInput) {
+      catSearchInput.addEventListener('input', (e) => {
+        catSearchQuery = e.target.value;
+        if (catSearchClear) catSearchClear.style.display = catSearchQuery ? 'flex' : 'none';
+        renderCategorizeView();
+      });
+    }
+
+    if (catSearchClear) {
+      catSearchClear.addEventListener('click', () => {
+        catSearchQuery = '';
+        catSearchInput.value = '';
+        catSearchClear.style.display = 'none';
+        catSearchInput.focus();
+        renderCategorizeView();
+      });
+    }
+
+    if (catSortSelect) {
+      catSortSelect.addEventListener('change', (e) => {
+        catActiveSort = e.target.value;
+        renderCategorizeView();
+      });
+    }
+
+    document.querySelectorAll('[data-cat-status]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        catActiveStatus = chip.dataset.catStatus;
+        document.querySelectorAll('[data-cat-status]').forEach(c => c.classList.toggle('active', c.dataset.catStatus === catActiveStatus));
+        renderCategorizeView();
+      });
+    });
+
+    if (catClearAllBtn) {
+      catClearAllBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear all your saved item preferences?')) {
+          itemRatings = {};
+          saveItemRatings();
+          updateRatingBadgesCount();
+          renderCategorizeView();
+          pendingFeedRefresh = true;
+          showToast('All item preferences cleared');
+        }
+      });
+    }
+  }
+
+  // =========================================================================
   // INTERACTION HANDLERS & EXPANSION
   // =========================================================================
 
   window.__toggleGroupExpand = function (groupId) {
     if (expandedGroupIds.has(groupId)) {
       expandedGroupIds.delete(groupId);
+      // Collapsing: user finished viewing this group, so flush any pending re-ordering!
+      pendingFeedRefresh = false;
+      renderDeals();
     } else {
       expandedGroupIds.add(groupId);
+      renderDeals();
     }
-    renderDeals();
+  };
+
+  window.__toggleSingleRate = function (dealId) {
+    if (singleRateExpandedDealIds.has(dealId)) {
+      singleRateExpandedDealIds.delete(dealId);
+      // Closing drawer: flush any pending re-ordering!
+      pendingFeedRefresh = false;
+      renderDeals();
+    } else {
+      singleRateExpandedDealIds.add(dealId);
+      renderDeals();
+    }
   };
 
   window.__toggleGroupAll = function (groupId) {
@@ -1712,20 +2117,20 @@
     renderDeals();
   };
 
-  window.__setItemRating = function (dealId, rating) {
+  window.__setItemRating = function (dealId, rating, source = 'feed') {
     const deal = allDeals.find(d => d.deal_id === dealId);
     if (!deal) return;
-    setItemRating(deal, rating);
+    setItemRating(deal, rating, source);
   };
 
-  window.__toggleSingleRate = function (dealId) {
-    if (singleRateExpandedDealIds.has(dealId)) {
-      singleRateExpandedDealIds.delete(dealId);
-    } else {
-      singleRateExpandedDealIds.add(dealId);
+  document.addEventListener('click', (e) => {
+    if (!pendingFeedRefresh) return;
+    if (e.target.closest('.group-expanded-container') || e.target.closest('.single-card-rating-drawer') || e.target.closest('.item-rating-group') || e.target.closest('.btn-rate-toggle') || e.target.closest('.btn-expand-group')) {
+      return;
     }
-    renderDeals();
-  };
+    // Clicked outside an active rating interaction: flush re-order!
+    flushPendingFeedRefresh();
+  });
 
   function updateExpandAllButtonState() {
     if (!expandCollapseAllBtn) return;
