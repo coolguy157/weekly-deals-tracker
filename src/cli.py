@@ -70,14 +70,13 @@ def cmd_deals(args: argparse.Namespace) -> None:
     evaluations = analyzer.evaluate_flyer(flyer_id, front_page_only=args.front_page_only)
 
     if args.query:
-        q = args.query.lower()
+        tokens = args.query.lower().split()
         evaluations = [
             e for e in evaluations
-            if q in e.canonical_name.lower()
-            or (e.brand and q in e.brand.lower())
-            or (e.category and q in e.category.lower())
-            or (e.promo_detail and q in e.promo_detail.lower())
-            or (e.summary_reason and q in e.summary_reason.lower())
+            if all(
+                tok in f"{e.canonical_name} {getattr(e, 'ad_title', '') or ''} {e.brand or ''} {e.category or ''} {e.promo_detail or ''} {e.summary_reason or ''}".lower()
+                for tok in tokens
+            )
         ]
 
     if getattr(args, "category", None):
