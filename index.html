@@ -228,12 +228,33 @@
 
     <!-- Categorization Controls & Filter Bar -->
     <section class="controls-card categorize-controls">
-      <div class="search-row">
+      <div class="search-row full-width-search">
         <div class="search-box">
           <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="text" id="categorize-search-input" placeholder="Search product name, brand, or flavor to categorize..." autocomplete="off" />
           <button id="categorize-search-clear" class="clear-btn" title="Clear Search" style="display: none;">✕</button>
         </div>
+      </div>
+
+      <div class="categorize-toolbar-subrow">
+        <div class="filter-chips-row">
+          <button class="filter-chip active" data-cat-status="all">
+            All Products (<span id="cat-count-all">0</span>)
+          </button>
+          <button class="filter-chip" data-cat-status="unrated">
+            ⚡ Unrated (<span id="cat-count-unrated">0</span>)
+          </button>
+          <button class="filter-chip" data-cat-status="love">
+            ❤️ Favorites (<span id="cat-count-love">0</span>)
+          </button>
+          <button class="filter-chip" data-cat-status="giveaway">
+            🎁 Giveaways (<span id="cat-count-giveaway">0</span>)
+          </button>
+          <button class="filter-chip" data-cat-status="hide">
+            🚫 Hidden (<span id="cat-count-hide">0</span>)
+          </button>
+        </div>
+
         <div class="sort-box">
           <label for="categorize-sort-select" class="sort-label">Sort by:</label>
           <select id="categorize-sort-select">
@@ -244,24 +265,6 @@
             <option value="rated_first">⭐ Rated First</option>
           </select>
         </div>
-      </div>
-
-      <div class="filter-chips-row">
-        <button class="filter-chip active" data-cat-status="all">
-          All Products (<span id="cat-count-all">0</span>)
-        </button>
-        <button class="filter-chip" data-cat-status="unrated">
-          ⚡ Unrated (<span id="cat-count-unrated">0</span>)
-        </button>
-        <button class="filter-chip" data-cat-status="love">
-          ❤️ Favorites (<span id="cat-count-love">0</span>)
-        </button>
-        <button class="filter-chip" data-cat-status="giveaway">
-          🎁 Giveaways (<span id="cat-count-giveaway">0</span>)
-        </button>
-        <button class="filter-chip" data-cat-status="hide">
-          🚫 Hidden (<span id="cat-count-hide">0</span>)
-        </button>
       </div>
 
       <div class="categories-bar-wrapper">
