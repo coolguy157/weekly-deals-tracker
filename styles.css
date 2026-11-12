@@ -733,6 +733,13 @@ body {
   font-weight: 800;
 }
 
+.deal-badge.user-deal-only {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+  font-weight: 800;
+}
+
 .deal-badge.user-giveaway {
   background: #ede9fe;
   color: #6d28d9;
@@ -1096,6 +1103,13 @@ body {
   box-shadow: 0 1px 2px rgba(185, 28, 28, 0.15);
 }
 
+.btn-rate-icon.active-deal-only {
+  opacity: 1;
+  background: #eff6ff;
+  border-color: #93c5fd;
+  box-shadow: 0 1px 2px rgba(29, 78, 216, 0.15);
+}
+
 .btn-rate-icon.active-giveaway {
   opacity: 1;
   background: #ede9fe;
@@ -1123,6 +1137,11 @@ body {
 .item-rating-tag.rating-love {
   background: #fee2e2;
   color: #b91c1c;
+}
+
+.item-rating-tag.rating-deal-only {
+  background: #eff6ff;
+  color: #1d4ed8;
 }
 
 .item-rating-tag.rating-giveaway {
@@ -1157,6 +1176,12 @@ body {
   background: #fee2e2;
   color: #b91c1c;
   border-color: #fca5a5;
+}
+
+.btn-rate-toggle.active-deal-only {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #93c5fd;
 }
 
 .btn-rate-toggle.active-giveaway {
@@ -1600,6 +1625,12 @@ body {
   border: 1px solid #fca5a5;
 }
 
+.pref-stat-chip.stat-deal-only {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+
 .pref-stat-chip.stat-giveaway {
   background: #ede9fe;
   color: #6d28d9;
@@ -1659,6 +1690,11 @@ body {
 .categorize-item-card.is-loved {
   border-color: #fca5a5;
   background: #fffafa;
+}
+
+.categorize-item-card.is-deal-only {
+  border-color: #93c5fd;
+  background: #f8faff;
 }
 
 .categorize-item-card.is-giveaway {
@@ -1748,6 +1784,13 @@ body {
   background: #fee2e2;
   color: #b91c1c;
   border-color: #fca5a5;
+  font-weight: 700;
+}
+
+.cat-rate-btn.btn-deal-only.active {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #93c5fd;
   font-weight: 700;
 }
 
