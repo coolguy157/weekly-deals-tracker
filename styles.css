@@ -739,10 +739,54 @@ body {
   font-weight: 800;
 }
 
+.deal-badge.user-loved.loved-best {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #f87171;
+  font-weight: 800;
+  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.15);
+}
+
+.deal-badge.user-loved.loved-great {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  font-weight: 800;
+}
+
+.deal-badge.user-loved.loved-routine {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  font-weight: 700;
+}
+
+.deal-badge.user-loved.loved-modest {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  font-weight: 800;
+}
+
 .deal-badge.user-deal-only {
   background: #eff6ff;
   color: #1d4ed8;
   border: 1px solid #93c5fd;
+  font-weight: 800;
+}
+
+.deal-badge.user-deal-only.deal-only-best {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #60a5fa;
+  font-weight: 800;
+  box-shadow: 0 1px 2px rgba(59, 130, 246, 0.15);
+}
+
+.deal-badge.user-deal-only.deal-only-great {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #86efac;
   font-weight: 800;
 }
 
@@ -850,12 +894,62 @@ body {
 .history-summary {
   font-size: 0.8rem;
   color: var(--slate-500);
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   line-height: 1.3;
+}
+
+.history-summary.history-best {
+  color: #15803d;
 }
 
 .history-summary strong {
   color: var(--slate-700);
+}
+
+.history-pill {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.history-pill.best {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.history-pill.caution {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.history-pill.warning {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.history-warning-callout {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #991b1b;
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+  padding: 3px 6px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+
+.history-warning-callout.modest {
+  color: #92400e;
+  background: #fffbeb;
+  border-left-color: #f59e0b;
 }
 
 .deal-badge.group-count {

@@ -544,70 +544,134 @@
     const badges = [];
 
     const rating = getItemRating(d);
+    const newAtl = isNewAtl(d);
+    const matchAtl = isMatchAtl(d);
+    const atl = /ATL|ALL[-_]TIME/i.test(rawBadge);
+    const isFree = isPointsFreebie(d) || (d.price != null && d.price === 0);
+    const ptsDeal = isPointsDeal(d);
+    const catBest = !!d.is_category_best;
+    const great = isGreatBadge(d.badge);
+    const hike = /HIKE/i.test(rawBadge);
+
+    // Option 1: Dynamic Dual-State Badge for Favorites
     if (rating === 'love') {
-      badges.push('<span class="deal-badge user-loved">❤️ FAVORITE</span>');
+      if (isFree) {
+        badges.push('<span class="deal-badge user-loved loved-best">❤️ FAVORITE • 🪙 FREE W/ POINTS</span>');
+      } else if (newAtl) {
+        badges.push('<span class="deal-badge user-loved loved-best">❤️ FAVORITE • 🔥 NEW ALL-TIME LOW</span>');
+      } else if (matchAtl) {
+        badges.push('<span class="deal-badge user-loved loved-best">❤️ FAVORITE • ⭐ MATCHES ATL</span>');
+      } else if (atl) {
+        badges.push('<span class="deal-badge user-loved loved-best">❤️ FAVORITE • 🔥 ALL-TIME LOW</span>');
+      } else if (ptsDeal) {
+        badges.push('<span class="deal-badge user-loved loved-great">❤️ FAVORITE • 🪙 HIGH-YIELD POINTS</span>');
+      } else if (catBest) {
+        badges.push('<span class="deal-badge user-loved loved-great">❤️ FAVORITE • 🏆 BEST IN CATEGORY</span>');
+      } else if (great) {
+        badges.push('<span class="deal-badge user-loved loved-great">❤️ FAVORITE • ✨ GREAT DEAL</span>');
+      } else if (hike || (d.price != null && d.historical_avg != null && d.historical_avg > 0 && d.price > d.historical_avg * 1.15)) {
+        badges.push('<span class="deal-badge user-loved loved-modest">❤️ FAVORITE • ⚠️ MODEST DEAL</span>');
+      } else {
+        badges.push('<span class="deal-badge user-loved loved-routine">❤️ FAVORITE • ℹ️ ROUTINE SALE</span>');
+      }
     } else if (rating === 'deal_only') {
-      badges.push('<span class="deal-badge user-deal-only">🎯 DEAL PICK</span>');
+      if (isFree) {
+        badges.push('<span class="deal-badge user-deal-only deal-only-best">🎯 DEAL PICK • 🪙 FREE W/ POINTS</span>');
+      } else if (newAtl) {
+        badges.push('<span class="deal-badge user-deal-only deal-only-best">🎯 DEAL PICK • 🔥 NEW ALL-TIME LOW</span>');
+      } else if (matchAtl || atl) {
+        badges.push('<span class="deal-badge user-deal-only deal-only-best">🎯 DEAL PICK • ⭐ ALL-TIME LOW</span>');
+      } else if (ptsDeal) {
+        badges.push('<span class="deal-badge user-deal-only deal-only-great">🎯 DEAL PICK • 🪙 HIGH-YIELD</span>');
+      } else if (catBest || great) {
+        badges.push('<span class="deal-badge user-deal-only deal-only-great">🎯 DEAL PICK • ✨ GREAT DEAL</span>');
+      } else {
+        badges.push('<span class="deal-badge user-deal-only">🎯 DEAL PICK</span>');
+      }
     } else if (rating === 'giveaway') {
       badges.push('<span class="deal-badge user-giveaway">🎁 GIVEAWAY</span>');
     } else if (rating === 'hide') {
       badges.push('<span class="deal-badge user-hidden">🚫 HIDDEN</span>');
     }
 
-    let hasSpecialDealBadge = false;
-    if (isNewAtl(d)) {
-      badges.push('<span class="deal-badge atl new-atl">🔥 NEW ALL-TIME LOW</span>');
-      hasSpecialDealBadge = true;
-    } else if (isMatchAtl(d)) {
-      badges.push('<span class="deal-badge match-atl">⭐ MATCHES ATL</span>');
-      hasSpecialDealBadge = true;
-    } else if (/ATL|ALL[-_]TIME/i.test(rawBadge)) {
-      badges.push('<span class="deal-badge atl">🔥 ALL-TIME LOW</span>');
-      hasSpecialDealBadge = true;
-    } else if (/POINTS_FREEBIE/i.test(rawBadge)) {
-      badges.push('<span class="deal-badge points-freebie">🪙 FREE W/ POINTS</span>');
-      hasSpecialDealBadge = true;
-    } else if (/POINTS_DEAL/i.test(rawBadge)) {
-      badges.push('<span class="deal-badge points-deal">🪙 HIGH-YIELD POINTS</span>');
-      hasSpecialDealBadge = true;
-    } else if (/POINTS_REWARD|REWARD/i.test(rawBadge)) {
+    // Supplementary badges for non-loved/deal-only or cross-program promotions
+    if (rating !== 'love' && rating !== 'deal_only') {
+      if (newAtl) {
+        badges.push('<span class="deal-badge atl new-atl">🔥 NEW ALL-TIME LOW</span>');
+      } else if (matchAtl) {
+        badges.push('<span class="deal-badge match-atl">⭐ MATCHES ATL</span>');
+      } else if (atl) {
+        badges.push('<span class="deal-badge atl">🔥 ALL-TIME LOW</span>');
+      } else if (/POINTS_FREEBIE/i.test(rawBadge)) {
+        badges.push('<span class="deal-badge points-freebie">🪙 FREE W/ POINTS</span>');
+      } else if (great) {
+        badges.push('<span class="deal-badge great">✨ GREAT DEAL</span>');
+      } else if (ptsDeal) {
+        badges.push('<span class="deal-badge points-deal">🪙 HIGH-YIELD POINTS</span>');
+      }
+      if (d.is_category_best) {
+        badges.push('<span class="deal-badge catbest">⭐ CAT BEST</span>');
+      }
+    }
+
+    // Extended store programs
+    if (/POINTS_REWARD|REWARD/i.test(rawBadge)) {
       badges.push('<span class="deal-badge points-reward">🪙 POINTS REWARD</span>');
-      hasSpecialDealBadge = true;
     } else if (/POINTS_REDEMPTION/i.test(rawBadge)) {
       badges.push('<span class="deal-badge points-redemption">🪙 REDEEM POINTS</span>');
-      hasSpecialDealBadge = true;
     } else if (/SPEND_SAVE|SPEND/i.test(rawBadge)) {
       badges.push('<span class="deal-badge spend-save">🏷️ SPEND & SAVE</span>');
-      hasSpecialDealBadge = true;
     } else if (/PERCENT_OFF|DISCOUNT/i.test(rawBadge)) {
       badges.push('<span class="deal-badge percent-off">🏷️ % OFF</span>');
-      hasSpecialDealBadge = true;
-    } else if (/BEAT/i.test(rawBadge)) {
-      badges.push('<span class="deal-badge beat">🔥 BEAT AVG</span>');
-      hasSpecialDealBadge = true;
     } else if (/CYCLE|REFRESH/i.test(rawBadge)) {
       badges.push('<span class="deal-badge cycle">🔄 CYCLE MATCH</span>');
-    } else if (/HIKE/i.test(rawBadge)) {
+    } else if (/HIKE/i.test(rawBadge) && rating !== 'love') {
       badges.push('<span class="deal-badge hike">⚠️ PRICE HIKE</span>');
-      hasSpecialDealBadge = true;
     } else if (/FIRST_SEEN|FIRST/i.test(rawBadge)) {
       badges.push('<span class="deal-badge firstseen">🌱 FIRST SEEN</span>');
-    } else if (/GREAT|SOLID/i.test(rawBadge)) {
-      badges.push('<span class="deal-badge great">✨ GREAT DEAL</span>');
-      hasSpecialDealBadge = true;
-    }
-
-    if (d.is_category_best) {
-      badges.push('<span class="deal-badge catbest">⭐ CAT BEST</span>');
-      hasSpecialDealBadge = true;
-    }
-
-    // If item bubbled as a favorite staple but circular price is merely regular/routine
-    if (rating === 'love' && !hasSpecialDealBadge) {
-      badges.push('<span class="deal-badge routine-sale" title="Bubbled because this is a staple favorite; discount is routine circular pricing.">ℹ️ ROUTINE SALE</span>');
     }
 
     return badges.join(' ');
+  }
+
+  // Option 2: Explicit Historical Price Warning Callout
+  function formatDealHistoryHtml(d) {
+    if (!d || d.price == null) return '';
+    const price = d.price;
+    const min = d.historical_min;
+    const avg = d.historical_avg;
+    const isNew = isNewAtl(d);
+    const isMatch = isMatchAtl(d);
+    const isAtl = isNew || isMatch || isAtlBadge(d.badge) || (min != null && price <= min);
+
+    if (isAtl && avg) {
+      const savingsPct = Math.round(((avg - price) / avg) * 100);
+      const savingsPill = savingsPct > 0 ? ` <span class="history-pill best">-${savingsPct}% vs avg</span>` : '';
+      return `<div class="history-summary history-best">🔥 Best price recorded (Avg: <strong>${formatMoney(avg)}</strong>)${savingsPill}</div>`;
+    }
+
+    if (min && avg && min < price) {
+      const pctAboveMin = Math.round(((price - min) / min) * 100);
+      let warningCallout = '';
+      let pillClass = 'caution';
+
+      if (price >= avg * 1.05) {
+        pillClass = 'warning';
+        warningCallout = `<div class="history-warning-callout">⚠️ Near/above typical sale avg (${formatMoney(avg)}) — wait for ATL if well-stocked</div>`;
+      } else if (pctAboveMin >= 25) {
+        warningCallout = `<div class="history-warning-callout modest">⚠️ Modest discount: Past low was ${formatMoney(min)} (+${pctAboveMin}% above min)</div>`;
+      }
+
+      return `
+        <div class="history-summary">
+          Avg: <strong>${formatMoney(avg)}</strong> • Min: <strong>${formatMoney(min)}</strong>
+          ${pctAboveMin >= 20 ? `<span class="history-pill ${pillClass}">+${pctAboveMin}% vs low</span>` : ''}
+        </div>
+        ${warningCallout}
+      `;
+    }
+
+    return '';
   }
 
   // Format Helpers
@@ -1465,9 +1529,21 @@
     const rep = g.representativeDeal;
     let badgeHtml = getBadgeHtml(rep);
     if (g.hasLoved && !badgeHtml.includes('user-loved')) {
-      badgeHtml = `<span class="deal-badge user-loved">❤️ FAVORITE INCLUDED</span> ${badgeHtml}`;
+      if (g.hasNewAtl || g.hasPointsFreebie) {
+        badgeHtml = `<span class="deal-badge user-loved loved-best">❤️ FAVORITE • 🔥 BEST PRICE</span> ${badgeHtml}`;
+      } else if (g.hasMatchAtl || g.hasGreat || g.hasCatBest) {
+        badgeHtml = `<span class="deal-badge user-loved loved-great">❤️ FAVORITE • ✨ GREAT DEAL</span> ${badgeHtml}`;
+      } else {
+        badgeHtml = `<span class="deal-badge user-loved loved-routine">❤️ FAVORITE • ℹ️ ROUTINE SALE</span> ${badgeHtml}`;
+      }
     } else if (g.hasDealOnly && !badgeHtml.includes('user-deal-only')) {
-      badgeHtml = `<span class="deal-badge user-deal-only">🎯 DEAL PICK INCLUDED</span> ${badgeHtml}`;
+      if (g.hasNewAtl || g.hasPointsFreebie || g.hasMatchAtl) {
+        badgeHtml = `<span class="deal-badge user-deal-only deal-only-best">🎯 DEAL PICK • 🔥 BEST PRICE</span> ${badgeHtml}`;
+      } else if (g.hasGreat || g.hasCatBest) {
+        badgeHtml = `<span class="deal-badge user-deal-only deal-only-great">🎯 DEAL PICK • ✨ GREAT DEAL</span> ${badgeHtml}`;
+      } else {
+        badgeHtml = `<span class="deal-badge user-deal-only">🎯 DEAL PICK INCLUDED</span> ${badgeHtml}`;
+      }
     } else if (g.hasGiveaway && !badgeHtml.includes('user-giveaway')) {
       badgeHtml = `<span class="deal-badge user-giveaway">🎁 GIVEAWAY</span> ${badgeHtml}`;
     } else if (g.allHidden && !badgeHtml.includes('user-hidden')) {
@@ -1520,16 +1596,7 @@
       promoDetailHtml = `<div class="promo-detail-note">🏷️ ${escapeHtml(g.promoDetail)}</div>`;
     }
 
-    let historyHtml = '';
-    if (rep) {
-      if (rep.historical_min && rep.price && rep.historical_min > rep.price) {
-        historyHtml = `<div class="history-summary">Best price recorded (Past low was <strong>${formatMoney(rep.historical_min)}</strong>)</div>`;
-      } else if (rep.historical_min && rep.historical_avg && rep.historical_min < rep.price) {
-        historyHtml = `<div class="history-summary">Avg: <strong>${formatMoney(rep.historical_avg)}</strong> • Min: <strong>${formatMoney(rep.historical_min)}</strong></div>`;
-      } else if (isAtlBadge(rep.badge) && rep.historical_avg) {
-        historyHtml = `<div class="history-summary">Best price recorded (Avg: <strong>${formatMoney(rep.historical_avg)}</strong>)</div>`;
-      }
-    }
+    const historyHtml = formatDealHistoryHtml(rep);
 
     // Brand display string
     const brandStr = g.brands.length > 0 ? g.brands.slice(0, 4).join(' • ') + (g.brands.length > 4 ? ' • ...' : '') : '';
@@ -1715,12 +1782,7 @@
       promoDetailHtml = `<div class="promo-detail-note">🏷️ ${escapeHtml(d.promo_detail)}</div>`;
     }
 
-    let historyHtml = '';
-    if (d.historical_min && d.historical_avg && d.historical_min < d.price) {
-      historyHtml = `<div class="history-summary">Avg: <strong>${formatMoney(d.historical_avg)}</strong> • Min: <strong>${formatMoney(d.historical_min)}</strong></div>`;
-    } else if (isAtl && d.historical_avg) {
-      historyHtml = `<div class="history-summary">Best price recorded (Avg: <strong>${formatMoney(d.historical_avg)}</strong>)</div>`;
-    }
+    const historyHtml = formatDealHistoryHtml(d);
 
     const cardAtlClass = isNewAtl(d) ? 'is-atl' : (isMatchAtl(d) ? 'is-match-atl' : (isAtl ? 'is-atl' : ''));
 
