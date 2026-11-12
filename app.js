@@ -554,38 +554,57 @@
       badges.push('<span class="deal-badge user-hidden">🚫 HIDDEN</span>');
     }
 
+    let hasSpecialDealBadge = false;
     if (isNewAtl(d)) {
       badges.push('<span class="deal-badge atl new-atl">🔥 NEW ALL-TIME LOW</span>');
+      hasSpecialDealBadge = true;
     } else if (isMatchAtl(d)) {
       badges.push('<span class="deal-badge match-atl">⭐ MATCHES ATL</span>');
+      hasSpecialDealBadge = true;
     } else if (/ATL|ALL[-_]TIME/i.test(rawBadge)) {
       badges.push('<span class="deal-badge atl">🔥 ALL-TIME LOW</span>');
+      hasSpecialDealBadge = true;
     } else if (/POINTS_FREEBIE/i.test(rawBadge)) {
       badges.push('<span class="deal-badge points-freebie">🪙 FREE W/ POINTS</span>');
+      hasSpecialDealBadge = true;
     } else if (/POINTS_DEAL/i.test(rawBadge)) {
       badges.push('<span class="deal-badge points-deal">🪙 HIGH-YIELD POINTS</span>');
+      hasSpecialDealBadge = true;
     } else if (/POINTS_REWARD|REWARD/i.test(rawBadge)) {
       badges.push('<span class="deal-badge points-reward">🪙 POINTS REWARD</span>');
+      hasSpecialDealBadge = true;
     } else if (/POINTS_REDEMPTION/i.test(rawBadge)) {
       badges.push('<span class="deal-badge points-redemption">🪙 REDEEM POINTS</span>');
+      hasSpecialDealBadge = true;
     } else if (/SPEND_SAVE|SPEND/i.test(rawBadge)) {
       badges.push('<span class="deal-badge spend-save">🏷️ SPEND & SAVE</span>');
+      hasSpecialDealBadge = true;
     } else if (/PERCENT_OFF|DISCOUNT/i.test(rawBadge)) {
       badges.push('<span class="deal-badge percent-off">🏷️ % OFF</span>');
+      hasSpecialDealBadge = true;
     } else if (/BEAT/i.test(rawBadge)) {
       badges.push('<span class="deal-badge beat">🔥 BEAT AVG</span>');
+      hasSpecialDealBadge = true;
     } else if (/CYCLE|REFRESH/i.test(rawBadge)) {
       badges.push('<span class="deal-badge cycle">🔄 CYCLE MATCH</span>');
     } else if (/HIKE/i.test(rawBadge)) {
       badges.push('<span class="deal-badge hike">⚠️ PRICE HIKE</span>');
+      hasSpecialDealBadge = true;
     } else if (/FIRST_SEEN|FIRST/i.test(rawBadge)) {
       badges.push('<span class="deal-badge firstseen">🌱 FIRST SEEN</span>');
     } else if (/GREAT|SOLID/i.test(rawBadge)) {
       badges.push('<span class="deal-badge great">✨ GREAT DEAL</span>');
+      hasSpecialDealBadge = true;
     }
 
     if (d.is_category_best) {
       badges.push('<span class="deal-badge catbest">⭐ CAT BEST</span>');
+      hasSpecialDealBadge = true;
+    }
+
+    // If item bubbled as a favorite staple but circular price is merely regular/routine
+    if (rating === 'love' && !hasSpecialDealBadge) {
+      badges.push('<span class="deal-badge routine-sale" title="Bubbled because this is a staple favorite; discount is routine circular pricing.">ℹ️ ROUTINE SALE</span>');
     }
 
     return badges.join(' ');
@@ -1102,6 +1121,82 @@
     renderDeals();
   }
 
+  // Dynamic Featured Deal Quality & Preference Scoring Model
+  function computeGroupFeaturedScore(g) {
+    let quality = 30; // Base circular promotion score
+    if (g.hasPointsFreebie || g.items.some(it => isPointsFreebie(it)) || (g.isMealDeal && g.items.some(it => it.price === 0))) {
+      quality += 500;
+    } else if (g.hasNewAtl) {
+      quality += 300;
+    } else if (g.hasMatchAtl) {
+      quality += 200;
+    } else if (g.hasPointsDeal) {
+      quality += 180;
+    } else if (g.hasCatBest) {
+      quality += 150;
+    } else if (g.hasGreat) {
+      quality += 120;
+    } else if (g.items.some(it => (it.promo_type && it.promo_type !== 'standard') || (it.promo_detail && /bogo|buy/i.test(it.promo_detail)))) {
+      quality += 80;
+    }
+
+    if (g.isFrontPage) quality += 40;
+
+    let affinity = 0;
+    if (g.hasLoved) {
+      affinity = 350;
+    } else if (g.hasDealOnly) {
+      affinity = g.hasGatedDealOnly ? 150 : -50;
+    } else if (g.hasGiveaway) {
+      affinity = g.hasFreeGiveaway ? 200 : -200;
+    }
+
+    return quality + affinity;
+  }
+
+  function computeSingleDealFeaturedScore(d) {
+    let quality = 30;
+    const isFree = isPointsFreebie(d) || (d.price != null && d.price === 0);
+    const newAtl = isNewAtl(d);
+    const matchAtl = isMatchAtl(d);
+    const ptsDeal = isPointsDeal(d);
+    const catBest = !!d.is_category_best;
+    const great = isGreatBadge(d.badge);
+    const bogo = (d.promo_type && d.promo_type !== 'standard') || (d.promo_detail && /bogo|buy/i.test(d.promo_detail));
+
+    if (isFree) {
+      quality += 500;
+    } else if (newAtl) {
+      quality += 300;
+    } else if (matchAtl) {
+      quality += 200;
+    } else if (ptsDeal) {
+      quality += 180;
+    } else if (catBest) {
+      quality += 150;
+    } else if (great) {
+      quality += 120;
+    } else if (bogo) {
+      quality += 80;
+    }
+
+    if (d.is_front_page) quality += 40;
+
+    const rating = getItemRating(d);
+    let affinity = 0;
+    if (rating === 'love') {
+      affinity = 350;
+    } else if (rating === 'deal_only') {
+      const isQualifying = isFree || newAtl || matchAtl || ptsDeal || catBest || great || bogo;
+      affinity = isQualifying ? 150 : -50;
+    } else if (rating === 'giveaway') {
+      const isFreebie = isFree || (d.price != null && d.price <= 0.25);
+      affinity = isFreebie ? 200 : -200;
+    }
+
+    return quality + affinity;
+  }
+
   // Filtering & Sorting for Groups
   function getFilteredGroups() {
     const allGroups = getAllGroups();
@@ -1204,11 +1299,9 @@
         return (a.title || '').localeCompare(b.title || '');
       }
 
-      // 'featured' default: ❤️ Favorites (+1000) > 🎁 Free Giveaways (+300) > 🎯 Qualifying Deal-Only (+250) > 5-Point Freebies (200) > ALL-TIME LOW (100) > High-Yield Points Deal (80) > Great Deal / Beat Avg (50) + Front page bonus (20)
-      const lovedBonusA = a.hasLoved ? 1000 : (a.hasFreeGiveaway ? 300 : (a.hasGatedDealOnly ? 250 : 0));
-      const lovedBonusB = b.hasLoved ? 1000 : (b.hasFreeGiveaway ? 300 : (b.hasGatedDealOnly ? 250 : 0));
-      const scoreA = lovedBonusA + (a.hasPointsFreebie ? 200 : a.hasAtl ? 100 : a.hasPointsDeal ? 80 : a.hasGreat ? 50 : 0) + (a.isFrontPage ? 20 : 0);
-      const scoreB = lovedBonusB + (b.hasPointsFreebie ? 200 : b.hasAtl ? 100 : b.hasPointsDeal ? 80 : b.hasGreat ? 50 : 0) + (b.isFrontPage ? 20 : 0);
+      // Dynamic Featured Model: Deal Quality (Doorbusters/ATL) + Affinity Weighting
+      const scoreA = computeGroupFeaturedScore(a);
+      const scoreB = computeGroupFeaturedScore(b);
       if (scoreA !== scoreB) return scoreB - scoreA;
       return (a.page || 1) - (b.page || 1);
     });
@@ -1284,12 +1377,9 @@
       if (activeSort === 'name_asc') {
         return (a.name || '').localeCompare(b.name || '');
       }
-      const isQualifyingA = isAtlBadge(a.badge) || isGreatBadge(a.badge) || a.is_category_best || isPointsFreebie(a) || (a.promo_type && a.promo_type !== 'standard');
-      const isQualifyingB = isAtlBadge(b.badge) || isGreatBadge(b.badge) || b.is_category_best || isPointsFreebie(b) || (b.promo_type && b.promo_type !== 'standard');
-      const lovedBonusA = (getItemRating(a) === 'love') ? 1000 : ((getItemRating(a) === 'giveaway' && (a.price == null || a.price <= 0.25 || isPointsFreebie(a))) ? 300 : ((getItemRating(a) === 'deal_only' && isQualifyingA) ? 250 : 0));
-      const lovedBonusB = (getItemRating(b) === 'love') ? 1000 : ((getItemRating(b) === 'giveaway' && (b.price == null || b.price <= 0.25 || isPointsFreebie(b))) ? 300 : ((getItemRating(b) === 'deal_only' && isQualifyingB) ? 250 : 0));
-      const scoreA = lovedBonusA + (isPointsFreebie(a) ? 200 : isNewAtl(a) ? 120 : isMatchAtl(a) ? 100 : isAtlBadge(a.badge) ? 100 : isPointsDeal(a) ? 80 : isGreatBadge(a.badge) ? 50 : 0) + (a.is_front_page ? 20 : 0);
-      const scoreB = lovedBonusB + (isPointsFreebie(b) ? 200 : isNewAtl(b) ? 120 : isMatchAtl(b) ? 100 : isAtlBadge(b.badge) ? 100 : isPointsDeal(b) ? 80 : isGreatBadge(b.badge) ? 50 : 0) + (b.is_front_page ? 20 : 0);
+      // Dynamic Featured Model: Deal Quality (Doorbusters/ATL) + Affinity Weighting
+      const scoreA = computeSingleDealFeaturedScore(a);
+      const scoreB = computeSingleDealFeaturedScore(b);
       if (scoreA !== scoreB) return scoreB - scoreA;
       return (a.page || 1) - (b.page || 1);
     });
@@ -1376,6 +1466,8 @@
     let badgeHtml = getBadgeHtml(rep);
     if (g.hasLoved && !badgeHtml.includes('user-loved')) {
       badgeHtml = `<span class="deal-badge user-loved">❤️ FAVORITE INCLUDED</span> ${badgeHtml}`;
+    } else if (g.hasDealOnly && !badgeHtml.includes('user-deal-only')) {
+      badgeHtml = `<span class="deal-badge user-deal-only">🎯 DEAL PICK INCLUDED</span> ${badgeHtml}`;
     } else if (g.hasGiveaway && !badgeHtml.includes('user-giveaway')) {
       badgeHtml = `<span class="deal-badge user-giveaway">🎁 GIVEAWAY</span> ${badgeHtml}`;
     } else if (g.allHidden && !badgeHtml.includes('user-hidden')) {
@@ -1600,8 +1692,8 @@
     const badgeHtml = getBadgeHtml(d);
     const dRating = getItemRating(d);
     const isRateOpen = singleRateExpandedDealIds.has(d.deal_id);
-    const rateBtnText = dRating === 'love' ? '❤️ Favorite' : (dRating === 'giveaway' ? '🎁 Giveaway' : (dRating === 'hide' ? '🚫 Hidden' : '⭐ Rate'));
-    const rateBtnClass = dRating === 'love' ? 'active-loved' : (dRating === 'giveaway' ? 'active-giveaway' : (dRating === 'hide' ? 'active-hidden' : ''));
+    const rateBtnText = dRating === 'love' ? '❤️ Favorite' : (dRating === 'deal_only' ? '🎯 Deal Only' : (dRating === 'giveaway' ? '🎁 Giveaway' : (dRating === 'hide' ? '🚫 Hidden' : '⭐ Rate')));
+    const rateBtnClass = dRating === 'love' ? 'active-loved' : (dRating === 'deal_only' ? 'active-deal-only' : (dRating === 'giveaway' ? 'active-giveaway' : (dRating === 'hide' ? 'active-hidden' : '')));
 
     let priceDisplayHtml = `<span class="current-price">${formatMoney(d.price)}</span>`;
     let unitDisplayHtml = unitStr ? `<span class="unit-price-tag">${unitStr}</span>` : '';
