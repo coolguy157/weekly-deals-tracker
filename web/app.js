@@ -174,7 +174,7 @@
       showToast(`Reset rating for ${item.name.split(' - ')[0]}`);
     } else {
       itemRatings[key] = rating;
-      const label = rating === 'love' ? '❤️ Favorite' : (rating === 'giveaway' ? '🎁 Giveaway' : '🚫 Hidden');
+      const label = rating === 'love' ? '❤️ Favorite' : (rating === 'deal_only' ? '🎯 Deal Only' : (rating === 'giveaway' ? '🎁 Giveaway' : '🚫 Hidden'));
       showToast(`Marked ${item.name.split(' - ')[0]} as ${label}`);
     }
     saveItemRatings();
@@ -201,9 +201,11 @@
     // 1. Update matching rows in expanded multi-item groups
     document.querySelectorAll(`.group-item-row[data-product-key="${productKey}"]`).forEach(row => {
       const loveBtn = row.querySelector('.btn-rate-icon[data-rate="love"]');
+      const dealBtn = row.querySelector('.btn-rate-icon[data-rate="deal_only"]');
       const giveBtn = row.querySelector('.btn-rate-icon[data-rate="giveaway"]');
       const hideBtn = row.querySelector('.btn-rate-icon[data-rate="hide"]');
       if (loveBtn) loveBtn.classList.toggle('active-love', rating === 'love');
+      if (dealBtn) dealBtn.classList.toggle('active-deal-only', rating === 'deal_only');
       if (giveBtn) giveBtn.classList.toggle('active-giveaway', rating === 'giveaway');
       if (hideBtn) hideBtn.classList.toggle('active-hide', rating === 'hide');
 
@@ -214,7 +216,7 @@
         if (rating) {
           const tag = document.createElement('span');
           tag.className = `item-rating-tag rating-${rating}`;
-          tag.textContent = rating === 'love' ? '❤️ Favorite' : (rating === 'giveaway' ? '🎁 Giveaway' : '🚫 Hidden');
+          tag.textContent = rating === 'love' ? '❤️ Favorite' : (rating === 'deal_only' ? '🎯 Deal Only' : (rating === 'giveaway' ? '🎁 Giveaway' : '🚫 Hidden'));
           subDiv.appendChild(tag);
         }
       }
@@ -224,13 +226,15 @@
     document.querySelectorAll(`.deal-card[data-product-key="${productKey}"]`).forEach(card => {
       const toggleBtn = card.querySelector('.btn-rate-toggle');
       if (toggleBtn) {
-        toggleBtn.className = `btn-rate-toggle ${rating === 'love' ? 'active-loved' : (rating === 'giveaway' ? 'active-giveaway' : (rating === 'hide' ? 'active-hidden' : ''))}`;
-        toggleBtn.textContent = rating === 'love' ? '❤️ Favorite' : (rating === 'giveaway' ? '🎁 Giveaway' : (rating === 'hide' ? '🚫 Hidden' : '⭐ Rate'));
+        toggleBtn.className = `btn-rate-toggle ${rating === 'love' ? 'active-loved' : (rating === 'deal_only' ? 'active-deal-only' : (rating === 'giveaway' ? 'active-giveaway' : (rating === 'hide' ? 'active-hidden' : '')))}`;
+        toggleBtn.textContent = rating === 'love' ? '❤️ Favorite' : (rating === 'deal_only' ? '🎯 Deal Only' : (rating === 'giveaway' ? '🎁 Giveaway' : (rating === 'hide' ? '🚫 Hidden' : '⭐ Rate')));
       }
       const loveBtn = card.querySelector('.btn-rate-icon[data-rate="love"]');
+      const dealBtn = card.querySelector('.btn-rate-icon[data-rate="deal_only"]');
       const giveBtn = card.querySelector('.btn-rate-icon[data-rate="giveaway"]');
       const hideBtn = card.querySelector('.btn-rate-icon[data-rate="hide"]');
       if (loveBtn) loveBtn.classList.toggle('active-love', rating === 'love');
+      if (dealBtn) dealBtn.classList.toggle('active-deal-only', rating === 'deal_only');
       if (giveBtn) giveBtn.classList.toggle('active-giveaway', rating === 'giveaway');
       if (hideBtn) hideBtn.classList.toggle('active-hide', rating === 'hide');
     });
@@ -270,15 +274,17 @@
   function updateRatingBadgesCount() {
     const keys = Object.keys(itemRatings);
     let loved = 0;
+    let dealOnly = 0;
     let giveaway = 0;
     let hidden = 0;
     keys.forEach(k => {
       const r = itemRatings[k];
       if (r === 'love') loved++;
+      else if (r === 'deal_only') dealOnly++;
       else if (r === 'giveaway') giveaway++;
       else if (r === 'hide') hidden++;
     });
-    const totalRated = loved + giveaway + hidden;
+    const totalRated = loved + dealOnly + giveaway + hidden;
 
     if (navRatedBadge) {
       navRatedBadge.textContent = totalRated > 0 ? `${totalRated}` : '0';
@@ -289,6 +295,8 @@
     const unrated = Math.max(0, totalProducts - totalRated);
 
     if (prefStatLoved) prefStatLoved.querySelector('span').textContent = loved;
+    const prefStatDealOnly = document.getElementById('pref-stat-deal-only');
+    if (prefStatDealOnly) prefStatDealOnly.querySelector('span').textContent = dealOnly;
     if (prefStatGiveaway) prefStatGiveaway.querySelector('span').textContent = giveaway;
     if (prefStatHidden) prefStatHidden.querySelector('span').textContent = hidden;
     if (prefStatUnrated) prefStatUnrated.querySelector('span').textContent = unrated;
@@ -296,12 +304,14 @@
     const elAll = document.getElementById('cat-count-all');
     const elUnrated = document.getElementById('cat-count-unrated');
     const elLove = document.getElementById('cat-count-love');
+    const elDealOnly = document.getElementById('cat-count-deal-only');
     const elGive = document.getElementById('cat-count-giveaway');
     const elHide = document.getElementById('cat-count-hide');
 
     if (elAll) elAll.textContent = totalProducts;
     if (elUnrated) elUnrated.textContent = unrated;
     if (elLove) elLove.textContent = loved;
+    if (elDealOnly) elDealOnly.textContent = dealOnly;
     if (elGive) elGive.textContent = giveaway;
     if (elHide) elHide.textContent = hidden;
   }
@@ -536,6 +546,8 @@
     const rating = getItemRating(d);
     if (rating === 'love') {
       badges.push('<span class="deal-badge user-loved">❤️ FAVORITE</span>');
+    } else if (rating === 'deal_only') {
+      badges.push('<span class="deal-badge user-deal-only">🎯 DEAL PICK</span>');
     } else if (rating === 'giveaway') {
       badges.push('<span class="deal-badge user-giveaway">🎁 GIVEAWAY</span>');
     } else if (rating === 'hide') {
@@ -870,6 +882,9 @@
     const hasPointsFreebie = items.some(it => isPointsFreebie(it));
     const hasPointsDeal = items.some(it => isPointsDeal(it));
     const hasLoved = items.some(it => getItemRating(it) === 'love');
+    const hasDealOnly = items.some(it => getItemRating(it) === 'deal_only');
+    const isQualifyingDealItem = (it) => isAtlBadge(it.badge) || isGreatBadge(it.badge) || it.is_category_best || isPointsFreebie(it) || (it.promo_type && it.promo_type !== 'standard');
+    const hasGatedDealOnly = items.some(it => getItemRating(it) === 'deal_only' && isQualifyingDealItem(it));
     const hasGiveaway = items.some(it => getItemRating(it) === 'giveaway');
     const allHidden = items.length > 0 && items.every(it => getItemRating(it) === 'hide');
     const hasFreeGiveaway = items.some(it => getItemRating(it) === 'giveaway' && (it.price == null || it.price <= 0.25 || isPointsFreebie(it)));
@@ -937,6 +952,8 @@
       hasGreat,
       hasCatBest,
       hasLoved,
+      hasDealOnly,
+      hasGatedDealOnly,
       hasGiveaway,
       allHidden,
       hasFreeGiveaway,
@@ -1132,6 +1149,8 @@
       );
     } else if (activeFilter === 'favorites') {
       filtered = filtered.filter(g => g.hasLoved);
+    } else if (activeFilter === 'deal_picks') {
+      filtered = filtered.filter(g => g.hasDealOnly && g.hasGatedDealOnly);
     } else if (activeFilter === 'giveaways') {
       filtered = filtered.filter(g => g.hasGiveaway);
     } else if (activeFilter === 'hidden') {
@@ -1185,9 +1204,9 @@
         return (a.title || '').localeCompare(b.title || '');
       }
 
-      // 'featured' default: ❤️ Favorites (+1000) > 🎁 Free Giveaways (+300) > 5-Point Freebies (200) > ALL-TIME LOW (100) > High-Yield Points Deal (80) > Great Deal / Beat Avg (50) + Front page bonus (20)
-      const lovedBonusA = a.hasLoved ? 1000 : (a.hasFreeGiveaway ? 300 : 0);
-      const lovedBonusB = b.hasLoved ? 1000 : (b.hasFreeGiveaway ? 300 : 0);
+      // 'featured' default: ❤️ Favorites (+1000) > 🎁 Free Giveaways (+300) > 🎯 Qualifying Deal-Only (+250) > 5-Point Freebies (200) > ALL-TIME LOW (100) > High-Yield Points Deal (80) > Great Deal / Beat Avg (50) + Front page bonus (20)
+      const lovedBonusA = a.hasLoved ? 1000 : (a.hasFreeGiveaway ? 300 : (a.hasGatedDealOnly ? 250 : 0));
+      const lovedBonusB = b.hasLoved ? 1000 : (b.hasFreeGiveaway ? 300 : (b.hasGatedDealOnly ? 250 : 0));
       const scoreA = lovedBonusA + (a.hasPointsFreebie ? 200 : a.hasAtl ? 100 : a.hasPointsDeal ? 80 : a.hasGreat ? 50 : 0) + (a.isFrontPage ? 20 : 0);
       const scoreB = lovedBonusB + (b.hasPointsFreebie ? 200 : b.hasAtl ? 100 : b.hasPointsDeal ? 80 : b.hasGreat ? 50 : 0) + (b.isFrontPage ? 20 : 0);
       if (scoreA !== scoreB) return scoreB - scoreA;
@@ -1229,6 +1248,8 @@
       );
     } else if (activeFilter === 'favorites') {
       filtered = filtered.filter(d => getItemRating(d) === 'love');
+    } else if (activeFilter === 'deal_picks') {
+      filtered = filtered.filter(d => getItemRating(d) === 'deal_only' && (isAtlBadge(d.badge) || isGreatBadge(d.badge) || d.is_category_best || isPointsFreebie(d) || (d.promo_type && d.promo_type !== 'standard')));
     } else if (activeFilter === 'giveaways') {
       filtered = filtered.filter(d => getItemRating(d) === 'giveaway');
     } else if (activeFilter === 'hidden') {
@@ -1263,8 +1284,10 @@
       if (activeSort === 'name_asc') {
         return (a.name || '').localeCompare(b.name || '');
       }
-      const lovedBonusA = (getItemRating(a) === 'love') ? 1000 : ((getItemRating(a) === 'giveaway' && (a.price == null || a.price <= 0.25 || isPointsFreebie(a))) ? 300 : 0);
-      const lovedBonusB = (getItemRating(b) === 'love') ? 1000 : ((getItemRating(b) === 'giveaway' && (b.price == null || b.price <= 0.25 || isPointsFreebie(b))) ? 300 : 0);
+      const isQualifyingA = isAtlBadge(a.badge) || isGreatBadge(a.badge) || a.is_category_best || isPointsFreebie(a) || (a.promo_type && a.promo_type !== 'standard');
+      const isQualifyingB = isAtlBadge(b.badge) || isGreatBadge(b.badge) || b.is_category_best || isPointsFreebie(b) || (b.promo_type && b.promo_type !== 'standard');
+      const lovedBonusA = (getItemRating(a) === 'love') ? 1000 : ((getItemRating(a) === 'giveaway' && (a.price == null || a.price <= 0.25 || isPointsFreebie(a))) ? 300 : ((getItemRating(a) === 'deal_only' && isQualifyingA) ? 250 : 0));
+      const lovedBonusB = (getItemRating(b) === 'love') ? 1000 : ((getItemRating(b) === 'giveaway' && (b.price == null || b.price <= 0.25 || isPointsFreebie(b))) ? 300 : ((getItemRating(b) === 'deal_only' && isQualifyingB) ? 250 : 0));
       const scoreA = lovedBonusA + (isPointsFreebie(a) ? 200 : isNewAtl(a) ? 120 : isMatchAtl(a) ? 100 : isAtlBadge(a.badge) ? 100 : isPointsDeal(a) ? 80 : isGreatBadge(a.badge) ? 50 : 0) + (a.is_front_page ? 20 : 0);
       const scoreB = lovedBonusB + (isPointsFreebie(b) ? 200 : isNewAtl(b) ? 120 : isMatchAtl(b) ? 100 : isAtlBadge(b.badge) ? 100 : isPointsDeal(b) ? 80 : isGreatBadge(b.badge) ? 50 : 0) + (b.is_front_page ? 20 : 0);
       if (scoreA !== scoreB) return scoreB - scoreA;
@@ -1428,7 +1451,7 @@
         <div class="group-varieties-preview" title="Items included in this ad promotion">
           ${topItems.map(it => {
             const r = getItemRating(it);
-            const prefix = r === 'love' ? '❤️ ' : (r === 'giveaway' ? '🎁 ' : '');
+            const prefix = r === 'love' ? '❤️ ' : (r === 'deal_only' ? '🎯 ' : (r === 'giveaway' ? '🎁 ' : ''));
             return `<span class="variety-chip">${prefix}${escapeHtml(it.name.split(' - ')[0])}</span>`;
           }).join(' ')}
           ${remaining > 0 ? `<span class="variety-chip more">+${remaining} more varieties</span>` : ''}
@@ -1487,6 +1510,8 @@
               let ratingTagHtml = '';
               if (rating === 'love') {
                 ratingTagHtml = '<span class="item-rating-tag rating-love">❤️ Favorite</span>';
+              } else if (rating === 'deal_only') {
+                ratingTagHtml = '<span class="item-rating-tag rating-deal-only">🎯 Deal Only</span>';
               } else if (rating === 'giveaway') {
                 ratingTagHtml = '<span class="item-rating-tag rating-giveaway">🎁 Giveaway</span>';
               } else if (rating === 'hide') {
@@ -1508,6 +1533,7 @@
                   <div class="group-item-actions">
                     <div class="item-rating-group" title="Rate your preference for this specific item">
                       <button class="btn-rate-icon ${rating === 'love' ? 'active-love' : ''}" data-rate="love" onclick="window.__setItemRating(${item.deal_id}, 'love')" title="❤️ Love / Favorite (bubbles to top)">❤️</button>
+                      <button class="btn-rate-icon ${rating === 'deal_only' ? 'active-deal-only' : ''}" data-rate="deal_only" onclick="window.__setItemRating(${item.deal_id}, 'deal_only')" title="🎯 Deal Only (bubbles when ATL or great discount)">🎯</button>
                       <button class="btn-rate-icon ${rating === 'giveaway' ? 'active-giveaway' : ''}" data-rate="giveaway" onclick="window.__setItemRating(${item.deal_id}, 'giveaway')" title="🎁 Giveaway (prioritize if free)">🎁</button>
                       <button class="btn-rate-icon ${rating === 'hide' ? 'active-hide' : ''}" data-rate="hide" onclick="window.__setItemRating(${item.deal_id}, 'hide')" title="🚫 Hide / Never show">🚫</button>
                     </div>
@@ -1642,6 +1668,7 @@
             <span class="drawer-label">Preference:</span>
             <div class="item-rating-group">
               <button class="btn-rate-icon ${dRating === 'love' ? 'active-love' : ''}" data-rate="love" onclick="window.__setItemRating(${d.deal_id}, 'love')" title="❤️ Love / Favorite (bubbles to top)">❤️ Love</button>
+              <button class="btn-rate-icon ${dRating === 'deal_only' ? 'active-deal-only' : ''}" data-rate="deal_only" onclick="window.__setItemRating(${d.deal_id}, 'deal_only')" title="🎯 Deal Only (bubbles when ATL or great discount)">🎯 Deal Only</button>
               <button class="btn-rate-icon ${dRating === 'giveaway' ? 'active-giveaway' : ''}" data-rate="giveaway" onclick="window.__setItemRating(${d.deal_id}, 'giveaway')" title="🎁 Giveaway (prioritize if free)">🎁 Giveaway</button>
               <button class="btn-rate-icon ${dRating === 'hide' ? 'active-hide' : ''}" data-rate="hide" onclick="window.__setItemRating(${d.deal_id}, 'hide')" title="🚫 Hide">🚫 Hide</button>
             </div>
@@ -1768,6 +1795,7 @@
                 <div style="display:inline-flex; align-items:center; gap:6px;">
                   <div class="item-rating-group" title="Rate this item preference">
                     <button class="btn-rate-icon ${rating === 'love' ? 'active-love' : ''}" onclick="window.__setItemRating(${item.deal_id}, 'love')" title="❤️ Love">❤️</button>
+                    <button class="btn-rate-icon ${rating === 'deal_only' ? 'active-deal-only' : ''}" onclick="window.__setItemRating(${item.deal_id}, 'deal_only')" title="🎯 Deal Only">🎯</button>
                     <button class="btn-rate-icon ${rating === 'giveaway' ? 'active-giveaway' : ''}" onclick="window.__setItemRating(${item.deal_id}, 'giveaway')" title="🎁 Giveaway">🎁</button>
                     <button class="btn-rate-icon ${rating === 'hide' ? 'active-hide' : ''}" onclick="window.__setItemRating(${item.deal_id}, 'hide')" title="🚫 Hide">🚫</button>
                   </div>
@@ -1951,6 +1979,8 @@
       products = products.filter(p => !getItemRating(p));
     } else if (catActiveStatus === 'love') {
       products = products.filter(p => getItemRating(p) === 'love');
+    } else if (catActiveStatus === 'deal_only') {
+      products = products.filter(p => getItemRating(p) === 'deal_only');
     } else if (catActiveStatus === 'giveaway') {
       products = products.filter(p => getItemRating(p) === 'giveaway');
     } else if (catActiveStatus === 'hide') {
@@ -2005,10 +2035,12 @@
     if (catItemsList) {
       catItemsList.innerHTML = products.map(p => {
         const currentRating = getItemRating(p);
-        const ratingClass = currentRating === 'love' ? 'is-loved' : (currentRating === 'giveaway' ? 'is-giveaway' : (currentRating === 'hide' ? 'is-hidden' : ''));
+        const ratingClass = currentRating === 'love' ? 'is-loved' : (currentRating === 'deal_only' ? 'is-deal-only' : (currentRating === 'giveaway' ? 'is-giveaway' : (currentRating === 'hide' ? 'is-hidden' : '')));
         let ratingTagHtml = '<span style="color:var(--slate-400); font-size:0.7rem;">⚡ Unrated</span>';
         if (currentRating === 'love') {
           ratingTagHtml = '<span class="item-rating-tag rating-love">❤️ Favorite</span>';
+        } else if (currentRating === 'deal_only') {
+          ratingTagHtml = '<span class="item-rating-tag rating-deal-only">🎯 Deal Only</span>';
         } else if (currentRating === 'giveaway') {
           ratingTagHtml = '<span class="item-rating-tag rating-giveaway">🎁 Giveaway</span>';
         } else if (currentRating === 'hide') {
@@ -2035,6 +2067,7 @@
             <div class="cat-card-actions">
               <div class="cat-btn-group">
                 <button class="cat-rate-btn btn-love ${currentRating === 'love' ? 'active' : ''}" onclick="window.__setItemRating(${p.deal_id}, 'love', 'categorize')">❤️ Love</button>
+                <button class="cat-rate-btn btn-deal-only ${currentRating === 'deal_only' ? 'active' : ''}" onclick="window.__setItemRating(${p.deal_id}, 'deal_only', 'categorize')">🎯 Deal Only</button>
                 <button class="cat-rate-btn btn-giveaway ${currentRating === 'giveaway' ? 'active' : ''}" onclick="window.__setItemRating(${p.deal_id}, 'giveaway', 'categorize')">🎁 Giveaway</button>
                 <button class="cat-rate-btn btn-hide ${currentRating === 'hide' ? 'active' : ''}" onclick="window.__setItemRating(${p.deal_id}, 'hide', 'categorize')">🚫 Hide</button>
               </div>

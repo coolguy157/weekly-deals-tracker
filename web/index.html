@@ -142,6 +142,9 @@
         <button class="filter-chip" data-filter="favorites">
           <span class="chip-icon">❤️</span> My Favorites
         </button>
+        <button class="filter-chip" data-filter="deal_picks">
+          <span class="chip-icon">🎯</span> Deal Picks
+        </button>
         <button class="filter-chip" data-filter="giveaways">
           <span class="chip-icon">🎁</span> Giveaways
         </button>
@@ -215,11 +218,12 @@
       <div class="categorize-header-left">
         <h2>🏷️ Categorize Items & Set Preferences</h2>
         <p class="categorize-subtitle">
-          Tag products as <strong>❤️ Love</strong> to bubble their sales to the top, <strong>🎁 Giveaway</strong> to highlight freebies, or <strong>🚫 Hide</strong> to remove items you don't eat.
+          Tag products as <strong>❤️ Love</strong> to bubble their sales to the top, <strong>🎯 Deal Only</strong> to highlight when price is exceptional (ATL / Great Deal), <strong>🎁 Giveaway</strong> for freebies, or <strong>🚫 Hide</strong> to remove items you don't eat.
         </p>
       </div>
       <div class="categorize-stats-row">
         <div class="pref-stat-chip stat-loved" id="pref-stat-loved">❤️ Favorites: <span>0</span></div>
+        <div class="pref-stat-chip stat-deal-only" id="pref-stat-deal-only">🎯 Deal Only: <span>0</span></div>
         <div class="pref-stat-chip stat-giveaway" id="pref-stat-giveaway">🎁 Giveaways: <span>0</span></div>
         <div class="pref-stat-chip stat-hidden" id="pref-stat-hidden">🚫 Hidden: <span>0</span></div>
         <div class="pref-stat-chip stat-unrated" id="pref-stat-unrated">⚡ Unrated: <span>0</span></div>
@@ -246,6 +250,9 @@
           </button>
           <button class="filter-chip" data-cat-status="love">
             ❤️ Favorites (<span id="cat-count-love">0</span>)
+          </button>
+          <button class="filter-chip" data-cat-status="deal_only">
+            🎯 Deal Only (<span id="cat-count-deal-only">0</span>)
           </button>
           <button class="filter-chip" data-cat-status="giveaway">
             🎁 Giveaways (<span id="cat-count-giveaway">0</span>)
