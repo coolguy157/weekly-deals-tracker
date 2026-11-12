@@ -247,6 +247,7 @@
           name: d.name,
           brand: d.brand || '',
           category: d.category || 'Other',
+          department: d.department || getGroceryDepartment(d),
           price: d.price,
           unit_price: d.unit_price,
           unit_type: d.unit_type,
@@ -340,6 +341,88 @@
         <p>No active deals.json file found yet. Run the weekly sync action or CLI to generate deals.</p>
       `;
     }
+  }
+
+  const COMMODITY_TO_DEPT = {
+    // Produce
+    'Apples': 'Produce', 'Avocados': 'Produce', 'Bananas': 'Produce', 'Blueberries': 'Produce',
+    'Grapes': 'Produce', 'Onions': 'Produce', 'Pears': 'Produce', 'Peppers': 'Produce',
+    'Potatoes': 'Produce', 'Salad': 'Produce', 'Squash': 'Produce', 'Strawberries': 'Produce',
+    'Tomatoes': 'Produce',
+    // Meat & Seafood
+    'Beef': 'Meat & Seafood', 'Boneless Chicken Breasts': 'Meat & Seafood', 'Bone-In Chicken Breasts': 'Meat & Seafood',
+    'Chicken Tenders': 'Meat & Seafood', 'Boneless Chicken Thighs': 'Meat & Seafood', 'Bone-In Chicken Thighs': 'Meat & Seafood',
+    'Chicken Wings': 'Meat & Seafood', 'Chicken Drumsticks': 'Meat & Seafood', 'Whole Chicken': 'Meat & Seafood',
+    'Chicken': 'Meat & Seafood', 'Ground Beef': 'Meat & Seafood', 'Pork Chops': 'Meat & Seafood',
+    'Ribs': 'Meat & Seafood', 'Steak': 'Meat & Seafood', 'Roast': 'Meat & Seafood',
+    'Salmon': 'Meat & Seafood', 'Shrimp': 'Meat & Seafood', 'Turkey': 'Meat & Seafood',
+    'Bacon': 'Meat & Seafood', 'Sausage': 'Meat & Seafood', 'Hot Dogs': 'Meat & Seafood',
+    // Dairy & Eggs
+    'Butter': 'Dairy & Eggs', 'Cheese': 'Dairy & Eggs', 'Cream Cheese': 'Dairy & Eggs',
+    'Shredded Cheese': 'Dairy & Eggs', 'Sliced Cheese': 'Dairy & Eggs', 'Chunk Cheese': 'Dairy & Eggs',
+    'String Cheese': 'Dairy & Eggs', 'Eggs': 'Dairy & Eggs', 'Milk': 'Dairy & Eggs',
+    'Sour Cream': 'Dairy & Eggs', 'Yogurt': 'Dairy & Eggs',
+    // Bakery & Bread
+    'Bread': 'Bakery & Bread', 'Tortillas': 'Bakery & Bread',
+    // Frozen
+    'Ice Cream': 'Frozen Foods', 'Pizza': 'Frozen Foods',
+    // Pantry
+    'Pasta': 'Pantry & Dry Goods', 'Pasta Sauce': 'Pantry & Dry Goods', 'Soup': 'Pantry & Dry Goods',
+    'Broth': 'Pantry & Dry Goods', 'Salad Dressing': 'Pantry & Dry Goods', 'Salsa': 'Pantry & Dry Goods',
+    // Snacks & Candy
+    'Chips': 'Snacks & Candy', 'Crackers': 'Snacks & Candy', 'Popcorn': 'Snacks & Candy',
+    'Nuts & Seeds': 'Snacks & Candy', 'Gum': 'Snacks & Candy',
+    // Beverages
+    'Coffee': 'Beverages', 'Soda': 'Beverages', 'Water': 'Beverages', 'Sports Drinks': 'Beverages',
+    // Beer & Wine
+    'Beer': 'Beer, Wine & Spirits', 'Wine': 'Beer, Wine & Spirits',
+    // Deli
+    'Deli': 'Deli & Prepared'
+  };
+
+  const DEPT_TEXT_RULES = [
+    // Beer, Wine & Spirits
+    [/\b(?:wine|chardonnay|cabernet|pinot|merlot|sauvignon|moscato|prosecco|champagne|beer|ale|lager|ipa|pilsner|stout|hard\s+seltzer|cider|budweiser|bud\s+light|miller\s+lite|coors\s+light|michelob|corona|modelo|heineken|white\s+claw|truly|twisted\s+tea)\b/i, 'Beer, Wine & Spirits'],
+    // Meat & Seafood
+    [/\b(?:beef|chicken|pork|turkey|steak|bacon|sausage|frank|hot\s*dog|meatball|ham\b|roast\b|ribeye|sirloin|tenderloin|salmon|shrimp|tilapia|cod\b|crab|lobster|tuna|scallop|fillet|seafood|poultry|scrapple|prosciutto|salami|pepperoni|meat\s+stick)\b/i, 'Meat & Seafood'],
+    // Produce
+    [/\b(?:apple|apples|banana|bananas|berry|berries|grape|grapes|citrus|orange|oranges|lemon|lemons|lime|limes|potato|potatoes|onion|onions|pepper|peppers|tomato|tomatoes|salad|lettuce|spinach|carrot|carrots|broccoli|celery|avocado|avocados|mushroom|mushrooms|cucumber|cucumbers|squash|floral|bouquet|rose|roses|plant|fresh\s+cut|asparagus|corn\b|herbs?|garlic|cantaloupe|watermelon|honeydew|pineapple|mango|clementine|peach|peaches|plum|cabbage|kale|zucchini)\b/i, 'Produce'],
+    // Dairy & Eggs
+    [/\b(?:milk|cheese|butter|yogurt|cream\s+cheese|sour\s+cream|cottage\s+cheese|half\s*&\s*half|creamer|egg|eggs|parmesan|cheddar|mozzarella|ricotta|provolone|brie|gouda|feta|swiss\s+cheese)\b/i, 'Dairy & Eggs'],
+    // Frozen Foods
+    [/\b(?:frozen|ice\s+cream|gelato|sorbet|pizza|waffle|waffles|popsicles?|hot\s+pockets?|frozen\s+dinner|entrees?|frozen\s+fruit|frozen\s+vegetable|ice\b|totino|birds\s+eye|green\s+giant\s+steam|stouffer|lean\s+cuisine|marie\s+callender|digiorno)\b/i, 'Frozen Foods'],
+    // Bakery & Bread
+    [/\b(?:bread|bagel|bagels|muffin|muffins|roll|rolls|buns?|tortilla|tortillas|croissant|donut|doughnut|cake|cakes|pie\b|pies\b|pastry|pastries|bakery|danish|cupcake|cupcakes)\b/i, 'Bakery & Bread'],
+    // Beverages
+    [/\b(?:coffee|tea\b|juice|soda|water|sparkling\s+water|seltzer|cola|pepsi|coke\b|dr\s+pepper|snapple|lemonade|drink|drinks|gatorade|powerade|beverage|k-cup|cider|kombucha|shake\b|smoothie|bolthouse)\b/i, 'Beverages'],
+    // Snacks & Candy
+    [/\b(?:chips|crisps|crackers|cookies?|popcorn|pretzel|pretzels|snack|snacks|candy|chocolate|chocolates|gummy|gummies|fudge|nuts|cashews|almonds|peanuts|granola\s*bars?|protein\s*bars?|chewy\s*bars?|bars?\b|fruit\s+snacks?|trail\s+mix|cheez-it|oreo|doritos|lays|tostitos|snack\s+mix|goldfish)\b/i, 'Snacks & Candy'],
+    // Pantry & Dry Goods
+    [/\b(?:cereal|oatmeal|pasta|macaroni|sauce|marinara|soup|soups|broth|canned|beans|rice|oil|olive\s+oil|flour|sugar|spice|spices|seasoning|mayonnaise|mustard|ketchup|dressing|condiment|condiments|syrup|peanut\s+butter|jelly|jam|pantry|baking|mix\b|mashed\s+potatoes|tuna\s+can|gravy|stuffing|mccormick|oregano|thyme|chili\s+powder|cumin|coriander|cinnamon|paprika|curry\b|garam\s+masala|tarragon|dill\s+weed|vanilla\s+extract|baking\s+soda|yeast|vinegar|honey)\b/i, 'Pantry & Dry Goods'],
+    // Household & Cleaning
+    [/\b(?:detergent|laundry|bleach|towel|paper\s+towels?|bath\s+tissue|toilet\s+paper|napkin|napkins|cleaner|disinfect|trash\s+bag|trash\s+bags|foil|wrap|ziploc|dish\s+soap|dishwasher|air\s+freshener|dryer\s+sheet|dryer\s+sheets|gain|tide|bounce|bounty|charmin|skewers?|toothpick|toothpicks|thermometer|scent\s+booster|downy|dreft|fabric\s+softener|swiffer|clorox|lysol|glade|febreze|dawn|finish|cascade|storage\s+bags?|aluminum\s+foil|candles?|batter(?:y|ies)|bag\s+clips?|clips?|cups?|plates?|bowls?|straws?|food\s+storage)\b/i, 'Household & Cleaning'],
+    // Health & Beauty
+    [/\b(?:shampoo|conditioner|body\s+wash|soap|deodorant|toothpaste|toothbrush|lotion|skincare|cosmetic|vitamin|vitamins|supplement|supplements|medicine|cold|flu|pain\s+relief|band-aid|care|pads?|tampons?|liners?|floss|dental|oral-b|colgate|crest|dove|pantene|head\s+&\s+shoulders|tampax|always|razor|razors|shave|antiperspirant)\b/i, 'Health & Beauty'],
+    // Baby & Pet
+    [/\b(?:diaper|diapers|wipes|baby|baby\s+food|formula|pampers|huggies|gerber|goodnites|pull-ups?|aquaphor|aveeno|dog\s+food|cat\s+food|pet|pets|cat\s+litter|kibble|puppy|kitten|purina|pedigree|friskies|fancy\s+feast|blue\s+buffalo)\b/i, 'Baby & Pet'],
+    // Deli & Prepared
+    [/\b(?:deli|prepared|rotisserie|hummus|dips?|guacamole|sushi|sandwich|salad\s+bar|ready\s+to\s+eat|take\s*&\s*bake)\b/i, 'Deli & Prepared']
+  ];
+
+  function getGroceryDepartment(deal) {
+    if (!deal) return 'Other';
+    if (deal.department) return deal.department;
+    const cat = deal.category;
+    if (cat && COMMODITY_TO_DEPT[cat]) {
+      return COMMODITY_TO_DEPT[cat];
+    }
+    const text = `${deal.name || ''} ${deal.brand || ''} ${deal.raw_title || ''} ${deal.ad_title || ''}`;
+    for (let i = 0; i < DEPT_TEXT_RULES.length; i++) {
+      if (DEPT_TEXT_RULES[i][0].test(text)) {
+        return DEPT_TEXT_RULES[i][1];
+      }
+    }
+    return (cat && cat !== 'Other') ? cat : 'Other';
   }
 
   function parseDateSafely(str) {
@@ -749,7 +832,8 @@
       return `${brands.slice(0, 2).join(', ')} & more${pkg} (${items.length} Items)`;
     }
 
-    const cat = items[0].category || 'Featured';
+    const rep = items[0];
+    const cat = (rep.category && rep.category !== 'Other') ? rep.category : (rep.department || getGroceryDepartment(rep) || 'Featured');
     const isMixMatch = items.some(it => (it.promo_type || '').includes('mix') || (it.promo_detail || '').toLowerCase().includes('mix'));
     const fallbackLabel = isMixMatch ? 'Mix & Match' : 'Selection';
     return `${cat} ${fallbackLabel}${pkg} (${items.length} Items)`;
@@ -792,6 +876,7 @@
     const isFrontPage = items.some(it => it.is_front_page);
     const page = items[0].page || 1;
     const category = items[0].category || 'Other';
+    const department = items[0].department || getGroceryDepartment(items[0]);
 
     const title = synthesizeGroupTitle(items);
     const isMealDeal = groupId.startsWith('meal_deal_') || promoType === 'meal_deal' || title.toLowerCase().includes('meal deal');
@@ -835,6 +920,7 @@
       page,
       isFrontPage,
       category,
+      department,
       brands,
       minPrice,
       maxPrice,
@@ -916,6 +1002,9 @@
   // Initialize UI with fetched data
   function initData() {
     loadingState.style.display = 'none';
+    allDeals.forEach(d => {
+      d.department = getGroceryDepartment(d);
+    });
     loadSavedShoppingList();
     loadSavedItemRatings();
 
@@ -958,8 +1047,8 @@
   function buildCategoryPills() {
     const counts = {};
     allDeals.forEach(d => {
-      const cat = d.category || 'Other';
-      counts[cat] = (counts[cat] || 0) + 1;
+      const dept = d.department || getGroceryDepartment(d);
+      counts[dept] = (counts[dept] || 0) + 1;
     });
 
     const sortedCategories = Object.keys(counts).sort((a, b) => {
@@ -1001,10 +1090,10 @@
     const allGroups = getAllGroups();
     let filtered = [...allGroups];
 
-    // Category Filter
+    // Category / Department Filter
     if (activeCategory !== 'ALL') {
       filtered = filtered.filter(g =>
-        g.items.some(d => (d.category || 'Other') === activeCategory)
+        g.items.some(d => (d.department || getGroceryDepartment(d)) === activeCategory)
       );
     }
 
@@ -1058,16 +1147,16 @@
     if (searchQuery.trim()) {
       const tokens = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
       filtered = filtered.filter(g => {
-        const groupHeader = `${g.title || ''} ${g.promoDetail || ''} ${(g.brands || []).join(' ')}`.toLowerCase();
+        const groupHeader = `${g.title || ''} ${g.promoDetail || ''} ${(g.brands || []).join(' ')} ${g.department || ''} ${g.category || ''}`.toLowerCase();
         if (tokens.every(t => groupHeader.includes(t))) return true;
 
         const anyItemMatches = g.items.some(d => {
-          const itemBlob = `${d.name || ''} ${d.brand || ''} ${d.category || ''} ${d.promo_detail || ''}`.toLowerCase();
+          const itemBlob = `${d.name || ''} ${d.brand || ''} ${d.department || ''} ${d.category || ''} ${d.promo_detail || ''}`.toLowerCase();
           return tokens.every(t => itemBlob.includes(t));
         });
         if (anyItemMatches) return true;
 
-        const groupTotalBlob = `${groupHeader} ${g.items.map(d => `${d.name || ''} ${d.brand || ''} ${d.category || ''} ${d.promo_detail || ''}`).join(' ')}`.toLowerCase();
+        const groupTotalBlob = `${groupHeader} ${g.items.map(d => `${d.name || ''} ${d.brand || ''} ${d.department || ''} ${d.category || ''} ${d.promo_detail || ''}`).join(' ')}`.toLowerCase();
         return tokens.every(t => groupTotalBlob.includes(t));
       });
     }
@@ -1113,7 +1202,7 @@
     let filtered = [...allDeals];
 
     if (activeCategory !== 'ALL') {
-      filtered = filtered.filter(d => (d.category || 'Other') === activeCategory);
+      filtered = filtered.filter(d => (d.department || getGroceryDepartment(d)) === activeCategory);
     }
 
     if (activeFilter === 'atl') {
@@ -1153,7 +1242,7 @@
     if (searchQuery.trim()) {
       const tokens = searchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
       filtered = filtered.filter(d => {
-        const itemBlob = `${d.name || ''} ${d.brand || ''} ${d.category || ''} ${d.promo_detail || ''}`.toLowerCase();
+        const itemBlob = `${d.name || ''} ${d.brand || ''} ${d.department || ''} ${d.category || ''} ${d.promo_detail || ''}`.toLowerCase();
         return tokens.every(t => itemBlob.includes(t));
       });
     }
@@ -1611,7 +1700,7 @@
               </div>
               ${g.brands.length ? `<div style="font-size:0.75rem; color:var(--slate-500); text-transform:uppercase; margin-left:32px;">${escapeHtml(g.brands.join(', '))}</div>` : ''}
             </td>
-            <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${g.category || 'Other'}</span></td>
+            <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${escapeHtml(g.department || g.category || 'Other')}</span></td>
             <td><strong style="font-size:1.1rem; color:var(--slate-900);">${priceDisplay}</strong></td>
             <td>${unitDisplay ? (unitDisplay.startsWith('<span') ? unitDisplay : `<span class="unit-price-tag">${unitDisplay}</span>`) : '—'}</td>
             <td>
@@ -1671,7 +1760,7 @@
                 <span>${escapeHtml(item.name)}</span>
                 ${item.brand ? `<span style="font-size:0.7rem; color:var(--slate-400); margin-left:6px;">(${escapeHtml(item.brand)})</span>` : ''}
               </td>
-              <td><span style="font-size:0.75rem; color:var(--slate-500);">${item.category || ''}</span></td>
+              <td><span style="font-size:0.75rem; color:var(--slate-500);">${escapeHtml(item.category && item.category !== 'Other' ? item.category : (item.department || ''))}</span></td>
               <td>${priceCell}</td>
               <td>${itemUnit ? `<span class="unit-price-tag" style="font-size:0.75rem;">${itemUnit}</span>` : '—'}</td>
               <td>${badgeCell}</td>
@@ -1723,7 +1812,7 @@
               <strong>${escapeHtml(d.name)}</strong>
               ${d.brand ? `<div style="font-size:0.75rem; color:var(--slate-500); text-transform:uppercase;">${escapeHtml(d.brand)}</div>` : ''}
             </td>
-            <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${d.category || 'Other'}</span></td>
+            <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${escapeHtml(d.department || d.category || 'Other')}</span></td>
             <td>${priceDisplay}</td>
             <td>${unitDisplay}</td>
             <td>
@@ -1777,7 +1866,7 @@
             <strong>${escapeHtml(d.name)}</strong>
             ${d.brand ? `<div style="font-size:0.75rem; color:var(--slate-500); text-transform:uppercase;">${escapeHtml(d.brand)}</div>` : ''}
           </td>
-          <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${d.category || 'Other'}</span></td>
+          <td><span class="cat-pill" style="font-size:0.75rem; padding:2px 6px;">${escapeHtml(d.department || d.category || 'Other')}</span></td>
           <td>${priceDisplay}</td>
           <td>${unitDisplay}</td>
           <td>
@@ -1803,8 +1892,8 @@
     const uniqueProducts = getUniqueProducts();
     const counts = {};
     uniqueProducts.forEach(p => {
-      const cat = p.category || 'Other';
-      counts[cat] = (counts[cat] || 0) + 1;
+      const dept = p.department || getGroceryDepartment(p);
+      counts[dept] = (counts[dept] || 0) + 1;
     });
 
     const sortedCats = Object.keys(counts).sort((a, b) => {
@@ -1852,7 +1941,8 @@
         const n = (p.name || '').toLowerCase();
         const b = (p.brand || '').toLowerCase();
         const c = (p.category || '').toLowerCase();
-        return n.includes(q) || b.includes(q) || c.includes(q);
+        const d = (p.department || getGroceryDepartment(p)).toLowerCase();
+        return n.includes(q) || b.includes(q) || c.includes(q) || d.includes(q);
       });
     }
 
@@ -1869,7 +1959,7 @@
 
     // 3. Filter by Category
     if (catActiveCategory !== 'ALL') {
-      products = products.filter(p => (p.category || 'Other') === catActiveCategory);
+      products = products.filter(p => (p.department || getGroceryDepartment(p)) === catActiveCategory);
     }
 
     // 4. Sort
@@ -1878,7 +1968,9 @@
         return (a.price != null ? a.price : 999999) - (b.price != null ? b.price : 999999);
       }
       if (catActiveSort === 'category') {
-        const catCmp = (a.category || '').localeCompare(b.category || '');
+        const aDept = a.department || getGroceryDepartment(a);
+        const bDept = b.department || getGroceryDepartment(b);
+        const catCmp = aDept.localeCompare(bDept);
         if (catCmp !== 0) return catCmp;
         return (a.name || '').localeCompare(b.name || '');
       }
@@ -1932,7 +2024,7 @@
                 <div class="cat-item-name">${escapeHtml(p.name)}</div>
                 ${p.brand ? `<div class="cat-item-brand">${escapeHtml(p.brand)}</div>` : ''}
               </div>
-              <span class="cat-pill" style="font-size:0.7rem; padding:2px 6px;">${escapeHtml(p.category || 'Other')}</span>
+              <span class="cat-pill" style="font-size:0.7rem; padding:2px 6px;">${escapeHtml(p.department || getGroceryDepartment(p))}</span>
             </div>
 
             <div class="cat-card-sub">
