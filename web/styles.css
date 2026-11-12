@@ -726,6 +726,12 @@ body {
   border: 1px solid var(--badge-hike-border);
 }
 
+.deal-badge.routine-sale {
+  background: var(--slate-100);
+  color: var(--slate-600);
+  border: 1px solid var(--slate-300);
+}
+
 .deal-badge.user-loved {
   background: #fee2e2;
   color: #b91c1c;
